@@ -40,7 +40,10 @@ function getFirstAddressComponent(
     .pop();
 }
 
-function logGeoEvent(coords: Position, previousParams: PreviousParams | null): void {
+function logGeoEvent(
+  coords: Position,
+  previousParams: PreviousParams | null,
+): void {
   fetch(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/geocode/analytics/all?latitude=${coords.lat}&longitude=${coords.lng}`,
   )
@@ -74,8 +77,11 @@ function logGeoEvent(coords: Position, previousParams: PreviousParams | null): v
             communityDistrict: geoAnalytics.districts.community,
             pathname: window.location.pathname,
             previousParamsRoute: previousParams?.params.route,
-            previousParamsPersonalCareSubCategory: previousParams?.params.locationSlugOrPersonalCareSubCategory,
-            previousParamsSearchParams: JSON.stringify(previousParams?.searchParams)
+            previousParamsPersonalCareSubCategory:
+              previousParams?.params.locationSlugOrPersonalCareSubCategory,
+            previousParamsSearchParams: JSON.stringify(
+              previousParams?.searchParams,
+            ),
           });
         }
       });
