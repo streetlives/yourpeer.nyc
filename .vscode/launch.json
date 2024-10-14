@@ -2,6 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Next.js: debug server-side (http/local)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "env": {
+        "NEXT_PUBLIC_GO_GETTA_PROD_URL": "http://localhost:3001"
+      },
+      "envFile": "${workspaceFolder}/.env.local"
+    },
+    {
       "name": "Next.js: debug server-side (https/local)",
       "type": "node-terminal",
       "request": "launch",

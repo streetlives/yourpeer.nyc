@@ -19,8 +19,10 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
+import { SearchContext, SearchContextType } from "./search-context";
 
 export function SortDropdown() {
+  const { search } = useContext(SearchContext) as SearchContextType;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -45,7 +47,7 @@ export function SortDropdown() {
   const _sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
   const sortBy = _sortBy ? _sortBy : DEFAULT_SORT_BY_VALUE;
 
-  return (
+  return !search || search.length === 0 ? (
     <select
       name="select_sort"
       className="w-auto border-transparent cursor-pointer text-sm"
@@ -64,5 +66,7 @@ export function SortDropdown() {
         </option>
       ))}
     </select>
+  ) : (
+    <></>
   );
 }
