@@ -17,6 +17,7 @@ import {
   LOCATION_ROUTE,
   NEARBY_SORT_BY_VALUE,
   Position,
+  SEARCH_PARAM,
   SimplifiedLocationData,
   SORT_BY_QUERY_PARAM,
 } from "./common";
@@ -244,7 +245,8 @@ function MapWrapper({
       // if the SORT_BY_QUERY_PARAM is not set,
       // then by default route to nearby
       const sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
-      if (!sortBy && !locationDetailStub) {
+      const searchText = searchParams?.get(SEARCH_PARAM);
+      if (!sortBy && !locationDetailStub && !searchText) {
         router.push(
           getUrlWithNewFilterParameter(
             pathname,

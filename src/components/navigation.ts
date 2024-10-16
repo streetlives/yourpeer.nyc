@@ -28,6 +28,7 @@ import {
   REQUIREMENT_PARAM_CANONICAL_ORDERING,
   RequirementValue,
   RouteParams,
+  SEARCH_PARAM,
   SearchParams,
   ShelterValues,
   SORT_BY_QUERY_PARAM,
@@ -49,6 +50,10 @@ function removeExtraneousSearchParams(
     if (params.route !== PERSONAL_CARE_CATEGORY) {
       currentUrlSearchParams.delete(PERSONAL_CARE_CATEGORY);
     }
+  }
+  // when search is set, SORT_BY_QUERY_PARAM  should get unset
+  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
   }
 }
 
@@ -114,7 +119,12 @@ export function getUrlWithNewFilterParameter(
   currentUrlSearchParams.set(urlParamName, urlParamValue);
 
   // always delete the current page
+  // FIXME: should we just call removeExtraneousSearchParams instead of duplicating the logic here?
   currentUrlSearchParams.delete(PAGE_PARAM);
+  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
+  }
+
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
   const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
