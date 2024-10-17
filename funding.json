@@ -1,82 +1,81 @@
 {
-    "version": "v1.0.0",
-    "entity": {
-        "type": "organisation",
-        "role": "owner",
-        "name": "Streetlives",
-        "email": "yourpeer@streetlives.nyc",
-        "description": "Streetlives is an NYC-based non-profit that empowers unhoused individuals through digital products rooted in lived experience.",
-        "webpageUrl": {
-            "url": "https://www.streetlives.nyc/"
-        }
-    },
-    "projects": [
-        {
-            "guid": "yourpeer",
-            "name": "YourPeer",
-            "description": "YourPeer provides a resource directory of free support services validated by your peers.",
-            "webpageUrl": {
-                "url": "https://yourpeer.nyc/"
-            },
-            "repositoryUrl": {
-                "url": "https://github.com/streetlives/yourpeer.nyc/"
-            },
-            "licenses": ["spdx:MIT"],
-            "tags": ["social-services"]
-        }
-    ],
-    "funding": {
-        "channels": [
-            {
-                "guid": "opencollective",
-                "type": "payment-provider",
-                "address": "https://opencollective.com/streetlives",
-                "description": "Pay with your debit/credit card through this gateway and setup recurring subscriptions."
-            }
-        ],
-        "plans": [
-            {
-                "guid": "one-off-streetlives-donation",
-                "status": "active",
-                "name": "One-off Streetlives donation",
-                "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
-                "amount": 10,
-                "currency": "USD",
-                "frequency": "one-time",
-                "channels": ["opencollective"]
-            },
-            {
-                "guid": "individual-streetlives-backer",
-                "status": "active",
-                "name": "Individual Streetlives backer",
-                "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
-                "amount": 50,
-                "currency": "USD",
-                "frequency": "month",
-                "channels": ["opencollective"]
-            },
-            {
-                "guid": "individual-plus-streetlives-backer",
-                "status": "active",
-                "name": "Individual+ Streetlives backer",
-                "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
-                "amount": 75,
-                "currency": "USD",
-                "frequency": "month",
-                "channels": ["opencollective"]
-            },
-            {
-                "guid": "50-gift-to-streetlives",
-                "status": "active",
-                "name": "$50 gift to Streetlives",
-                "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
-                "amount": 50,
-                "currency": "USD",
-                "frequency": "one-time",
-                "channels": ["opencollective"]
-            }
-        ],
-        "history": [
-        ]
+  "version": "v1.0.0",
+  "entity": {
+    "type": "organisation",
+    "role": "owner",
+    "name": "Streetlives",
+    "email": "yourpeer@streetlives.nyc",
+    "description": "Streetlives is an NYC-based non-profit that empowers unhoused individuals through digital products rooted in lived experience.",
+    "webpageUrl": {
+      "url": "https://www.streetlives.nyc/"
     }
+  },
+  "projects": [
+    {
+      "guid": "yourpeer",
+      "name": "YourPeer",
+      "description": "YourPeer provides a resource directory of free support services validated by your peers.",
+      "webpageUrl": {
+        "url": "https://yourpeer.nyc/"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/streetlives/yourpeer.nyc/"
+      },
+      "licenses": ["spdx:MIT"],
+      "tags": ["social-services"]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "opencollective",
+        "type": "payment-provider",
+        "address": "https://opencollective.com/streetlives",
+        "description": "Pay with your debit/credit card through this gateway and setup recurring subscriptions."
+      }
+    ],
+    "plans": [
+      {
+        "guid": "one-off-streetlives-donation",
+        "status": "active",
+        "name": "One-off Streetlives donation",
+        "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
+        "amount": 10,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": ["opencollective"]
+      },
+      {
+        "guid": "individual-streetlives-backer",
+        "status": "active",
+        "name": "Individual Streetlives backer",
+        "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
+        "amount": 50,
+        "currency": "USD",
+        "frequency": "month",
+        "channels": ["opencollective"]
+      },
+      {
+        "guid": "individual-plus-streetlives-backer",
+        "status": "active",
+        "name": "Individual+ Streetlives backer",
+        "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
+        "amount": 75,
+        "currency": "USD",
+        "frequency": "month",
+        "channels": ["opencollective"]
+      },
+      {
+        "guid": "50-gift-to-streetlives",
+        "status": "active",
+        "name": "$50 gift to Streetlives",
+        "description": "Each contribution to Streetlives provides a stipend to unhoused people or people who have experienced homelessness. $30 enables up to a half-hour of co-design or consultation to help improve our technology or work in the field to gather, validate, and curate social services data for the whole community's benefit.",
+        "amount": 50,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": ["opencollective"]
+      }
+    ],
+    "history": []
+  }
 }
