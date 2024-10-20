@@ -9,6 +9,7 @@
 import { useContext, useState } from "react";
 import {
   AgeEligibility,
+  CategoryNotNull,
   YourPeerLegacyScheduleData,
   YourPeerLegacyServiceData,
 } from "./common";
@@ -18,6 +19,7 @@ import {
   LanguageTranslationContext,
   LanguageTranslationContextType,
 } from "./language-translation-context";
+import { usePreviousParamsOnClient } from "./use-previous-params-client";
 
 const moment = require("moment-strftime");
 
@@ -38,10 +40,13 @@ function formatAgeMaxSuffix(age_max: number): string {
 export default function Service({
   service,
   startExpanded,
+  serviceCategory,
 }: {
   service: YourPeerLegacyServiceData;
   startExpanded: boolean;
+  serviceCategory: CategoryNotNull;
 }) {
+  const previousParams = usePreviousParamsOnClient();
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -55,9 +60,28 @@ export default function Service({
   const hasSomethingToShow =
     service.description || service.info || service.docs || service.schedule;
 
+  function logCustomAnalyticsEvent(
+    serviceCategory: string,
+    isClickGoingToExpandService: boolean,
+  ) {
+    window["gtag"]("event", "location_detail_service_header_click", {
+      serviceId: service.id,
+      serviceName: service.name,
+      serviceCategory,
+      isClickGoingToExpandService,
+      pathname: window.location.pathname,
+      previousParamsRoute: previousParams?.params.route,
+      previousParamsPersonalCareSubCategory:
+        previousParams?.params.locationSlugOrPersonalCareSubCategory,
+      previousParamsSearchParams: JSON.stringify(previousParams?.searchParams),
+    });
+  }
+
   function toggleIsExpanded() {
     if (!service.closed) {
-      setIsExpanded(!isExpanded);
+      const newState = !isExpanded;
+      logCustomAnalyticsEvent(newState);
+      setIsExpanded(newState);
     }
   }
 

@@ -75,11 +75,13 @@ function LocationService({
   name,
   icon,
   startExpanded,
+  serviceCategory,
 }: {
   serviceInfo: YourPeerLegacyServiceDataWrapper;
   name: string;
   icon: string;
   startExpanded: boolean;
+  serviceCategory: CategoryNotNull;
 }) {
   return (
     <div className="bg-white rounded-lg">
@@ -99,6 +101,7 @@ function LocationService({
             key={service.id}
             service={service}
             startExpanded={startExpanded}
+            serviceCategory={serviceCategory}
           />
         ))}
       </div>
@@ -506,6 +509,7 @@ export default function LocationDetailComponent({
                 return servicesWrapper?.services.length ? (
                   <LocationService
                     key={serviceCategory}
+                    serviceCategory={serviceCategory}
                     serviceInfo={servicesWrapper}
                     name={CATEGORY_DESCRIPTION_MAP[serviceCategory]}
                     icon={CATEGORY_ICON_SRC_MAP[serviceCategory]}
