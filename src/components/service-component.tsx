@@ -60,9 +60,7 @@ export default function Service({
   const hasSomethingToShow =
     service.description || service.info || service.docs || service.schedule;
 
-  function logCustomAnalyticsEvent(
-    isClickGoingToExpandService: boolean,
-  ) {
+  function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
       serviceId: service.id,
       serviceName: service.name,
