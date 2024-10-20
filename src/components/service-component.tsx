@@ -61,7 +61,6 @@ export default function Service({
     service.description || service.info || service.docs || service.schedule;
 
   function logCustomAnalyticsEvent(
-    serviceCategory: string,
     isClickGoingToExpandService: boolean,
   ) {
     window["gtag"]("event", "location_detail_service_header_click", {
