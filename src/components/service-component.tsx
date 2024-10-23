@@ -84,9 +84,9 @@ export default function Service({
       logCustomAnalyticsEvent(newState);
       setIsExpanded(newState);
 
-      const hashText = '#' + convertString(service.name || 'no name')
+      const hashText = "#" + convertString(service.name || "no name");
 
-      window.history.replaceState(null, '', hashText);
+      window.history.replaceState(null, "", hashText);
     }
   }
 
@@ -220,22 +220,27 @@ export default function Service({
     }
     if (window.location.hash && !hasScrolled) {
       const element = document.querySelector(window.location.hash);
-      if (element && '#' + convertString(service.name || 'no name') == window.location.hash) {
-        setIsExpanded(true)
-        element.scrollIntoView({ behavior: 'smooth', });
-        setHasScrolled(true)
+      if (
+        element &&
+        "#" + convertString(service.name || "no name") == window.location.hash
+      ) {
+        setIsExpanded(true);
+        element.scrollIntoView({ behavior: "smooth" });
+        setHasScrolled(true);
       }
     }
   }, [params]);
 
   function convertString(input: string): string {
-    return input
-      .split(' ')
-      .join('-');
+    return input.split(" ").join("-");
   }
 
   return (
-    <div key={service.id} id={convertString(service.name || 'No name')} className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative">
+    <div
+      key={service.id}
+      id={convertString(service.name || "No name")}
+      className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative"
+    >
       {hasSomethingToShow && !service.closed ? (
         <button
           onClick={toggleIsExpanded}

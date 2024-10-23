@@ -27,7 +27,7 @@ import {
   Marker,
 } from "@vis.gl/react-google-maps";
 import { activeMarkerIcon, defaultZoom, mapStyles } from "./map-common";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import QuickExit from "./quick-exit";
 import LocationStubMarker from "./location-stub-marker";
