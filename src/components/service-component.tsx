@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,
@@ -20,6 +20,7 @@ import {
   LanguageTranslationContextType,
 } from "./language-translation-context";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { useParams } from "next/navigation";
 
 const moment = require("moment-strftime");
 
@@ -47,6 +48,9 @@ export default function Service({
   serviceCategory: CategoryNotNull;
 }) {
   const previousParams = usePreviousParamsOnClient();
+  const params = useParams();
+  const [hasScrolled, setHasScrolled] = useState(false);
+
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -79,6 +83,10 @@ export default function Service({
       const newState = !isExpanded;
       logCustomAnalyticsEvent(newState);
       setIsExpanded(newState);
+
+      const hashText = '#' + convertString(service.name || 'no name')
+
+      window.history.replaceState(null, '', hashText);
     }
   }
 
@@ -206,11 +214,28 @@ export default function Service({
     return <span>{`Open ${group_strings.join("; ")}`}</span>;
   }
 
+  useEffect(() => {
+    if (!window.location.hash) {
+      setHasScrolled(true);
+    }
+    if (window.location.hash && !hasScrolled) {
+      const element = document.querySelector(window.location.hash);
+      if (element && '#' + convertString(service.name || 'no name') == window.location.hash) {
+        setIsExpanded(true)
+        element.scrollIntoView({ behavior: 'smooth', });
+        setHasScrolled(true)
+      }
+    }
+  }, [params]);
+
+  function convertString(input: string): string {
+    return input
+      .split(' ')
+      .join('-');
+  }
+
   return (
-    <div
-      key={service.id}
-      className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative"
-    >
+    <div key={service.id} id={convertString(service.name || 'No name')} className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative">
       {hasSomethingToShow && !service.closed ? (
         <button
           onClick={toggleIsExpanded}
