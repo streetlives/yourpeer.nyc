@@ -184,7 +184,7 @@ export default function LocationDetailComponent({
       className="details-screen bg-white md:block z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scrollbar-hide"
       onScroll={handleScroll}
     >
-      <div className="h-14 px-4 gap-x-2 flex justify-between md:justify-start items-center bg-white sticky z-20 top-0 left-0 w-full right-0">
+      <div className="h-14 px-4 gap-x-2 flex justify-start md:justify-start items-center bg-white sticky z-20 top-0 left-0 w-full right-0">
         <a
           className="text-dark hover:text-black transition flex-shrink-0"
           id="details_back"
