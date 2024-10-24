@@ -55,7 +55,7 @@
         "frequency": "month",
         "channels": ["opencollective"]
       },
-        {
+      {
         "guid": "50-gift-to-streetlives",
         "status": "active",
         "name": "$50 gift to Streetlives",
