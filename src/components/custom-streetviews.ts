@@ -72,16 +72,14 @@ const customStreetViews: Record<string, string> = {
     "40.7468278,-73.9936864&fov=75&heading=104",
   "st-joes-soup-kitchen-greenwich-village":
     "40.7345397,-73.9950773&fov=75&heading=2.53",
-  "city-living-ny-hells-kitchen":
-    "40.7530035,-73.9928408&fov=41&heading=302",
+  "city-living-ny-hells-kitchen": "40.7530035,-73.9928408&fov=41&heading=302",
   "holy-apostles-soup-kitchen-chelsea":
     "40.7493828,-73.9992104&fov=75&heading=103&pano=DPy_eGxJ-elTVmNXGsC3dA",
   "archdiocese-drug-abuse-prevention-program-adapp-throgs-neck":
     "40.8142485,-73.8188966&fov=75&heading=344",
   "department-of-probation-concourse":
     "40.8261779,-73.9207922&fov=75&heading=227",
-  "athena-psych-mott-haven":
-    "40.8156528,-73.9184618&fov=75&heading=325",
+  "athena-psych-mott-haven": "40.8156528,-73.9184618&fov=75&heading=325",
 };
 
 export default customStreetViews;
