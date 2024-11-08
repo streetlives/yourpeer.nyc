@@ -4,7 +4,7 @@
 
 This repository contains the source code to [YourPeer.nyc](https://yourpeer.nyc)
 
-YourPeer.nyc allows users to search through 2400+ free support services across NYC.
+YourPeer.nyc allows users to search through 2500+ free support services across NYC.
 
 YourPeer.nyc is developed by [Streetlives](https://www.streetlives.nyc/), a US nonprofit based in New York City.
 
