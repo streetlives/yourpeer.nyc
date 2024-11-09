@@ -35,7 +35,7 @@ export default function HomePage() {
             <TranslatableText text="Free support services validated by your peers"></TranslatableText>
           </h1>
           <p className="text-base text-grey-900 text-center my-5 sm:my-6 font-semibold">
-            <TranslatableText text="Search through 2400+ free support services across NYC"></TranslatableText>
+            <TranslatableText text="Search through 2500+ free support services across NYC"></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
             <Link href="/locations" className="primary-button ">

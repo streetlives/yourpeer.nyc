@@ -122,6 +122,7 @@ export default function LocationsContainer({
     "flex-1",
     "overflow-y-auto",
     "scrollbar-hide",
+    "md:scrollbar",
     "md:scrollbar-thumb-primary",
     "md:scrollbar-w-2",
     "md:scrollbar-track-rounded",

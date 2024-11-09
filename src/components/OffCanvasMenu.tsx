@@ -16,14 +16,86 @@ import {
 import Link from "next/link";
 import { TranslatableText } from "./translatable-text";
 import QuickExit from "./quick-exit";
+import { CATEGORY_DESCRIPTION_MAP } from "./common";
 
 interface OffCanvasMenuProps {
   open: boolean;
   onClose: () => void;
 }
 
+const links = {
+  "shelter-housing": [
+    {
+      name: "Single Adult",
+      link: "/shelters-housing/adult",
+    },
+    {
+      name: "Families",
+      link: "/shelters-housing/families",
+    },
+  ],
+  food: [
+    {
+      name: "Soup Kitchen",
+      link: "/food/soup-kitchens",
+    },
+    {
+      name: "Food Pantry",
+      link: "/food/pantry",
+    },
+  ],
+  clothing: [
+    {
+      name: "Casual",
+      link: "/clothing/casual",
+    },
+    {
+      name: "Professional",
+      link: "/clothing/professional",
+    },
+  ],
+  "personal-care": [
+    {
+      name: "Toiletries",
+      link: "/personal-care/toiletries",
+    },
+    {
+      name: "Restrooms",
+      link: "/personal-care/restrooms",
+    },
+    {
+      name: "Showers",
+      link: "/personal-care/showers",
+    },
+    {
+      name: "Laundry",
+      link: "/personal-care/laundry",
+    },
+  ],
+};
+
+type CategoryHasSubmenu = keyof typeof links;
+
 const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   const [nestedNav, setNestedNav] = useState(false);
+  const [activeSubcategory, setActiveSubcategory] =
+    useState<CategoryHasSubmenu>("shelter-housing");
+  const [subCategoryMenu, setSubcateGoryMenu] = useState(false);
+
+  const openSubcategoryLinks = (category: CategoryHasSubmenu) => {
+    setSubcateGoryMenu(true);
+    setActiveSubcategory(category);
+  };
+
+  const handleBack = () => {
+    if (subCategoryMenu) {
+      setSubcateGoryMenu(false);
+      return;
+    }
+
+    if (nestedNav) setNestedNav(false);
+    else onClose();
+  };
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
@@ -42,14 +114,11 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
               <div className="flex h-full flex-col overflow-y-auto bg-amber-300 pb-6 shadow-xl">
                 <div className="px-5 py-5 h-16">
                   <div className="items-start justify-start hidden sm:flex">
-                    <div className="flex h-7 items-center">
+                    <div className="flex h-7 items-center justify-between space-x-2">
                       <button
                         type="button"
                         className="text-gray-900"
-                        onClick={() => {
-                          if (nestedNav) setNestedNav(false);
-                          else onClose();
-                        }}
+                        onClick={handleBack}
                       >
                         <span className="sr-only">Close panel</span>
                         <svg
@@ -67,6 +136,22 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           />
                         </svg>
                       </button>
+                      <div>
+                        <Transition show={subCategoryMenu}>
+                          <h2 className="text-base">
+                            {activeSubcategory === "shelter-housing"
+                              ? CATEGORY_DESCRIPTION_MAP["shelters-housing"]
+                              : activeSubcategory === "food"
+                                ? CATEGORY_DESCRIPTION_MAP["food"]
+                                : activeSubcategory === "clothing"
+                                  ? CATEGORY_DESCRIPTION_MAP["clothing"]
+                                  : activeSubcategory === "personal-care"
+                                    ? CATEGORY_DESCRIPTION_MAP["personal-care"]
+                                    : undefined}
+                          </h2>
+                        </Transition>
+                      </div>
+                      <div></div>
                     </div>
                   </div>
 
@@ -74,7 +159,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                     <div className="flex items-center space-x-2">
                       <button
                         className="hover:cursor-pointer text-gray-900 hover:text-gray-600 hover:brightness-125 inline-block transition"
-                        onClick={onClose}
+                        onClick={handleBack}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -89,10 +174,26 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           />
                         </svg>
                       </button>
-                      <a href="/" translate="no" className="text-[15]">
-                        <span className="text-black font-[900]">YourPeer</span>
-                        <span>NYC</span>
-                      </a>
+                      {subCategoryMenu ? (
+                        <h2 className="text-base">
+                          {activeSubcategory === "shelter-housing"
+                            ? CATEGORY_DESCRIPTION_MAP["shelters-housing"]
+                            : activeSubcategory === "food"
+                              ? CATEGORY_DESCRIPTION_MAP["food"]
+                              : activeSubcategory === "clothing"
+                                ? CATEGORY_DESCRIPTION_MAP["clothing"]
+                                : activeSubcategory === "personal-care"
+                                  ? CATEGORY_DESCRIPTION_MAP["personal-care"]
+                                  : undefined}
+                        </h2>
+                      ) : (
+                        <a href="/" translate="no" className="text-[15]">
+                          <span className="text-black font-[900]">
+                            YourPeer
+                          </span>
+                          <span>NYC</span>
+                        </a>
+                      )}
                     </div>
                     <div className="flex items-center space-x-3">
                       <QuickExit />
@@ -102,61 +203,130 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                 <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col">
                   <div className="flex-1 relative">
                     <Transition show={nestedNav}>
-                      <div
-                        className="pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full"
-                        id="servicesNav"
-                      >
-                        <Link
-                          href="/locations"
-                          className="text-xl text-dark hover:text-gray-800 transition"
+                      {subCategoryMenu ? (
+                        <div
+                          className="pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full"
+                          id="servicesNav"
                         >
-                          <TranslatableText text="All Services" />
-                        </Link>
-                        <Link
-                          href={"/shelters-housing"}
-                          className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
+                          {links[activeSubcategory].map((item, idx) => (
+                            <Link
+                              href={item.link}
+                              key={idx}
+                              className="text-xl text-dark hover:text-gray-800 transition"
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          className="pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full"
+                          id="servicesNav"
                         >
-                          <TranslatableText
-                            text="Shelter & Housing"
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              flexDirection: "column",
-                              textAlign: "center",
-                            }}
-                          />
-                        </Link>
-                        <Link
-                          href="/food"
-                          className="text-xl text-dark hover:text-gray-800 transition"
-                        >
-                          <TranslatableText text="Food" />
-                        </Link>
-                        <Link
-                          href="/clothing"
-                          className="text-xl text-dark hover:text-gray-800 transition"
-                        >
-                          <TranslatableText text="Clothing" />
-                        </Link>
-                        <Link
-                          href={"/personal-care"}
-                          className="text-xl text-dark hover:text-gray-800 transition"
-                        >
-                          <TranslatableText text="Personal Care" />
-                        </Link>
-                        <Link
-                          href={"/health-care"}
-                          className="text-xl text-dark hover:text-gray-800 transition"
-                        >
-                          <TranslatableText text="Health Care" />
-                        </Link>
-                        <Link
-                          href={"/other-services"}
-                          className="text-xl text-dark hover:text-gray-800 transition"
-                        >
-                          <TranslatableText text="Other Services" />
-                        </Link>
-                      </div>
+                          <Link
+                            href="/locations"
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                          >
+                            <TranslatableText text="All Services" />
+                          </Link>
+                          <button
+                            onClick={() =>
+                              openSubcategoryLinks("shelter-housing")
+                            }
+                            className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
+                          >
+                            <TranslatableText
+                              text="Shelter & Housing"
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                                textAlign: "center",
+                              }}
+                            />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
+                                fill="#212121"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => openSubcategoryLinks("food")}
+                            className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
+                          >
+                            <TranslatableText text="Food" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
+                                fill="#212121"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => openSubcategoryLinks("clothing")}
+                            className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
+                          >
+                            <TranslatableText text="Clothing" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
+                                fill="#212121"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() =>
+                              openSubcategoryLinks("personal-care")
+                            }
+                            className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
+                          >
+                            <TranslatableText text="Personal Care" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
+                                fill="#212121"
+                              />
+                            </svg>
+                          </button>
+                          <Link
+                            href={"/health-care"}
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                          >
+                            <TranslatableText text="Health Care" />
+                          </Link>
+                          <Link
+                            href={"/other-services"}
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                          >
+                            <TranslatableText text="Other Services" />
+                          </Link>
+                        </div>
+                      )}
                     </Transition>
 
                     <Transition show={!nestedNav}>
