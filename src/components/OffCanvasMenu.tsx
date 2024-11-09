@@ -27,11 +27,11 @@ const links = {
   "shelter-housing": [
     {
       name: "Single Adult",
-      link: "/shelter-housing/adult",
+      link: "/shelters-housing/adult",
     },
     {
       name: "Families",
-      link: "/shelter-housing/families",
+      link: "/shelters-housing/families",
     },
   ],
   food: [
