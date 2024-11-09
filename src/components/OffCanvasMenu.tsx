@@ -138,21 +138,17 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                       </button>
                       <div>
                         <Transition show={subCategoryMenu}>
-                          {" "}
                           <h2 className="text-base">
-                            {activeSubcategory == "shelter-housing"
+                            {activeSubcategory === "shelter-housing"
                               ? CATEGORY_DESCRIPTION_MAP["shelters-housing"]
-                              : undefined}
-                            {activeSubcategory == "food"
-                              ? CATEGORY_DESCRIPTION_MAP["food"]
-                              : undefined}
-                            {activeSubcategory == "clothing"
-                              ? CATEGORY_DESCRIPTION_MAP["clothing"]
-                              : undefined}
-                            {activeSubcategory == "personal-care"
-                              ? CATEGORY_DESCRIPTION_MAP["personal-care"]
-                              : undefined}
-                          </h2>{" "}
+                              : activeSubcategory === "food"
+                                ? CATEGORY_DESCRIPTION_MAP["food"]
+                                : activeSubcategory === "clothing"
+                                  ? CATEGORY_DESCRIPTION_MAP["clothing"]
+                                  : activeSubcategory === "personal-care"
+                                    ? CATEGORY_DESCRIPTION_MAP["personal-care"]
+                                    : undefined}
+                          </h2>
                         </Transition>
                       </div>
                       <div></div>
@@ -180,18 +176,15 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                       </button>
                       {subCategoryMenu ? (
                         <h2 className="text-base">
-                          {activeSubcategory == "shelter-housing"
+                          {activeSubcategory === "shelter-housing"
                             ? CATEGORY_DESCRIPTION_MAP["shelters-housing"]
-                            : undefined}
-                          {activeSubcategory == "food"
-                            ? CATEGORY_DESCRIPTION_MAP["food"]
-                            : undefined}
-                          {activeSubcategory == "clothing"
-                            ? CATEGORY_DESCRIPTION_MAP["clothing"]
-                            : undefined}
-                          {activeSubcategory == "personal-care"
-                            ? CATEGORY_DESCRIPTION_MAP["personal-care"]
-                            : undefined}
+                            : activeSubcategory === "food"
+                              ? CATEGORY_DESCRIPTION_MAP["food"]
+                              : activeSubcategory === "clothing"
+                                ? CATEGORY_DESCRIPTION_MAP["clothing"]
+                                : activeSubcategory === "personal-care"
+                                  ? CATEGORY_DESCRIPTION_MAP["personal-care"]
+                                  : undefined}
                         </h2>
                       ) : (
                         <a href="/" translate="no" className="text-[15]">
@@ -215,9 +208,10 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           className="pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full"
                           id="servicesNav"
                         >
-                          {links[activeSubcategory].map((item) => (
+                          {links[activeSubcategory].map((item, idx) => (
                             <Link
                               href={item.link}
+                              key={idx}
                               className="text-xl text-dark hover:text-gray-800 transition"
                             >
                               {item.name}
@@ -287,17 +281,17 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           >
                             <TranslatableText text="Clothing" />
                             <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
-                              fill="#212121"
-                            />
-                          </svg>
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                            >
+                              <path
+                                d="M5 13H16.17L11.29 17.88C10.9 18.27 10.9 18.91 11.29 19.3C11.68 19.69 12.31 19.69 12.7 19.3L19.29 12.71C19.68 12.32 19.68 11.69 19.29 11.3L12.71 4.7C12.32 4.31 11.69 4.31 11.3 4.7C10.91 5.09 10.91 5.72 11.3 6.11L16.17 11H5C4.45 11 4 11.45 4 12C4 12.55 4.45 13 5 13Z"
+                                fill="#212121"
+                              />
+                            </svg>
                           </button>
                           <button
                             onClick={() =>
