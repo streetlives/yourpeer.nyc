@@ -69,7 +69,7 @@ const links = {
     },
     {
       name: "Laundry",
-      link: "/personal-care/laundry",
+      link: "/personal-care/laundry-services",
     },
   ],
 };
