@@ -277,10 +277,10 @@ export function TermsPage() {
                 <p>
                   <strong>
                     <span>Governing Law</span>
+                    <span>.</span>{" "}
                     <sup>
                       <a href={`#${governingLawInternalLinkId}`}>1</a>
                     </sup>
-                    <span>.</span>{" "}
                   </strong>
                   <span>
                     &nbsp;These Terms are governed by the laws of the State of
