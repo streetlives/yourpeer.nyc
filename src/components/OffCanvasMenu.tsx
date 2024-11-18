@@ -94,7 +94,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
 
   return (
     <div
-      className={`relative z-50 ${open ? "visible opacity-100" : "invisible"}`}
+      className={`relative z-[1000] ${open ? "visible opacity-100" : "invisible"}`}
     >
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0" />
 
