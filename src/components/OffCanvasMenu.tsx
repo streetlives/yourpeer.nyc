@@ -7,12 +7,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-  Transition,
-} from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 import Link from "next/link";
 import { TranslatableText } from "./translatable-text";
 import QuickExit from "./quick-exit";
@@ -98,14 +93,15 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   };
 
   return (
-    <div  className={`relative z-50 ${open ? 'visible opacity-100' : 'invisible'}`}>
-      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0"/>
+    <div
+      className={`relative z-50 ${open ? "visible opacity-100" : "invisible"}`}
+    >
+      <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0" />
 
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="pointer-events-none fixed inset-y-0 left-0 flex max-w-full sm:pr-10">
-            <div className="pointer-events-auto w-screen sm:max-w-xs transform transition duration-500 ease-in-out data-[closed]:-translate-x-full sm:duration-700"
-            >
+            <div className="pointer-events-auto w-screen sm:max-w-xs transform transition duration-500 ease-in-out data-[closed]:-translate-x-full sm:duration-700">
               <div className="flex h-full flex-col overflow-y-auto bg-amber-300 pb-6 shadow-xl">
                 <div className="px-5 py-5 h-16">
                   <div className="items-start justify-start hidden sm:flex">
