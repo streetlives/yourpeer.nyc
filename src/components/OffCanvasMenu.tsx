@@ -193,7 +193,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                   <div className="flex-1 relative">
                     <div className={`${nestedNav ? "block" : "hidden"}`}>
                       <div
-                        className={`${subCategoryMenu ? "flex" : "hidden"} pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
+                        className={`${subCategoryMenu ? "flex" : "hidden"} pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
                         id="servicesNav"
                       >
                         {links["shelter-housing"].map((item, idx) => (
@@ -234,7 +234,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                         ))}
                       </div>
                       <div
-                        className={`${!subCategoryMenu ? "flex" : "hidden"} pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
+                        className={`${!subCategoryMenu ? "flex" : "hidden"} pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
                         id="servicesNav"
                       >
                         <Link
