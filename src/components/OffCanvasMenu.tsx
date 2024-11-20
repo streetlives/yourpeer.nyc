@@ -93,9 +93,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   };
 
   return (
-    <div
-      className={`relative z-[1000] ${open ? "block" : "hidden"}`}
-    >
+    <div className={`relative z-[1000] ${open ? "block" : "hidden"}`}>
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity duration-500 ease-in-out data-[closed]:opacity-0" />
 
       <div className="fixed inset-0 overflow-hidden">
@@ -193,50 +191,50 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                 </div>
                 <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col">
                   <div className="flex-1 relative">
-                    <div className={`${nestedNav ? 'block' : 'hidden'}`}>
+                    <div className={`${nestedNav ? "block" : "hidden"}`}>
                       <div
-                        className={`${subCategoryMenu ? 'flex' : 'hidden'} pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
+                        className={`${subCategoryMenu ? "flex" : "hidden"} pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
                         id="servicesNav"
                       >
-                        {links['shelter-housing'].map((item, idx) => (
+                        {links["shelter-housing"].map((item, idx) => (
                           <Link
                             href={item.link}
                             key={idx}
-                            className={`${activeSubcategory === 'shelter-housing' ? 'inline-block' : 'hidden'} text-xl text-dark hover:text-gray-800 transition`}
+                            className={`${activeSubcategory === "shelter-housing" ? "inline-block" : "hidden"} text-xl text-dark hover:text-gray-800 transition`}
                           >
                             {item.name}
                           </Link>
                         ))}
-                        {links['food'].map((item, idx) => (
+                        {links["food"].map((item, idx) => (
                           <Link
                             href={item.link}
                             key={idx}
-                            className={`${activeSubcategory === 'food' ? 'inline-block' : 'hidden'} text-xl text-dark hover:text-gray-800 transition`}
+                            className={`${activeSubcategory === "food" ? "inline-block" : "hidden"} text-xl text-dark hover:text-gray-800 transition`}
                           >
                             {item.name}
                           </Link>
                         ))}
-                        {links['personal-care'].map((item, idx) => (
+                        {links["personal-care"].map((item, idx) => (
                           <Link
                             href={item.link}
                             key={idx}
-                            className={`${activeSubcategory === 'personal-care' ? 'inline-block' : 'hidden'} text-xl text-dark hover:text-gray-800 transition`}
+                            className={`${activeSubcategory === "personal-care" ? "inline-block" : "hidden"} text-xl text-dark hover:text-gray-800 transition`}
                           >
                             {item.name}
                           </Link>
                         ))}
-                        {links['clothing'].map((item, idx) => (
+                        {links["clothing"].map((item, idx) => (
                           <Link
                             href={item.link}
                             key={idx}
-                            className={`${activeSubcategory === 'clothing' ? 'inline-block' : 'hidden'} text-xl text-dark hover:text-gray-800 transition`}
+                            className={`${activeSubcategory === "clothing" ? "inline-block" : "hidden"} text-xl text-dark hover:text-gray-800 transition`}
                           >
                             {item.name}
                           </Link>
                         ))}
                       </div>
                       <div
-                        className={`${!subCategoryMenu ? 'flex' : 'hidden'} pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
+                        className={`${!subCategoryMenu ? "flex" : "hidden"} pt-16 flex flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 px-6 inset-y-0 transition duration-300 ease-in data-[closed]:opacity-0 data-[enter]:duration-100 data-[enter]:data-[closed]:-translate-x-full data-[leave]:duration-300 data-[leave]:data-[closed]:translate-x-full`}
                         id="servicesNav"
                       >
                         <Link
@@ -310,9 +308,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           </svg>
                         </button>
                         <button
-                          onClick={() =>
-                            openSubcategoryLinks("personal-care")
-                          }
+                          onClick={() => openSubcategoryLinks("personal-care")}
                           className="text-xl text-dark hover:text-gray-800 transition inline-flex space-x-1 items-center"
                         >
                           <TranslatableText text="Personal Care" />
@@ -344,8 +340,8 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                       </div>
                     </div>
 
-                      {/*  show={!nestedNav} */}
-                    <div className={`${!nestedNav ? 'block' : 'hidden'}`}>
+                    {/*  show={!nestedNav} */}
+                    <div className={`${!nestedNav ? "block" : "hidden"}`}>
                       <div
                         className="pt-16 flex flex-col items-center sm:items-start space-y-6 "
                         id="main_menu"
