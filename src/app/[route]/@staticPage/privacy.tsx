@@ -50,8 +50,7 @@ export function PrivacyPage() {
               <span>
                 &nbsp;(the “Site”), and is incorporated into and is the subject
                 to Streetlives’
-              </span>
-              {" "} 
+              </span>{" "}
               <Link href={`/${TERMS_OF_USE_ROUTE}`}>Terms of Use</Link>
               <span>
                 &nbsp;(the “Terms”). Capitalized terms that are not defined in
@@ -192,8 +191,7 @@ export function PrivacyPage() {
                     obligation to grant such a request, unless required by
                     applicable laws. Please note that it may also take some time
                     to process your request. For inquiries, please contact us at
-                  </span>
-                  {" "}
+                  </span>{" "}
                   <a href="mailto:privacy@streetlives.nyc">
                     privacy@streetlives.nyc
                   </a>
@@ -325,13 +323,13 @@ export function PrivacyPage() {
               alt=""
             />
             <h2 className="text-4xl text-dark mb-10 text-center font-light">
-              You're not alone in this journey
+              You&apos;re not alone in this journey
             </h2>
             <p className="text-center text-gray-800 text-sm px-2 mb-5">
               People rely on social services for many reasons. Our information
               specialists all have lived experiences navigating the support
               system and apply their knowledge collecting the information you
-              find here. We're building YourPeer so it&apos;s easier for you to
+              find here. We&apos;re building YourPeer so it&apos;s easier for you to
               find the right service.
             </p>
             <div>
