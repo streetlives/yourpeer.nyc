@@ -10,8 +10,20 @@ import React, { useEffect, useState } from "react";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
 import QuickExit from "./quick-exit";
+import { AuthUser } from "aws-amplify/auth";
+import { AuthEventData } from '@aws-amplify/ui';
 
-export default function Navbar({ background = true }) {
+
+export default function Navbar({
+  background = true,
+  user,
+  signOut,
+}: {
+  background: boolean;
+  user?: AuthUser;
+  signOut: ((data?: AuthEventData | undefined) => void) | undefined;
+}) {
+  console.log('user', user);
   const [open, setOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
 
@@ -67,6 +79,10 @@ export default function Navbar({ background = true }) {
             </a>
           </div>
           <div className="flex items-center space-x-2">
+            <span className="sm:text-xs">{user?.signInDetails?.loginId}</span>
+            <a className="sm:text-xs" onClick={signOut} style={{ cursor: "pointer" }}>
+              (Sign Out)
+            </a>
             <GTranslateSelect />
             <QuickExit />
           </div>
