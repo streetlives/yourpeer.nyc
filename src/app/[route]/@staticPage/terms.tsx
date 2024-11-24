@@ -294,6 +294,16 @@ export function TermsPage() {
                     purpose of litigating all such disputes.
                   </span>
                 </p>
+                <p>
+                  <small>
+                    <a id={governingLawInternalLinkId}></a>
+                    <span>
+                      Implications of choice of law should be discussed with the
+                      client—it is important to explain why choosing their home
+                      state may be most beneficial.
+                    </span>
+                  </small>
+                </p>
               </li>
               <li>
                 <p>
@@ -320,16 +330,6 @@ export function TermsPage() {
                     users.&nbsp;
                   </span>
                   <br />
-                </p>
-                <p>
-                  <small>
-                    <a id={governingLawInternalLinkId}></a>
-                    <span>
-                      1. Implications of choice of law should be discussed with
-                      the client—it is important to explain why choosing their
-                      home state may be most beneficial.
-                    </span>
-                  </small>
                 </p>
               </li>
               <li>
