@@ -72,10 +72,10 @@ export async function generateMetadata({
       break;
     case CATEGORY_TO_ROUTE_MAP["health-care"]:
       title = attachSuffix(
-        "Health Care Services & Centers For Unhoused People",
+        "Free Healthcare Centers & Clinics For Unhoused People in NYC",
       );
       description =
-        "Find health care services and centers for unhoused people in NYC. Take advantage of our support network and prioritize your health and well-being. ";
+        "Find healthcare services, centers, and clinics for unhoused (homeless) people in NYC. Use YourPeer’s support network to prioritize your health and well-being.";
       break;
     case CATEGORY_TO_ROUTE_MAP["other"]:
       title = attachSuffix(
@@ -88,9 +88,9 @@ export async function generateMetadata({
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
         case undefined:
-          title = attachSuffix("Shelters & Housing For Unhoused People In NYC");
+          title = attachSuffix("Shelters & Housing Help for Unhoused (Homeless) People in NYC");
           description =
-            "Find safe accomodations options for unhoused individuals in NYC. Access our resources to help you find stable housing and support on your journey towards housing stability.";
+            "Find safe accommodation options for homeless people in NYC. Explore YourPeer’s resources to secure stable housing and support your journey to lasting stability.";
           break;
         case SHELTER_PARAM_SINGLE_VALUE:
           title = attachSuffix("Adult Housing For Unhoused People In NYC");
@@ -110,9 +110,9 @@ export async function generateMetadata({
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
         case undefined:
-          title = attachSuffix("Food For Unhoused People In NYC");
+          title = attachSuffix("Food for Unhoused (Homeless) People in NYC");
           description =
-            "Access food resources for unhoused individuals in NYC through YourPeer. Find various food programs to alleviate hunger and receive much-needed nourishment in times of need.";
+            "Access food resources for homeless people in NYC through YourPeer. Find various food programs to stop hunger and get much-needed nourishment in times of need.";
           break;
         case FOOD_PARAM_PANTRY_VALUE:
           title = attachSuffix("Food Pantries For Unhoused People In NYC");
@@ -130,9 +130,9 @@ export async function generateMetadata({
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
         case undefined:
-          title = attachSuffix("Free Clothing For Unhoused People In NYC");
+          title = attachSuffix("Free Clothing for Unhoused (Homeless) People in NYC");
           description =
-            "Find resources offering free clothing for unhoused individuals in NYC with YourPeer.  Explore our resources for a range of clothing options to meet your specific needs.";
+            "Find resources offering a range of free clothing options for unhoused (homeless) people in NYC with YourPeer. Get good seasonal and job interview clothing.";
           break;
         case CLOTHING_PARAM_CASUAL_VALUE:
           title = attachSuffix(
@@ -152,10 +152,10 @@ export async function generateMetadata({
       break;
     case CATEGORY_TO_ROUTE_MAP["personal-care"]:
       title = attachSuffix(
-        "Personal Care Resources For Unhoused People In NYC",
+        "Personal Care Resources for Unhoused (Homeless) People in NYC",
       );
       description =
-        "Find personal care resources for unhoused individuals in NYC through YourPeer. Discover a range of services and resources for additional support. ";
+        "Find personal care resources for unhoused (homeless) people in NYC through YourPeer, including showers, laundry, toiletries, and more support services.";
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case AMENITIES_PARAM_LAUNDRY_VALUE:
           title = attachSuffix(
