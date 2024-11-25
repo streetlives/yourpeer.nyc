@@ -11,7 +11,6 @@ import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
 
-
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
   description:
