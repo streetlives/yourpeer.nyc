@@ -10,21 +10,14 @@ import React, { useEffect, useState } from "react";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
 import QuickExit from "./quick-exit";
-import Link from "next/link";
-import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify/amplify_outputs.json';
 import '@aws-amplify/ui-react/styles.css';
+import { SignInNavbarLink } from "./sign-in-navbar-link";
 
-Amplify.configure(outputs);
-
-function NavbarWrapper({
+export default function Navbar({
   background = true,
 }: {
   background: boolean;
-}){
-  const { user, signOut } = useAuthenticator((context) => [context.user]);
-  console.log('user', user);
+}) {
   const [open, setOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
 
@@ -80,24 +73,7 @@ function NavbarWrapper({
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            {user ? (
-              <>
-                <span className="sm:text-xs">
-                  {user.signInDetails?.loginId}
-                </span>{" "}
-                <a
-                  className="sm:text-xs"
-                  onClick={signOut}
-                  style={{ cursor: "pointer" }}
-                >
-                  (Sign Out)
-                </a>
-              </>
-            ) : (
-              <Link href="/login" className="sm:text-xs">
-                Sign In
-              </Link>
-            )}
+            <SignInNavbarLink />
             <GTranslateSelect />
             <QuickExit />
           </div>
@@ -105,14 +81,4 @@ function NavbarWrapper({
       </header>
     </>
   );
-}
-
-export default function Navbar({
-  background = true,
-}: {
-  background: boolean;
-}) {
-    return <Authenticator.Provider>
-      <NavbarWrapper background={background} />
-    </Authenticator.Provider>
 }
