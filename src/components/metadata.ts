@@ -88,7 +88,9 @@ export async function generateMetadata({
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
         case undefined:
-          title = attachSuffix("Shelters & Housing Help for Unhoused (Homeless) People in NYC");
+          title = attachSuffix(
+            "Shelters & Housing Help for Unhoused (Homeless) People in NYC",
+          );
           description =
             "Find safe accommodation options for homeless people in NYC. Explore YourPeer’s resources to secure stable housing and support your journey to lasting stability.";
           break;
@@ -130,7 +132,9 @@ export async function generateMetadata({
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
         case undefined:
-          title = attachSuffix("Free Clothing for Unhoused (Homeless) People in NYC");
+          title = attachSuffix(
+            "Free Clothing for Unhoused (Homeless) People in NYC",
+          );
           description =
             "Find resources offering a range of free clothing options for unhoused (homeless) people in NYC with YourPeer. Get good seasonal and job interview clothing.";
           break;
