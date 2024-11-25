@@ -37,7 +37,7 @@ export function PrivacyPage() {
           <div className="text-base text-dark prose">
             <p>
               <span>Last Updated&nbsp;</span>
-              <time dateTime="2023-08-15">August 15, 2023</time>
+              <time dateTime="2023-08-15">June 28, 2024</time>
               <span>.</span>
             </p>
             <p>
@@ -50,7 +50,7 @@ export function PrivacyPage() {
               <span>
                 &nbsp;(the “Site”), and is incorporated into and is the subject
                 to Streetlives’
-              </span>
+              </span>{" "}
               <Link href={`/${TERMS_OF_USE_ROUTE}`}>Terms of Use</Link>
               <span>
                 &nbsp;(the “Terms”). Capitalized terms that are not defined in
@@ -191,7 +191,7 @@ export function PrivacyPage() {
                     obligation to grant such a request, unless required by
                     applicable laws. Please note that it may also take some time
                     to process your request. For inquiries, please contact us at
-                  </span>
+                  </span>{" "}
                   <a href="mailto:privacy@streetlives.nyc">
                     privacy@streetlives.nyc
                   </a>
@@ -314,7 +314,7 @@ export function PrivacyPage() {
           </div>
         </div>
       </section>
-      <section className="py-12 bg-neutral-50">
+      <section className="py-12 bg-neutral-50 mt-12 lg:mt-0">
         <div className="px-5 max-w-3xl mx-auto">
           <div className="flex flex-col items-center justify-center">
             <img
@@ -323,14 +323,14 @@ export function PrivacyPage() {
               alt=""
             />
             <h2 className="text-4xl text-dark mb-10 text-center font-light">
-              You’re not alone in this journey
+              You&apos;re not alone in this journey
             </h2>
             <p className="text-center text-gray-800 text-sm px-2 mb-5">
               People rely on social services for many reasons. Our information
               specialists all have lived experiences navigating the support
               system and apply their knowledge collecting the information you
-              find here. We’re building YourPeer so it&apos;s easier for you to
-              find the right service.
+              find here. We&apos;re building YourPeer so it&apos;s easier for
+              you to find the right service.
             </p>
             <div>
               <Link href={`/${LOCATION_ROUTE}`} className="primary-button">
