@@ -123,11 +123,11 @@ export default function LocationsContainer({
     "overflow-y-auto",
     "scrollbar-hide",
     "md:scrollbar",
-    "md:scrollbar-thumb-primary",
+    "md:scrollbar-thumb-neutral-500",
     "md:scrollbar-w-2",
     "md:scrollbar-track-rounded",
     "md:scrollbar-thumb-rounded",
-    "md:scrollbar-track-primary/20",
+    "md:scrollbar-track-gray-100",
     "block",
   ]);
 

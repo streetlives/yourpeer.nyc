@@ -181,7 +181,7 @@ export default function LocationDetailComponent({
 
   return (
     <div
-      className="details-screen bg-white md:block z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scrollbar-hide"
+      className="details-screen bg-white md:block z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scrollbar-hide md:scrollbar md:scrollbar-thumb-neutral-500 md:scrollbar-w-2 md:scrollbar-track-rounded md:scrollbar-thumb-rounded md:scrollbar-track-gray-100"
       onScroll={handleScroll}
     >
       <div className="h-14 px-4 gap-x-2 flex justify-start md:justify-start items-center bg-white sticky z-20 top-0 left-0 w-full right-0">
