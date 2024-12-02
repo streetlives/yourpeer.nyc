@@ -34,7 +34,7 @@ export function TermsPage() {
           <h1 className="text-center font-medium text-2xl lg:text-4xl mb-8">
             Terms of Use
           </h1>
-          <div className="text-base prose">
+          <div className="text-base prose prose-a:text-blue">
             <p>
               <span>
                 These Terms of Use, together with Streetlives Inc.

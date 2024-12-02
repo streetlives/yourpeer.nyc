@@ -34,10 +34,10 @@ export function PrivacyPage() {
           <h1 className="text-center font-medium text-2xl lg:text-4xl mb-8">
             Privacy Policy
           </h1>
-          <div className="text-base text-dark prose">
+          <div className="text-base text-dark prose prose-a:text-blue">
             <p>
               <span>Last Updated&nbsp;</span>
-              <time dateTime="2023-08-15">June 28, 2024</time>
+              <time dateTime="2023-08-15">November 28, 2024</time>
               <span>.</span>
             </p>
             <p>
@@ -62,8 +62,7 @@ export function PrivacyPage() {
               Site and is not intended to fully describe the privacy policies of
               Streetlives. It describes the information that we gather from you,
               how we use and disclose your information, and the steps we take to
-              protect your information. By using the Site, you consent to the
-              privacy practices described in this Policy.
+              protect your information.
             </p>
 
             <h2>The information that we collect:</h2>
@@ -133,6 +132,18 @@ export function PrivacyPage() {
               </li>
               <li>
                 <p>
+                  We may use your email address to contact you for
+                  administrative purposes such as confirming your Streetlives
+                  Partner feedback was submitted successfully. Please note that
+                  if you share your email address with a Streetlives Partner
+                  when you submit feedback on the Site, such Partner may contact
+                  you with updates about your feedback or their services. Please
+                  review the providers’ privacy policies for more information
+                  about how they use your Personal Information.
+                </p>
+              </li>
+              <li>
+                <p>
                   We may use Cookies Information and Automatically Collected
                   Information to: (a) personalize our services; (b) provide
                   customized content and information; (c) monitor and analyze
@@ -147,6 +158,13 @@ export function PrivacyPage() {
             <ul>
               <li>
                 <p>
+                  We may disclose your information to our vendors and other
+                  service providers to perform services for us such as creation,
+                  maintenance, hosting, delivery, and marketing of our Sites.
+                </p>
+              </li>
+              <li>
+                <p>
                   We may disclose your information if required to do so by law
                   or in the good-faith belief that such action is necessary to
                   take precautions against liability; to protect Streetlives
@@ -155,9 +173,25 @@ export function PrivacyPage() {
                   and defend ourselves against any third party claims or
                   allegations; to assist government enforcement agencies; or to
                   comply with state and federal laws, in response to a court
-                  order, judicial or other government subpoena or
+                  order, judicial or other government subpoena or warrant.
                 </p>
               </li>
+              <li>
+                <p>
+                  When you submit feedback about a Streetlives Partner on the
+                  Site, we make your feedback available to the applicable
+                  Partner to comply with various reporting obligations, and for
+                  the Partner to improve their services. When possible, we
+                  provide this information in a de-identified way. If you choose
+                  to share your email address with a Streetlives Partner when
+                  you submit feedback on the Site, we will share your email
+                  address with the Partner so that the providers may contact you
+                  with updates about your feedback or their services. Please
+                  review the Partners’ privacy policies for more information
+                  about how the Partner may use your Personal Information.
+                </p>
+              </li>
+
               <li>
                 <p>
                   In the event Streetlives were to be engaged in or
@@ -202,16 +236,20 @@ export function PrivacyPage() {
 
             <h2>Our Commitment to Children’s Privacy:</h2>
             <p>
-              Protecting the privacy of young children is especially important.
-              For that reason, we do not allow children under 13 years of age to
-              use the Site, we do not knowingly collect or maintain information
-              from persons under 13 years of age, and no part of the Site are
-              directed to persons under 13 years of age. If you are under 13
-              years of age, then please do not use or access the Site at any
-              time or in any manner. If we learn that information has been
-              collected through the Site from persons under 13 years of age and
-              without verifiable parental consent, then we will take the
-              appropriate steps to delete this information.
+              <span>
+                We do not and will not knowingly collect personal information
+                (as defined in the U.S. Children&apos;s Online Privacy
+                Protection Act) from any unsupervised child under the age of 13.
+                As stated in our
+              </span>
+              <Link href="/terms-of-use" className="mx-1">
+                Streetlives Terms of Use
+              </Link>
+              <span>
+                you must be at least eighteen (18) years of age to use the Site,
+                unless your parent or guardian has provided us with their
+                consent for your use of the Services
+              </span>
             </p>
 
             <h2>Our Commitment to Data Security:</h2>
@@ -223,14 +261,18 @@ export function PrivacyPage() {
               information you transmit to us through the Site, and you do so at
               your own risk. We also cannot guarantee that such information may
               not be accessed, disclosed, altered, or destroyed by breach of any
-              of our physical, technical, or managerial safeguards. We are not
+              of our physical, technical, or managerial safeguards. We cannot
+              control the actions of other users or other third parties with
+              whom you may choose to share your information and therefore we
+              cannot and do not guarantee that information you post through the
+              Site will not be viewed by unauthorized persons. We are not
               responsible for circumvention of any privacy settings or security
-              measures contained on the Site.
-            </p>
-            <p>
-              We retain information as long as it is reasonably necessary and
-              relevant for our operations, and/or to comply with the law,
-              prevent fraud, collect any fees owed, resolve disputes,
+              measures contained on the Site. Even after removal, copies of
+              information that you have posted may remain viewable in cached and
+              archived pages or if other users have copied or stored such
+              information. We retain information as long as it is reasonably
+              necessary and relevant for our operations, and/or to comply with
+              the law, prevent fraud, collect any fees owed, resolve disputes,
               troubleshoot problems, assist with any investigation, or enforce
               our Terms or other agreements.
             </p>
@@ -246,21 +288,6 @@ export function PrivacyPage() {
               through the Site. Where required, we comply with applicable legal
               frameworks relating to the collection, storage, use, and transfer
               of personal information.
-            </p>
-
-            <h2>Limitation of Liability:</h2>
-            <p>
-              By accessing this Site and/or providing us with Personal
-              Information and other data, you expressly and unconditionally
-              release and hold us harmless from any and all liability for any
-              injuries, loss, or damage of any kind arising from or in
-              connection with the use and/or misuse of such information. In
-              addition, while we take efforts to ensure the proper and
-              appropriate use of data by our service providers that may receive
-              your information from us, we are not responsible for any injuries,
-              loss, or damage of any kind arising from or in connection with the
-              use and/or misuse of your information caused by those service
-              providers.
             </p>
 
             <h2>Changes and Updates to this Privacy Policy:</h2>
@@ -279,29 +306,18 @@ export function PrivacyPage() {
               with the Privacy Policy in effect at the time the dispute arose.
             </p>
 
-            <h2>Do Not Track Disclosures:</h2>
-            <p>
-              Third parties such as advertising networks, analytics providers,
-              and widget providers may collect information about your online
-              activities over time and across different websites when you access
-              or use our Services. Currently, various browsers offer a “Do Not
-              Track” option, but there is no standard for how DNT should work on
-              commercial websites. Due to lack of such standards, the Site does
-              not respond to Do Not Track consumer browser settings.
-            </p>
-
             <h2>Our Contact Information:</h2>
             <p>
               <span>
                 Please contact us with any questions or comments about this
                 Privacy Policy, your personal information, our use and
                 disclosure practices, or your consent choices by e-mail at
-              </span>{" "}
-              <a href="mailto:privacy@streetlives.nyc">
-                privacy@streetlives.nyc
+              </span>
+              <a href="mailto:privacy@streetlives.nyc" className="ml-1">
+                privacy@streetlives.nyc.
               </a>
-              <span>.</span>
             </p>
+
             <address>
               <span>Attn: Privacy</span>
               <br />
