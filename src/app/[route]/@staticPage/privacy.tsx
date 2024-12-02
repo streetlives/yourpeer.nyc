@@ -34,7 +34,7 @@ export function PrivacyPage() {
           <h1 className="text-center font-medium text-2xl lg:text-4xl mb-8">
             Privacy Policy
           </h1>
-          <div className="text-base text-dark prose">
+          <div className="text-base text-dark prose prose-a:text-blue">
             <p>
               <span>Last Updated&nbsp;</span>
               <time dateTime="2023-08-15">November 28, 2024</time>
@@ -242,7 +242,7 @@ export function PrivacyPage() {
                 Protection Act) from any unsupervised child under the age of 13.
                 As stated in our
               </span>
-              <Link href="/terms-of-use" className="ml-1">
+              <Link href="/terms-of-use" className="mx-1">
                 Streetlives Terms of Use
               </Link>
               <span>
