@@ -18,7 +18,7 @@ import { PrivacyPolicyRussianTranslation } from "@/components/translations/priva
 
 export function PrivacyPage() {
   const { gTranslateCookie } = useContext(
-    LanguageTranslationContext
+    LanguageTranslationContext,
   ) as LanguageTranslationContextType;
 
   const targetLanguage = gTranslateCookie
@@ -238,11 +238,13 @@ export function PrivacyPage() {
             <p>
               <span>
                 We do not and will not knowingly collect personal information
-                (as defined in the U.S. Children&apos;s Online Privacy Protection
-                Act) from any unsupervised child under the age of 13. As stated
-                in our
+                (as defined in the U.S. Children&apos;s Online Privacy
+                Protection Act) from any unsupervised child under the age of 13.
+                As stated in our
               </span>
-              <Link href="/terms-of-use" className="ml-1">Streetlives Terms of Use</Link>
+              <Link href="/terms-of-use" className="ml-1">
+                Streetlives Terms of Use
+              </Link>
               <span>
                 you must be at least eighteen (18) years of age to use the Site,
                 unless your parent or guardian has provided us with their
@@ -308,8 +310,8 @@ export function PrivacyPage() {
             <p>
               <span>
                 Please contact us with any questions or comments about this
-                Privacy Policy, your personal information, our use and disclosure
-                practices, or your consent choices by e-mail at
+                Privacy Policy, your personal information, our use and
+                disclosure practices, or your consent choices by e-mail at
               </span>
               <a href="mailto:privacy@streetlives.nyc" className="ml-1">
                 privacy@streetlives.nyc.
