@@ -11,6 +11,7 @@ import QuickExit from "./quick-exit";
 import SearchForm from "./search-form";
 import { useState } from "react";
 import { GTranslateSelect } from "./gtranslate-select";
+import { SignInNavbarLink } from "./sign-in-navbar-link";
 
 export const LocationsNavbarResourceRoutes = () => {
   const [open, setOpen] = useState(false);
@@ -68,6 +69,7 @@ export const LocationsNavbarResourceRoutes = () => {
               <SearchForm />
             </div>
           </div>
+          <SignInNavbarLink />
           <QuickExit />
         </nav>
       </div>
@@ -107,6 +109,7 @@ export const LocationsNavbarCompanyRoutes = () => {
             </a>
           </div>
           <div className="flex items-center space-x-2">
+            <SignInNavbarLink />
             <GTranslateSelect />
             <QuickExit />
           </div>

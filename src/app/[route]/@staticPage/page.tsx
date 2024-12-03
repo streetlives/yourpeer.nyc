@@ -4,11 +4,14 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+"use client";
+
 import {
   ABOUT_US_ROUTE,
   CompanyRoute,
   CONTACT_US_ROUTE,
   DONATE_ROUTE,
+  LOGIN_ROUTE,
   PRIVACY_POLICY_ROUTE,
   TERMS_OF_USE_ROUTE,
 } from "../../../components/common";
@@ -18,8 +21,9 @@ import { DonationPage } from "./donate";
 import { TermsPage } from "./terms";
 import { PrivacyPage } from "./privacy";
 import { notFound } from "next/navigation";
+import { LoginPage } from "./login";
 
-export default async function StaticPage({
+export default function StaticPage({
   params: { route },
 }: {
   params: { route: string };
@@ -36,6 +40,8 @@ export default async function StaticPage({
       return <TermsPage />;
     case PRIVACY_POLICY_ROUTE:
       return <PrivacyPage />;
+    case LOGIN_ROUTE:
+      return <LoginPage />;
     default:
       return notFound();
   }
