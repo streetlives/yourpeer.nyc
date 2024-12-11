@@ -61,10 +61,11 @@ https://opensource.org/licenses/MIT.
 .have-links a {
   color: #1a73e9 !important;
   text-decoration: underline !important;
-  display: block; /* or inline-block */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: inline-block; /* Or block, depending on your layout */
+  white-space: normal; /* Allows text to wrap */
+  word-wrap: break-word; /* Breaks long words onto the next line if needed */
+  overflow-wrap: break-word;
+  hyphens: auto;
   max-width: 300px;
 }
 
