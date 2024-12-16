@@ -26,6 +26,8 @@ import {
   REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
   REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
   SearchParams,
+  SHELTER_PARAM_FAMILY_VALUE,
+  SHELTER_PARAM_SINGLE_VALUE,
   SHOW_ADVANCED_FILTERS_PARAM,
   SubCategory,
 } from "./common";
@@ -55,6 +57,9 @@ export default function FiltersHeader({
       ? LOCATION_ROUTE
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
+
+  console.log('curernt category')
+  console.log(currentCategory);
 
   const { normalizedSearchParams } = useNormalizedSearchParams();
 
@@ -101,7 +106,7 @@ export default function FiltersHeader({
   const linkHeight = { minHeight: "24px" };
   return (
     <div className="sticky top-0 w-full inset-x-0 bg-white z-10">
-      <div className="flex gap-2 py-3 px-4  flex-nowrap lg:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide">
+      <div className="flex gap-2 py-3 px-4  flex-nowrap md:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide">
         {CATEGORIES.filter(
           (thisCategory) =>
             currentCategory === thisCategory || currentCategory === null,
@@ -201,6 +206,8 @@ export default function FiltersHeader({
             )}
           </Link>
         ) : undefined}
+
+
         {subCategory == CLOTHING_PARAM_CASUAL_VALUE ||
         subCategory == CLOTHING_PARAM_PROFESSIONAL_VALUE ? (
           <Link
@@ -224,8 +231,37 @@ export default function FiltersHeader({
             )}
           </Link>
         ) : undefined}
+{/* getUrlWithNewFilterParameter */}
+        {currentCategory === 'shelters-housing'  && (subCategory === SHELTER_PARAM_FAMILY_VALUE || subCategory === SHELTER_PARAM_SINGLE_VALUE) ? (
+          <Link
+            className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
+            style={linkHeight}
+            href={getUrlWithSubCategoryAddedOrRemoved(
+              pathname,
+              normalizedSearchParams,
+              null
+            )}
+          >
+            <img
+              src={getIconPath("shelter-icon")}
+              className="w-4 h-4"
+              alt=""
+            />
+            {subCategory === SHELTER_PARAM_FAMILY_VALUE ? (
+                <TranslatableText
+                  text={'Families'}
+                  className="leading-3 truncate"
+                />
+            ) : (
+                <TranslatableText
+                  text={'Single Adult'}
+                  className="leading-3 truncate"
+                />
+            )}
+          </Link>
+        ) : undefined}
 
-        {parsedAmenities.length ? (
+        {parsedAmenities.length && currentCategory === 'personal-care' ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
@@ -241,16 +277,18 @@ export default function FiltersHeader({
               alt=""
             />
 
-            {parsedAmenities.length === 1 ? (
+            {parsedAmenities.length > 1 ? (
               <TranslatableText
-                text={parsedAmenities[0]}
+                text={`${parsedAmenities.length} Amenities`}
                 className="leading-3 truncate"
               />
             ) : (
-              <TranslatableText
-                text={`${parsedAmenities.length} amenities`}
-                className="leading-3 truncate"
-              />
+              <span className="capitalize">
+                <TranslatableText
+                  text={parsedAmenities[0]}
+                  className="leading-3 truncate"
+                />
+              </span>
             )}
           </Link>
         ) : undefined}
@@ -291,6 +329,9 @@ export default function FiltersHeader({
             )}
           </Link>
         ) : undefined}
+
+
+
 
         {currentCategory !== null && (
           <Link
