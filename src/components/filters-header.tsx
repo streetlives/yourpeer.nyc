@@ -58,7 +58,7 @@ export default function FiltersHeader({
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
 
-  console.log('curernt category')
+  console.log("curernt category");
   console.log(currentCategory);
 
   const { normalizedSearchParams } = useNormalizedSearchParams();
@@ -207,7 +207,6 @@ export default function FiltersHeader({
           </Link>
         ) : undefined}
 
-
         {subCategory == CLOTHING_PARAM_CASUAL_VALUE ||
         subCategory == CLOTHING_PARAM_PROFESSIONAL_VALUE ? (
           <Link
@@ -231,37 +230,35 @@ export default function FiltersHeader({
             )}
           </Link>
         ) : undefined}
-{/* getUrlWithNewFilterParameter */}
-        {currentCategory === 'shelters-housing'  && (subCategory === SHELTER_PARAM_FAMILY_VALUE || subCategory === SHELTER_PARAM_SINGLE_VALUE) ? (
+        {/* getUrlWithNewFilterParameter */}
+        {currentCategory === "shelters-housing" &&
+        (subCategory === SHELTER_PARAM_FAMILY_VALUE ||
+          subCategory === SHELTER_PARAM_SINGLE_VALUE) ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
             href={getUrlWithSubCategoryAddedOrRemoved(
               pathname,
               normalizedSearchParams,
-              null
+              null,
             )}
           >
-            <img
-              src={getIconPath("shelter-icon")}
-              className="w-4 h-4"
-              alt=""
-            />
+            <img src={getIconPath("shelter-icon")} className="w-4 h-4" alt="" />
             {subCategory === SHELTER_PARAM_FAMILY_VALUE ? (
-                <TranslatableText
-                  text={'Families'}
-                  className="leading-3 truncate"
-                />
+              <TranslatableText
+                text={"Families"}
+                className="leading-3 truncate"
+              />
             ) : (
-                <TranslatableText
-                  text={'Single Adult'}
-                  className="leading-3 truncate"
-                />
+              <TranslatableText
+                text={"Single Adult"}
+                className="leading-3 truncate"
+              />
             )}
           </Link>
         ) : undefined}
 
-        {parsedAmenities.length && currentCategory === 'personal-care' ? (
+        {parsedAmenities.length && currentCategory === "personal-care" ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
@@ -329,9 +326,6 @@ export default function FiltersHeader({
             )}
           </Link>
         ) : undefined}
-
-
-
 
         {currentCategory !== null && (
           <Link
