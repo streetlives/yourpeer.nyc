@@ -335,7 +335,7 @@ export default function Service({
                       ))}
                       <li className="flex items-start space-x-2">
                         {service.membership ||
-                        service.eligibility?.length ||
+                        service.eligibility?.every(item => item) ||
                         service.docs?.length ||
                         service.age?.length ? (
                           <span className="text-danger">
@@ -370,15 +370,15 @@ export default function Service({
                               : undefined}
                           </span>
                           <span>
-                            {service.docs
+                            {service.docs?.length
                               ? service.docs.map((req) => (
                                   <p key={req} className="text-dark text-sm">
-                                    {req === null || req === "None"
+                                    {req === null || req === "No documents required"
                                       ? "No proofs required"
                                       : `Requires ${req}`}
                                   </p>
                                 ))
-                              : undefined}
+                              : ''}
                           </span>
                           {!service.age ||
                           (service.age?.length &&
