@@ -6,7 +6,7 @@
 
 import { LanguageTranslationProvider } from "@/components/language-translation-context";
 import "./globals.css";
-import {GoogleAnalytics, GoogleTagManager} from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import type { Viewport } from "next";
 import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";

@@ -191,12 +191,11 @@ export default function SearchForm() {
     setTimeout(() => setInputHasFocus(false), 250);
   }
 
-
   function doSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
 
-    sendGTMEvent({event: "test_event", value: {search_term: search}});
+    sendGTMEvent({ event: "test_event", value: { search_term: search } });
 
     if (search) {
       setShowMapViewOnMobile(false);
