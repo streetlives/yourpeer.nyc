@@ -191,12 +191,21 @@ export default function SearchForm() {
     setTimeout(() => setInputHasFocus(false), 250);
   }
 
+  const gtmEvent = (eventName: string, eventData = {}) => {
+    if (typeof window !== "undefined" && window.dataLayer) {
+      window.dataLayer.push({
+        event: eventName,
+        ...eventData,
+      });
+    }
+  };
+
   function doSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
 
-    sendGTMEvent({ event: "test_event", value: search });
-    console.log("send gtm event test: 2;", search);
+    gtmEvent("test_event", { search_term: search });
+    console.log('hello world');
 
     if (search) {
       setShowMapViewOnMobile(false);
