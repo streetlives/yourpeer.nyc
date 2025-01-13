@@ -43,7 +43,7 @@ export default function RootLayout({
       </head>
 
       <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=GTM-ND2QBSQH`}
         strategy="afterInteractive"
       />
       <Script id="google-analytics" strategy="afterInteractive">
@@ -52,7 +52,7 @@ export default function RootLayout({
           function gtag(){window.dataLayer.push(arguments);}
           gtag('js', new Date());
 
-          gtag('config', '${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}');
+          gtag('config', 'GTM-ND2QBSQH');
         `}
       </Script>
 
