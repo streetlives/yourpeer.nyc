@@ -196,7 +196,7 @@ export default function SearchForm() {
     event.stopPropagation();
 
     sendGTMEvent({ event: "test_event", value: search });
-    console.log("send gtm event", search);
+    console.log("send gtm event test: 2;", search);
 
     if (search) {
       setShowMapViewOnMobile(false);
