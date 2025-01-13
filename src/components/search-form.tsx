@@ -194,7 +194,7 @@ export default function SearchForm() {
     event.preventDefault();
     event.stopPropagation();
 
-    window["gtag"]("event", "geolocation", {
+    window["gtag"]("event", "search_event", {
       search_term: search,
     });
 

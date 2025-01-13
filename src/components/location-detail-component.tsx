@@ -184,7 +184,7 @@ export default function LocationDetailComponent({
       const selectedText = window.getSelection()?.toString() || "";
 
       window["gtag"]("event", "copy_information", {
-        search_term: selectedText,
+        text: selectedText,
       });
     };
 
@@ -391,7 +391,8 @@ export default function LocationDetailComponent({
                       target="_blank"
                       onClick={() => {
                         window["gtag"]("event", "get_direction_click", {
-                          location: location,
+                          location_name: location.name,
+                          slug: location.slug,
                         });
                       }}
                       className="text-blue underline hover:no-underline"
@@ -421,7 +422,9 @@ export default function LocationDetailComponent({
                                 "event",
                                 "phone_number_link_click",
                                 {
-                                  location: location,
+                                  location_name: location.name,
+                                  phone: location.phone,
+                                  slug: location.slug,
                                 },
                               );
                             }}
