@@ -26,7 +26,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./use-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
-// import { sendGTMEvent } from "@next/third-parties/google";
+import { sendGTMEvent } from "@next/third-parties/google";
 
 function SearchPanel({
   currentSearch,
@@ -191,21 +191,12 @@ export default function SearchForm() {
     setTimeout(() => setInputHasFocus(false), 250);
   }
 
-  const gtmEvent = (eventName: string, eventData = {}) => {
-    if (typeof window !== "undefined" && window.dataLayer) {
-      window.dataLayer.push({
-        event: eventName,
-        ...eventData,
-      });
-    }
-  };
 
   function doSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
 
-    gtmEvent("test_event", { search_term: search });
-    console.log("hello world");
+    sendGTMEvent({event: "test_event", value: {search_term: search}});
 
     if (search) {
       setShowMapViewOnMobile(false);
