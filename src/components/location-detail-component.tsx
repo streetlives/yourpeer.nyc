@@ -430,7 +430,8 @@ export default function LocationDetailComponent({
                                   phone: location.phone,
                                   slug: location.slug,
                                   pathname: window.location.pathname,
-                                  previousParamsRoute: previousParams?.params.route,
+                                  previousParamsRoute:
+                                    previousParams?.params.route,
                                 },
                               );
                             }}
@@ -480,7 +481,8 @@ export default function LocationDetailComponent({
                               window["gtag"]("event", "website_link_click", {
                                 location: location,
                                 pathname: window.location.pathname,
-                                previousParamsRoute: previousParams?.params.route,
+                                previousParamsRoute:
+                                  previousParams?.params.route,
                               });
                             }}
                             className="text-blue underline hover:no-underline cursor-pointer"
