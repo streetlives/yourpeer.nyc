@@ -26,7 +26,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./use-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
-import { sendGTMEvent } from "@next/third-parties/google";
+// import { sendGTMEvent } from "@next/third-parties/google";
 
 function SearchPanel({
   currentSearch,
@@ -205,7 +205,7 @@ export default function SearchForm() {
     event.stopPropagation();
 
     gtmEvent("test_event", { search_term: search });
-    console.log('hello world');
+    console.log("hello world");
 
     if (search) {
       setShowMapViewOnMobile(false);
