@@ -27,7 +27,7 @@ import {
   Marker,
 } from "@vis.gl/react-google-maps";
 import { activeMarkerIcon, defaultZoom, mapStyles } from "./map-common";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import QuickExit from "./quick-exit";
 import LocationStubMarker from "./location-stub-marker";
@@ -178,6 +178,23 @@ export default function LocationDetailComponent({
       setStickyTitle(false);
     }
   };
+
+  useEffect(() => {
+    const handleCopy = (event: ClipboardEvent) => {
+      const selectedText = window.getSelection()?.toString() || "";
+
+      window["gtag"]("event", "copy_information", {
+        search_term: selectedText,
+      });
+    };
+
+    document.addEventListener("copy", handleCopy);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("copy", handleCopy);
+    };
+  }, []);
 
   return (
     <div
@@ -372,6 +389,11 @@ export default function LocationDetailComponent({
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${location.address},${location.city},${location.zip}`}
                       target="_blank"
+                      onClick={() => {
+                        window["gtag"]("event", "get_direction_click", {
+                          location: location,
+                        });
+                      }}
                       className="text-blue underline hover:no-underline"
                     >
                       <TranslatableText text="Get directions" />
@@ -394,6 +416,15 @@ export default function LocationDetailComponent({
                           <a
                             href={`tel:${location.phone}`}
                             className="text-blue underline hover:no-underline"
+                            onClick={() => {
+                              window["gtag"](
+                                "event",
+                                "phone_number_link_click",
+                                {
+                                  location: location,
+                                },
+                              );
+                            }}
                           >
                             {" "}
                             {location.phone}{" "}
@@ -436,6 +467,11 @@ export default function LocationDetailComponent({
                           <a
                             href={normalizeWebsiteUrl(location.url)}
                             target="_blank"
+                            onClick={() => {
+                              window["gtag"]("event", "website_link_click", {
+                                location: location,
+                              });
+                            }}
                             className="text-blue underline hover:no-underline cursor-pointer"
                           >
                             {renderNormalizedWebsiteUrl(location.url)}

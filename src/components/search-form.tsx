@@ -26,7 +26,6 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./use-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
-import { sendGTMEvent } from "@next/third-parties/google";
 
 function SearchPanel({
   currentSearch,
@@ -195,7 +194,9 @@ export default function SearchForm() {
     event.preventDefault();
     event.stopPropagation();
 
-    sendGTMEvent({ event: "test_event", value: { search_term: search } });
+    window["gtag"]("event", "geolocation", {
+      search_term: search,
+    });
 
     if (search) {
       setShowMapViewOnMobile(false);
