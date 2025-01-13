@@ -183,8 +183,10 @@ export default function LocationDetailComponent({
     const handleCopy = (event: ClipboardEvent) => {
       const selectedText = window.getSelection()?.toString() || "";
 
-      window["gtag"]("event", "copy_information", {
+      window["gtag"]("event", "information_copy", {
         text: selectedText,
+        pathname: window.location.pathname,
+        previousParamsRoute: previousParams?.params.route,
       });
     };
 
@@ -393,6 +395,8 @@ export default function LocationDetailComponent({
                         window["gtag"]("event", "get_direction_click", {
                           location_name: location.name,
                           slug: location.slug,
+                          pathname: window.location.pathname,
+                          previousParamsRoute: previousParams?.params.route,
                         });
                       }}
                       className="text-blue underline hover:no-underline"
@@ -425,6 +429,8 @@ export default function LocationDetailComponent({
                                   location_name: location.name,
                                   phone: location.phone,
                                   slug: location.slug,
+                                  pathname: window.location.pathname,
+                                  previousParamsRoute: previousParams?.params.route,
                                 },
                               );
                             }}
@@ -473,6 +479,8 @@ export default function LocationDetailComponent({
                             onClick={() => {
                               window["gtag"]("event", "website_link_click", {
                                 location: location,
+                                pathname: window.location.pathname,
+                                previousParamsRoute: previousParams?.params.route,
                               });
                             }}
                             className="text-blue underline hover:no-underline cursor-pointer"
