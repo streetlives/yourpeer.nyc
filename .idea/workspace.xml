@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="cb49e8f8-c5a9-42b2-8c6a-80602bd9c41a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/report/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/report/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/report-issue.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/report-issue.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +39,8 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "prettierjs.PrettierConfiguration.Package": "/Users/shakil/projects/streetlives/yourpeer.nyc-nextjs/node_modules/prettier",
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
     "ts.external.directory.path": "/Users/shakil/projects/streetlives/yourpeer.nyc-nextjs/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
@@ -43,7 +48,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-WS-243.21565.180" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-WS-243.23654.120" />
       </set>
     </attachedChunks>
   </component>
