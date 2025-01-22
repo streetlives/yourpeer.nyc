@@ -69,8 +69,10 @@ export const LocationsNavbarResourceRoutes = () => {
               <SearchForm />
             </div>
           </div>
-          <SignInNavbarLink />
-          <QuickExit />
+          <div className="flex items-center space-x-4">
+            <SignInNavbarLink />
+            <QuickExit />
+          </div>
         </nav>
       </div>
     </>

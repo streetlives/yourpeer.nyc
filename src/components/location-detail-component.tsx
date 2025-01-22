@@ -156,37 +156,37 @@ export default function LocationDetailComponent({
     "locationDetailsServices",
   ];
 
-  // const handleScroll = (e: React.UIEvent<HTMLElement>) => {
-  //   const target = e.target as HTMLElement;
-  //   if (target.scrollTop > 30) {
-  //     setStickyTitle(true);
-  //   } else {
-  //     setStickyTitle(false);
-  //   }
-  //
-  //   const container = containerRef.current;
-  //
-  //   if (!container) return;
-  //
-  //   // Find the section that is currently in view
-  //   let currentSection: string | null = null;
-  //   sections.forEach((sectionId) => {
-  //     const section = document.getElementById(sectionId);
-  //     if (section) {
-  //       const offsetTop = section.offsetTop - container.offsetTop - 120;
-  //       const offsetBottom = offsetTop + section.offsetHeight;
-  //       if (
-  //           container.scrollTop >= offsetTop &&
-  //           container.scrollTop < offsetBottom
-  //       ) {
-  //         currentSection = sectionId;
-  //       } else if (container.scrollTop < 600) {
-  //         currentSection = sections[0];
-  //       }
-  //     }
-  //   });
-  //   setActiveSection(currentSection);
-  // };
+  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.scrollTop > 30) {
+      setStickyTitle(true);
+    } else {
+      setStickyTitle(false);
+    }
+
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    // Find the section that is currently in view
+    let currentSection: string | null = null;
+    sections.forEach((sectionId) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        const offsetTop = section.offsetTop - container.offsetTop - 120;
+        const offsetBottom = offsetTop + section.offsetHeight;
+        if (
+            container.scrollTop >= offsetTop &&
+            container.scrollTop < offsetBottom
+        ) {
+          currentSection = sectionId;
+        } else if (container.scrollTop < 600) {
+          currentSection = sections[0];
+        }
+      }
+    });
+    setActiveSection(currentSection);
+  };
 
   // TODO: eliminate duplicate code
   const handleCameraChange = useCallback(
@@ -222,15 +222,6 @@ export default function LocationDetailComponent({
     [mapCenter, setMapCenter, zoom, setZoom],
   );
 
-  const handleScroll = (e: React.UIEvent<HTMLElement>): void => {
-    const target = e.target as HTMLElement;
-    if (target.scrollTop > 30) {
-      setStickyTitle(true);
-    } else {
-      setStickyTitle(false);
-    }
-  };
-
   const goBack = () => {
     if (
       isShowingReportIssueForm ||
@@ -246,7 +237,7 @@ export default function LocationDetailComponent({
 
   return (
     <div
-      className="details-screen bg-white md:flex z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scrollbar-hide flex flex-col"
+      className="details-screen bg-white md:flex z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scroll-smooth flex flex-col"
       ref={containerRef}
       onScroll={handleScroll}
     >
