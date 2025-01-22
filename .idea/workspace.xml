@@ -5,10 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cb49e8f8-c5a9-42b2-8c6a-80602bd9c41a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/components/review-form.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/components/review-list-item.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/location-detail-component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/location-detail-component.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +40,12 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public/img/icons" />
+      <recent name="$PROJECT_DIR$/public/img" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -64,6 +67,8 @@
       <workItem from="1733929006744" duration="185000" />
       <workItem from="1733929210362" duration="2802000" />
       <workItem from="1737472967679" duration="10000" />
+      <workItem from="1737479689087" duration="3427000" />
+      <workItem from="1737525715630" duration="10000" />
     </task>
     <servers />
   </component>
