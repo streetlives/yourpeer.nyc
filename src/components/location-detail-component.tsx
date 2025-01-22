@@ -176,8 +176,8 @@ export default function LocationDetailComponent({
         const offsetTop = section.offsetTop - container.offsetTop - 120;
         const offsetBottom = offsetTop + section.offsetHeight;
         if (
-            container.scrollTop >= offsetTop &&
-            container.scrollTop < offsetBottom
+          container.scrollTop >= offsetTop &&
+          container.scrollTop < offsetBottom
         ) {
           currentSection = sectionId;
         } else if (container.scrollTop < 600) {
