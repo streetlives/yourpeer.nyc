@@ -6,7 +6,11 @@
 
 "use client";
 
-import { SimplifiedLocationData, YourPeerLegacyLocationData } from "./common";
+import {
+  LOCATION_ROUTE,
+  SimplifiedLocationData,
+  YourPeerLegacyLocationData,
+} from "./common";
 import { useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import ReviewForm from "./feedback/review-form";
@@ -21,6 +25,8 @@ import ReviewHighlights from "@/components/feedback/review-highlights";
 import LocationServices from "@/components/location-detail/location-services";
 import LocationDetailContainer from "@/components/location-detail/location-detail-container";
 import LocationDetailHeader from "@/components/location-detail/location-detail-header";
+import { usePreviousRoute } from "./use-previous-route";
+import { useRouter } from "next/navigation";
 
 export function getIconPath(iconName: string): string {
   return `/img/icons/${iconName}.png`;
@@ -43,6 +49,8 @@ export default function LocationDetailComponent({
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
+  const router = useRouter();
+  const previousRoute = usePreviousRoute();
 
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
@@ -59,6 +67,8 @@ export default function LocationDetailComponent({
       setIsShowingReviewForm(false);
       return;
     }
+
+    router.push(previousRoute ? previousRoute : `/${LOCATION_ROUTE}`);
   };
 
   const headerTitle = isShowingReviewDetails
