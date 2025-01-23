@@ -6,7 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="cb49e8f8-c5a9-42b2-8c6a-80602bd9c41a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/common.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/common.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/feedback/review-highlights.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-highlights.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/feedback/review-list-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-list-item.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/feedback/review-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-list.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/location-detail-component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/location-detail-component.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/streetlives-api-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/streetlives-api-service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +79,7 @@
       <workItem from="1737472967679" duration="10000" />
       <workItem from="1737479689087" duration="3427000" />
       <workItem from="1737525715630" duration="10000" />
-      <workItem from="1737611380675" duration="1065000" />
+      <workItem from="1737611380675" duration="6781000" />
     </task>
     <servers />
   </component>

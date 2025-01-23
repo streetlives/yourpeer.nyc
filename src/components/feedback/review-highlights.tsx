@@ -1,12 +1,18 @@
+"use client";
+
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 
 export default function ReviewHighlights({
   onViewAll,
   onAddReview,
+  locationId,
 }: {
   onViewAll: () => void;
   onAddReview: () => void;
+  locationId: string;
 }) {
+  console.log(locationId);
+
   return (
     <div className="bg-neutral-50 pt-2" id="reviews">
       <div className="bg-white p-4 pt-8">

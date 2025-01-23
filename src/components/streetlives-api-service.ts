@@ -33,8 +33,10 @@ import {
   AMENITY_TO_TAXONOMY_NAME_MAP,
   TaxonomySubCategory,
   NEARBY_SORT_BY_VALUE,
+  Comment,
 } from "./common";
 import moment from "moment";
+import axios from "axios";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -662,6 +664,13 @@ export async function fetchLocationsDetailData(
     throw new Error5XXResponse();
   }
   return response.json();
+}
+
+export async function fetchComments(locationId: string): Promise<Comment[]> {
+  const res = await axios.get(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+  );
+  return res.data;
 }
 
 export class Error404Response extends Error {}

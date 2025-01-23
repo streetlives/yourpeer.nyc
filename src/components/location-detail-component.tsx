@@ -94,7 +94,7 @@ export default function LocationDetailComponent({
           hideReportIssueForm={hideReportIssueForm}
         />
       ) : isShowingReviewDetails ? (
-        <ReviewList />
+        <ReviewList locationId={location.id} />
       ) : isShowingReviewForm ? (
         <ReviewForm />
       ) : (
@@ -140,6 +140,7 @@ export default function LocationDetailComponent({
             <ReviewHighlights
               onAddReview={() => setIsShowingReviewForm(true)}
               onViewAll={() => setIsShowingReviewDetails(true)}
+              locationId={location.id}
             />
             <LocationServices location={location} />
           </div>

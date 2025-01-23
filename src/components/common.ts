@@ -865,3 +865,16 @@ export interface Position {
   lat: number;
   lng: number;
 }
+
+export interface Reply {
+  id: string;
+  content: string;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  Replies: Reply[];
+}
