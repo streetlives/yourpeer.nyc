@@ -37,6 +37,7 @@ import {
 } from "./common";
 import moment from "moment";
 import axios from "axios";
+import { getAuthToken } from "@/components/auth";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -688,6 +689,39 @@ export async function postComment(data: {
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`,
     data,
+  );
+
+  return res.data;
+}
+
+type PostCommentReplyResponse = {
+  id: string;
+  content: string;
+  posted_by: string;
+  contact_info: string;
+  created_at: string;
+};
+
+export async function postCommentReply(
+  commentId: string,
+  postedBy: string,
+  content: string,
+): Promise<PostCommentReplyResponse> {
+  const data = {
+    postedBy,
+    content,
+  };
+  const token = await getAuthToken();
+  console.log(token);
+
+  const res = await axios.post(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
   );
 
   return res.data;

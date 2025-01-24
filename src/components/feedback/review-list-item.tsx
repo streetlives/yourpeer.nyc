@@ -103,7 +103,13 @@ export default function ReviewListItem({ comment }: { comment: Comment }) {
         )}
       </div>
 
-      {isReplying && <ReplyForm onCancel={() => setIsReplying(false)} />}
+      {isReplying && (
+        <ReplyForm
+          commentId={comment.id}
+          username={user.username}
+          onComplete={() => setIsReplying(false)}
+        />
+      )}
     </li>
   );
 }

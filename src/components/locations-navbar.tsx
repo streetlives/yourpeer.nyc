@@ -70,7 +70,7 @@ export const LocationsNavbarResourceRoutes = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <SignInNavbarLink />
+            {/*<SignInNavbarLink />*/}
             <QuickExit />
           </div>
         </nav>
