@@ -18,6 +18,7 @@ import AddReviewSuccess from "@/components/feedback/add-review-success";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { clsx } from "clsx";
+import { toast } from "sonner";
 
 interface Props {
   locationId: string;
@@ -66,9 +67,9 @@ export default function ReviewForm({
         setIsSuccess(true);
         setIsConfirm(false);
       } catch (e) {
-        console.error(e);
+        if (e.response?.data?.error) toast.error(e.response.data.error);
+        else toast.error(e.message);
         setIsConfirm(false);
-        alert("something went wrong!");
       }
     });
   };

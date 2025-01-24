@@ -10,6 +10,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Viewport } from "next";
 import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
+import { Toaster } from "sonner";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -57,6 +58,7 @@ export default function RootLayout({
         <CookiesProvider>
           <LanguageTranslationProvider>{children}</LanguageTranslationProvider>
         </CookiesProvider>
+        <Toaster />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_MEASUREMENT_ID} />
       </body>
     </html>

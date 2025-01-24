@@ -5,6 +5,7 @@ import Image from "next/image";
 import { postCommentReply } from "@/components/streetlives-api-service";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { clsx } from "clsx";
+import { toast } from "sonner";
 
 type Inputs = {
   content: string;
@@ -31,15 +32,12 @@ export default function ReplyForm({
     startTransition(async () => {
       try {
         const res = await postCommentReply(commentId, username, data.content);
-        console.log(res);
         setReplySuccess(true);
       } catch (e) {
-        onComplete();
         console.log(e);
-        alert(e.message);
-        if (e.response?.data?.error) {
-          alert(e.response.data.error);
-        }
+        if (e.response?.data?.error) toast.error(e.response.data.error);
+        else toast.error(e.message);
+        onComplete();
       }
     });
   };
