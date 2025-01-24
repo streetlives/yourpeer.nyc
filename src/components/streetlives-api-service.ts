@@ -668,10 +668,29 @@ export async function fetchLocationsDetailData(
 }
 
 export async function fetchComments(locationId: string): Promise<Comment[]> {
-  const res = await axios.get(
+  const res = await axios.get<Comment[]>(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
-  return res.data;
+
+  return res.data.sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
+}
+
+export async function getFeedbackHighlights(
+  locationId: string,
+): Promise<string[]> {
+  const res = await axios.get<Comment[]>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+  );
+
+  const comments = res.data.sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  );
+
+  return comments.slice(0, 3).map(comment => comment.content);
 }
 
 type PostCommentResponse = {

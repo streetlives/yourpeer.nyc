@@ -20,12 +20,7 @@ export default function ReviewList({
     const loadComments = async () => {
       try {
         const commentsData = await fetchComments(locationId);
-        const sortedByDate = commentsData.sort(
-          (a, b) =>
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-        );
-
-        setComments(sortedByDate);
+        setComments(commentsData);
       } catch (e) {
         console.error(e);
         setComments([]);

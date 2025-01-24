@@ -1,17 +1,37 @@
 "use client";
 
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { useEffect, useState } from "react";
+import { getFeedbackHighlights } from "@/components/streetlives-api-service";
 
 export default function ReviewHighlights({
+  locationId,
   onViewAll,
   onAddReview,
-  locationId,
 }: {
   onViewAll: () => void;
   onAddReview: () => void;
   locationId: string;
 }) {
-  console.log(locationId);
+  const [highlights, setHighlights] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    const loadComments = async () => {
+      try {
+        setHighlights(await getFeedbackHighlights(locationId));
+      } catch (e) {
+        console.error(e);
+        setHighlights([]);
+      }
+    };
+
+    loadComments();
+  }, [locationId]);
+
+  if (!highlights)
+    return (
+      <p className="p-4 flex items-center justify-center mt-5">Loading...</p>
+    );
 
   return (
     <div className="bg-neutral-50 pt-2" id="reviews">
@@ -42,32 +62,20 @@ export default function ReviewHighlights({
             </button>
           </div>
           <ul className="mt-3 flex flex-col space-y-3">
-            <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">
-              <span>I like that you get</span>
-              <strong className="text-green-800">
-                {" "}
-                prepared and ready for new jobs and programs.
-              </strong>
-            </li>
-            <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">
-              <span>The</span>{" "}
-              <strong className="text-green-800">structure and rules</strong>
-              <span>of the program.</span>{" "}
-              <strong className="text-green-800">Curfew</strong>
-            </li>
-            <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">
-              <span>They sent me to a security program and it</span>{" "}
-              <strong className="text-red-600">
-                wasn&apos;t what I expected it to be.
-              </strong>
-            </li>
-            <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">
-              <strong className="text-red-600">Better communication</strong>{" "}
-              <span>skills between staff and residents.</span>{" "}
-              <strong className="text-red-600">More job</strong>{" "}
-              <span>opportunities.</span>{" "}
-              <strong className="text-red-600">Bathroom conditions, AC</strong>
-            </li>
+            {highlights.length ? (
+              highlights.map((highlight, idx) => (
+                <li
+                  key={idx}
+                  className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900"
+                >
+                  {highlight}
+                </li>
+              ))
+            ) : (
+              <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">
+                No Comments found
+              </li>
+            )}
           </ul>
 
           <div className="mt-4">
