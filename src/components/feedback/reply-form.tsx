@@ -35,8 +35,12 @@ export default function ReplyForm({
         setReplySuccess(true);
       } catch (e) {
         console.log(e);
+        // @ts-ignore
         if (e.response?.data?.error) toast.error(e.response.data.error);
-        else toast.error(e.message);
+        else {
+          // @ts-ignore
+          toast.error(e.message);
+        }
         onComplete();
       }
     });

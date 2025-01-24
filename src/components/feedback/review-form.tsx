@@ -67,8 +67,12 @@ export default function ReviewForm({
         setIsSuccess(true);
         setIsConfirm(false);
       } catch (e) {
+        // @ts-ignore
         if (e.response?.data?.error) toast.error(e.response.data.error);
-        else toast.error(e.message);
+        else {
+          // @ts-ignore
+          toast.error(e.message);
+        }
         setIsConfirm(false);
       }
     });
