@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Comment } from "@/components/common";
 import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ReviewList({
   locationId,
@@ -32,7 +33,11 @@ export default function ReviewList({
 
   if (!comments)
     return (
-      <p className="p-4 flex items-center justify-center mt-5">Loading...</p>
+      <div className="p-4 flex flex-col space-y-10">
+        <CommentSkeleton />
+        <CommentSkeleton />
+        <CommentSkeleton />
+      </div>
     );
 
   return (
@@ -60,6 +65,21 @@ export default function ReviewList({
           <span>Add review</span>
         </button>
       </div>
+    </div>
+  );
+}
+
+function CommentSkeleton() {
+  return (
+    <div>
+      <div className="flex items-center space-x-4 mb-3">
+        <Skeleton className="h-12 w-12 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[200px]" />
+        </div>
+      </div>
+      <Skeleton className="h-[100px] w-full rounded-xl" />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { getFeedbackHighlights } from "@/components/streetlives-api-service";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ReviewHighlights({
   locationId,
@@ -28,10 +29,7 @@ export default function ReviewHighlights({
     loadComments();
   }, [locationId]);
 
-  if (!highlights)
-    return (
-      <p className="p-4 flex items-center justify-center mt-5">Loading...</p>
-    );
+  if (!highlights) return <LoadingSkeleton />;
 
   return (
     <div className="bg-neutral-50 pt-2" id="reviews">
@@ -92,6 +90,37 @@ export default function ReviewHighlights({
             >
               View all
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="pt-2">
+      <div className="bg-white p-4 pt-8">
+        <Skeleton className="w-full h-10 rounded-lg" />
+
+        <div className="mt-6">
+          <div className="flex items-center justify-between">
+            <Skeleton className="w-2/4 h-4 rounded-md" />
+
+            <Skeleton className="w-9 h-4 rounded-md" />
+          </div>
+
+          <ul className="mt-3 flex flex-col space-y-3">
+            <Skeleton className="w-full h-6 rounded-full" />
+            <Skeleton className="w-full h-6 rounded-full" />
+            <Skeleton className="w-full h-6 rounded-full" />
+            <Skeleton className="w-full h-6 rounded-full" />
+          </ul>
+
+          <div className="mt-8 space-y-3">
+            <Skeleton className="w-full rounded-full h-6 " />
+
+            <Skeleton className="w-full rounded-full h-6 " />
           </div>
         </div>
       </div>

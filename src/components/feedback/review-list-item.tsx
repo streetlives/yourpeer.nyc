@@ -23,9 +23,6 @@ export default function ReviewListItem({ comment }: { comment: Comment }) {
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
 
-  console.log(user);
-  console.log(comment);
-
   return (
     <li>
       <div className="bg-white py-5 px-4">
