@@ -6,34 +6,34 @@
 
 import _ from "underscore";
 import {
-  Category,
-  CATEGORY_TO_TAXONOMY_NAME_MAP,
-  LocationDetailData,
-  SHELTER_PARAM,
-  SHELTER_PARAM_FAMILY_VALUE,
-  SHELTER_PARAM_SINGLE_VALUE,
-  YourPeerParsedRequestParams,
-  TaxonomyResponse,
-  Taxonomy,
-  SimplifiedLocationData,
-  FullLocationData,
-  YourPeerLegacyServiceData,
-  YourPeerLegacyLocationData,
-  YourPeerLegacyServiceDataWrapper,
-  setIntersection,
-  TaxonomyCategory,
-  FOOD_PARAM,
-  FOOD_PARAM_SOUP_KITCHEN_VALUE,
-  FOOD_PARAM_PANTRY_VALUE,
-  CLOTHING_PARAM,
-  CLOTHING_PARAM_CASUAL_VALUE,
-  CLOTHING_PARAM_PROFESSIONAL_VALUE,
   AMENITIES_PARAM,
   AmenitiesSubCategory,
   AMENITY_TO_TAXONOMY_NAME_MAP,
-  TaxonomySubCategory,
-  NEARBY_SORT_BY_VALUE,
+  Category,
+  CATEGORY_TO_TAXONOMY_NAME_MAP,
+  CLOTHING_PARAM,
+  CLOTHING_PARAM_CASUAL_VALUE,
+  CLOTHING_PARAM_PROFESSIONAL_VALUE,
   Comment,
+  FOOD_PARAM,
+  FOOD_PARAM_PANTRY_VALUE,
+  FOOD_PARAM_SOUP_KITCHEN_VALUE,
+  FullLocationData,
+  LocationDetailData,
+  NEARBY_SORT_BY_VALUE,
+  setIntersection,
+  SHELTER_PARAM,
+  SHELTER_PARAM_FAMILY_VALUE,
+  SHELTER_PARAM_SINGLE_VALUE,
+  SimplifiedLocationData,
+  Taxonomy,
+  TaxonomyCategory,
+  TaxonomyResponse,
+  TaxonomySubCategory,
+  YourPeerLegacyLocationData,
+  YourPeerLegacyServiceData,
+  YourPeerLegacyServiceDataWrapper,
+  YourPeerParsedRequestParams,
 } from "./common";
 import moment from "moment";
 import axios from "axios";
@@ -670,6 +670,26 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
   const res = await axios.get(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
+  return res.data;
+}
+
+type PostCommentResponse = {
+  id: string;
+  content: string;
+  posted_by: string;
+  contact_info: string;
+  created_at: string;
+};
+
+export async function postComment(data: {
+  locationId: string;
+  content: string;
+}): Promise<PostCommentResponse> {
+  const res = await axios.post(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`,
+    data,
+  );
+
   return res.data;
 }
 

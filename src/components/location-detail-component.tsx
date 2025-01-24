@@ -96,7 +96,11 @@ export default function LocationDetailComponent({
       ) : isShowingReviewDetails ? (
         <ReviewList locationId={location.id} />
       ) : isShowingReviewForm ? (
-        <ReviewForm />
+        <ReviewForm
+          locationId={location.id}
+          provider={location.name || "Unknown provider"}
+          onComplete={() => setIsShowingReviewForm(false)}
+        />
       ) : (
         <div>
           <LocationDetailHeaderInfo

@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
 
 const config: Config = {
+  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -36,7 +37,6 @@ const config: Config = {
         pink: {
           200: "#F48FB1",
         },
-
         transparent: "transparent",
         current: "currentColor",
         black: colors.black,
@@ -59,6 +59,11 @@ const config: Config = {
           600: "#D1D5DB",
         },
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
     },
   },
   plugins: [
@@ -67,6 +72,7 @@ const config: Config = {
     require("tailwindcss-debug-screens"),
     require("tailwind-scrollbar-hide"),
     require("tailwind-scrollbar")({ nocompatible: true }),
+    require("tailwindcss-animate"),
   ],
 };
 export default config;
