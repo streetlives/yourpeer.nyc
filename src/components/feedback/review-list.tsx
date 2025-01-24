@@ -1,8 +1,11 @@
+"use client";
+
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import { Comment } from "@/components/common";
 import { fetchComments } from "@/components/streetlives-api-service";
+import { Authenticator } from "@aws-amplify/ui-react";
 
 export default function ReviewList({ locationId }: { locationId: string }) {
   const [comments, setComments] = useState<Comment[] | null>(null);
@@ -34,11 +37,13 @@ export default function ReviewList({ locationId }: { locationId: string }) {
   return (
     <div className="bg-neutral-100 h-full relative overflow-y-hidden pt-2">
       {comments.length ? (
-        <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
-          {comments.map((comment) => (
-            <ReviewListItem key={comment.id} comment={comment} />
-          ))}
-        </ul>
+        <Authenticator.Provider>
+          <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
+            {comments.map((comment) => (
+              <ReviewListItem key={comment.id} comment={comment} />
+            ))}
+          </ul>
+        </Authenticator.Provider>
       ) : (
         <p className="p-4 bg-white rounded-md m-4 text-sm">
           Nothing to show yet
