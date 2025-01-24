@@ -16,6 +16,8 @@ import Spinner from "@/components/spinner";
 import { postComment } from "@/components/streetlives-api-service";
 import AddReviewSuccess from "@/components/feedback/add-review-success";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { clsx } from "clsx";
 
 interface Props {
   locationId: string;
@@ -23,17 +25,28 @@ interface Props {
   provider: string;
 }
 
+type Inputs = {
+  content: string;
+};
+
 export default function ReviewForm({
   locationId,
-  onComplete,
   provider,
+  onComplete,
 }: Props) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<Inputs>();
+
   const [isConfirm, setIsConfirm] = useState(false);
-  const [content, setContent] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // TODO: this has to render dynamically
   const servicesList = [
     { value: "Food", label: "Food" },
     { value: "Shelter and housing", label: "Shelter and housing" },
@@ -41,17 +54,15 @@ export default function ReviewForm({
     { value: "Other services", label: "Other services" },
   ];
 
-  const handelSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!content.trim()) return;
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
     setIsConfirm(true);
   };
 
   const handleConfirm = async () => {
+    const data = getValues();
     startTransition(async () => {
       try {
-        const res = await postComment({ locationId, content });
-        console.log(res);
+        const res = await postComment({ locationId, content: data.content });
         setIsSuccess(true);
         setIsConfirm(false);
       } catch (e) {
@@ -102,7 +113,7 @@ export default function ReviewForm({
         <AddReviewSuccess onComplete={onComplete} provider={provider} />
       ) : (
         <form
-          onSubmit={handelSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="bg-white h-full relative overflow-y-hidden pt-2 px-5"
         >
           <div className="pb-12 space-y-6">
@@ -142,13 +153,18 @@ export default function ReviewForm({
               </label>
 
               <textarea
-                className="text-black text-sm placeholder:text-gray-500 rounded-md border-gray-400 w-full resize-none"
-                name="whatWentWell"
-                onChange={(e) => setContent(e.target.value)}
+                className={clsx(
+                  "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
+                  errors.content ? "!border-danger focus:!ring-danger" : "border-gray-400",
+                )}
+                {...register("content", { required: true })}
                 id="whatWentWell"
                 rows={5}
                 placeholder="What did you like about your experience?"
               ></textarea>
+              {errors.content && (
+                <p className="text-danger text-sm">This field is required</p>
+              )}
             </div>
 
             <div className="mt-6">
@@ -170,7 +186,12 @@ export default function ReviewForm({
           </div>
 
           <div className=" absolute bottom-0 w-full inset-x-0 bg-transparent px-5 py-2">
-            <Button type="submit" size="lg" className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={!!errors.content}
+            >
               Submit
             </Button>
           </div>

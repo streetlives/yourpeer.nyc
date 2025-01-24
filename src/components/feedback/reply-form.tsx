@@ -3,6 +3,12 @@ import { Button } from "@/components/ui/button";
 import Spinner from "@/components/spinner";
 import Image from "next/image";
 import { postCommentReply } from "@/components/streetlives-api-service";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { clsx } from "clsx";
+
+type Inputs = {
+  content: string;
+};
 
 export default function ReplyForm({
   commentId,
@@ -13,17 +19,18 @@ export default function ReplyForm({
   username: string;
   onComplete: () => void;
 }) {
-  const [content, setContent] = React.useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
   const [isPending, startTransition] = useTransition();
   const [replySuccess, setReplySuccess] = React.useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!content.trim()) return;
-
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
     startTransition(async () => {
       try {
-        const res = await postCommentReply(commentId, username, content);
+        const res = await postCommentReply(commentId, username, data.content);
         console.log(res);
         setReplySuccess(true);
       } catch (e) {
@@ -61,34 +68,38 @@ export default function ReplyForm({
       </div>
     </>
   ) : (
-    <form
-      action="#"
-      className="bg-white mt-2 py-5 px-4"
-      onSubmit={handleSubmit}
-    >
+    <form className="bg-white mt-2 py-5 px-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
         <h3 className="text-lg sm:text-lg text-dark font-semibold mb-2">
           Replying as {username}
         </h3>
 
-        <p className="text-sm">
-          We encourage you to consider acknowledging the feedback and provide
-          guidance if possible
-        </p>
+        <div>
+          <p className="text-sm mb-4">
+            We encourage you to consider acknowledging the feedback and provide
+            guidance if possible
+          </p>
 
-        <textarea
-          className="text-black text-sm placeholder:text-gray-500 rounded-md border-gray-400 w-full resize-none"
-          onChange={(e) => setContent(e.target.value)}
-          rows={5}
-          placeholder="..."
-        ></textarea>
+          <textarea
+            className={clsx(
+              "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
+              errors.content ? "!border-danger focus:!ring-danger" : "border-gray-400",
+            )}
+            {...register("content", { required: true })}
+            rows={5}
+            placeholder="..."
+          ></textarea>
+          {errors.content && (
+            <p className="text-danger text-sm">This field is required</p>
+          )}
+        </div>
 
         <div className="flex flex-col gap-2">
           <Button
             type="submit"
             size="lg"
             className="w-full"
-            disabled={isPending}
+            disabled={!!(isPending || errors.content)}
           >
             {isPending && <Spinner />}
             <span>Submit</span>

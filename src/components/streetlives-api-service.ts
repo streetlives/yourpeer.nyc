@@ -712,7 +712,6 @@ export async function postCommentReply(
     content,
   };
   const token = await getAuthToken();
-  console.log(token);
 
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
