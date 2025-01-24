@@ -690,7 +690,7 @@ export async function getFeedbackHighlights(
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
-  return comments.slice(0, 3).map(comment => comment.content);
+  return comments.slice(0, 3).map((comment) => comment.content);
 }
 
 type PostCommentResponse = {
