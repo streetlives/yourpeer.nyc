@@ -33,7 +33,9 @@ export default function LocationDetailHeader({
         </h1>
       </Transition>
 
-      <QuickExitLink />
+      <span className="md:hidden">
+        <QuickExitLink />
+      </span>
     </div>
   );
 }

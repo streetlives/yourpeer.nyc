@@ -155,7 +155,9 @@ export default function ReviewForm({
               <textarea
                 className={clsx(
                   "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
-                  errors.content ? "!border-danger focus:!ring-danger" : "border-gray-400",
+                  errors.content
+                    ? "!border-danger focus:!ring-danger"
+                    : "border-gray-400",
                 )}
                 {...register("content", { required: true })}
                 id="whatWentWell"

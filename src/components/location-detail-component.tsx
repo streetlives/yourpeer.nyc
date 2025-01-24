@@ -94,7 +94,13 @@ export default function LocationDetailComponent({
           hideReportIssueForm={hideReportIssueForm}
         />
       ) : isShowingReviewDetails ? (
-        <ReviewList locationId={location.id} />
+        <ReviewList
+          locationId={location.id}
+          onAddReview={() => {
+            setIsShowingReviewDetails(false);
+            setIsShowingReviewForm(true);
+          }}
+        />
       ) : isShowingReviewForm ? (
         <ReviewForm
           locationId={location.id}

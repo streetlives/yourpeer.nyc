@@ -37,7 +37,9 @@ export default function ReviewHighlights({
             <h3 className="font-semibold text-base text-grey-900">
               Review highlights
             </h3>
-            <button className="text-blue text-sm">View all</button>
+            <button className="text-blue text-sm" onClick={onViewAll}>
+              View all
+            </button>
           </div>
           <ul className="mt-3 flex flex-col space-y-3">
             <li className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900">

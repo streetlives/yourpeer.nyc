@@ -7,7 +7,13 @@ import { Comment } from "@/components/common";
 import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
 
-export default function ReviewList({ locationId }: { locationId: string }) {
+export default function ReviewList({
+  locationId,
+  onAddReview,
+}: {
+  locationId: string;
+  onAddReview: () => void;
+}) {
   const [comments, setComments] = useState<Comment[] | null>(null);
 
   useEffect(() => {
@@ -51,7 +57,10 @@ export default function ReviewList({ locationId }: { locationId: string }) {
       )}
 
       <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
-        <button className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full">
+        <button
+          onClick={onAddReview}
+          className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+        >
           <PlusCircleIcon className="w-5 h-5 text-white" />
           <span>Add review</span>
         </button>
