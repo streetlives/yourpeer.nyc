@@ -6,11 +6,7 @@
 
 "use client";
 
-import {
-  LOCATION_ROUTE,
-  SimplifiedLocationData,
-  YourPeerLegacyLocationData,
-} from "./common";
+import { LOCATION_ROUTE, YourPeerLegacyLocationData } from "./common";
 import { useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import ReviewForm from "./feedback/review-form";
@@ -34,11 +30,9 @@ export function getIconPath(iconName: string): string {
 
 export default function LocationDetailComponent({
   location,
-  locationStubs,
   slug,
 }: {
   location: YourPeerLegacyLocationData;
-  locationStubs?: SimplifiedLocationData[];
   slug: string;
 }) {
   const [isShowingReviewDetails, setIsShowingReviewDetails] = useState(false);
@@ -119,11 +113,7 @@ export default function LocationDetailComponent({
           <LocationDetailNavigation currentSection={activeSection} />
 
           <div id="locationDetailsContainer">
-            <StreetView
-              location={location}
-              locationStubs={locationStubs}
-              slug={slug}
-            />
+            <StreetView location={location} />
 
             <div className="px-4 mt-5 pb-4 bg-white">
               <LocationDetailInfo location={location} />

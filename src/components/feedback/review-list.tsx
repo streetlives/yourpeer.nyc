@@ -16,7 +16,7 @@ export default function ReviewList({
 }: {
   locationId: string;
   onAddReview: () => void;
-  organizationId: string | null;
+  organizationId: string;
 }) {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [isStuffUser, setIsStuffUser] = useState(false);
@@ -39,7 +39,7 @@ export default function ReviewList({
       const userOrganizations = await getUsersOrganizations();
       const isStuffUser =
         userOrganizations && userOrganizations.indexOf(organizationId) !== -1;
-      setIsStuffUser(isStuffUser);
+      setIsStuffUser(isStuffUser || false);
     };
     getUserOrganizations();
   }, [organizationId]);

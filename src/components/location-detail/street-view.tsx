@@ -18,7 +18,7 @@ import {
   YourPeerLegacyLocationData,
 } from "@/components/common";
 import customStreetViews from "@/components/custom-streetviews";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const GOOGLE_MAPS_API_KEY = (
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
@@ -26,19 +26,17 @@ const GOOGLE_MAPS_API_KEY = (
 
 export default function StreetView({
   location,
-  locationStubs,
-  slug,
 }: {
   location: YourPeerLegacyLocationData;
-  locationStubs?: SimplifiedLocationData[];
-  slug: string;
 }) {
   const [zoom, setZoom] = useState<number>(defaultZoom);
   const [mapCenter, setMapCenter] = useState<Position>(location);
+  const [locationStubs, setLocationStubs] = useState<SimplifiedLocationData[]>(
+    [],
+  );
 
   const streetview =
-    customStreetViews[slug] || `${location.lat},${location.lng}`;
-
+    customStreetViews[location.slug] || `${location.lat},${location.lng}`;
   const streetviewHref = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${streetview}`;
 
   // TODO: eliminate duplicate code
@@ -74,6 +72,9 @@ export default function StreetView({
     },
     [mapCenter, setMapCenter, zoom, setZoom],
   );
+
+  // TODO: call the locationStubs API
+  useEffect(() => {}, []);
 
   return location.closed ? undefined : (
     <div>
