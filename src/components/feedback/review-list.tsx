@@ -19,7 +19,7 @@ export default function ReviewList({
   organizationId: string;
 }) {
   const [comments, setComments] = useState<Comment[] | null>(null);
-  const [isStuffUser, setIsStuffUser] = useState(false);
+  const [isStuffUser, setIsStuffUser] = useState<boolean | null>(null);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -38,8 +38,10 @@ export default function ReviewList({
     const getUserOrganizations = async () => {
       const userOrganizations = await getUsersOrganizations();
       const isStuffUser =
-        userOrganizations && userOrganizations.indexOf(organizationId) !== -1;
-      setIsStuffUser(isStuffUser || false);
+        (userOrganizations &&
+          userOrganizations.indexOf(organizationId) !== -1) ||
+        false;
+      setIsStuffUser(isStuffUser);
     };
     getUserOrganizations();
   }, [organizationId]);

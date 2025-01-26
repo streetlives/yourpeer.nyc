@@ -18,13 +18,14 @@ import {
   HandThumbUpIcon,
 } from "@heroicons/react/20/solid";
 import ReplyForm from "@/components/feedback/reply-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ReviewListItem({
   comment,
   isStuffUser,
 }: {
   comment: Comment;
-  isStuffUser: boolean;
+  isStuffUser: boolean | null;
 }) {
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
@@ -53,10 +54,14 @@ export default function ReviewListItem({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>Report</DropdownMenuItem>
-                {isStuffUser && (
-                  <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                    Reply
-                  </DropdownMenuItem>
+                {isStuffUser === null ? (
+                  <Skeleton className="w-full h-4" />
+                ) : (
+                  isStuffUser && (
+                    <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                      Reply
+                    </DropdownMenuItem>
+                  )
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -93,17 +98,21 @@ export default function ReviewListItem({
               <span>Helpful</span>
             </Button>
 
-            {user && isStuffUser ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsReplying(true)}
-                className="hover:bg-transparent px-0"
-              >
-                <ChatBubbleLeftEllipsisIcon />
-                <span>Reply</span>
-              </Button>
-            ) : undefined}
+            {isStuffUser === null ? (
+              <Skeleton className="w-10 h-4" />
+            ) : (
+              isStuffUser && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsReplying(true)}
+                  className="hover:bg-transparent px-0"
+                >
+                  <ChatBubbleLeftEllipsisIcon />
+                  <span>Reply</span>
+                </Button>
+              )
+            )}
           </div>
         )}
       </div>

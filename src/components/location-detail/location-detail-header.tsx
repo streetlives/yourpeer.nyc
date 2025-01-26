@@ -26,7 +26,7 @@ export default function LocationDetailHeader({
 
       <Transition show={isSticky}>
         <h1
-          className="text-dark text-lg sm:text-xl font-medium truncate details-scroll-header transition duration-300 ease-in data-[closed]:opacity-0"
+          className="text-dark text-lg sm:text-xl flex-1 font-medium truncate details-scroll-header transition duration-300 ease-in data-[closed]:opacity-0"
           translate="no"
         >
           {title}

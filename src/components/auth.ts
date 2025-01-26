@@ -7,7 +7,7 @@ export const getAuthToken = async () => {
     return session.tokens?.idToken?.toString();
   } catch (error) {
     console.error("Error retrieving JWT token:", error);
-    throw error;
+    return undefined;
   }
 };
 
@@ -19,6 +19,6 @@ export const getUsersOrganizations = async () => {
     return org.split(",");
   } catch (error) {
     console.error("Error retrieving JWT token:", error);
-    throw error;
+    return undefined;
   }
 };

@@ -672,10 +672,11 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
   const res = await axios.get<Comment[]>(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
+  console.log(res.data);
 
   return res.data.sort(
     (a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 }
 
@@ -688,7 +689,7 @@ export async function getFeedbackHighlights(
 
   const comments = res.data.sort(
     (a, b) =>
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
   return comments.slice(0, 3).map((comment) => comment.content);
@@ -732,9 +733,6 @@ export async function postCommentReply(
     content,
   };
   const token = await getAuthToken();
-
-  console.log(token);
-
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
     data,
