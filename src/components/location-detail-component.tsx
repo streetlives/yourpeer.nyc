@@ -96,6 +96,7 @@ export default function LocationDetailComponent({
       ) : isShowingReviewDetails ? (
         <ReviewList
           locationId={location.id}
+          organizationId={location.organization_id || ""}
           onAddReview={() => {
             setIsShowingReviewDetails(false);
             setIsShowingReviewForm(true);

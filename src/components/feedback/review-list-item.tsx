@@ -19,7 +19,13 @@ import {
 } from "@heroicons/react/20/solid";
 import ReplyForm from "@/components/feedback/reply-form";
 
-export default function ReviewListItem({ comment }: { comment: Comment }) {
+export default function ReviewListItem({
+  comment,
+  isStuffUser,
+}: {
+  comment: Comment;
+  isStuffUser: boolean;
+}) {
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
 
@@ -47,9 +53,11 @@ export default function ReviewListItem({ comment }: { comment: Comment }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>Report</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                  Reply
-                </DropdownMenuItem>
+                {isStuffUser && (
+                  <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                    Reply
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -85,7 +93,7 @@ export default function ReviewListItem({ comment }: { comment: Comment }) {
               <span>Helpful</span>
             </Button>
 
-            {user && (
+            {user && isStuffUser ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -95,7 +103,7 @@ export default function ReviewListItem({ comment }: { comment: Comment }) {
                 <ChatBubbleLeftEllipsisIcon />
                 <span>Reply</span>
               </Button>
-            )}
+            ) : undefined}
           </div>
         )}
       </div>

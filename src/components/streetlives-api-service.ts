@@ -386,6 +386,7 @@ export function map_gogetta_to_yourpeer(
     id: d.id,
     email: d.Organization.email,
     location_name: d["name"],
+    organization_id: d["Organization"]["id"],
     address: street,
     city: address.city,
     region: address.region,
@@ -731,6 +732,8 @@ export async function postCommentReply(
     content,
   };
   const token = await getAuthToken();
+
+  console.log(token);
 
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,

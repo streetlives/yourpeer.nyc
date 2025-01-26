@@ -7,15 +7,19 @@ import { Comment } from "@/components/common";
 import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getUsersOrganizations } from "@/components/auth";
 
 export default function ReviewList({
   locationId,
   onAddReview,
+  organizationId,
 }: {
   locationId: string;
   onAddReview: () => void;
+  organizationId: string | null;
 }) {
   const [comments, setComments] = useState<Comment[] | null>(null);
+  const [isStuffUser, setIsStuffUser] = useState(false);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -23,13 +27,22 @@ export default function ReviewList({
         const commentsData = await fetchComments(locationId);
         setComments(commentsData);
       } catch (e) {
-        console.error(e);
         setComments([]);
       }
     };
 
     loadComments();
   }, [locationId]);
+
+  useEffect(() => {
+    const getUserOrganizations = async () => {
+      const userOrganizations = await getUsersOrganizations();
+      const isStuffUser =
+        userOrganizations && userOrganizations.indexOf(organizationId) !== -1;
+      setIsStuffUser(isStuffUser);
+    };
+    getUserOrganizations();
+  }, [organizationId]);
 
   if (!comments)
     return (
@@ -46,7 +59,11 @@ export default function ReviewList({
         <Authenticator.Provider>
           <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
             {comments.map((comment) => (
-              <ReviewListItem key={comment.id} comment={comment} />
+              <ReviewListItem
+                key={comment.id}
+                comment={comment}
+                isStuffUser={isStuffUser}
+              />
             ))}
           </ul>
         </Authenticator.Provider>

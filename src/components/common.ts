@@ -767,6 +767,7 @@ export interface YourPeerLegacyServiceDataWrapper {
 export interface YourPeerLegacyLocationData {
   id: string;
   location_name: string | null;
+  organization_id: string | null;
   email: string | null;
   address: string | null;
   city: string | null;

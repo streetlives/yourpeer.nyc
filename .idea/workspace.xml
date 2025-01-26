@@ -6,9 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="cb49e8f8-c5a9-42b2-8c6a-80602bd9c41a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/feedback/review-highlights.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-highlights.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/common.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/common.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/feedback/review-list-item.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-list-item.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/feedback/review-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/feedback/review-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/location-detail-component.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/location-detail-component.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/streetlives-api-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/streetlives-api-service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,14 +35,14 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;shakiil/layout-issue&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;shakil/feedback-ui&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/shakil/projects/streetlives/yourpeer.nyc-nextjs/node_modules/prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;ts.external.directory.path&quot;: &quot;/Users/shakil/projects/streetlives/yourpeer.nyc-nextjs/node_modules/typescript/lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -80,7 +83,12 @@
       <workItem from="1737702091966" duration="18220000" />
       <workItem from="1737722721303" duration="5883000" />
       <workItem from="1737729601814" duration="5572000" />
-      <workItem from="1737735675131" duration="5334000" />
+      <workItem from="1737735675131" duration="7770000" />
+      <workItem from="1737785683022" duration="1355000" />
+      <workItem from="1737788300173" duration="126000" />
+      <workItem from="1737788430709" duration="976000" />
+      <workItem from="1737809645204" duration="378000" />
+      <workItem from="1737879856310" duration="3504000" />
     </task>
     <servers />
   </component>
