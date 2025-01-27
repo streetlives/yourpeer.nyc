@@ -6,6 +6,7 @@ import { postCommentReply } from "@/components/streetlives-api-service";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { clsx } from "clsx";
 import { toast } from "sonner";
+import { Reply } from "@/components/common";
 
 type Inputs = {
   content: string;
@@ -15,10 +16,12 @@ export default function ReplyForm({
   commentId,
   username,
   onComplete,
+  reply,
 }: {
   commentId: string;
   username: string;
   onComplete: () => void;
+  reply?: Reply;
 }) {
   const {
     register,
@@ -31,7 +34,7 @@ export default function ReplyForm({
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     startTransition(async () => {
       try {
-        const res = await postCommentReply(commentId, username, data.content);
+        await postCommentReply(commentId, username, data.content);
         setReplySuccess(true);
       } catch (e) {
         console.log(e);
@@ -89,6 +92,7 @@ export default function ReplyForm({
                 ? "!border-danger focus:!ring-danger"
                 : "border-gray-400",
             )}
+            defaultValue={reply?.content}
             {...register("content", { required: true })}
             rows={5}
             placeholder="..."

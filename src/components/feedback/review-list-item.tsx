@@ -30,6 +30,8 @@ export default function ReviewListItem({
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
 
+  console.log(comment);
+
   return (
     <li>
       <div className="bg-white py-5 px-4">
@@ -109,7 +111,7 @@ export default function ReviewListItem({
                   className="hover:bg-transparent px-0"
                 >
                   <ChatBubbleLeftEllipsisIcon />
-                  <span>Reply</span>
+                  <span>{comment.Replies.length ? "Edit Reply" : "Reply"}</span>
                 </Button>
               )
             )}
@@ -121,6 +123,7 @@ export default function ReviewListItem({
         <ReplyForm
           commentId={comment.id}
           username={user.username}
+          reply={comment.Replies.length ? comment.Replies[0] : undefined}
           onComplete={() => setIsReplying(false)}
         />
       )}
