@@ -14,11 +14,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import Spinner from "@/components/spinner";
 import { postComment } from "@/components/streetlives-api-service";
-import AddReviewSuccess from "@/components/feedback/add-review-success";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { clsx } from "clsx";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface Props {
   locationId: string;
@@ -117,7 +117,29 @@ export default function ReviewForm({
       </AlertDialog>
 
       {isSuccess ? (
-        <AddReviewSuccess onComplete={onComplete} provider={provider} />
+        <>
+          <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center">
+            <Image
+              width={60}
+              height={60}
+              src="/img/icons/love-it-check.svg"
+              className="object-contain"
+              alt=""
+            />
+            <h2 className="text-dark font-bold text-xl sm:text-3xl text-center">
+              Thanks you for providing feedback!
+            </h2>
+            <p className="text-sm text-black/60 text-center">
+              Thank you for your feedback! It helps others find the right
+              services and supports providers in improving their work.
+            </p>
+          </div>
+          <div className="absolute bottom-0 z-50 w-full inset-x-0 bg-transparent px-5 py-2 flex flex-col gap-2">
+            <Button size="lg" className="w-full" onClick={onComplete}>
+              Done
+            </Button>
+          </div>
+        </>
       ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}

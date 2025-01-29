@@ -76,8 +76,6 @@ export default function LocationDetailComponent({
       ? "Add review"
       : location.name;
 
-  console.log(location);
-
   let servicesNames: string[] = [];
 
   CATEGORIES.map((serviceCategory) => {

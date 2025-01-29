@@ -68,23 +68,23 @@ export default function ReviewListItem({
         <div className="mt-4 text-grey-700 text-sm">
           <p>{typeof comment.content === "string" && comment.content}</p>
           {typeof comment.content !== "string" &&
-            comment.content.whatServicesDidYouUse?.length && (
-              <p className="mt-2">
-                <span>Services Used: </span>
-                <span>
-                  {comment.content.whatServicesDidYouUse.map((s, i) => (
-                    <span key={s}>
-                      {s}
-                      {typeof comment.content !== "string" &&
-                      comment.content.whatServicesDidYouUse?.length &&
-                      i !== comment.content.whatServicesDidYouUse.length - 1
-                        ? ", "
-                        : ""}
-                    </span>
-                  ))}
-                </span>
-              </p>
-            )}
+          comment.content.whatServicesDidYouUse?.length ? (
+            <p className="mt-2">
+              <span>Services Used: </span>
+              <span>
+                {comment.content.whatServicesDidYouUse.map((s, i) => (
+                  <span key={s}>
+                    {s}
+                    {typeof comment.content !== "string" &&
+                    comment.content.whatServicesDidYouUse?.length &&
+                    i !== comment.content.whatServicesDidYouUse.length - 1
+                      ? ", "
+                      : ""}
+                  </span>
+                ))}
+              </span>
+            </p>
+          ) : undefined}
         </div>
         <div className="mt-4">
           <h4 className="text-grey-900 text-sm font-bold mb-1">
