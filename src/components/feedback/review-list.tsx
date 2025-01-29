@@ -24,8 +24,7 @@ export default function ReviewList({
   useEffect(() => {
     const loadComments = async () => {
       try {
-        const commentsData = await fetchComments(locationId);
-        setComments(commentsData);
+        setComments(await fetchComments(locationId));
       } catch (e) {
         setComments([]);
       }

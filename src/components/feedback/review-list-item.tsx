@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChatBubbleLeftEllipsisIcon,
+  EyeSlashIcon,
   HandThumbUpIcon,
 } from "@heroicons/react/20/solid";
 import ReplyForm from "@/components/feedback/reply-form";
@@ -40,8 +41,13 @@ export default function ReviewListItem({
               <UserIcon className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-grey-900 text-sm mb-1 font-medium">
-                Anonymous Client
+              <div className="text-grey-900 text-sm mb-1 font-medium flex items-center gap-2">
+                <span>Anonymous Client</span>
+                {comment.hidden === true && isStuffUser && (
+                  <button className="text-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed">
+                    <EyeSlashIcon className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <div className="text-xs text-grey-700">
                 {moment(comment.created_at).format("MMMM Do YYYY")}
@@ -58,9 +64,16 @@ export default function ReviewListItem({
                 <Skeleton className="w-1/2 h-4" />
               ) : (
                 isStuffUser && (
-                  <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                    Reply
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                      Reply
+                    </DropdownMenuItem>
+                    {comment.hidden === true && (
+                        <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                          Hide
+                        </DropdownMenuItem>
+                    )}
+                  </>
                 )
               )}
             </DropdownMenuContent>
@@ -153,7 +166,7 @@ export default function ReviewListItem({
           username={user.username}
           reply={comment.Replies?.[0] ?? undefined}
           onComplete={(reply) => {
-            setCreatedReply(reply);
+            if (reply) setCreatedReply(reply);
             setIsReplying(false);
           }}
         />
