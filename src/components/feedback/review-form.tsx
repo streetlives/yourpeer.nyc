@@ -50,14 +50,6 @@ export default function ReviewForm({
   const [isPending, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // TODO: this has to render dynamically
-  const servicesList = [
-    { value: "Food", label: "Food" },
-    { value: "Shelter and housing", label: "Shelter and housing" },
-    { value: "Personal Care", label: "Personal Care" },
-    { value: "Other services", label: "Other services" },
-  ];
-
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     setIsConfirm(true);
   };
@@ -151,7 +143,7 @@ export default function ReviewForm({
                 What service did you use?
               </label>
               <MultiSelect
-                options={servicesList}
+                options={services.map((s) => ({ value: s, label: s }))}
                 onValueChange={setSelectedServices}
                 defaultValue={selectedServices}
                 placeholder="Choose something"

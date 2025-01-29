@@ -6,7 +6,12 @@
 
 "use client";
 
-import { LOCATION_ROUTE, YourPeerLegacyLocationData } from "./common";
+import {
+  CATEGORIES,
+  getServicesWrapper,
+  LOCATION_ROUTE,
+  YourPeerLegacyLocationData,
+} from "./common";
 import { useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import ReviewForm from "./feedback/review-form";
@@ -73,6 +78,16 @@ export default function LocationDetailComponent({
 
   console.log(location);
 
+  let servicesNames: string[] = [];
+
+  CATEGORIES.map((serviceCategory) => {
+    const servicesWrapper = getServicesWrapper(serviceCategory, location);
+    const names = servicesWrapper?.services
+      .map(({ name }) => name)
+      .filter((name) => name !== null);
+    servicesNames.push(...names);
+  });
+
   return (
     <LocationDetailContainer
       onChangeSection={(section) => setActiveSection(section)}
@@ -103,7 +118,7 @@ export default function LocationDetailComponent({
           locationId={location.id}
           provider={location.name || "Unknown provider"}
           onComplete={() => setIsShowingReviewForm(false)}
-          services={[]}
+          services={servicesNames}
         />
       ) : (
         <div>
