@@ -873,9 +873,17 @@ export interface Reply {
   created_at: string;
 }
 
+export type CommentContent =
+  | string
+  | {
+      whatServicesDidYouUse?: string[];
+      whatWentWell: string;
+      whatCouldBeImproved?: string;
+    };
+
 export interface Comment {
   id: string;
-  content: string;
+  content: CommentContent;
   created_at: string;
   Replies: Reply[];
 }

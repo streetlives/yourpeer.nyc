@@ -71,6 +71,8 @@ export default function LocationDetailComponent({
       ? "Add review"
       : location.name;
 
+  console.log(location);
+
   return (
     <LocationDetailContainer
       onChangeSection={(section) => setActiveSection(section)}
@@ -101,6 +103,7 @@ export default function LocationDetailComponent({
           locationId={location.id}
           provider={location.name || "Unknown provider"}
           onComplete={() => setIsShowingReviewForm(false)}
+          services={[]}
         />
       ) : (
         <div>

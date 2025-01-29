@@ -30,8 +30,6 @@ export default function ReviewListItem({
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
 
-  console.log(comment);
-
   return (
     <li>
       <div className="bg-white py-5 px-4">
@@ -49,40 +47,65 @@ export default function ReviewListItem({
               </div>
             </div>
           </div>
-          <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <EllipsisVerticalIcon className="size-5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Report</DropdownMenuItem>
-                {isStuffUser === null ? (
-                  <Skeleton className="w-full h-4" />
-                ) : (
-                  isStuffUser && (
-                    <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                      Reply
-                    </DropdownMenuItem>
-                  )
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <EllipsisVerticalIcon className="size-5" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Report</DropdownMenuItem>
+              {isStuffUser === null ? (
+                <Skeleton className="w-1/2 h-4" />
+              ) : (
+                isStuffUser && (
+                  <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                    Reply
+                  </DropdownMenuItem>
+                )
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="mt-4 text-grey-700 text-sm">
-          <p>{comment.content}</p>
+          <p>{typeof comment.content === "string" && comment.content}</p>
+          {typeof comment.content !== "string" &&
+            comment.content.whatServicesDidYouUse?.length && (
+              <p className="mt-2">
+                <span>Services Used: </span>
+                <span>
+                  {comment.content.whatServicesDidYouUse.map((s, i) => (
+                    <span key={s}>
+                      {s}
+                      {typeof comment.content !== "string" &&
+                      comment.content.whatServicesDidYouUse?.length &&
+                      i !== comment.content.whatServicesDidYouUse.length - 1
+                        ? ", "
+                        : ""}
+                    </span>
+                  ))}
+                </span>
+              </p>
+            )}
         </div>
         <div className="mt-4">
           <h4 className="text-grey-900 text-sm font-bold mb-1">
             What went well
           </h4>
-          <p className="text-grey-900 text-sm">skipped</p>
+          <p className="text-grey-900 text-sm">
+            {typeof comment.content !== "string" && comment.content.whatWentWell
+              ? comment.content.whatWentWell
+              : "skipped"}
+          </p>
         </div>
         <div className="mt-4">
           <h4 className="text-grey-900 text-sm font-bold mb-1">
             What could be improved
           </h4>
-          <p className="text-grey-900 text-sm">skipped</p>
+          <p className="text-grey-900 text-sm">
+            {typeof comment.content !== "string" &&
+            comment.content.whatCouldBeImproved
+              ? comment.content.whatCouldBeImproved
+              : "skipped"}
+          </p>
         </div>
 
         {comment.Replies.map((reply) => (
@@ -123,7 +146,7 @@ export default function ReviewListItem({
         <ReplyForm
           commentId={comment.id}
           username={user.username}
-          reply={comment.Replies.length ? comment.Replies[0] : undefined}
+          reply={comment.Replies?.[0] ?? undefined}
           onComplete={() => setIsReplying(false)}
         />
       )}

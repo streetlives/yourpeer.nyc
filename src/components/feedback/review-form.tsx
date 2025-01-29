@@ -24,16 +24,19 @@ interface Props {
   locationId: string;
   onComplete: () => void;
   provider: string;
+  services: string[];
 }
 
 type Inputs = {
-  content: string;
+  whatCouldBeImproved: string;
+  whatWentWell: string;
 };
 
 export default function ReviewForm({
   locationId,
   provider,
   onComplete,
+  services,
 }: Props) {
   const {
     register,
@@ -63,7 +66,14 @@ export default function ReviewForm({
     const data = getValues();
     startTransition(async () => {
       try {
-        const res = await postComment({ locationId, content: data.content });
+        await postComment({
+          locationId,
+          content: {
+            whatCouldBeImproved: data.whatCouldBeImproved,
+            whatServicesDidYouUse: selectedServices,
+            whatWentWell: data.whatWentWell,
+          },
+        });
         setIsSuccess(true);
         setIsConfirm(false);
       } catch (e) {
@@ -160,16 +170,15 @@ export default function ReviewForm({
               <textarea
                 className={clsx(
                   "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
-                  errors.content
+                  errors.whatWentWell
                     ? "!border-danger focus:!ring-danger"
                     : "border-gray-400",
                 )}
-                {...register("content", { required: true })}
-                id="whatWentWell"
+                {...register("whatWentWell", { required: true })}
                 rows={5}
                 placeholder="What did you like about your experience?"
               ></textarea>
-              {errors.content && (
+              {errors.whatWentWell && (
                 <p className="text-danger text-sm">This field is required</p>
               )}
             </div>
@@ -183,9 +192,13 @@ export default function ReviewForm({
               </label>
 
               <textarea
-                className="text-black text-sm placeholder:text-gray-500 rounded-md border-gray-400 w-full resize-none"
-                name="whatCouldBeImproved"
-                id=""
+                className={clsx(
+                  "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
+                  errors.whatCouldBeImproved
+                    ? "!border-danger focus:!ring-danger"
+                    : "border-gray-400",
+                )}
+                {...register("whatCouldBeImproved")}
                 rows={5}
                 placeholder="How can they do a better job?"
               ></textarea>
@@ -197,7 +210,7 @@ export default function ReviewForm({
               type="submit"
               size="lg"
               className="w-full"
-              disabled={!!errors.content}
+              disabled={!!errors.whatWentWell}
             >
               Submit
             </Button>

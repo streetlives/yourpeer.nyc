@@ -15,6 +15,7 @@ import {
   CLOTHING_PARAM_CASUAL_VALUE,
   CLOTHING_PARAM_PROFESSIONAL_VALUE,
   Comment,
+  CommentContent,
   FOOD_PARAM,
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
@@ -672,12 +673,22 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
   const res = await axios.get<Comment[]>(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
-  console.log(res.data);
 
-  return res.data.sort(
+  const comments = res.data.sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
+
+  return comments.map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string);
+    } catch (e) {
+      content = comment.content;
+    }
+
+    return { ...comment, content };
+  });
 }
 
 export async function getFeedbackHighlights(
@@ -692,7 +703,19 @@ export async function getFeedbackHighlights(
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 
-  return comments.slice(0, 3).map((comment) => comment.content);
+  return comments.slice(0, 3).map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string).whatWentWell;
+    } catch (e) {
+      content =
+        typeof comment.content === "string"
+          ? comment.content
+          : comment.content.whatWentWell;
+    }
+
+    return content;
+  });
 }
 
 type PostCommentResponse = {
@@ -705,12 +728,12 @@ type PostCommentResponse = {
 
 export async function postComment(data: {
   locationId: string;
-  content: string;
+  content: CommentContent;
 }): Promise<PostCommentResponse> {
-  const res = await axios.post(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`,
-    data,
-  );
+  const res = await axios.post(`${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`, {
+    locationId: data.locationId,
+    content: JSON.stringify(data.content),
+  });
 
   return res.data;
 }
@@ -721,6 +744,8 @@ type PostCommentReplyResponse = {
   posted_by: string;
   contact_info: string;
   created_at: string;
+  location_id: string;
+  reply_to_id: string;
 };
 
 export async function postCommentReply(
@@ -733,6 +758,7 @@ export async function postCommentReply(
     content,
   };
   const token = await getAuthToken();
+  console.log(token);
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
     data,
