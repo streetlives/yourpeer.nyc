@@ -1,9 +1,9 @@
 "use client";
 
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { useEffect, useState } from "react";
 import { getFeedbackHighlights } from "@/components/streetlives-api-service";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ReviewHighlights({
   locationId,
@@ -14,22 +14,12 @@ export default function ReviewHighlights({
   onAddReview: () => void;
   locationId: string;
 }) {
-  const [highlights, setHighlights] = useState<string[] | null>(null);
+  const { data, isLoading } = useQuery({
+    queryKey: ["highlights"],
+    queryFn: () => getFeedbackHighlights(locationId),
+  });
 
-  useEffect(() => {
-    const loadComments = async () => {
-      try {
-        setHighlights(await getFeedbackHighlights(locationId));
-      } catch (e) {
-        console.error(e);
-        setHighlights([]);
-      }
-    };
-
-    loadComments();
-  }, [locationId]);
-
-  if (!highlights) return <LoadingSkeleton />;
+  if (isLoading) return <LoadingSkeleton />;
 
   return (
     <div className="bg-neutral-50 pt-2" id="reviews">
@@ -60,8 +50,8 @@ export default function ReviewHighlights({
             </button>
           </div>
           <ul className="mt-3 flex flex-col space-y-3">
-            {highlights.length ? (
-              highlights.map((highlight, idx) => (
+            {data?.length ? (
+              data.map((highlight, idx) => (
                 <li
                   key={idx}
                   className="bg-grey-100 rounded-3xl px-4 py-3 text-sm md:text-balance text-grey-900"

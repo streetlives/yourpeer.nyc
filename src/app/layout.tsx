@@ -11,6 +11,7 @@ import type { Viewport } from "next";
 import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
 import { Toaster } from "sonner";
+import QueryClientProvider from "@/app/QueryClientProvider";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -56,7 +57,9 @@ export default function RootLayout({
       </Script>
       <body>
         <CookiesProvider>
-          <LanguageTranslationProvider>{children}</LanguageTranslationProvider>
+          <LanguageTranslationProvider>
+            <QueryClientProvider>{children}</QueryClientProvider>
+          </LanguageTranslationProvider>
         </CookiesProvider>
         <Toaster />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_MEASUREMENT_ID} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { EllipsisVerticalIcon, UserIcon } from "@heroicons/react/24/outline";
-import { Comment, Reply } from "@/components/common";
+import { Comment } from "@/components/common";
 import moment from "moment";
 import {
   DropdownMenu,
@@ -29,7 +29,6 @@ export default function ReviewListItem({
   isStuffUser: boolean | null;
 }) {
   const [isReplying, setIsReplying] = useState(false);
-  const [createdReply, setCreatedReply] = useState<Reply | null>(null);
   const { user } = useAuthenticator((context) => [context.user]);
 
   return (
@@ -69,9 +68,9 @@ export default function ReviewListItem({
                       Reply
                     </DropdownMenuItem>
                     {comment.hidden === true && (
-                        <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                          Hide
-                        </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                        Hide
+                      </DropdownMenuItem>
                     )}
                   </>
                 )
@@ -122,13 +121,9 @@ export default function ReviewListItem({
           </p>
         </div>
 
-        {createdReply ? (
-          <ReplyItem reply={createdReply} />
-        ) : (
-          comment.Replies.map((reply) => (
-            <ReplyItem key={reply.id} reply={reply} />
-          ))
-        )}
+        {comment.Replies.map((reply) => (
+          <ReplyItem key={reply.id} reply={reply} />
+        ))}
 
         {isReplying ? undefined : (
           <div className="flex items-center gap-4 mt-3">
@@ -165,10 +160,7 @@ export default function ReviewListItem({
           commentId={comment.id}
           username={user.username}
           reply={comment.Replies?.[0] ?? undefined}
-          onComplete={(reply) => {
-            if (reply) setCreatedReply(reply);
-            setIsReplying(false);
-          }}
+          onComplete={() => setIsReplying(false)}
         />
       )}
     </li>

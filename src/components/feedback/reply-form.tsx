@@ -1,12 +1,12 @@
-import React, { useTransition } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/spinner";
 import Image from "next/image";
 import { postCommentReply } from "@/components/streetlives-api-service";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { clsx } from "clsx";
-import { toast } from "sonner";
 import { Reply } from "@/components/common";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 type Inputs = {
   content: string;
@@ -20,7 +20,7 @@ export default function ReplyForm({
 }: {
   commentId: string;
   username: string;
-  onComplete: (reply: Reply | null) => void;
+  onComplete: () => void;
   reply?: Reply;
 }) {
   const {
@@ -28,30 +28,17 @@ export default function ReplyForm({
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
-  const [isPending, startTransition] = useTransition();
-  const [replySuccess, setReplySuccess] = React.useState(false);
-  const [createdReply, setCreatedReply] = React.useState<Reply | null>(null);
+  const queryClient = useQueryClient();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    startTransition(async () => {
-      try {
-        setCreatedReply(
-          await postCommentReply(commentId, username, data.content),
-        );
-      } catch (e) {
-        console.log(e);
-        // @ts-ignore
-        if (e.response?.data?.error) toast.error(e.response.data.error);
-        else {
-          // @ts-ignore
-          toast.error(e.message);
-        }
-        onComplete(null);
-      }
-    });
-  };
+  const { isPending, mutate, isSuccess } = useMutation({
+    mutationFn: ({ content }: { content: string }) =>
+      postCommentReply(commentId, username, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+    },
+  });
 
-  return createdReply !== null ? (
+  return isSuccess ? (
     <>
       <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center">
         <Image
@@ -69,17 +56,16 @@ export default function ReplyForm({
         </p>
       </div>
       <div className="absolute bottom-0 z-50 w-full inset-x-0 bg-transparent px-5 py-2 flex flex-col gap-2">
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={() => onComplete(createdReply)}
-        >
+        <Button size="lg" className="w-full" onClick={() => onComplete()}>
           Done
         </Button>
       </div>
     </>
   ) : (
-    <form className="bg-white mt-2 py-5 px-4" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className="bg-white mt-2 py-5 px-4"
+      onSubmit={handleSubmit(({ content }) => mutate({ content }))}
+    >
       <div className="space-y-4">
         <h3 className="text-lg sm:text-lg text-dark font-semibold mb-2">
           Replying as {username}
@@ -120,7 +106,7 @@ export default function ReplyForm({
           </Button>
 
           <Button
-            onClick={() => onComplete(null)}
+            onClick={() => onComplete()}
             type="button"
             variant="outline"
             size="lg"

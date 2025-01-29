@@ -2,12 +2,11 @@
 
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { useEffect, useState } from "react";
-import { Comment } from "@/components/common";
 import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getUsersOrganizations } from "@/components/auth";
+import { useQuery } from "@tanstack/react-query";
+import { useStuffUser } from "@/components/use-stuff-user";
 
 export default function ReviewList({
   locationId,
@@ -18,34 +17,14 @@ export default function ReviewList({
   onAddReview: () => void;
   organizationId: string;
 }) {
-  const [comments, setComments] = useState<Comment[] | null>(null);
-  const [isStuffUser, setIsStuffUser] = useState<boolean | null>(null);
+  const { isStuffUser } = useStuffUser(organizationId);
 
-  useEffect(() => {
-    const loadComments = async () => {
-      try {
-        setComments(await fetchComments(locationId));
-      } catch (e) {
-        setComments([]);
-      }
-    };
+  const { data, isLoading } = useQuery({
+    queryKey: ["comments"],
+    queryFn: () => fetchComments(locationId),
+  });
 
-    loadComments();
-  }, [locationId]);
-
-  useEffect(() => {
-    const getUserOrganizations = async () => {
-      const userOrganizations = await getUsersOrganizations();
-      const isStuffUser =
-        (userOrganizations &&
-          userOrganizations.indexOf(organizationId) !== -1) ||
-        false;
-      setIsStuffUser(isStuffUser);
-    };
-    getUserOrganizations();
-  }, [organizationId]);
-
-  if (!comments)
+  if (isLoading)
     return (
       <div className="p-4 flex flex-col space-y-10">
         <CommentSkeleton />
@@ -56,10 +35,10 @@ export default function ReviewList({
 
   return (
     <div className="bg-neutral-100 h-full relative overflow-y-hidden pt-2">
-      {comments.length ? (
+      {data?.length ? (
         <Authenticator.Provider>
           <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
-            {comments.map((comment) => (
+            {data.map((comment) => (
               <ReviewListItem
                 key={comment.id}
                 comment={comment}

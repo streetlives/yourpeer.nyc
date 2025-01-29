@@ -884,7 +884,7 @@ export type CommentContent =
 export interface Comment {
   id: string;
   content: CommentContent;
-  hidden?: boolean | null
+  hidden?: boolean | null;
   created_at: string;
   Replies: Reply[];
 }

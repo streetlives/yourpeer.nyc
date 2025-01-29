@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import React, { useState, useTransition } from "react";
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,10 +15,10 @@ import {
 import Spinner from "@/components/spinner";
 import { postComment } from "@/components/streetlives-api-service";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { clsx } from "clsx";
-import { toast } from "sonner";
 import Image from "next/image";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   locationId: string;
@@ -30,6 +30,7 @@ interface Props {
 type Inputs = {
   whatCouldBeImproved: string;
   whatWentWell: string;
+  whatServicesDidYouUse: string[];
 };
 
 export default function ReviewForm({
@@ -43,42 +44,23 @@ export default function ReviewForm({
     handleSubmit,
     formState: { errors },
     getValues,
+    control,
   } = useForm<Inputs>();
 
   const [isConfirm, setIsConfirm] = useState(false);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const [isSuccess, setIsSuccess] = useState(false);
+  const queryClient = useQueryClient();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    setIsConfirm(true);
-  };
-
-  const handleConfirm = async () => {
-    const data = getValues();
-    startTransition(async () => {
-      try {
-        await postComment({
-          locationId,
-          content: {
-            whatCouldBeImproved: data.whatCouldBeImproved,
-            whatServicesDidYouUse: selectedServices,
-            whatWentWell: data.whatWentWell,
-          },
-        });
-        setIsSuccess(true);
-        setIsConfirm(false);
-      } catch (e) {
-        // @ts-ignore
-        if (e.response?.data?.error) toast.error(e.response.data.error);
-        else {
-          // @ts-ignore
-          toast.error(e.message);
-        }
-        setIsConfirm(false);
-      }
-    });
-  };
+  const { mutate, isSuccess, isPending } = useMutation({
+    mutationFn: (content: Inputs) =>
+      postComment({
+        locationId,
+        content,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      setIsConfirm(false);
+    },
+  });
 
   return (
     <>
@@ -105,7 +87,10 @@ export default function ReviewForm({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={handleConfirm} disabled={isPending}>
+            <AlertDialogAction
+              onClick={() => mutate(getValues())}
+              disabled={isPending}
+            >
               {isPending && <Spinner />}
               <span>Okay</span>
             </AlertDialogAction>
@@ -142,7 +127,7 @@ export default function ReviewForm({
         </>
       ) : (
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(() => setIsConfirm(true))}
           className="bg-white h-full relative overflow-y-hidden pt-2 px-5"
         >
           <div className="pb-12 space-y-6">
@@ -164,12 +149,17 @@ export default function ReviewForm({
               >
                 What service did you use?
               </label>
-              <MultiSelect
-                options={services.map((s) => ({ value: s, label: s }))}
-                onValueChange={setSelectedServices}
-                defaultValue={selectedServices}
-                placeholder="Choose something"
-                variant="inverted"
+              <Controller
+                control={control}
+                name="whatServicesDidYouUse"
+                render={({ field: { onChange } }) => (
+                  <MultiSelect
+                    options={services.map((s) => ({ value: s, label: s }))}
+                    onValueChange={onChange}
+                    placeholder="Choose something"
+                    variant="inverted"
+                  />
+                )}
               />
             </div>
 
