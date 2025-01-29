@@ -22,6 +22,7 @@ import {
   FullLocationData,
   LocationDetailData,
   NEARBY_SORT_BY_VALUE,
+  Reply,
   setIntersection,
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
@@ -718,18 +719,10 @@ export async function getFeedbackHighlights(
   });
 }
 
-type PostCommentResponse = {
-  id: string;
-  content: string;
-  posted_by: string;
-  contact_info: string;
-  created_at: string;
-};
-
 export async function postComment(data: {
   locationId: string;
   content: CommentContent;
-}): Promise<PostCommentResponse> {
+}): Promise<Comment> {
   const res = await axios.post(`${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`, {
     locationId: data.locationId,
     content: JSON.stringify(data.content),
@@ -738,27 +731,16 @@ export async function postComment(data: {
   return res.data;
 }
 
-type PostCommentReplyResponse = {
-  id: string;
-  content: string;
-  posted_by: string;
-  contact_info: string;
-  created_at: string;
-  location_id: string;
-  reply_to_id: string;
-};
-
 export async function postCommentReply(
   commentId: string,
   postedBy: string,
   content: string,
-): Promise<PostCommentReplyResponse> {
+): Promise<Reply> {
   const data = {
     postedBy,
     content,
   };
   const token = await getAuthToken();
-  console.log(token);
   const res = await axios.post(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
     data,

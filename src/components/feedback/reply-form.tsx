@@ -20,7 +20,7 @@ export default function ReplyForm({
 }: {
   commentId: string;
   username: string;
-  onComplete: () => void;
+  onComplete: (reply: Reply | null) => void;
   reply?: Reply;
 }) {
   const {
@@ -30,12 +30,14 @@ export default function ReplyForm({
   } = useForm<Inputs>();
   const [isPending, startTransition] = useTransition();
   const [replySuccess, setReplySuccess] = React.useState(false);
+  const [createdReply, setCreatedReply] = React.useState<Reply | null>(null);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     startTransition(async () => {
       try {
-        await postCommentReply(commentId, username, data.content);
-        setReplySuccess(true);
+        setCreatedReply(
+          await postCommentReply(commentId, username, data.content),
+        );
       } catch (e) {
         console.log(e);
         // @ts-ignore
@@ -44,12 +46,12 @@ export default function ReplyForm({
           // @ts-ignore
           toast.error(e.message);
         }
-        onComplete();
+        onComplete(null);
       }
     });
   };
 
-  return replySuccess ? (
+  return createdReply !== null ? (
     <>
       <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center">
         <Image
@@ -67,7 +69,11 @@ export default function ReplyForm({
         </p>
       </div>
       <div className="absolute bottom-0 z-50 w-full inset-x-0 bg-transparent px-5 py-2 flex flex-col gap-2">
-        <Button size="lg" className="w-full" onClick={onComplete}>
+        <Button
+          size="lg"
+          className="w-full"
+          onClick={() => onComplete(createdReply)}
+        >
           Done
         </Button>
       </div>
@@ -114,7 +120,7 @@ export default function ReplyForm({
           </Button>
 
           <Button
-            onClick={onComplete}
+            onClick={() => onComplete(null)}
             type="button"
             variant="outline"
             size="lg"

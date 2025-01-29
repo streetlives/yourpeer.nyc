@@ -2,7 +2,6 @@ import { Reply } from "@/components/common";
 import moment from "moment/moment";
 
 const ReplyItem = ({ reply }: { reply: Reply }) => {
-  console.log(reply);
   return (
     <div className="mt-3 rounded-3xl p-4 bg-grey-100  ">
       <div className="flex items-center space-x-2">
