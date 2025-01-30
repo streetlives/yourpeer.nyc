@@ -20,16 +20,33 @@ import {
 } from "@heroicons/react/20/solid";
 import ReplyForm from "@/components/feedback/reply-form";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { hideComment } from "@/components/streetlives-api-service";
+import { toast } from "sonner";
 
 export default function ReviewListItem({
   comment,
   isStuffUser,
+  isAdmin,
 }: {
   comment: Comment;
   isStuffUser: boolean | null;
+  isAdmin: boolean;
 }) {
   const [isReplying, setIsReplying] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
+  const queryClient = useQueryClient();
+
+  const { mutate: mutateHideComment } = useMutation({
+    mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      toast("Comment hidden successfully");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   return (
     <li>
@@ -42,8 +59,11 @@ export default function ReviewListItem({
             <div>
               <div className="text-grey-900 text-sm mb-1 font-medium flex items-center gap-2">
                 <span>Anonymous Client</span>
-                {comment.hidden === true && isStuffUser && (
-                  <button className="text-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed">
+                {comment.hidden === true && isAdmin && (
+                  <button
+                    onClick={() => mutateHideComment(false)}
+                    className="text-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed"
+                  >
                     <EyeSlashIcon className="w-4 h-4" />
                   </button>
                 )}
@@ -59,21 +79,19 @@ export default function ReviewListItem({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>Report</DropdownMenuItem>
-              {isStuffUser === null ? (
-                <Skeleton className="w-1/2 h-4" />
+              {isStuffUser && (
+                <DropdownMenuItem onClick={() => setIsReplying(true)}>
+                  Reply
+                </DropdownMenuItem>
+              )}
+              {isAdmin && comment.hidden === true ? (
+                <DropdownMenuItem onClick={() => mutateHideComment(false)}>
+                  Unhide
+                </DropdownMenuItem>
               ) : (
-                isStuffUser && (
-                  <>
-                    <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                      Reply
-                    </DropdownMenuItem>
-                    {comment.hidden === true && (
-                      <DropdownMenuItem onClick={() => setIsReplying(true)}>
-                        Hide
-                      </DropdownMenuItem>
-                    )}
-                  </>
-                )
+                <DropdownMenuItem onClick={() => mutateHideComment(true)}>
+                  Hide
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

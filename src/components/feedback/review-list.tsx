@@ -6,7 +6,7 @@ import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { useStuffUser } from "@/components/use-stuff-user";
+import { useAdminUser, useStuffUser } from "@/components/use-user-role";
 
 export default function ReviewList({
   locationId,
@@ -18,6 +18,7 @@ export default function ReviewList({
   organizationId: string;
 }) {
   const { isStuffUser } = useStuffUser(organizationId);
+  const { isAdmin } = useAdminUser();
 
   const { data, isLoading } = useQuery({
     queryKey: ["comments"],
@@ -43,6 +44,7 @@ export default function ReviewList({
                 key={comment.id}
                 comment={comment}
                 isStuffUser={isStuffUser}
+                isAdmin={isAdmin || false}
               />
             ))}
           </ul>

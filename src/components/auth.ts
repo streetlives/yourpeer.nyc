@@ -10,12 +10,10 @@ export const getAuthToken = async () => {
   }
 };
 
-export const getUsersOrganizations = async () => {
+export const getAuthPayload = async () => {
   try {
     const session = await fetchAuthSession();
-    const org = session.tokens?.idToken?.payload["custom:orgs"] as string;
-    if (!org) return undefined;
-    return org.split(",");
+    return session.tokens?.idToken?.payload;
   } catch (error) {
     console.error("Error retrieving JWT token:", error);
     return undefined;

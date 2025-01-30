@@ -731,6 +731,26 @@ export async function postComment(data: {
   return res.data;
 }
 
+export async function hideComment(
+  commentId: string,
+  hidden: boolean,
+): Promise<Comment> {
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/hidden`,
+    {
+      hidden,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
 export async function postCommentReply(
   commentId: string,
   postedBy: string,
