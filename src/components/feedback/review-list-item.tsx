@@ -91,15 +91,16 @@ export default function ReviewListItem({
                   Reply
                 </DropdownMenuItem>
               )}
-              {isAdmin && comment.hidden === true ? (
-                <DropdownMenuItem onClick={() => mutateHideComment(false)}>
-                  Unhide
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => mutateHideComment(true)}>
-                  Hide
-                </DropdownMenuItem>
-              )}
+              {isAdmin &&
+                (comment.hidden === true ? (
+                  <DropdownMenuItem onClick={() => mutateHideComment(false)}>
+                    Unhide
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => mutateHideComment(true)}>
+                    Hide
+                  </DropdownMenuItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -146,9 +147,13 @@ export default function ReviewListItem({
           </p>
         </div>
 
-        {comment.Replies.map((reply) => (
-          <ReplyItem key={reply.id} reply={reply} />
-        ))}
+        <div>
+          {isReplying
+            ? undefined
+            : comment.Replies.map((reply) => (
+                <ReplyItem key={reply.id} reply={reply} />
+              ))}
+        </div>
 
         {isReplying ? undefined : (
           <div className="flex items-center gap-4 mt-3">

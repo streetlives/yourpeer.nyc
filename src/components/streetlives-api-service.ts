@@ -776,6 +776,27 @@ export async function postCommentReply(
   return res.data;
 }
 
+export async function editCommentReply(
+  replyId: string,
+  content: string,
+): Promise<Reply> {
+  const data = {
+    content,
+  };
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/replies/${replyId}`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
 export class Error404Response extends Error {}
 
 export class Error5XXResponse extends Error {}

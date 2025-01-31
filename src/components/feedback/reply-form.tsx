@@ -2,11 +2,15 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/spinner";
 import Image from "next/image";
-import { postCommentReply } from "@/components/streetlives-api-service";
+import {
+  editCommentReply,
+  postCommentReply,
+} from "@/components/streetlives-api-service";
 import { useForm } from "react-hook-form";
 import { clsx } from "clsx";
 import { Reply } from "@/components/common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {toast} from "sonner";
 
 type Inputs = {
   content: string;
@@ -32,9 +36,14 @@ export default function ReplyForm({
 
   const { isPending, mutate, isSuccess } = useMutation({
     mutationFn: ({ content }: { content: string }) =>
-      postCommentReply(commentId, username, content),
+      reply
+        ? editCommentReply(reply.id, content)
+        : postCommentReply(commentId, username, content),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
