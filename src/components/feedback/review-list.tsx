@@ -23,6 +23,8 @@ export default function ReviewList({
   const { data, isLoading } = useQuery({
     queryKey: ["comments"],
     queryFn: () => fetchComments(locationId),
+    select: (data) =>
+      data?.filter((comment) => (isAdmin ? true : comment.hidden !== true)),
   });
 
   if (isLoading)

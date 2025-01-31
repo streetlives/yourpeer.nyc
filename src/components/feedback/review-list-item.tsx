@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { hideComment } from "@/components/streetlives-api-service";
 import { toast } from "sonner";
+import Spinner from "@/components/spinner";
 
 export default function ReviewListItem({
   comment,
@@ -37,11 +38,11 @@ export default function ReviewListItem({
   const { user } = useAuthenticator((context) => [context.user]);
   const queryClient = useQueryClient();
 
-  const { mutate: mutateHideComment } = useMutation({
+  const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),
-    onSuccess: (data) => {
+    onSuccess: () => {
+      toast("Done");
       queryClient.invalidateQueries({ queryKey: ["comments"] });
-      toast("Comment hidden successfully");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -49,7 +50,13 @@ export default function ReviewListItem({
   });
 
   return (
-    <li>
+    <li className="relative">
+      {isPending && (
+        <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
+          <Spinner />
+        </div>
+      )}
+
       <div className="bg-white py-5 px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

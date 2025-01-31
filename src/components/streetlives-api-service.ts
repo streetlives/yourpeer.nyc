@@ -699,10 +699,12 @@ export async function getFeedbackHighlights(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
 
-  const comments = res.data.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  const comments = res.data
+    .filter((c) => c.hidden !== true)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
 
   return comments.slice(0, 3).map((comment) => {
     let content;

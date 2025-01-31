@@ -25,7 +25,7 @@ export function useAdminUser() {
       const payload = await getAuthPayload();
       const groups = payload?.["cognito:groups"] as string[];
 
-      setIsAdmin(groups.includes("StreetlivesAdmins") || false);
+      setIsAdmin(groups?.includes("StreetlivesAdmins") || false);
     };
     getUserRole();
   }, []);
