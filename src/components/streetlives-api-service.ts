@@ -40,6 +40,7 @@ import {
 import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
+import delay from "delay";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -674,6 +675,8 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
   const res = await axios.get<Comment[]>(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
+
+  await delay(5000);
 
   const comments = res.data.sort(
     (a, b) =>

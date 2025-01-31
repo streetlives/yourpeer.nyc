@@ -28,6 +28,7 @@ import LocationDetailContainer from "@/components/location-detail/location-detai
 import LocationDetailHeader from "@/components/location-detail/location-detail-header";
 import { usePreviousRoute } from "./use-previous-route";
 import { useRouter } from "next/navigation";
+import { PlusCircleIcon } from "@heroicons/react/24/solid";
 
 export function getIconPath(iconName: string): string {
   return `/img/icons/${iconName}.png`;
@@ -103,14 +104,25 @@ export default function LocationDetailComponent({
           hideReportIssueForm={hideReportIssueForm}
         />
       ) : isShowingReviewDetails ? (
-        <ReviewList
-          locationId={location.id}
-          organizationId={location.organization_id || ""}
-          onAddReview={() => {
-            setIsShowingReviewDetails(false);
-            setIsShowingReviewForm(true);
-          }}
-        />
+        <div className="bg-neutral-100 flex flex-col h-full relative overflow-y-hidden pt-2">
+          <ReviewList
+            locationId={location.id}
+            organizationId={location.organization_id || ""}
+          />
+
+          <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
+            <button
+              onClick={() => {
+                setIsShowingReviewDetails(false);
+                setIsShowingReviewForm(true);
+              }}
+              className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+            >
+              <PlusCircleIcon className="w-5 h-5 text-white" />
+              <span>Add review</span>
+            </button>
+          </div>
+        </div>
       ) : isShowingReviewForm ? (
         <ReviewForm
           locationId={location.id}

@@ -42,7 +42,9 @@ export default function ReviewListItem({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),
     onSuccess: () => {
       toast("Done");
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
+      queryClient.setQueryData(["comments"], (old: Comment[]) =>
+        old.map((c) => (c.id === comment.id ? { ...c, hidden: !c.hidden } : c)),
+      );
     },
     onError: (error) => {
       toast.error(error.message);

@@ -1,7 +1,6 @@
 "use client";
 
 import ReviewListItem from "@/components/feedback/review-list-item";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { fetchComments } from "@/components/streetlives-api-service";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,34 +9,33 @@ import { useAdminUser, useStuffUser } from "@/components/use-user-role";
 
 export default function ReviewList({
   locationId,
-  onAddReview,
   organizationId,
 }: {
   locationId: string;
-  onAddReview: () => void;
   organizationId: string;
 }) {
   const { isStuffUser } = useStuffUser(organizationId);
   const { isAdmin } = useAdminUser();
 
-  const { data, isLoading } = useQuery({
+  const { data, status, error, isFetching } = useQuery({
     queryKey: ["comments"],
     queryFn: () => fetchComments(locationId),
     select: (data) =>
       data?.filter((comment) => (isAdmin ? true : comment.hidden !== true)),
   });
 
-  if (isLoading)
-    return (
-      <div className="p-4 flex flex-col space-y-10">
-        <CommentSkeleton />
-        <CommentSkeleton />
-        <CommentSkeleton />
-      </div>
-    );
-
-  return (
-    <div className="bg-neutral-100 h-full relative overflow-y-hidden pt-2">
+  return status === "pending" ? (
+    <div className="p-4 flex flex-1 flex-col space-y-10 bg-white">
+      <CommentSkeleton />
+      <CommentSkeleton />
+      <CommentSkeleton />
+    </div>
+  ) : status === "error" ? (
+    <p className="p-4 bg-white rounded-md m-4 text-sm text-danger">
+      Error: {error.message}
+    </p>
+  ) : (
+    <>
       {data?.length ? (
         <Authenticator.Provider>
           <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
@@ -56,17 +54,7 @@ export default function ReviewList({
           Nothing to show yet
         </p>
       )}
-
-      <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
-        <button
-          onClick={onAddReview}
-          className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
-        >
-          <PlusCircleIcon className="w-5 h-5 text-white" />
-          <span>Add review</span>
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
