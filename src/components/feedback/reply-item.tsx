@@ -1,17 +1,18 @@
 import { Reply } from "@/components/common";
 import moment from "moment/moment";
+import { UserIcon } from "@heroicons/react/24/outline";
 
 const ReplyItem = ({ reply }: { reply: Reply }) => {
   return (
     <div className="mt-3 rounded-3xl p-4 bg-grey-100  ">
       <div className="flex items-center space-x-2">
-        <img
-          src="/img/avatar.png"
-          className="h-9 w-9 object-contain flex-shrink-0"
-          alt=""
-        />
+        <div className="w-9 h-9 flex items-center justify-center text-white bg-amber-500 rounded-full">
+          <UserIcon className="w-4 h-4" />
+        </div>
         <div>
-          <div className=" text-sm text-black font-medium mb-1">AFC staff</div>
+          <div className=" text-sm text-black font-medium mb-1">
+            {reply.posted_by ? reply.posted_by : "Organization Stuff"}
+          </div>
           <div className="text-gray-600 text-xs">
             {moment(reply.created_at).format("MMMM Do YYYY")}
           </div>

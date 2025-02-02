@@ -8,7 +8,7 @@ import {
 } from "@/components/streetlives-api-service";
 import { useForm } from "react-hook-form";
 import { clsx } from "clsx";
-import { Reply } from "@/components/common";
+import { Comment, Reply } from "@/components/common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -39,8 +39,17 @@ export default function ReplyForm({
       reply
         ? editCommentReply(reply.id, content)
         : postCommentReply(commentId, username, content),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
+    onSuccess: (data, { content }) => {
+      queryClient.setQueryData(["comments"], (old: Comment[]) =>
+        old.map((c) =>
+          c.id === commentId
+            ? {
+                ...c,
+                Replies: [data ? data : { ...c.Replies[0], content }],
+              }
+            : c,
+        ),
+      );
     },
     onError: (error) => {
       toast.error(error.message);

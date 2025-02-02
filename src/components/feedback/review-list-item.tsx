@@ -52,14 +52,14 @@ export default function ReviewListItem({
   });
 
   return (
-    <li className="relative">
-      {isPending && (
-        <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
-          <Spinner />
-        </div>
-      )}
+    <li>
+      <div className="bg-white py-5 px-4 relative">
+        {isPending && (
+          <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
+            <Spinner />
+          </div>
+        )}
 
-      <div className="bg-white py-5 px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-9 h-9 flex items-center justify-center text-white bg-purple/70 rounded-full">

@@ -871,6 +871,7 @@ export interface Reply {
   id: string;
   content: string;
   created_at: string;
+  posted_by?: string;
 }
 
 export type CommentContent =
