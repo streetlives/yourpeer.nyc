@@ -13,17 +13,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { submitCommentEmail } from "@/components/streetlives-api-service";
+import { clsx } from "clsx";
+import Spinner from "@/components/spinner";
 
-export default function AddReviewSuccess({
+type Inputs = {
+  email: string;
+};
+
+export default function EmailSubmit({
   onComplete,
   provider,
+  commentId,
 }: {
   onComplete: () => void;
   provider: string;
+  commentId: string;
 }) {
-  const [email, setEmail] = useState<string>("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<Inputs>();
   const [isConfirm, setIsConfirm] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+
+  const { mutate, isPending, isSuccess } = useMutation({
+    mutationFn: (email: string) => submitCommentEmail(commentId, email),
+    onSuccess: () => setIsConfirm(false),
+    onError: () => toast.error("Cannot submit email. try again"),
+  });
 
   return (
     <>
@@ -40,11 +62,10 @@ export default function AddReviewSuccess({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction
-              onClick={() => {
-                setIsSuccess(true);
-                setIsConfirm(false);
-              }}
+              onClick={() => mutate(getValues().email)}
+              disabled={isPending}
             >
+              {isPending && <Spinner />}
               <span>Okay</span>
             </AlertDialogAction>
             <AlertDialogCancel onClick={() => setIsConfirm(false)}>
@@ -54,7 +75,10 @@ export default function AddReviewSuccess({
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="bg-white h-full relative overflow-y-auto pt-2 px-5">
+      <form
+        onSubmit={handleSubmit(() => setIsConfirm(true))}
+        className="bg-white h-full relative overflow-y-auto pt-2 px-5"
+      >
         <div className="pb-12 mt-10 flex flex-col items-center justify-center">
           <Image
             width={60}
@@ -87,19 +111,28 @@ export default function AddReviewSuccess({
 
                 <div className="mt-6">
                   <label
-                    htmlFor="emailAddress"
+                    htmlFor="email"
                     className="mb-2 text-black font-medium text-center block w-full"
                   >
                     Enter your email to get updates related to your feedback.
                   </label>
 
                   <input
-                    className="text-black text-sm placeholder:text-gray-500 rounded-md border-gray-400 w-full resize-none"
-                    name="emailAddress"
-                    onChange={(e) => setEmail(e.target.value)}
-                    id="emailAddress"
+                    className={clsx(
+                      "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
+                      errors.email
+                        ? "!border-danger focus:!ring-danger"
+                        : "border-gray-400",
+                    )}
+                    {...register("email", { required: true })}
+                    id="email"
                     placeholder="Email Address"
                   />
+                  {errors.email && (
+                    <p className="text-danger text-sm">
+                      This field is required
+                    </p>
+                  )}
                 </div>
               </>
             )}
@@ -108,22 +141,28 @@ export default function AddReviewSuccess({
 
         <div className="absolute bottom-0 w-full inset-x-0 bg-transparent px-5 py-2 flex flex-col gap-2">
           {isSuccess ? (
-            <Button size="lg" className="w-full" onClick={onComplete}>
+            <Button
+              size="lg"
+              className="w-full"
+              type="button"
+              onClick={onComplete}
+            >
               Done
             </Button>
           ) : (
             <>
               <Button
+                type="submit"
                 size="lg"
                 className="w-full"
-                onClick={() => setIsConfirm(true)}
-                disabled={!email}
+                disabled={!!errors.email}
               >
                 Get updates
               </Button>
               <Button
                 variant="outline"
                 size="lg"
+                type="button"
                 className="w-full"
                 onClick={onComplete}
               >
@@ -132,7 +171,7 @@ export default function AddReviewSuccess({
             </>
           )}
         </div>
-      </div>
+      </form>
     </>
   );
 }

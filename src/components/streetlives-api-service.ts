@@ -40,7 +40,6 @@ import {
 import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
-import delay from "delay";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -676,8 +675,6 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
 
-  await delay(5000);
-
   const comments = res.data.sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -750,6 +747,20 @@ export async function hideComment(
       headers: {
         Authorization: token,
       },
+    },
+  );
+
+  return res.data;
+}
+
+export async function submitCommentEmail(
+  commentId: string,
+  email: string,
+): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/email`,
+    {
+      email,
     },
   );
 

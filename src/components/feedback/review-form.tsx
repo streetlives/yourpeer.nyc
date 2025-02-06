@@ -17,8 +17,8 @@ import { postComment } from "@/components/streetlives-api-service";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Controller, useForm } from "react-hook-form";
 import { clsx } from "clsx";
-import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import EmailSubmit from "@/components/feedback/email-submit";
 
 interface Props {
   locationId: string;
@@ -48,6 +48,7 @@ export default function ReviewForm({
   } = useForm<Inputs>();
 
   const [isConfirm, setIsConfirm] = useState(false);
+  const [commentId, setCommentId] = useState<null | string>(null);
   const queryClient = useQueryClient();
 
   const { mutate, isSuccess, isPending } = useMutation({
@@ -56,9 +57,10 @@ export default function ReviewForm({
         locationId,
         content,
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
       setIsConfirm(false);
+      setCommentId(data.id);
     },
   });
 
@@ -77,11 +79,11 @@ export default function ReviewForm({
                 the next screen. You may also request to delete your feedback
                 later. To learn more about your rights, see our&nbsp;
               </span>
-              <a href="#" className="link">
+              <a href="/privacy-policy" className="link" target="_blank">
                 Privacy Policy
               </a>
               <span>&nbsp;and&nbsp;</span>
-              <a className="link" href="#">
+              <a className="link" href="/terms-of-use" target="_blank">
                 Terms of Use.
               </a>
             </AlertDialogDescription>
@@ -101,30 +103,12 @@ export default function ReviewForm({
         </AlertDialogContent>
       </AlertDialog>
 
-      {isSuccess ? (
-        <>
-          <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center">
-            <Image
-              width={60}
-              height={60}
-              src="/img/icons/love-it-check.svg"
-              className="object-contain"
-              alt=""
-            />
-            <h2 className="text-dark font-bold text-xl sm:text-3xl text-center">
-              Thanks you for providing feedback!
-            </h2>
-            <p className="text-sm text-black/60 text-center">
-              Thank you for your feedback! It helps others find the right
-              services and supports providers in improving their work.
-            </p>
-          </div>
-          <div className="absolute bottom-0 z-50 w-full inset-x-0 bg-transparent px-5 py-2 flex flex-col gap-2">
-            <Button size="lg" className="w-full" onClick={onComplete}>
-              Done
-            </Button>
-          </div>
-        </>
+      {commentId !== null ? (
+        <EmailSubmit
+          onComplete={onComplete}
+          provider={provider}
+          commentId={commentId}
+        />
       ) : (
         <form
           onSubmit={handleSubmit(() => setIsConfirm(true))}

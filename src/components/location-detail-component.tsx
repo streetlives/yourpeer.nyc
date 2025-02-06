@@ -170,6 +170,7 @@ export default function LocationDetailComponent({
               onAddReview={() => setIsShowingReviewForm(true)}
               onViewAll={() => setIsShowingReviewDetails(true)}
               locationId={location.id}
+              provider={location.name}
             />
             <LocationServices location={location} />
           </div>
