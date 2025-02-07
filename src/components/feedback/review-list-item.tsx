@@ -40,15 +40,11 @@ export default function ReviewListItem({
 
   const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),
-    onSuccess: () => {
-      toast("Done");
+    onSuccess: () =>
       queryClient.setQueryData(["comments"], (old: Comment[]) =>
         old.map((c) => (c.id === comment.id ? { ...c, hidden: !c.hidden } : c)),
-      );
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
+      ),
+    onError: (error) => toast.error(error.message),
   });
 
   return (
@@ -67,7 +63,11 @@ export default function ReviewListItem({
             </div>
             <div>
               <div className="text-grey-900 text-sm mb-1 font-medium flex items-center gap-2">
-                <span>Anonymous Client</span>
+                <span>
+                  {comment.contact_info && (isStuffUser || isAdmin)
+                    ? comment.contact_info
+                    : "Anonymous Client"}
+                </span>
                 {comment.hidden === true && isAdmin && (
                   <button
                     onClick={() => mutateHideComment(false)}

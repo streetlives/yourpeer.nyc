@@ -887,5 +887,6 @@ export interface Comment {
   content: CommentContent;
   hidden?: boolean | null;
   created_at: string;
+  contact_info?: string;
   Replies: Reply[];
 }
