@@ -776,7 +776,7 @@ export async function reportComment(commentId: string): Promise<unknown> {
 }
 
 export async function likeComment(commentId: string): Promise<unknown> {
-  const res = await axios.post(
+  const res = await axios.put(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like`,
   );
   return res.data;
