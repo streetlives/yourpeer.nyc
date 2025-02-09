@@ -767,6 +767,14 @@ export async function submitCommentEmail(
   return res.data;
 }
 
+export async function reportComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/report`,
+  );
+
+  return res.data;
+}
+
 export async function postCommentReply(
   commentId: string,
   postedBy: string,

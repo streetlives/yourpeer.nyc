@@ -1,6 +1,10 @@
 "use client";
 
-import { EllipsisVerticalIcon, UserIcon } from "@heroicons/react/24/outline";
+import {
+  EllipsisVerticalIcon,
+  ExclamationTriangleIcon,
+  UserIcon,
+} from "@heroicons/react/24/outline";
 import { Comment } from "@/components/common";
 import moment from "moment";
 import {
@@ -24,6 +28,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { hideComment } from "@/components/streetlives-api-service";
 import { toast } from "sonner";
 import Spinner from "@/components/spinner";
+import ReportComment from "@/components/feedback/report-comment";
 
 export default function ReviewListItem({
   comment,
@@ -35,6 +40,7 @@ export default function ReviewListItem({
   isAdmin: boolean;
 }) {
   const [isReplying, setIsReplying] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
   const queryClient = useQueryClient();
 
@@ -49,6 +55,12 @@ export default function ReviewListItem({
 
   return (
     <li>
+      <ReportComment
+        commentId={comment.id}
+        open={isReporting}
+        onComplete={() => setIsReporting(false)}
+      />
+
       <div className="bg-white py-5 px-4 relative">
         {isPending && (
           <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
@@ -57,11 +69,11 @@ export default function ReviewListItem({
         )}
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center">
             <div className="w-9 h-9 flex items-center justify-center text-white bg-purple/70 rounded-full">
               <UserIcon className="w-4 h-4" />
             </div>
-            <div>
+            <div className="ml-2">
               <div className="text-grey-900 text-sm mb-1 font-medium flex items-center gap-2">
                 <span>
                   {comment.contact_info && (isStuffUser || isAdmin)
@@ -81,13 +93,22 @@ export default function ReviewListItem({
                 {moment(comment.created_at).format("MMMM Do YYYY")}
               </div>
             </div>
+            {comment.report_count > 0 && isAdmin && (
+              <span className="text-xs ml-3 self-start gap-1 border border-red-500 bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full inline-flex items-center">
+                <ExclamationTriangleIcon className="w-4 h-4" />
+                <span>{comment.report_count}</span>
+              </span>
+            )}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger>
               <EllipsisVerticalIcon className="size-5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Report</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsReporting(true)}>
+                Report
+              </DropdownMenuItem>
+
               {isStuffUser && (
                 <DropdownMenuItem onClick={() => setIsReplying(true)}>
                   Reply
