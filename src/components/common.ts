@@ -887,7 +887,9 @@ export interface Comment {
   content: CommentContent;
   hidden?: boolean | null;
   report_count: number;
+  likes_count: number;
   created_at: string;
   contact_info?: string;
   Replies: Reply[];
+  likedByCurrentUser: boolean;
 }

@@ -25,10 +25,15 @@ import {
 import ReplyForm from "@/components/feedback/reply-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { hideComment } from "@/components/streetlives-api-service";
+import {
+  hideComment,
+  likeComment,
+  undoLikeComment,
+} from "@/components/streetlives-api-service";
 import { toast } from "sonner";
 import Spinner from "@/components/spinner";
 import ReportComment from "@/components/feedback/report-comment";
+import { clsx } from "clsx";
 
 export default function ReviewListItem({
   comment,
@@ -49,6 +54,25 @@ export default function ReviewListItem({
     onSuccess: () =>
       queryClient.setQueryData(["comments"], (old: Comment[]) =>
         old.map((c) => (c.id === comment.id ? { ...c, hidden: !c.hidden } : c)),
+      ),
+    onError: (error) => toast.error(error.message),
+  });
+
+  const { mutate: mutateLike } = useMutation({
+    mutationFn: comment.likedByCurrentUser ? undoLikeComment : likeComment,
+    onSuccess: () =>
+      queryClient.setQueryData(["comments"], (old: Comment[]) =>
+        old.map((c) =>
+          c.id === comment.id
+            ? {
+                ...c,
+                likes_count: comment.likedByCurrentUser
+                  ? c.likes_count - 1
+                  : c.likes_count + 1,
+                likedByCurrentUser: !comment.likedByCurrentUser,
+              }
+            : c,
+        ),
       ),
     onError: (error) => toast.error(error.message),
   });
@@ -183,10 +207,15 @@ export default function ReviewListItem({
             <Button
               variant="ghost"
               size="sm"
-              className="text-gray-500 hover:bg-transparent px-0"
+              className={clsx(
+                "hover:bg-transparent px-0",
+                comment.likedByCurrentUser && "text-blue hover:text-blue",
+              )}
+              onClick={() => mutateLike(comment.id)}
             >
               <HandThumbUpIcon />
               <span>Helpful</span>
+              {comment.likes_count > 0 && <span>({comment.likes_count})</span>}
             </Button>
 
             {isStuffUser === null ? (
