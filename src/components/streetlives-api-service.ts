@@ -775,23 +775,16 @@ export async function reportComment(commentId: string): Promise<unknown> {
   return res.data;
 }
 
-const getIpInfo = async () => {
-  const res = await axios.get("https://ipinfo.io/json");
-  return res.data;
-};
-
 export async function likeComment(commentId: string): Promise<unknown> {
-  const { ip } = await getIpInfo();
   const res = await axios.put(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like?ip=${ip}`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like`,
   );
   return res.data;
 }
 
 export async function undoLikeComment(commentId: string): Promise<unknown> {
-  const { ip } = await getIpInfo();
   const res = await axios.delete(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like?ip=${ip}`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like`,
   );
   return res.data;
 }
