@@ -85,7 +85,7 @@ function logGeoEvent(
               city_council_district_water_areas,
               election_district,
               election_district_water_areas,
-            }
+            },
           } = geoAnalytics;
           window["gtag"]("event", "geolocation", {
             googleNeighborhood,
