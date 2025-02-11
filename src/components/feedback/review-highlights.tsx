@@ -26,23 +26,23 @@ export default function ReviewHighlights({
   return (
     <div className="bg-neutral-50 pt-2" id="reviews">
       <div className="bg-white p-4 pt-8">
-        {provider && (
-          <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">
-            <img
-              src="/img/icons/group-users-icon.svg"
-              className="flex-shrink-0 w-6 h-6 object-contain"
-              alt=""
-            />
-            <div className="pr-6">
-              <p className="text-sm mb-2">
-                YourPeer works with {provider} to collect community feedback.
-              </p>
-              <a href="#" className="text-purple text-sm">
-                Learn more
-              </a>
-            </div>
-          </div>
-        )}
+        {/*{provider && (*/}
+        {/*  <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">*/}
+        {/*    <img*/}
+        {/*      src="/img/icons/group-users-icon.svg"*/}
+        {/*      className="flex-shrink-0 w-6 h-6 object-contain"*/}
+        {/*      alt=""*/}
+        {/*    />*/}
+        {/*    <div className="pr-6">*/}
+        {/*      <p className="text-sm mb-2">*/}
+        {/*        YourPeer works with {provider} to collect community feedback.*/}
+        {/*      </p>*/}
+        {/*      <a href="#" className="text-purple text-sm">*/}
+        {/*        Learn more*/}
+        {/*      </a>*/}
+        {/*    </div>*/}
+        {/*  </div>*/}
+        {/*)}*/}
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-base text-grey-900">

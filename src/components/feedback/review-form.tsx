@@ -120,9 +120,18 @@ export default function ReviewForm({
                 A safe space to voice your opinions
               </h3>
               <p className="text-sm">
-                Please give us your honest feedback so we can help providers
-                improve. Your feedback will be shared anonymously to protect
-                your identity.
+                <span>
+                  Please give us your honest feedback so we can help providers
+                  improve. Your feedback may be reviewed. For more information,
+                  see our&nbsp;
+                </span>
+                <a
+                  target="_blank"
+                  className="link"
+                  href="https://docs.google.com/document/d/e/2PACX-1vTi6AR2Q-PpTNMLTimvdVg8yDuLJ5DURswQ-heCToXj3OwuqNXyt-LIBs-By9znC2A_0HxqlO8vQ_DJ/pub"
+                >
+                  feedback guidelines
+                </a>
               </p>
             </div>
 

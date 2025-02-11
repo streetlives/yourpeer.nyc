@@ -7,7 +7,6 @@
 "use client";
 
 import OffCanvasMenu from "@/components/OffCanvasMenu";
-import QuickExit from "./quick-exit";
 import SearchForm from "./search-form";
 import { useState } from "react";
 import { GTranslateSelect } from "./gtranslate-select";
@@ -70,8 +69,7 @@ export const LocationsNavbarResourceRoutes = () => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            {/*<SignInNavbarLink />*/}
-            <QuickExit />
+            <SignInNavbarLink />
           </div>
         </nav>
       </div>
@@ -111,9 +109,8 @@ export const LocationsNavbarCompanyRoutes = () => {
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            <SignInNavbarLink />
             <GTranslateSelect />
-            <QuickExit />
+            <SignInNavbarLink />
           </div>
         </nav>
       </header>

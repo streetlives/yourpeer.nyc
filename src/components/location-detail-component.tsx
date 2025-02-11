@@ -20,8 +20,6 @@ import LocationDetailHeaderInfo from "@/components/location-detail/location-deta
 import LocationDetailNavigation from "@/components/location-detail/location-detail-navigation";
 import StreetView from "@/components/location-detail/street-view";
 import LocationDetailInfo from "@/components/location-detail/location-detail-info";
-import { MailIcon } from "@/components/icons/mail-icon";
-import { ReportIcon } from "@/components/icons/report-icon";
 import ReviewHighlights from "@/components/feedback/review-highlights";
 import LocationServices from "@/components/location-detail/location-services";
 import LocationDetailContainer from "@/components/location-detail/location-detail-container";
@@ -29,6 +27,8 @@ import LocationDetailHeader from "@/components/location-detail/location-detail-h
 import { usePreviousRoute } from "./use-previous-route";
 import { useRouter } from "next/navigation";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { Button } from "@/components/ui/button";
+import { EditIcon } from "@/components/icons/edit-icon";
 
 export function getIconPath(iconName: string): string {
   return `/img/icons/${iconName}.png`;
@@ -147,22 +147,19 @@ export default function LocationDetailComponent({
               <LocationDetailInfo location={location} />
 
               <div className="mt-5 flex gap-4">
-                <a
-                  href={`mailto:yourpeer@streetlives.nyc?subject=Feedback on YourPeer Location ${location.name}`}
-                  className="secondary-button"
+                <Button
+                  variant="outline"
+                  className="rounded-full text-blue border-neutral-500 w-full"
+                  size="lg"
+                  asChild
                 >
-                  <MailIcon className="size-6" />
-                  <span>Leave feedback</span>
-                </a>
-                <a
-                  href="#"
-                  id="reportIssueButton"
-                  className="secondary-button"
-                  onClick={() => setIsShowingReportIssueForm(true)}
-                >
-                  <ReportIcon className="size-6" />
-                  <span>Report Issue</span>
-                </a>
+                  <a
+                    href={`mailto:yourpeer@streetlives.nyc?subject=Feedback on YourPeer Location ${location.name}`}
+                  >
+                    <EditIcon />
+                    <span>Suggest an edit</span>
+                  </a>
+                </Button>
               </div>
             </div>
 

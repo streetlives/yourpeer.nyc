@@ -9,7 +9,6 @@
 import React, { useEffect, useState } from "react";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
-import QuickExit from "./quick-exit";
 import "@aws-amplify/ui-react/styles.css";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
 
@@ -69,9 +68,8 @@ export default function Navbar({ background = true }: { background: boolean }) {
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            <SignInNavbarLink />
             <GTranslateSelect />
-            <QuickExit />
+            <SignInNavbarLink />
           </div>
         </nav>
       </header>

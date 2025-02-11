@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Transition } from "@headlessui/react";
-import QuickExitLink from "@/components/quick-exit";
+import { SignInNavbarLink } from "@/components/sign-in-navbar-link";
 
 interface Props {
   onGoBack: () => void;
@@ -34,7 +34,7 @@ export default function LocationDetailHeader({
       </Transition>
 
       <span className="md:hidden">
-        <QuickExitLink />
+        <SignInNavbarLink />
       </span>
     </div>
   );

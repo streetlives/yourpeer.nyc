@@ -1,27 +1,38 @@
 "use client";
 
-import Link from "next/link";
 import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+import { UserCircle } from "lucide-react";
+import QuickExit from "@/components/quick-exit";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 Amplify.configure(outputs);
 
 function SignInNavbarLinkWrapper() {
   const { user, signOut } = useAuthenticator((context) => [context.user]);
-  console.log("user", user);
   return user ? (
-    <div style={{ display: "inline-block" }}>
-      <span className="sm:text-xs">{user.signInDetails?.loginId}</span>{" "}
-      <a className="sm:text-xs" onClick={signOut} style={{ cursor: "pointer" }}>
-        (Sign Out)
-      </a>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex gap-2 items-center text-neutral-800">
+        <span className="max-w-14 truncate">{user.username}</span>
+        <UserCircle className="w-5 h-5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>{user.signInDetails?.loginId}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={signOut}>Sign Out</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   ) : (
-    <Link href="/login" className="sm:text-xs">
-      Sign In
-    </Link>
+    <QuickExit />
   );
 }
 
