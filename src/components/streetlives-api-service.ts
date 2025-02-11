@@ -777,14 +777,14 @@ export async function reportComment(commentId: string): Promise<unknown> {
 
 export async function likeComment(commentId: string): Promise<unknown> {
   const res = await axios.put(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
   );
   return res.data;
 }
 
 export async function undoLikeComment(commentId: string): Promise<unknown> {
   const res = await axios.delete(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/like`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
   );
   return res.data;
 }
