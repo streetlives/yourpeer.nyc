@@ -60,7 +60,10 @@ export default function ReviewListItem({
 
   const { mutate: mutateLike } = useMutation({
     mutationFn: comment.likedByCurrentUser ? undoLikeComment : likeComment,
-    onSuccess: () =>
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["comments"] });
+      const previousComments = queryClient.getQueryData(["comments"]);
+
       queryClient.setQueryData(["comments"], (old: Comment[]) =>
         old.map((c) =>
           c.id === comment.id
@@ -73,8 +76,15 @@ export default function ReviewListItem({
               }
             : c,
         ),
-      ),
-    onError: (error) => toast.error(error.message),
+      );
+
+      return { previousComments };
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["comments"] }),
+    onError: (err, _, context) => {
+      queryClient.setQueryData(["comments"], context?.previousComments);
+      toast.error(err.message);
+    },
   });
 
   return (
