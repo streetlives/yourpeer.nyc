@@ -151,14 +151,10 @@ export default function LocationDetailComponent({
                   variant="outline"
                   className="rounded-full text-blue border-neutral-500 w-full"
                   size="lg"
-                  asChild
+                  onClick={() => setIsShowingReportIssueForm(true)}
                 >
-                  <a
-                    href={`mailto:yourpeer@streetlives.nyc?subject=Feedback on YourPeer Location ${location.name}`}
-                  >
-                    <EditIcon />
-                    <span>Suggest an edit</span>
-                  </a>
+                  <EditIcon />
+                  <span>Suggest an edit</span>
                 </Button>
               </div>
             </div>

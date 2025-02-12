@@ -17,7 +17,7 @@ export default function ReviewList({
   const { isStuffUser } = useStuffUser(organizationId);
   const { isAdmin } = useAdminUser();
 
-  const { data, status, error, isFetching } = useQuery({
+  const { data, status, error } = useQuery({
     queryKey: ["comments"],
     queryFn: () => fetchComments(locationId),
     select: (data) =>
