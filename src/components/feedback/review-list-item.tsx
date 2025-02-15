@@ -39,10 +39,12 @@ export default function ReviewListItem({
   comment,
   isStuffUser,
   isAdmin,
+  locationServices,
 }: {
   comment: Comment;
   isStuffUser: boolean | null;
   isAdmin: boolean;
+  locationServices: string[];
 }) {
   const [isReplying, setIsReplying] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
@@ -167,18 +169,23 @@ export default function ReviewListItem({
           comment.content.whatServicesDidYouUse?.length ? (
             <p className="mt-2">
               <span>Services Used: </span>
-              <span>
-                {comment.content.whatServicesDidYouUse.map((s, i) => (
-                  <span key={s}>
-                    {s}
-                    {typeof comment.content !== "string" &&
-                    comment.content.whatServicesDidYouUse?.length &&
-                    i !== comment.content.whatServicesDidYouUse.length - 1
-                      ? ", "
-                      : ""}
-                  </span>
-                ))}
-              </span>
+              {locationServices.length ===
+              comment.content.whatServicesDidYouUse.length ? (
+                "All Services"
+              ) : (
+                <span>
+                  {comment.content.whatServicesDidYouUse.map((s, i) => (
+                    <span key={s}>
+                      {s}
+                      {typeof comment.content !== "string" &&
+                      comment.content.whatServicesDidYouUse?.length &&
+                      i !== comment.content.whatServicesDidYouUse.length - 1
+                        ? ", "
+                        : ""}
+                    </span>
+                  ))}
+                </span>
+              )}
             </p>
           ) : undefined}
         </div>

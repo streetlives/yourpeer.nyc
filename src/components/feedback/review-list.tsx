@@ -10,9 +10,11 @@ import { useAdminUser, useStuffUser } from "@/components/use-user-role";
 export default function ReviewList({
   locationId,
   organizationId,
+  location_services,
 }: {
   locationId: string;
   organizationId: string;
+  location_services: string[];
 }) {
   const { isStuffUser } = useStuffUser(organizationId);
   const { isAdmin } = useAdminUser();
@@ -45,6 +47,7 @@ export default function ReviewList({
                 comment={comment}
                 isStuffUser={isStuffUser}
                 isAdmin={isAdmin || false}
+                locationServices={location_services}
               />
             ))}
           </ul>

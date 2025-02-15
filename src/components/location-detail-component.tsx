@@ -108,6 +108,7 @@ export default function LocationDetailComponent({
           <ReviewList
             locationId={location.id}
             organizationId={location.organization_id || ""}
+            location_services={servicesNames}
           />
 
           <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
