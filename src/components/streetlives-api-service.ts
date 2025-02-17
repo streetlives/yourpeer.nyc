@@ -758,7 +758,7 @@ export async function submitCommentEmail(
   email: string,
 ): Promise<unknown> {
   const res = await axios.put(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/email`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/email/${commentId}`,
     {
       email,
     },
@@ -769,7 +769,7 @@ export async function submitCommentEmail(
 
 export async function reportComment(commentId: string): Promise<unknown> {
   const res = await axios.put(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/report`,
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/report/${commentId}`,
   );
 
   return res.data;
