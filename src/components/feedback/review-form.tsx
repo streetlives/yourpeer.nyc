@@ -19,6 +19,13 @@ import { Controller, useForm } from "react-hook-form";
 import { clsx } from "clsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import EmailSubmit from "@/components/feedback/email-submit";
+import {
+  GoogleReCaptcha,
+  GoogleReCaptchaProvider,
+} from "react-google-recaptcha-v3";
+
+const NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY;
 
 interface Props {
   locationId: string;
@@ -50,8 +57,9 @@ export default function ReviewForm({
   const [isConfirm, setIsConfirm] = useState(false);
   const [commentId, setCommentId] = useState<null | string>(null);
   const queryClient = useQueryClient();
+  const [token, setToken] = useState<string | null>();
 
-  const { mutate, isSuccess, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (content: Inputs) =>
       postComment({
         locationId,
@@ -111,7 +119,11 @@ export default function ReviewForm({
         />
       ) : (
         <form
-          onSubmit={handleSubmit(() => setIsConfirm(true))}
+          onSubmit={handleSubmit(() => {
+            if (token) {
+              setIsConfirm(true);
+            }
+          })}
           className="bg-white h-full relative overflow-y-hidden pt-2 px-5"
         >
           <div className="pb-12 space-y-6">
@@ -200,6 +212,16 @@ export default function ReviewForm({
                 placeholder="How can they do a better job?"
               ></textarea>
             </div>
+
+            <GoogleReCaptchaProvider
+              reCaptchaKey={NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY || ""}
+            >
+              <GoogleReCaptcha
+                onVerify={(token) => {
+                  setToken(token);
+                }}
+              />
+            </GoogleReCaptchaProvider>
           </div>
 
           <div className=" absolute bottom-0 w-full inset-x-0 bg-transparent px-5 py-2">

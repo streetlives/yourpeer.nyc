@@ -12,6 +12,7 @@ import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
 import { Toaster } from "sonner";
 import QueryClientProvider from "@/app/QueryClientProvider";
+import {GoogleReCaptchaProvider} from "react-google-recaptcha-v3";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -58,7 +59,9 @@ export default function RootLayout({
       <body>
         <CookiesProvider>
           <LanguageTranslationProvider>
-            <QueryClientProvider>{children}</QueryClientProvider>
+            <QueryClientProvider>
+                {children}
+            </QueryClientProvider>
           </LanguageTranslationProvider>
         </CookiesProvider>
         <Toaster />
