@@ -605,6 +605,7 @@ export interface AbstractDetailedLocationData {
     id: string;
     name: string | null;
     description: string | null;
+    partners: boolean;
     email: string | null;
     url: string | null;
     createdAt: Date;
@@ -779,6 +780,7 @@ export interface YourPeerLegacyLocationData {
   area: string | null;
   info: string[] | null;
   slug: string;
+  partners: boolean;
   last_updated: string;
   last_updated_date: Date;
   name: string | null;

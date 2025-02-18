@@ -163,6 +163,7 @@ export default function LocationDetailComponent({
             <ReviewHighlights
               onAddReview={() => setIsShowingReviewForm(true)}
               onViewAll={() => setIsShowingReviewDetails(true)}
+              isPartners={location.partners}
               locationId={location.id}
               provider={location.name}
             />

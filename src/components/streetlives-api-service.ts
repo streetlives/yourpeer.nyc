@@ -404,6 +404,7 @@ export function map_gogetta_to_yourpeer(
     name: org_name,
     phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
     url: d["Organization"]["url"],
+    partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,
       is_location_detail,
