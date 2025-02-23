@@ -43,3 +43,6 @@ amplify_outputs*
 amplifyconfiguration*
 
 .idea
+
+# JetBrains IDE workspace files (user-specific settings)
+.idea/workspace.xml
