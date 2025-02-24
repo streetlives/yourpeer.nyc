@@ -11,10 +11,12 @@ export default function ReviewList({
   locationId,
   organizationId,
   location_services,
+  orgName,
 }: {
   locationId: string;
   organizationId: string;
   location_services: string[];
+  orgName: string;
 }) {
   const { isStuffUser } = useStuffUser(organizationId);
   const { isAdmin } = useAdminUser();
@@ -48,6 +50,7 @@ export default function ReviewList({
                 isStuffUser={isStuffUser}
                 isAdmin={isAdmin || false}
                 locationServices={location_services}
+                orgName={orgName}
               />
             ))}
           </ul>

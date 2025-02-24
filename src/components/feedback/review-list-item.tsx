@@ -40,11 +40,13 @@ export default function ReviewListItem({
   isStuffUser,
   isAdmin,
   locationServices,
+  orgName,
 }: {
   comment: Comment;
   isStuffUser: boolean | null;
   isAdmin: boolean;
   locationServices: string[];
+  orgName: string;
 }) {
   const [isReplying, setIsReplying] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
@@ -215,7 +217,7 @@ export default function ReviewListItem({
           {isReplying
             ? undefined
             : comment.Replies.map((reply) => (
-                <ReplyItem key={reply.id} reply={reply} />
+                <ReplyItem key={reply.id} reply={reply} orgName={orgName} />
               ))}
         </div>
 

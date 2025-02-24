@@ -2,7 +2,7 @@ import { Reply } from "@/components/common";
 import moment from "moment/moment";
 import { UserIcon } from "@heroicons/react/24/outline";
 
-const ReplyItem = ({ reply }: { reply: Reply }) => {
+const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
   return (
     <div className="mt-3 rounded-3xl p-4 bg-grey-100  ">
       <div className="flex items-center space-x-2">
@@ -11,7 +11,7 @@ const ReplyItem = ({ reply }: { reply: Reply }) => {
         </div>
         <div>
           <div className=" text-sm text-black font-medium mb-1">
-            {reply.posted_by ? reply.posted_by : "Organization Stuff"}
+            {reply.posted_by ? reply.posted_by : orgName}
           </div>
           <div className="text-gray-600 text-xs">
             {moment(reply.created_at).format("MMMM Do YYYY")}
