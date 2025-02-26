@@ -47,6 +47,7 @@ export const CONTACT_US_ROUTE = "contact-us";
 export const DONATE_ROUTE = "donate";
 export const TERMS_OF_USE_ROUTE = "terms-of-use";
 export const PRIVACY_POLICY_ROUTE = "privacy-policy";
+export const LOGIN_ROUTE = "login";
 
 export const COMPANY_ROUTES = [
   ABOUT_US_ROUTE,
@@ -54,6 +55,7 @@ export const COMPANY_ROUTES = [
   DONATE_ROUTE,
   TERMS_OF_USE_ROUTE,
   PRIVACY_POLICY_ROUTE,
+  LOGIN_ROUTE,
 ] as const;
 
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
@@ -603,6 +605,7 @@ export interface AbstractDetailedLocationData {
     id: string;
     name: string | null;
     description: string | null;
+    partners: boolean;
     email: string | null;
     url: string | null;
     createdAt: Date;
@@ -765,6 +768,7 @@ export interface YourPeerLegacyServiceDataWrapper {
 export interface YourPeerLegacyLocationData {
   id: string;
   location_name: string | null;
+  organization_id: string | null;
   email: string | null;
   address: string | null;
   city: string | null;
@@ -776,6 +780,7 @@ export interface YourPeerLegacyLocationData {
   area: string | null;
   info: string[] | null;
   slug: string;
+  partners: boolean;
   last_updated: string;
   last_updated_date: Date;
   name: string | null;
@@ -862,4 +867,31 @@ export const LONGITUDE_COOKIE_NAME = "longitude";
 export interface Position {
   lat: number;
   lng: number;
+}
+
+export interface Reply {
+  id: string;
+  content: string;
+  created_at: string;
+  posted_by?: string;
+}
+
+export type CommentContent =
+  | string
+  | {
+      whatServicesDidYouUse?: string[];
+      whatWentWell: string;
+      whatCouldBeImproved?: string;
+    };
+
+export interface Comment {
+  id: string;
+  content: CommentContent;
+  hidden?: boolean | null;
+  report_count: number;
+  likes_count: number;
+  created_at: string;
+  contact_info?: string;
+  Replies: Reply[];
+  likedByCurrentUser: boolean;
 }

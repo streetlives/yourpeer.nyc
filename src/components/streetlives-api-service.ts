@@ -6,35 +6,40 @@
 
 import _ from "underscore";
 import {
-  Category,
-  CATEGORY_TO_TAXONOMY_NAME_MAP,
-  LocationDetailData,
-  SHELTER_PARAM,
-  SHELTER_PARAM_FAMILY_VALUE,
-  SHELTER_PARAM_SINGLE_VALUE,
-  YourPeerParsedRequestParams,
-  TaxonomyResponse,
-  Taxonomy,
-  SimplifiedLocationData,
-  FullLocationData,
-  YourPeerLegacyServiceData,
-  YourPeerLegacyLocationData,
-  YourPeerLegacyServiceDataWrapper,
-  setIntersection,
-  TaxonomyCategory,
-  FOOD_PARAM,
-  FOOD_PARAM_SOUP_KITCHEN_VALUE,
-  FOOD_PARAM_PANTRY_VALUE,
-  CLOTHING_PARAM,
-  CLOTHING_PARAM_CASUAL_VALUE,
-  CLOTHING_PARAM_PROFESSIONAL_VALUE,
   AMENITIES_PARAM,
   AmenitiesSubCategory,
   AMENITY_TO_TAXONOMY_NAME_MAP,
-  TaxonomySubCategory,
+  Category,
+  CATEGORY_TO_TAXONOMY_NAME_MAP,
+  CLOTHING_PARAM,
+  CLOTHING_PARAM_CASUAL_VALUE,
+  CLOTHING_PARAM_PROFESSIONAL_VALUE,
+  Comment,
+  CommentContent,
+  FOOD_PARAM,
+  FOOD_PARAM_PANTRY_VALUE,
+  FOOD_PARAM_SOUP_KITCHEN_VALUE,
+  FullLocationData,
+  LocationDetailData,
   NEARBY_SORT_BY_VALUE,
+  Reply,
+  setIntersection,
+  SHELTER_PARAM,
+  SHELTER_PARAM_FAMILY_VALUE,
+  SHELTER_PARAM_SINGLE_VALUE,
+  SimplifiedLocationData,
+  Taxonomy,
+  TaxonomyCategory,
+  TaxonomyResponse,
+  TaxonomySubCategory,
+  YourPeerLegacyLocationData,
+  YourPeerLegacyServiceData,
+  YourPeerLegacyServiceDataWrapper,
+  YourPeerParsedRequestParams,
 } from "./common";
 import moment from "moment";
+import axios from "axios";
+import { getAuthToken } from "@/components/auth";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -383,6 +388,7 @@ export function map_gogetta_to_yourpeer(
     id: d.id,
     email: d.Organization.email,
     location_name: d["name"],
+    organization_id: d["Organization"]["id"],
     address: street,
     city: address.city,
     region: address.region,
@@ -398,6 +404,7 @@ export function map_gogetta_to_yourpeer(
     name: org_name,
     phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
     url: d["Organization"]["url"],
+    partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,
       is_location_detail,
@@ -662,6 +669,169 @@ export async function fetchLocationsDetailData(
     throw new Error5XXResponse();
   }
   return response.json();
+}
+
+export async function fetchComments(locationId: string): Promise<Comment[]> {
+  const res = await axios.get<Comment[]>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+  );
+
+  const comments = res.data.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
+
+  return comments.map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string);
+    } catch (e) {
+      content = comment.content;
+    }
+
+    return { ...comment, content };
+  });
+}
+
+export async function getFeedbackHighlights(
+  locationId: string,
+): Promise<string[]> {
+  const res = await axios.get<Comment[]>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+  );
+
+  const comments = res.data
+    .filter((c) => c.hidden !== true)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+  return comments.slice(0, 3).map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string).whatWentWell;
+    } catch (e) {
+      content =
+        typeof comment.content === "string"
+          ? comment.content
+          : comment.content.whatWentWell;
+    }
+
+    return content;
+  });
+}
+
+export async function postComment(data: {
+  locationId: string;
+  content: CommentContent;
+}): Promise<Comment> {
+  const res = await axios.post(`${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`, {
+    locationId: data.locationId,
+    content: JSON.stringify(data.content),
+  });
+
+  return res.data;
+}
+
+export async function hideComment(
+  commentId: string,
+  hidden: boolean,
+): Promise<Comment> {
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/hidden`,
+    {
+      hidden,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function submitCommentEmail(
+  commentId: string,
+  email: string,
+): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/email/${commentId}`,
+    {
+      email,
+    },
+  );
+
+  return res.data;
+}
+
+export async function reportComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/report/${commentId}`,
+  );
+
+  return res.data;
+}
+
+export async function likeComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
+  );
+  return res.data;
+}
+
+export async function undoLikeComment(commentId: string): Promise<unknown> {
+  const res = await axios.delete(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
+  );
+  return res.data;
+}
+
+export async function postCommentReply(
+  commentId: string,
+  postedBy: string,
+  content: string,
+): Promise<Reply> {
+  const data = {
+    postedBy,
+    content,
+  };
+  const token = await getAuthToken();
+  const res = await axios.post(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function editCommentReply(
+  replyId: string,
+  content: string,
+): Promise<Reply> {
+  const data = {
+    content,
+  };
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/replies/${replyId}`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
 }
 
 export class Error404Response extends Error {}
