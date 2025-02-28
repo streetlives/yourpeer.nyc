@@ -895,3 +895,25 @@ export interface Comment {
   Replies: Reply[];
   likedByCurrentUser: boolean;
 }
+
+type Sentiment =
+  | "Strongly Positive"
+  | "Positive"
+  | "Neutral"
+  | "Negative"
+  | "Strongly Negative"
+  | "Mixed";
+
+export interface CommentHighlightsItem {
+  comment: string;
+  sentiment: Sentiment;
+  informativeness_score: number;
+  key_positive_sentiment_takeaways: string[];
+  key_negative_sentiment_takeaways: string[];
+}
+
+export interface CommentHighlights {
+  top_positive_comments: CommentHighlightsItem[];
+  top_negative_comments: CommentHighlightsItem[];
+  top_mixed_comments: CommentHighlightsItem[];
+}
