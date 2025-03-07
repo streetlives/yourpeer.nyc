@@ -13,7 +13,7 @@ export default function ReviewHighlights({
   const { data, status } = useQuery({
     queryKey: ["highlights"],
     queryFn: () => getFeedbackHighlights(locationId),
-    select: (data) => getFormatedHighlights(data),
+    select: getFormatedHighlights,
     retry: false,
   });
 

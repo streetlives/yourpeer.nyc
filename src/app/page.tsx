@@ -10,6 +10,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
+import { getServicesCount } from "@/components/streetlives-api-service";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -17,7 +18,9 @@ export const metadata: Metadata = {
     "Find housing, food pantries, clothing assistance, personal care resources, healthcare services, and more resources for unhoused people in NYC verified by the community with YourPeer.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const servicesLength = await getServicesCount();
+
   return (
     <>
       <GTranslateWrapper />
@@ -35,7 +38,9 @@ export default function HomePage() {
             <TranslatableText text="Free support services validated by your peers"></TranslatableText>
           </h1>
           <p className="text-base text-grey-900 text-center my-5 sm:my-6 font-semibold">
-            <TranslatableText text="Search through 2500+ free support services across NYC"></TranslatableText>
+            <TranslatableText
+              text={`Search through ${servicesLength}+ free support services across NYC`}
+            ></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
             <Link href="/locations" className="primary-button ">
@@ -471,21 +476,21 @@ export default function HomePage() {
               src="/img/partners-logo/logo-2.png"
               alt="Logo"
             />
-            
-            
-            
-            
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-7.png"
               alt="Logo"
             />
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-14.png"
@@ -496,9 +501,9 @@ export default function HomePage() {
               src="/img/partners-logo/logo-15.png"
               alt="Logo"
             />
-            
-            
-            
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-19.png"
