@@ -235,11 +235,38 @@ export default function FiltersPopup({
             />
             <CategoryFilterLabel
               currentCategory={category}
-              labelCategory={"other"}
-              activeImgSrc="/img/icons/active-dots-icon.svg"
-              imgSrc="/img/icons/dots-icon.svg"
-              labelText="Other"
+              labelCategory={"mental-health"}
+              activeImgSrc="/img/icons/mental-health.svg"
+              imgSrc="/img/icons/mental-health.svg"
+              labelText="Mental Health"
               normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+                currentCategory={category}
+                labelCategory={"legal-services"}
+                activeImgSrc="/img/icons/legal-services.svg"
+                imgSrc="/img/icons/legal-services.svg"
+                labelText="Legal Services"
+                normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+                currentCategory={category}
+                labelCategory={"employment"}
+                activeImgSrc="/img/icons/employment.svg"
+                imgSrc="/img/icons/employment.svg"
+                labelText="Employment"
+                normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+                currentCategory={category}
+                labelCategory={"other"}
+                activeImgSrc="/img/icons/active-dots-icon.svg"
+                imgSrc="/img/icons/dots-icon.svg"
+                labelText="Other"
+                normalizedSearchParams={normalizedSearchParams}
             />
           </div>
         </fieldset>

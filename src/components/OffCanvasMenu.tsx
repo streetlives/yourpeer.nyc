@@ -331,6 +331,25 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                         >
                           <TranslatableText text="Health Care" />
                         </Link>
+
+                        <Link
+                            href={"/mental-health"}
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                        >
+                          <TranslatableText text="Mental Health" />
+                        </Link>
+                        <Link
+                            href={"/legal-services"}
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                        >
+                          <TranslatableText text="Legal Services" />
+                        </Link>
+                        <Link
+                            href={"/employment"}
+                            className="text-xl text-dark hover:text-gray-800 transition"
+                        >
+                          <TranslatableText text="Employment" />
+                        </Link>
                         <Link
                           href={"/other-services"}
                           className="text-xl text-dark hover:text-gray-800 transition"

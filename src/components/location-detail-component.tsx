@@ -52,6 +52,8 @@ export default function LocationDetailComponent({
   const router = useRouter();
   const previousRoute = usePreviousRoute();
 
+  console.log(location);
+
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
   }
