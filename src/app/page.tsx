@@ -18,6 +18,50 @@ export const metadata: Metadata = {
     "Find housing, food pantries, clothing assistance, personal care resources, healthcare services, and more resources for unhoused people in NYC verified by the community with YourPeer.",
 };
 
+const services = [
+  {
+    name: "Shelter & Housing",
+    icon: "/img/icons/services/house.svg",
+    href: "/shelters-housing",
+  },
+  { name: "Food", icon: "/img/icons/services/food.svg", href: "/food" },
+  {
+    name: "Clothing",
+    icon: "/img/icons/services/clothing.svg",
+    href: "/clothing",
+  },
+  {
+    name: "Personal Care",
+    icon: "/img/icons/services/pesonal-care.svg",
+    href: "/personal-care",
+  },
+  {
+    name: "Health",
+    icon: "/img/icons/services/health.svg",
+    href: "/health-care",
+  },
+  {
+    name: "Mental Health",
+    icon: "/img/icons/mental-health.svg",
+    href: "/mental-health",
+  },
+  {
+    name: "Legal Services",
+    icon: "/img/icons/legal-services.svg",
+    href: "/legal-services",
+  },
+  {
+    name: "Employment",
+    icon: "/img/icons/employment.svg",
+    href: "/employment",
+  },
+  {
+    name: "Other",
+    icon: "/img/icons/services/other.svg",
+    href: "/other-services",
+  },
+];
+
 export default async function HomePage() {
   const servicesLength = await getServicesCount();
 
@@ -58,108 +102,25 @@ export default async function HomePage() {
           className="w-full grid grid-cols-2 md:grid-cols-3 gap-3 "
           style={{ gridAutoRows: "1fr" }}
         >
-          <li>
-            <Link
-              href="/shelters-housing"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/house.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Shelter & Housing" />
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/food"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/food.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Food" />
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/clothing"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/clothing.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Clothing" />
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/personal-care"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/pesonal-care.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Personal Care" />
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/health-care"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/health.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Health" />
-              </div>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/other-services"
-              className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
-            >
-              <img
-                src="/img/icons/services/other.svg"
-                width="37"
-                height="36"
-                className="object-contain flex-shrink-0"
-                alt=""
-              />
-              <div className="text-[13px] text-dark mt-2 font-semibold text-center">
-                <TranslatableText text="Other" />
-              </div>
-            </Link>
-          </li>
+          {services.map((s) => (
+            <li key={s.name}>
+              <Link
+                href={s.href}
+                className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
+              >
+                <img
+                  src={s.icon}
+                  width="37"
+                  height="36"
+                  className="object-contain flex-shrink-0"
+                  alt=""
+                />
+                <div className="text-[13px] text-dark mt-2 font-semibold text-center">
+                  <TranslatableText text={s.name} />
+                </div>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
 
