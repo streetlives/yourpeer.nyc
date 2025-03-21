@@ -16,7 +16,6 @@ import {
   CLOTHING_PARAM_PROFESSIONAL_VALUE,
   Comment,
   CommentContent,
-  CommentHighlights,
   FOOD_PARAM,
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
@@ -696,12 +695,31 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
 
 export async function getFeedbackHighlights(
   locationId: string,
-): Promise<CommentHighlights> {
-  const res = await axios.get<CommentHighlights>(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comment-highlights?locationId=${locationId}`,
+): Promise<string[]> {
+  const res = await axios.get<Comment[]>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
 
-  return res.data;
+  const comments = res.data
+    .filter((c) => c.hidden !== true)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+
+  return comments.slice(0, 3).map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string).whatWentWell;
+    } catch (e) {
+      content =
+        typeof comment.content === "string"
+          ? comment.content
+          : comment.content.whatWentWell;
+    }
+
+    return content;
+  });
 }
 
 export async function postComment(data: {
