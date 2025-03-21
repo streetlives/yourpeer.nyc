@@ -16,6 +16,7 @@ import {
   CLOTHING_PARAM_PROFESSIONAL_VALUE,
   Comment,
   CommentContent,
+  CommentHighlights,
   FOOD_PARAM,
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
@@ -695,31 +696,12 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
 
 export async function getFeedbackHighlights(
   locationId: string,
-): Promise<string[]> {
-  const res = await axios.get<Comment[]>(
-    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+): Promise<CommentHighlights> {
+  const res = await axios.get<CommentHighlights>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comment-highlights?locationId=${locationId}`,
   );
 
-  const comments = res.data
-    .filter((c) => c.hidden !== true)
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
-
-  return comments.slice(0, 3).map((comment) => {
-    let content;
-    try {
-      content = JSON.parse(comment.content as string).whatWentWell;
-    } catch (e) {
-      content =
-        typeof comment.content === "string"
-          ? comment.content
-          : comment.content.whatWentWell;
-    }
-
-    return content;
-  });
+  return res.data;
 }
 
 export async function postComment(data: {
@@ -831,6 +813,13 @@ export async function editCommentReply(
     },
   );
 
+  return res.data;
+}
+
+export async function getServicesCount(): Promise<unknown> {
+  const res = await axios.get(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/services/get-count`,
+  );
   return res.data;
 }
 
