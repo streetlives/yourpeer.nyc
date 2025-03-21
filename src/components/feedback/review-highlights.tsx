@@ -20,6 +20,7 @@ export default function ReviewHighlights({
 }) {
   const { data, isLoading } = useQuery({
     queryKey: ["highlights"],
+    retry: false,
     queryFn: () => getFeedbackHighlights(locationId),
   });
 

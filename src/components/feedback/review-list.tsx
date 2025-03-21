@@ -2,7 +2,6 @@
 
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { fetchComments } from "@/components/streetlives-api-service";
-import { Authenticator } from "@aws-amplify/ui-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useAdminUser, useStuffUser } from "@/components/use-user-role";
@@ -41,20 +40,18 @@ export default function ReviewList({
   ) : (
     <>
       {data?.length ? (
-        <Authenticator.Provider>
-          <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
-            {data.map((comment) => (
-              <ReviewListItem
-                key={comment.id}
-                comment={comment}
-                isStuffUser={isStuffUser}
-                isAdmin={isAdmin || false}
-                locationServices={location_services}
-                orgName={orgName}
-              />
-            ))}
-          </ul>
-        </Authenticator.Provider>
+        <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
+          {data.map((comment) => (
+            <ReviewListItem
+              key={comment.id}
+              comment={comment}
+              isStuffUser={isStuffUser}
+              isAdmin={isAdmin || false}
+              locationServices={location_services}
+              orgName={orgName}
+            />
+          ))}
+        </ul>
       ) : (
         <p className="p-4 bg-white rounded-md m-4 text-sm">
           Nothing to show yet
