@@ -188,7 +188,7 @@ export default function ReviewForm({
                   "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
                   errors.whatWentWell
                     ? "!border-danger focus:!ring-danger"
-                    : "border-gray-400"
+                    : "border-gray-400",
                 )}
                 {...register("whatWentWell", {
                   required: "This field is required",
@@ -217,7 +217,7 @@ export default function ReviewForm({
                   "text-black text-sm placeholder:text-gray-500 rounded-md w-full resize-none",
                   errors.whatCouldBeImproved
                     ? "!border-danger focus:!ring-danger"
-                    : "border-gray-400"
+                    : "border-gray-400",
                 )}
                 {...register("whatCouldBeImproved", {
                   validate: user ? undefined : containsURL,
