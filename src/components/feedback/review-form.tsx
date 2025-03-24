@@ -23,6 +23,7 @@ import {
   GoogleReCaptcha,
   GoogleReCaptchaProvider,
 } from "react-google-recaptcha-v3";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 
 const NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY;
@@ -58,6 +59,7 @@ export default function ReviewForm({
   const [commentId, setCommentId] = useState<null | string>(null);
   const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>();
+  const { user } = useAuthenticator((context) => [context.user]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (content: Inputs) =>
@@ -71,6 +73,12 @@ export default function ReviewForm({
       setCommentId(data.id);
     },
   });
+
+  const containsURL = (value: string) => {
+    const urlRegex =
+      /(https?:\/\/[^\s]+)|(^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$)/g;
+    return !urlRegex.test(value) || "Text should not contain URLs";
+  };
 
   return (
     <>
@@ -183,12 +191,17 @@ export default function ReviewForm({
                     ? "!border-danger focus:!ring-danger"
                     : "border-gray-400",
                 )}
-                {...register("whatWentWell", { required: true })}
+                {...register("whatWentWell", {
+                  required: "This field is required",
+                  validate: user ? undefined : containsURL,
+                })}
                 rows={5}
                 placeholder="What did you like about your experience?"
               ></textarea>
               {errors.whatWentWell && (
-                <p className="text-danger text-sm">This field is required</p>
+                <p className="text-danger text-sm">
+                  {errors.whatWentWell.message}
+                </p>
               )}
             </div>
 
@@ -207,10 +220,17 @@ export default function ReviewForm({
                     ? "!border-danger focus:!ring-danger"
                     : "border-gray-400",
                 )}
-                {...register("whatCouldBeImproved")}
+                {...register("whatCouldBeImproved", {
+                  validate: user ? undefined : containsURL,
+                })}
                 rows={5}
                 placeholder="How can they do a better job?"
               ></textarea>
+              {errors.whatCouldBeImproved && (
+                <p className="text-danger text-sm">
+                  {errors.whatCouldBeImproved.message}
+                </p>
+              )}
             </div>
 
             <GoogleReCaptchaProvider
@@ -229,7 +249,7 @@ export default function ReviewForm({
               type="submit"
               size="lg"
               className="w-full"
-              disabled={!!errors.whatWentWell}
+              disabled={!!errors.whatWentWell || !!errors.whatCouldBeImproved}
             >
               Submit
             </Button>
