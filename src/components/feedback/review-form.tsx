@@ -75,6 +75,7 @@ export default function ReviewForm({
   });
 
   const containsURL = (value: string) => {
+    // eslint-disable-next-line max-len
     const urlRegex = /(https?:\/\/[^\s]+)|(^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9\-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$)/g;
     return !urlRegex.test(value) || "Text should not contain URLs";
   };
