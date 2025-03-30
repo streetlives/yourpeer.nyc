@@ -301,6 +301,9 @@ function filter_services_by_name(
       const schedules = service?.HolidaySchedules?.filter(
         (x) => x.opens_at && x.closes_at,
       );
+      if (service['Taxonomies'].length !== 0) {
+
+
       services.push({
         id: service.id,
         name: service["name"],
@@ -354,6 +357,8 @@ function filter_services_by_name(
           : null,
         age: age_eligibilities,
       });
+
+      }
     }
   }
   return { services };

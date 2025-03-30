@@ -75,7 +75,10 @@ export default function ReviewForm({
   });
 
   const containsURL = (value: string) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urlRegex = new RegExp(
+      "((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/\\.\\w-_]*)?\\??(?:[-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*))?)",
+      "i"
+    );
     return !urlRegex.test(value) || "Text should not contain URLs";
   };
 
@@ -131,9 +134,9 @@ export default function ReviewForm({
               setIsConfirm(true);
             }
           })}
-          className="bg-white h-full relative overflow-y-hidden pt-2 px-5"
+          className="bg-white h-full flex flex-col relative pt-2 overflow-y-hidden"
         >
-          <div className="pb-12 space-y-6">
+          <div className="pb-12 space-y-6 flex-1 max-h-full px-5 overflow-y-auto">
             <div className="p-4 rounded-lg bg-indigo-100">
               <h3 className="mb-3 text-base text-[#3D5AFE]">
                 A safe space to voice your opinions
@@ -191,7 +194,7 @@ export default function ReviewForm({
                     : "border-gray-400",
                 )}
                 {...register("whatWentWell", {
-                  required: "This field is required",
+                  required: "This field is empty",
                   validate: user ? undefined : containsURL,
                 })}
                 rows={5}
@@ -243,7 +246,7 @@ export default function ReviewForm({
             </GoogleReCaptchaProvider>
           </div>
 
-          <div className=" absolute bottom-0 w-full inset-x-0 bg-transparent px-5 py-2">
+          <div className=" w-full bg-white px-5 py-2">
             <Button
               type="submit"
               size="lg"
