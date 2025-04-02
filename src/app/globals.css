@@ -16,6 +16,7 @@ https://opensource.org/licenses/MIT.
     width: 100%;
     box-sizing: border-box;
   }
+
   * {
     box-sizing: border-box;
   }
@@ -26,6 +27,9 @@ https://opensource.org/licenses/MIT.
 
   [x-cloak] {
     display: none !important;
+  }
+  :root {
+    --radius: 0.5rem;
   }
 }
 
@@ -38,6 +42,10 @@ https://opensource.org/licenses/MIT.
     @apply bg-neutral-50 font-medium text-sm text-center py-3 px-5 rounded-lg transition hover:border-dark focus:outline-none shadow border-[1.5px] border-neutral-600 flex-1 inline-block;
   }
 
+  .secondary-button {
+    @apply text-xs flex-1 flex items-center justify-center py-1 px-5 space-x-2 text-dark transition hover:text-black hover:border-black border border-gray-300 rounded-3xl bg-neutral-50;
+  }
+
   .link {
     @apply text-[#1A73E9] underline hover:no-underline;
   }
@@ -45,6 +53,7 @@ https://opensource.org/licenses/MIT.
   .carousel-wrapper .swiper-pagination .swiper-pagination-bullet {
     @apply !bg-neutral-200 !w-2 !h-2;
   }
+
   .carousel-wrapper .swiper-pagination .swiper-pagination-bullet-active {
     @apply !bg-gray-700;
   }
@@ -74,6 +83,7 @@ https://opensource.org/licenses/MIT.
     max-width: 250px;
   }
 }
+
 @media (max-width: 350px) {
   .have-links a {
     max-width: 200px;
@@ -93,6 +103,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
 .gm-style-cc {
   display: none;
 }
+
 .gmnoprint div {
   background: white !important;
   border-radius: 8px !important;
@@ -328,6 +339,7 @@ font {
   animation: dot-pulse 1.5s infinite linear;
   animation-delay: 0.25s;
 }
+
 .dot-pulse::before,
 .dot-pulse::after {
   content: "";
@@ -340,11 +352,13 @@ font {
   background-color: #333333;
   color: #333333;
 }
+
 .dot-pulse::before {
   box-shadow: 9984px 0 0 -5px;
   animation: dot-pulse-before 1.5s infinite linear;
   animation-delay: 0s;
 }
+
 .dot-pulse::after {
   box-shadow: 10014px 0 0 -5px;
   animation: dot-pulse-after 1.5s infinite linear;
@@ -363,6 +377,7 @@ font {
     box-shadow: 9984px 0 0 -5px;
   }
 }
+
 @keyframes dot-pulse {
   0% {
     box-shadow: 9999px 0 0 -5px;
@@ -375,6 +390,7 @@ font {
     box-shadow: 9999px 0 0 -5px;
   }
 }
+
 @keyframes dot-pulse-after {
   0% {
     box-shadow: 10014px 0 0 -5px;

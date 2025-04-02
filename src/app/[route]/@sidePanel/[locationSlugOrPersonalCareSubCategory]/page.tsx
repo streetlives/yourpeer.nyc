@@ -18,7 +18,6 @@ import {
 import { SidePanelComponent } from "../../../../components/side-panel-component";
 import LocationDetailComponent from "../../../../components/location-detail-component";
 import { usePreviousParams } from "@/components/use-previous-params";
-import { getMapContainerData } from "@/components/map-container-component";
 import { getSidePanelComponentData } from "@/components/get-side-panel-component-data";
 import {
   isOnLocationDetailPage,
@@ -67,11 +66,6 @@ export default async function LocationDetail({
       return (
         <LocationDetailComponent
           location={location}
-          locationStubs={
-            previousParams
-              ? await getMapContainerData(previousParams)
-              : undefined
-          }
           slug={params.locationSlugOrPersonalCareSubCategory}
         />
       );

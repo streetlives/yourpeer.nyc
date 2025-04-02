@@ -4,21 +4,19 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import sgMail from "@sendgrid/mail";
+import axios from "axios";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 export async function POST(request: Request) {
-  const text = await request.text();
+  const req = await request.json();
+  const url = SLACK_WEBHOOK_URL;
+
+  if (!url) throw new Error("slack webhook URL is missing");
+
   try {
-    const msg = {
-      from: "jake@minnow.io",
-      to: ["jake@minnow.io"], //['ypissuereport@streetlives.nyc'],
-      subject: "New Issue Report",
-      text,
-    };
-    const data = await sgMail.send(msg);
-    return Response.json(data);
+    const res = await axios.post(url, { text: req.text });
+    return Response.json(res.data);
   } catch (e) {
     return Response.json(e, { status: 500 });
   }

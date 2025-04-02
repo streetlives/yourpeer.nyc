@@ -36,3 +36,13 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*
+
+.idea
+
+# JetBrains IDE workspace files (user-specific settings)
+.idea/workspace.xml
