@@ -6,7 +6,7 @@
 
 import { LanguageTranslationProvider } from "@/components/language-translation-context";
 import "./globals.css";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import type { Viewport } from "next";
 import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
@@ -42,6 +42,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
+
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}`}
         strategy="afterInteractive"
@@ -55,6 +56,7 @@ export default function RootLayout({
           gtag('config', '${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}');
         `}
       </Script>
+
       <body>
         <CookiesProvider>
           <LanguageTranslationProvider>
@@ -63,6 +65,7 @@ export default function RootLayout({
         </CookiesProvider>
         <Toaster />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_MEASUREMENT_ID} />
+        <GoogleTagManager gtmId="GTM-ND2QBSQH" />
       </body>
     </html>
   );

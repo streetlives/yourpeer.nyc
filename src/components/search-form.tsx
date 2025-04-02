@@ -38,6 +38,7 @@ function SearchPanel({
     SearchContext,
   ) as SearchContextType;
   const router = useRouter();
+
   //console.log("currentSearch", currentSearch);
 
   function handleSearchPanelClick() {
@@ -192,6 +193,10 @@ export default function SearchForm() {
   function doSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     event.stopPropagation();
+
+    window["gtag"]("event", "search_event", {
+      search_term: search,
+    });
 
     if (search) {
       setShowMapViewOnMobile(false);
