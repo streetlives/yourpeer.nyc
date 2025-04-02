@@ -301,59 +301,61 @@ function filter_services_by_name(
       const schedules = service?.HolidaySchedules?.filter(
         (x) => x.opens_at && x.closes_at,
       );
-      services.push({
-        id: service.id,
-        name: service["name"],
-        description: service["description"],
-        category: service["Taxonomies"][0]["parent_name"],
-        subcategory: service["Taxonomies"][0]["name"],
-        info: service?.EventRelatedInfos?.map((x) => x.information).filter(
-          (information) => information !== null,
-        ),
-        closed: !schedules.length || schedules.every((x) => x.closed),
-        schedule: Object.fromEntries(
-          Object.entries(
-            _.groupBy(
-              service.HolidaySchedules.filter(
-                (schedule) => schedule.opens_at && schedule.closes_at,
+      if (service["Taxonomies"].length !== 0) {
+        services.push({
+          id: service.id,
+          name: service["name"],
+          description: service["description"],
+          category: service["Taxonomies"][0]["parent_name"],
+          subcategory: service["Taxonomies"][0]["name"],
+          info: service?.EventRelatedInfos?.map((x) => x.information).filter(
+            (information) => information !== null,
+          ),
+          closed: !schedules.length || schedules.every((x) => x.closed),
+          schedule: Object.fromEntries(
+            Object.entries(
+              _.groupBy(
+                service.HolidaySchedules.filter(
+                  (schedule) => schedule.opens_at && schedule.closes_at,
+                ),
+                "weekday",
               ),
-              "weekday",
-            ),
-          ).map(([k, v]) => [
-            k,
-            v.sort((time1, time2) => (time1 < time2 ? 1 : -1)), // sort the times
-          ]),
-        ),
-        docs: is_location_detail
-          ? service.RequiredDocuments.filter(
-              (doc) => doc.document && doc.document != "None",
-            ).map((doc) => doc.document)
-          : null,
-        referral_letter: is_location_detail
-          ? !!service.RequiredDocuments.filter((doc) =>
-              doc.document.toLowerCase().includes("referral letter"),
-            ).length
-          : null,
-        eligibility: is_location_detail
-          ? service.Eligibilities.map(
-              (eligibility) => eligibility.description,
-            ).filter((description) => description !== null)
-          : null,
-        membership: is_location_detail
-          ? !!service.Eligibilities.filter(
-              (eligibility) =>
-                eligibility.EligibilityParameter.name
-                  .toLowerCase()
-                  .includes("membership") &&
-                eligibility.eligible_values.length &&
-                !eligibility.eligible_values
-                  .filter((elig_value) => typeof elig_value === "string")
-                  .map((elig_value) => elig_value.toLowerCase())
-                  .includes("false"),
-            ).length
-          : null,
-        age: age_eligibilities,
-      });
+            ).map(([k, v]) => [
+              k,
+              v.sort((time1, time2) => (time1 < time2 ? 1 : -1)), // sort the times
+            ]),
+          ),
+          docs: is_location_detail
+            ? service.RequiredDocuments.filter(
+                (doc) => doc.document && doc.document != "None",
+              ).map((doc) => doc.document)
+            : null,
+          referral_letter: is_location_detail
+            ? !!service.RequiredDocuments.filter((doc) =>
+                doc.document.toLowerCase().includes("referral letter"),
+              ).length
+            : null,
+          eligibility: is_location_detail
+            ? service.Eligibilities.map(
+                (eligibility) => eligibility.description,
+              ).filter((description) => description !== null)
+            : null,
+          membership: is_location_detail
+            ? !!service.Eligibilities.filter(
+                (eligibility) =>
+                  eligibility.EligibilityParameter.name
+                    .toLowerCase()
+                    .includes("membership") &&
+                  eligibility.eligible_values.length &&
+                  !eligibility.eligible_values
+                    .filter((elig_value) => typeof elig_value === "string")
+                    .map((elig_value) => elig_value.toLowerCase())
+                    .includes("false"),
+              ).length
+            : null,
+          age: age_eligibilities,
+        });
+      }
     }
   }
   return { services };
