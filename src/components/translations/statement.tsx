@@ -81,19 +81,20 @@ export function StatementRussianTranslation() {
               </ul>
             </div>
             <h2 className="text-xl font-semibold mt-6">Свяжитесь с нами</h2>
-            <ul className="list-disc list-inside">
-              <li>Спасибо, что поддерживаете нас.</li>
-              <li>
-                У вас есть предложения или вопросы? Пишите нам на{" "}
-                <a
-                  href="mailto:team@streetlives.nyc"
-                  className="text-blue-600 underline"
-                >
-                  team@streetlives.nyc
-                </a>
-                .
-              </li>
-            </ul>
+              <ul className="list-disc list-inside">
+                <li>Спасибо, что поддерживаете нас.</li>
+                <li>
+                  <span>У вас есть предложения или вопросы? Пишите нам на </span>
+                  <a
+                    href="mailto:team@streetlives.nyc"
+                    className="text-blue-600 underline"
+                  >
+                    team@streetlives.nyc
+                  </a>
+                  <span>.</span>
+                </li>
+              </ul>
+
             <p className="mt-4 font-semibold">
               Мы здесь, чтобы помочь Вам найти нужные ресурсы — в любое время.
             </p>
