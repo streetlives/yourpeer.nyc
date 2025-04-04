@@ -157,7 +157,7 @@ export default function HomePage() {
           </li>
         </ul>
       </section>
-
+      {/*hflsdkjf*/}
       <section
         id="Testimonial"
         className="max-w-5xl mx-auto w-full px-5 py-12 lg:py-16"
@@ -471,21 +471,21 @@ export default function HomePage() {
               src="/img/partners-logo/logo-2.png"
               alt="Logo"
             />
-            
-            
-            
-            
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-7.png"
               alt="Logo"
             />
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-14.png"
@@ -496,9 +496,9 @@ export default function HomePage() {
               src="/img/partners-logo/logo-15.png"
               alt="Logo"
             />
-            
-            
-            
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-19.png"
