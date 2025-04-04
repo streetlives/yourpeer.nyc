@@ -13,15 +13,17 @@ import {
   DONATE_ROUTE,
   LOGIN_ROUTE,
   PRIVACY_POLICY_ROUTE,
+  STATEMENT_ROUTE,
   TERMS_OF_USE_ROUTE,
 } from "../../../components/common";
 import { AboutUsPage } from "./about-us";
 import { ContactUsPage } from "./contact-us";
 import { DonationPage } from "./donate";
-import { TermsPage } from "./terms";
+import { Statement } from "./statement";
 import { PrivacyPage } from "./privacy";
 import { notFound } from "next/navigation";
 import { LoginPage } from "./login";
+import { Terms } from "./terms";
 
 export default function StaticPage({
   params: { route },
@@ -36,12 +38,14 @@ export default function StaticPage({
       return <ContactUsPage />;
     case DONATE_ROUTE:
       return <DonationPage />;
-    case TERMS_OF_USE_ROUTE:
-      return <TermsPage />;
+    case STATEMENT_ROUTE:
+      return <Statement />;
     case PRIVACY_POLICY_ROUTE:
       return <PrivacyPage />;
     case LOGIN_ROUTE:
       return <LoginPage />;
+    case TERMS_OF_USE_ROUTE:
+      return <Terms />;
     default:
       return notFound();
   }
