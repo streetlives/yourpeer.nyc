@@ -12,7 +12,7 @@ const translations: Record<string, string> = {
   "Personal Care": "Личная гигиена",
   Health: "Здравоохранение",
   "Health Care": "Здравоохранение",
-  "Statement": "Декларация",
+  Statement: "Декларация",
   Other: "Другие услуги",
   "Other Services": "Другие услуги",
   "YourPeer offers hope": "YourPeer дает мне надежду.",

@@ -383,7 +383,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           className="text-xl text-dark hover:text-gray-800 transition"
                         >
                           <TranslatableText text="Statement" />
-                        </Link>                        
+                        </Link>
                         <Link
                           href="/donate"
                           className="text-xl text-dark hover:text-gray-800 transition"
