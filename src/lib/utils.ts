@@ -65,7 +65,7 @@ export function getFormatedHighlights(
       let highlightedComment = highlightTakeaways(
         comment.comment,
         comment.key_positive_sentiment_takeaways,
-        "text-green-700",
+        "text-green-600",
       );
       highlightedComment = highlightTakeaways(
         highlightedComment,
@@ -90,7 +90,7 @@ export function getFormatedHighlights(
       let highlightedComment = highlightTakeaways(
         comment.comment,
         comment.key_positive_sentiment_takeaways,
-        "text-green-700",
+        "text-green-600",
       );
       return highlightTakeaways(
         highlightedComment,
