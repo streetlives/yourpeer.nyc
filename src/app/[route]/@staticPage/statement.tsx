@@ -37,16 +37,27 @@ export function Statement() {
 
             <h2 className="text-xl font-semibold mt-6">Who We Are</h2>
             <ul className="list-disc list-inside">
-              <li>A diverse team with firsthand experience of homelessness and immigration.</li>
-              <li>Members include asylum seekers and individuals from various ethnicities, genders, and orientations.</li>
-              <li>Our personal experiences help us relate to the challenges faced by people seeking services.</li>
+              <li>
+                A diverse team with firsthand experience of homelessness and
+                immigration.
+              </li>
+              <li>
+                Members include asylum seekers and individuals from various
+                ethnicities, genders, and orientations.
+              </li>
+              <li>
+                Our personal experiences help us relate to the challenges faced
+                by people seeking services.
+              </li>
             </ul>
 
             <h2 className="text-xl font-semibold mt-6">What We Offer</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-                Our peer-powered platform with up-to-date information on social
-                services in New York City.
+                <span>
+                  Our peer-powered platform with up-to-date information on
+                  social services in New York City.
+                </span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Clothing</li>
                   <li>Education</li>
@@ -62,9 +73,16 @@ export function Statement() {
 
             <h2 className="text-xl font-semibold mt-6">How We Support You</h2>
             <ul className="list-disc list-inside">
-              <li>We highlight any eligibility requirements so you know what to expect.</li>
-              <li>We prioritize your privacy by never collecting personal data.</li>
-              <li>We offer language support for non-native English speakers.</li>
+              <li>
+                We highlight any eligibility requirements so you know what to
+                expect.
+              </li>
+              <li>
+                We prioritize your privacy by never collecting personal data.
+              </li>
+              <li>
+                We offer language support for non-native English speakers.
+              </li>
             </ul>
 
             <h2 className="text-xl font-semibold mt-6 bg-yellow-100 p-3 rounded-md">
@@ -72,8 +90,16 @@ export function Statement() {
             </h2>
             <div className="bg-yellow-100 p-3 rounded-md">
               <ul className="list-disc list-inside">
-                <li>As new policies target reproductive rights, gender self-identification, and immigration, we recognize many feel fear and uncertainty—particularly undocumented individuals who may face ICE encounters.</li>
-                <li>Despite these challenges, our dedication to serving you remains unwavering.</li>
+                <li>
+                  As new policies target reproductive rights, gender
+                  self-identification, and immigration, we recognize many feel
+                  fear and uncertainty—particularly undocumented individuals who
+                  may face ICE encounters.
+                </li>
+                <li>
+                  Despite these challenges, our dedication to serving you
+                  remains unwavering.
+                </li>
               </ul>
             </div>
 
@@ -81,14 +107,14 @@ export function Statement() {
             <ul className="list-disc list-inside">
               <li>Thank you for standing with us.</li>
               <li>
-                Have suggestions or concerns? We welcome them at{" "}
+                <span> Have suggestions or concerns? We welcome them at</span>{" "}
                 <a
                   href="mailto:team@streetlives.nyc"
                   className="text-blue-600 underline"
                 >
                   team@streetlives.nyc
                 </a>
-                .
+                <span>.</span>
               </li>
             </ul>
 
