@@ -15,16 +15,39 @@ export function getFormatedHighlights(
     "top_mixed_comments",
   ];
 
+  // function highlightTakeaways(
+  //   comment: string,
+  //   takeaways: string[],
+  //   className: string,
+  // ): string {
+  //   takeaways.forEach((takeaway) => {
+  //     const regex = new RegExp(`(${takeaway})`, "gi");
+  //     comment = comment.replace(regex, `<span class='${className}'>$1</span>`);
+  //   });
+  //   return comment;
+  // }
+
+  function escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   function highlightTakeaways(
-    comment: string,
-    takeaways: string[],
-    className: string,
+      comment: string,
+      takeaways: string[],
+      className: string,
   ): string {
-    takeaways.forEach((takeaway) => {
-      const regex = new RegExp(`(${takeaway})`, "gi");
-      comment = comment.replace(regex, `<span class='${className}'>$1</span>`);
+    if (!takeaways.length) return comment;
+
+    const escapedTakeaways = takeaways.map(escapeRegExp);
+    const regex = new RegExp(`\\b(${escapedTakeaways.join("|")})\\b`, "gi");
+
+    // Avoid double-wrapping already highlighted spans
+    return comment.replace(regex, (match) => {
+      const alreadyHighlighted = match.includes(`<span class='${className}'`);
+      return alreadyHighlighted
+          ? match
+          : `<span class='${className}'>${match}</span>`;
     });
-    return comment;
   }
 
   let selectedComments: string[] = [];
