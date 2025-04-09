@@ -32,9 +32,9 @@ export function getFormatedHighlights(
   }
 
   function highlightTakeaways(
-      comment: string,
-      takeaways: string[],
-      className: string,
+    comment: string,
+    takeaways: string[],
+    className: string,
   ): string {
     if (!takeaways.length) return comment;
 
@@ -45,8 +45,8 @@ export function getFormatedHighlights(
     return comment.replace(regex, (match) => {
       const alreadyHighlighted = match.includes(`<span class='${className}'`);
       return alreadyHighlighted
-          ? match
-          : `<span class='${className}'>${match}</span>`;
+        ? match
+        : `<span class='${className}'>${match}</span>`;
     });
   }
 
