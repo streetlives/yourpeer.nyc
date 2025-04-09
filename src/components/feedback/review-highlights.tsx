@@ -15,7 +15,6 @@ export default function ReviewHighlights({
     retry: false,
     queryFn: () => getFeedbackHighlights(locationId),
     select: (data) => getFormatedHighlights(data),
-    retry: false,
   });
 
   return status === "pending" ? (
