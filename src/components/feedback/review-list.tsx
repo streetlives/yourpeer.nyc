@@ -5,8 +5,32 @@ import { fetchComments } from "@/components/streetlives-api-service";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useAdminUser, useStuffUser } from "@/components/use-user-role";
+import { Authenticator } from "@aws-amplify/ui-react";
 
-export default function ReviewList({
+export default function ReviewListWrapper({
+  locationId,
+  organizationId,
+  location_services,
+  orgName,
+}: {
+  locationId: string;
+  organizationId: string;
+  location_services: string[];
+  orgName: string;
+}) {
+  return (
+    <Authenticator.Provider>
+      <ReviewList
+        locationId={locationId}
+        organizationId={organizationId}
+        location_services={location_services}
+        orgName={orgName}
+      />
+    </Authenticator.Provider>
+  );
+}
+
+export function ReviewList({
   locationId,
   organizationId,
   location_services,

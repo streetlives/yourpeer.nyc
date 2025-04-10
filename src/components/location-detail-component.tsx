@@ -29,7 +29,6 @@ import { useRouter } from "next/navigation";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { Button } from "@/components/ui/button";
 import { EditIcon } from "@/components/icons/edit-icon";
-import { Authenticator } from "@aws-amplify/ui-react";
 
 export function getIconPath(iconName: string): string {
   return `/img/icons/${iconName}.png`;
@@ -89,94 +88,137 @@ export default function LocationDetailComponent({
   });
 
   return (
-    <Authenticator.Provider>
-      <LocationDetailContainer
-        onChangeSection={(section) => setActiveSection(section)}
-        onSticky={(sticky) => setStickyTitle(sticky)}
-      >
-        <LocationDetailHeader
-          onGoBack={goBack}
-          title={headerTitle}
-          isSticky={
-            stickyTitle || isShowingReviewDetails || isShowingReviewForm
-          }
+    <LocationDetailContainer
+      onChangeSection={(section) => setActiveSection(section)}
+      onSticky={(sticky) => setStickyTitle(sticky)}
+    >
+      <LocationDetailHeader
+        onGoBack={goBack}
+        title={headerTitle}
+        isSticky={stickyTitle || isShowingReviewDetails || isShowingReviewForm}
+      />
+
+      {isShowingReportIssueForm ? (
+        <ReportIssueForm
+          location={location}
+          hideReportIssueForm={hideReportIssueForm}
         />
-
-        {isShowingReportIssueForm ? (
-          <ReportIssueForm
-            location={location}
-            hideReportIssueForm={hideReportIssueForm}
-          />
-        ) : isShowingReviewDetails ? (
-          <div className="bg-neutral-100 flex flex-col h-full relative overflow-y-hidden pt-2">
-            <ReviewList
-              locationId={location.id}
-              organizationId={location.organization_id || ""}
-              location_services={servicesNames}
-              orgName={location.name || "Unknown provider"}
-            />
-
-            <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
-              <button
-                onClick={() => {
-                  setIsShowingReviewDetails(false);
-                  setIsShowingReviewForm(true);
-                }}
-                className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
-              >
-                <PlusCircleIcon className="w-5 h-5 text-white" />
-                <span>Add review</span>
-              </button>
-            </div>
-          </div>
-        ) : isShowingReviewForm ? (
-          <ReviewForm
+      ) : isShowingReviewDetails ? (
+        <div className="bg-neutral-100 flex flex-col h-full relative overflow-y-hidden pt-2">
+          <ReviewList
             locationId={location.id}
-            provider={location.name || "Unknown provider"}
-            onComplete={() => setIsShowingReviewForm(false)}
-            services={servicesNames}
+            organizationId={location.organization_id || ""}
+            location_services={servicesNames}
+            orgName={location.name || "Unknown provider"}
           />
-        ) : (
-          <div>
-            <LocationDetailHeaderInfo
-              name={location.name}
-              locationName={location.location_name}
-              area={location.area}
-              lastUpdated={location.last_updated}
-            />
-            <LocationDetailNavigation currentSection={activeSection} />
 
-            <div id="locationDetailsContainer">
-              <StreetView location={location} />
+          <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
+            <button
+              onClick={() => {
+                setIsShowingReviewDetails(false);
+                setIsShowingReviewForm(true);
+              }}
+              className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+            >
+              <PlusCircleIcon className="w-5 h-5 text-white" />
+              <span>Add review</span>
+            </button>
+          </div>
+        </div>
+      ) : isShowingReviewForm ? (
+        <ReviewForm
+          locationId={location.id}
+          provider={location.name || "Unknown provider"}
+          onComplete={() => setIsShowingReviewForm(false)}
+          services={servicesNames}
+        />
+      ) : (
+        <div>
+          <LocationDetailHeaderInfo
+            name={location.name}
+            locationName={location.location_name}
+            area={location.area}
+            lastUpdated={location.last_updated}
+          />
+          <LocationDetailNavigation currentSection={activeSection} />
 
-              <div className="px-4 mt-5 pb-4 bg-white">
-                <LocationDetailInfo location={location} />
+          <div id="locationDetailsContainer">
+            <StreetView location={location} />
 
-                <div className="mt-5 flex gap-4">
-                  <Button
-                    variant="outline"
-                    className="rounded-full text-blue border-neutral-500 w-full"
-                    size="lg"
-                    onClick={() => setIsShowingReportIssueForm(true)}
-                  >
-                    <EditIcon />
-                    <span>Suggest an edit</span>
-                  </Button>
+            <div className="px-4 mt-5 pb-4 bg-white">
+              <LocationDetailInfo location={location} />
+
+              <div className="mt-5 flex gap-4">
+                <Button
+                  variant="outline"
+                  className="rounded-full text-blue border-neutral-500 w-full"
+                  size="lg"
+                  onClick={() => setIsShowingReportIssueForm(true)}
+                >
+                  <EditIcon />
+                  <span>Suggest an edit</span>
+                </Button>
+              </div>
+            </div>
+
+            {/*Review Highlight section*/}
+            <div className="bg-neutral-50 pt-2" id="reviews">
+              <div className="bg-white p-4 pt-8">
+                {location.name && (
+                  <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">
+                    <img
+                      src="/img/icons/group-users-icon.svg"
+                      className="flex-shrink-0 w-6 h-6 object-contain"
+                      alt=""
+                    />
+                    <div className="pr-6">
+                      <p className="text-sm mb-2">
+                        {location.partners
+                          ? `YourPeer works with ${location.name} to collect community feedback.`
+                          : "YourPeer partners with social service providers to collect community feedback."}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-base text-grey-900">
+                      Review highlights
+                    </h3>
+                    <button
+                      className="text-blue text-sm"
+                      onClick={() => setIsShowingReviewDetails(true)}
+                    >
+                      View all
+                    </button>
+                  </div>
+
+                  <ReviewHighlights locationId={location.id} />
+
+                  <div>
+                    <button
+                      onClick={() => setIsShowingReviewForm(true)}
+                      className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+                    >
+                      <PlusCircleIcon className="w-5 h-5 text-white" />
+                      <span>Add review</span>
+                    </button>
+                    <button
+                      onClick={() => setIsShowingReviewDetails(true)}
+                      className="mt-3 flex items-center justify-center py-2 px-4 space-x-2 text-grey-900 font-medium bg-white border border-neutral-300 rounded-full w-full"
+                    >
+                      View all
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <ReviewHighlights
-                onAddReview={() => setIsShowingReviewForm(true)}
-                onViewAll={() => setIsShowingReviewDetails(true)}
-                isPartners={location.partners}
-                locationId={location.id}
-                provider={location.name}
-              />
-              <LocationServices location={location} />
             </div>
+
+            <LocationServices location={location} />
           </div>
-        )}
-      </LocationDetailContainer>
-    </Authenticator.Provider>
+        </div>
+      )}
+    </LocationDetailContainer>
   );
 }

@@ -23,7 +23,7 @@ import {
   GoogleReCaptcha,
   GoogleReCaptchaProvider,
 } from "react-google-recaptcha-v3";
-import { useAuthenticator } from "@aws-amplify/ui-react";
+import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 
 const NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY;
@@ -41,7 +41,7 @@ type Inputs = {
   whatServicesDidYouUse: string[];
 };
 
-export default function ReviewForm({
+export function ReviewForm({
   locationId,
   provider,
   onComplete,
@@ -260,5 +260,23 @@ export default function ReviewForm({
         </form>
       )}
     </>
+  );
+}
+
+export default function ReviewFormWrapper({
+  locationId,
+  provider,
+  onComplete,
+  services,
+}: Props) {
+  return (
+    <Authenticator.Provider>
+      <ReviewForm
+        locationId={locationId}
+        provider={provider}
+        onComplete={onComplete}
+        services={services}
+      />
+    </Authenticator.Provider>
   );
 }
