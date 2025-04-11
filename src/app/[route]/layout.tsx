@@ -38,7 +38,7 @@ export default function LocationsLayout({
       <span>
         {RESOURCE_ROUTES.includes(route) ? (
           <>
-            <div className="h-[100dvh] w-full">
+            <div className="h-[100vh] w-full">
               <SearchProvider>
                 <GeoCoordinatesProvider>
                   <MapListToggleButton />
