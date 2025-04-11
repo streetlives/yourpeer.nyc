@@ -50,6 +50,16 @@ export function getFormatedHighlights(
     });
   }
 
+  // do some preprocessing to filter out empty stringss
+  categories.forEach((category) => {
+    commentsObj[category as keyof CommentHighlights].forEach((comment) => {
+      comment.key_negative_sentiment_takeaways =
+        comment.key_negative_sentiment_takeaways.filter((s) => s !== "");
+      comment.key_positive_sentiment_takeaways =
+        comment.key_positive_sentiment_takeaways.filter((s) => s !== "");
+    });
+  });
+
   let selectedComments: string[] = [];
   let availableCategories = categories.filter(
     (category) => commentsObj[category as keyof CommentHighlights].length > 0,
