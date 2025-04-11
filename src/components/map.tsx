@@ -13,7 +13,6 @@ import {
   Marker,
   useMap,
 } from "@vis.gl/react-google-maps";
-import * as ReactGoogleMaps from "@vis.gl/react-google-maps";
 import { RenderingType } from "@vis.gl/react-google-maps";
 import {
   LOCATION_ROUTE,
