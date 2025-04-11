@@ -14,7 +14,7 @@ import {
   useMap,
 } from "@vis.gl/react-google-maps";
 import * as ReactGoogleMaps from "@vis.gl/react-google-maps";
-import {RenderingType} from "@vis.gl/react-google-maps";
+import { RenderingType } from "@vis.gl/react-google-maps";
 import {
   LOCATION_ROUTE,
   NEARBY_SORT_BY_VALUE,
@@ -36,8 +36,6 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
-
-console.log('ReactGoogleMaps ', ReactGoogleMaps)
 
 function isMobile(): boolean {
   return window.innerWidth <= 600;
