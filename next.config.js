@@ -3,5 +3,5 @@ module.exports = {
   //  instrumentationHook: true,
   //},
   pageExtensions: ["ts", "tsx"],
-  transpilePackages: ['@tanstack/react-query', '@tanstack/query-core'],
+  transpilePackages: ["@tanstack/react-query", "@tanstack/query-core"],
 };
