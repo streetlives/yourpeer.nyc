@@ -79,5 +79,8 @@
     "tailwindcss-debug-screens": "^2.2.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
-  }
+  },
+  "browserslist": [
+    "safari 14"
+  ]
 }
