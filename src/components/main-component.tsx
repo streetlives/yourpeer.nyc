@@ -47,7 +47,7 @@ export function MainComponent({
       </div>
       <div
         id="map_container"
-        className="w-full md:block md:w-1/2 lg:w-2/3 bg-gray-300 h-full flex-1 relative"
+        className="w-full md:block md:w-1/2 lg:w-2/3 bg-gray-300 flex-1 relative"
       >
         <Suspense fallback={<MapLoadingAnimation />}>{mapContainer}</Suspense>
       </div>
