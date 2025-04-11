@@ -324,7 +324,7 @@ function MapWrapper({
         center={mapCenter}
         onCameraChanged={handleCameraChange}
         styles={mapStyles}
-        renderingType={RenderingType.RASTER}
+        renderingType={RenderingType.VECTOR}
       >
         <span>
           {normalizedLocationStubs
