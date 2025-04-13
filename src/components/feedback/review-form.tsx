@@ -33,6 +33,7 @@ interface Props {
   onComplete: () => void;
   provider: string;
   services: string[];
+  orgName: string;
 }
 
 type Inputs = {
@@ -46,6 +47,7 @@ export function ReviewForm({
   provider,
   onComplete,
   services,
+  orgName,
 }: Props) {
   const {
     register,
@@ -268,6 +270,7 @@ export default function ReviewFormWrapper({
   provider,
   onComplete,
   services,
+  orgName,
 }: Props) {
   return (
     <Authenticator.Provider>
@@ -276,6 +279,7 @@ export default function ReviewFormWrapper({
         provider={provider}
         onComplete={onComplete}
         services={services}
+        orgName={orgName}
       />
     </Authenticator.Provider>
   );

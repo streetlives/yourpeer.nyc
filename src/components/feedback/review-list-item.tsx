@@ -262,6 +262,7 @@ export default function ReviewListItem({
           username={user.username}
           reply={comment.Replies?.[0] ?? undefined}
           onComplete={() => setIsReplying(false)}
+          orgName={orgName}
         />
       )}
     </li>
