@@ -21,11 +21,13 @@ export default function ReplyForm({
   username,
   onComplete,
   reply,
+  orgName,
 }: {
   commentId: string;
   username: string;
   onComplete: () => void;
   reply?: Reply;
+  orgName: string;
 }) {
   const {
     register,
@@ -86,7 +88,7 @@ export default function ReplyForm({
     >
       <div className="space-y-4">
         <h3 className="text-lg sm:text-lg text-dark font-semibold mb-2">
-          Replying as {username}
+          Replying as {orgName}
         </h3>
 
         <div>
