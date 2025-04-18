@@ -10,9 +10,7 @@ const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
           <UserIcon className="w-4 h-4" />
         </div>
         <div>
-          <div className=" text-sm text-black font-medium mb-1">
-            {reply.posted_by ? reply.posted_by : orgName}
-          </div>
+          <div className=" text-sm text-black font-medium mb-1">{orgName}</div>
           <div className="text-gray-600 text-xs">
             {moment(reply.created_at).format("MMMM Do YYYY")}
           </div>
