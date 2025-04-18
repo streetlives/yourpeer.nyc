@@ -131,7 +131,7 @@ export default function ReviewListItem({
                 {moment(comment.created_at).format("MMMM Do YYYY")}
               </div>
             </div>
-            {comment.report_count > 0 && isAdmin && (
+            {comment.report_count > 0 && (isAdmin || isStuffUser) && (
               <span className="text-xs ml-3 self-start gap-1 border border-red-500 bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full inline-flex items-center">
                 <ExclamationTriangleIcon className="w-4 h-4" />
                 <span>{comment.report_count}</span>
