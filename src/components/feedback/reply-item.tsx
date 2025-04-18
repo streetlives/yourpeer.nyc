@@ -11,7 +11,7 @@ const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
         </div>
         <div>
           <div className=" text-sm text-black font-medium mb-1">
-            {reply.posted_by ? reply.posted_by : orgName}
+            {orgName}
           </div>
           <div className="text-gray-600 text-xs">
             {moment(reply.created_at).format("MMMM Do YYYY")}
