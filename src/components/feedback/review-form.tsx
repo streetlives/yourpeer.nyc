@@ -137,7 +137,7 @@ export function ReviewForm({
           })}
           className="bg-white h-full flex flex-col relative pt-2 overflow-y-hidden"
         >
-          <div className="pb-12 space-y-6 flex-1 max-h-full px-5 overflow-y-scroll">
+          <div className="pb-12 space-y-6 flex-1 max-h-full px-5 overflow-y-auto">
             <div className="p-4 rounded-lg bg-indigo-100">
               <h3 className="mb-3 text-base text-[#3D5AFE]">
                 A safe space to voice your opinions
