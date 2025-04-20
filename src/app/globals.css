@@ -28,6 +28,7 @@ https://opensource.org/licenses/MIT.
   [x-cloak] {
     display: none !important;
   }
+
   :root {
     --radius: 0.5rem;
   }
@@ -70,9 +71,12 @@ https://opensource.org/licenses/MIT.
 .have-links a {
   color: #1a73e9 !important;
   text-decoration: underline !important;
-  display: inline-block; /* Or block, depending on your layout */
-  white-space: normal; /* Allows text to wrap */
-  word-wrap: break-word; /* Breaks long words onto the next line if needed */
+  display: inline-block;
+  /* Or block, depending on your layout */
+  white-space: normal;
+  /* Allows text to wrap */
+  word-wrap: break-word;
+  /* Breaks long words onto the next line if needed */
   overflow-wrap: break-word;
   hyphens: auto;
   max-width: 300px;
@@ -126,6 +130,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   0% {
     background-position: -100% 0;
   }
+
   100% {
     background-position: 100% 0;
   }
@@ -135,6 +140,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   0% {
     background-position: -1200px 0;
   }
+
   100% {
     background-position: 1200px 0;
   }
@@ -369,9 +375,11 @@ font {
   0% {
     box-shadow: 9984px 0 0 -5px;
   }
+
   30% {
     box-shadow: 9984px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 9984px 0 0 -5px;
@@ -382,9 +390,11 @@ font {
   0% {
     box-shadow: 9999px 0 0 -5px;
   }
+
   30% {
     box-shadow: 9999px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 9999px 0 0 -5px;
@@ -395,11 +405,33 @@ font {
   0% {
     box-shadow: 10014px 0 0 -5px;
   }
+
   30% {
     box-shadow: 10014px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 10014px 0 0 -5px;
   }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
