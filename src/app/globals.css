@@ -296,19 +296,19 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
 }
 
 @media only screen and (max-width: 600px) {
-  main.showMapOnMobile>#left_panel {
+  main.showMapOnMobile > #left_panel {
     display: none;
   }
 
-  main.showMapOnMobile>#map_container {
+  main.showMapOnMobile > #map_container {
     display: block;
   }
 
-  main.hideMapOnMobile>#left_panel {
+  main.hideMapOnMobile > #left_panel {
     display: block;
   }
 
-  main.hideMapOnMobile>#map_container {
+  main.hideMapOnMobile > #map_container {
     display: none;
   }
 }
