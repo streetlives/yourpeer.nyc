@@ -1,6 +1,10 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { CommentHighlights, CommentHighlightsItem } from "@/components/common";
+import {
+  CommentContent,
+  CommentHighlights,
+  CommentHighlightsItem,
+} from "@/components/common";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -111,4 +115,39 @@ export function getFormatedHighlights(
   }
 
   return selectedComments;
+}
+
+export function generateSlackMessageText(
+  comment: CommentContent,
+  locationUrl: string,
+): string {
+  const lines: string[] = [
+    "*A comment has been reported.*",
+    `*Location:* ${locationUrl}`,
+    "*Comment:*",
+  ];
+
+  if (typeof comment === "string") {
+    lines.push(comment);
+  } else {
+    if (comment.whatWentWell) {
+      lines.push(`• *What went well:* ${comment.whatWentWell}`);
+    }
+
+    if (comment.whatCouldBeImproved) {
+      lines.push(`• *What could be improved:* ${comment.whatCouldBeImproved}`);
+    }
+
+    if (
+      comment.whatServicesDidYouUse &&
+      comment.whatServicesDidYouUse.length > 0
+    ) {
+      lines.push("• *Services used:*");
+      comment.whatServicesDidYouUse.forEach((service) => {
+        lines.push(`   - ${service}`);
+      });
+    }
+  }
+
+  return lines.join("\n");
 }

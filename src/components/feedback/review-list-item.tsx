@@ -96,6 +96,7 @@ export default function ReviewListItem({
       <ReportComment
         commentId={comment.id}
         open={isReporting}
+        comment={comment}
         onComplete={() => setIsReporting(false)}
       />
 

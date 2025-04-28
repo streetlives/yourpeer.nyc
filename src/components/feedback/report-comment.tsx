@@ -15,17 +15,31 @@ import { reportComment } from "@/components/streetlives-api-service";
 import { Comment } from "@/components/common";
 import { toast } from "sonner";
 import Spinner from "@/components/spinner";
+import axios from "axios";
+import { generateSlackMessageText } from "@/lib/utils";
 
 export default function ReportComment({
   commentId,
   open,
   onComplete,
+  comment,
 }: {
   commentId: string;
+  comment?: Comment;
   open: boolean;
   onComplete: () => void;
 }) {
   const queryClient = useQueryClient();
+
+  const reportSlack = (text: string) => {
+    try {
+      const res = axios.post("/api/report", { text });
+      console.log(res);
+    } catch (e) {
+      console.error(e);
+      alert("Error creating report");
+    }
+  };
 
   const { mutate, isPending } = useMutation({
     mutationFn: reportComment,
@@ -36,6 +50,9 @@ export default function ReportComment({
         ),
       );
       toast.success("Comment reported successfully");
+      reportSlack(
+        generateSlackMessageText(comment!.content, window.location.href),
+      );
       onComplete();
     },
     onError: (error) => toast.error(error.message),
