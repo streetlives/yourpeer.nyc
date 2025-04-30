@@ -59,9 +59,7 @@ export function getFormatedHighlights(
   categories.forEach((category) => {
     commentsObj[category as keyof CommentHighlights] = commentsObj[
       category as keyof CommentHighlights
-    ].filter((comment) => {
-      comment.informativeness_score >= 4;
-    });
+    ].filter((comment) => comment.informativeness_score >= 4);
     commentsObj[category as keyof CommentHighlights].forEach((comment) => {
       comment.key_negative_sentiment_takeaways =
         comment.key_negative_sentiment_takeaways.filter((s) => s !== "");
