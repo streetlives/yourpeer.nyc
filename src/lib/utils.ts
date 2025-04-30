@@ -54,8 +54,14 @@ export function getFormatedHighlights(
     });
   }
 
-  // do some preprocessing to filter out empty stringss
+  // do some preprocessing to filter out empty strings
+  // and comments with low informativeness score
   categories.forEach((category) => {
+    commentsObj[category as keyof CommentHighlights] = commentsObj[
+      category as keyof CommentHighlights
+    ].filter((comment) => {
+      comment.informativeness_score >= 4;
+    });
     commentsObj[category as keyof CommentHighlights].forEach((comment) => {
       comment.key_negative_sentiment_takeaways =
         comment.key_negative_sentiment_takeaways.filter((s) => s !== "");
