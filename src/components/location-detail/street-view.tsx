@@ -24,6 +24,14 @@ const GOOGLE_MAPS_API_KEY = (
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
 ).toString();
 
+function trimLocationFromSlug(path: string) {
+  const parts = path.split("/");
+  if (parts.length > 2 && parts[1] === "locations") {
+    return parts.slice(2).join("/");
+  }
+  return path.startsWith("/") ? path.slice(1) : path;
+}
+
 export default function StreetView({
   location,
 }: {
@@ -36,7 +44,8 @@ export default function StreetView({
   );
 
   const streetview =
-    customStreetViews[location.slug] || `${location.lat},${location.lng}`;
+    customStreetViews[trimLocationFromSlug(location.slug)] ||
+    `${location.lat},${location.lng}`;
   const streetviewHref = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${streetview}`;
 
   // TODO: eliminate duplicate code
