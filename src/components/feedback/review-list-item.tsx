@@ -192,28 +192,32 @@ export default function ReviewListItem({
             </p>
           ) : undefined}
         </div>
-        <div className="mt-4">
-          <h4 className="text-grey-900 text-sm font-bold mb-1">
-            What went well
-          </h4>
-          <p className="text-grey-900 text-sm">
-            {typeof comment.content !== "string" && comment.content.whatWentWell
-              ? comment.content.whatWentWell
-              : "skipped"}
-          </p>
-        </div>
-        <div className="mt-4">
-          <h4 className="text-grey-900 text-sm font-bold mb-1">
-            What could be improved
-          </h4>
-          <p className="text-grey-900 text-sm">
-            {typeof comment.content !== "string" &&
-            comment.content.whatCouldBeImproved
-              ? comment.content.whatCouldBeImproved
-              : "skipped"}
-          </p>
-        </div>
-
+        {typeof comment.content !== "string" && (
+          <>
+            <div className="mt-4">
+              <h4 className="text-grey-900 text-sm font-bold mb-1">
+                What went well
+              </h4>
+              <p className="text-grey-900 text-sm">
+                {typeof comment.content !== "string" &&
+                comment.content.whatWentWell
+                  ? comment.content.whatWentWell
+                  : "skipped"}
+              </p>
+            </div>
+            <div className="mt-4">
+              <h4 className="text-grey-900 text-sm font-bold mb-1">
+                What could be improved
+              </h4>
+              <p className="text-grey-900 text-sm">
+                {typeof comment.content !== "string" &&
+                comment.content.whatCouldBeImproved
+                  ? comment.content.whatCouldBeImproved
+                  : "skipped"}
+              </p>
+            </div>
+          </>
+        )}
         <div>
           {isReplying
             ? undefined
