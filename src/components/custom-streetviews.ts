@@ -74,12 +74,39 @@ const customStreetViews: Record<string, string> = {
     "40.7345397,-73.9950773&fov=75&heading=2.53",
   "city-living-ny-hells-kitchen": "40.7530035,-73.9928408&fov=41&heading=302",
   "holy-apostles-soup-kitchen-chelsea":
-    "40.7493828,-73.9992104&fov=75&heading=103&pano=DPy_eGxJ-elTVmNXGsC3dA",
+    "40.7494307,-73.999226&fov=75&heading=103",
   "archdiocese-drug-abuse-prevention-program-adapp-throgs-neck":
     "40.8142485,-73.8188966&fov=75&heading=344",
   "department-of-probation-concourse":
     "40.8261779,-73.9207922&fov=75&heading=227",
   "athena-psych-mott-haven": "40.8156528,-73.9184618&fov=75&heading=325",
+  "lenox-hill-neighborhood-house-midtown-east":
+    "40.7583557,-73.9707781&fov=49&heading=48",
+  "jewish-board-of-family-and-childrens-services-midtown":
+    "40.7518574,-73.9899826&fov=75&heading=109",
+  "association-of-community-employment-programs-for-the-homeless-ace-new-york-long-island-city":
+    "40.7514405,-73.9339829&fov=75&heading=127&pano=XPS86tf6UeSNw9YeCOuGIQ",
+  "project-hospitality-st-george": "40.6401638,-74.1317287&fov=41&heading=90",
+  "chelsea-community-fridge-chelsea":
+    "40.7377596,-73.9956277&fov=83&heading=29",
+  "the-door-hudson-square": "40.7243052,-74.0048299&fov=83&heading=171",
+  "first-presbyterian-church-of-brooklyn-downtown-brooklyn":
+    "40.6969394,-73.9932997&fov=75&heading=296",
+  "st-marys-clothing-drive-clinton-hill":
+    "40.6927907,-73.9608212&fov=75&heading=274",
+  "flatbush-friendly-fridge-prospect-lefferts-gardens":
+    "40.659966,-73.9532554&fov=75&heading=2.15",
+  "new-york-presbyterian-nyp-upper-east-side":
+    "40.7584837,-73.9731509&fov=75&heading=47.07",
+  "queens-affirming-youth-and-family-alliance-long-island-city":
+    "40.7498346,-73.9359302&fov=75&heading=126",
+  cojo: "40.6180558,-73.9593474&fov=75&heading=0.55",
+  "legal-aid-society-concourse-260-e-161-st":
+    "40.8256266,-73.9189653&fov=75&heading=197",
+  "bronx-counseling-center": "40.8464853,-73.8937479&fov=75&heading=346",
+  "safe-horizon-fort-greene": "40.6874692,-73.9798123&fov=75&heading=51",
+  "morris-heights-health-center-mhhc-melrose":
+    "40.8221619,-73.9149579&fov=75&heading=296",
 };
 
 export default customStreetViews;
