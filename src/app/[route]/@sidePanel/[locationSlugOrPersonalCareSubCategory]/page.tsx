@@ -12,6 +12,7 @@ import {
 } from "../../../../components/common";
 import {
   Error404Response,
+  fetchComments,
   fetchLocationsDetailData,
   map_gogetta_to_yourpeer,
 } from "../../../../components/streetlives-api-service";
@@ -62,11 +63,13 @@ export default async function LocationDetail({
         ),
         true,
       );
+      const comments = await fetchComments(location.id);
 
       return (
         <LocationDetailComponent
           location={location}
           slug={params.locationSlugOrPersonalCareSubCategory}
+          comments={comments}
         />
       );
     }

@@ -8,6 +8,7 @@
 
 import {
   CATEGORIES,
+  Comment,
   getServicesWrapper,
   LOCATION_ROUTE,
   YourPeerLegacyLocationData,
@@ -29,6 +30,8 @@ import { useRouter } from "next/navigation";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { Button } from "@/components/ui/button";
 import { EditIcon } from "@/components/icons/edit-icon";
+import ReviewListItem from "@/components/feedback/review-list-item";
+import { Authenticator } from "@aws-amplify/ui-react";
 
 export function getIconPath(iconName: string): string {
   return `/img/icons/${iconName}.png`;
@@ -37,8 +40,10 @@ export function getIconPath(iconName: string): string {
 export default function LocationDetailComponent({
   location,
   slug,
+  comments,
 }: {
   location: YourPeerLegacyLocationData;
+  comments: Comment[];
   slug: string;
 }) {
   const [isShowingReviewDetails, setIsShowingReviewDetails] = useState(false);
@@ -97,6 +102,21 @@ export default function LocationDetailComponent({
         title={headerTitle}
         isSticky={stickyTitle || isShowingReviewDetails || isShowingReviewForm}
       />
+
+      <ul className="hidden flex-col space-y-2 h-full overflow-y-auto pb-12">
+        <Authenticator.Provider>
+          {comments.map((comment) => (
+            <ReviewListItem
+              key={comment.id}
+              comment={comment}
+              isStuffUser={false}
+              isAdmin={false}
+              locationServices={servicesNames}
+              orgName={location.name || "Unknown provider"}
+            />
+          ))}
+        </Authenticator.Provider>
+      </ul>
 
       {isShowingReportIssueForm ? (
         <ReportIssueForm
