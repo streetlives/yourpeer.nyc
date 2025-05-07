@@ -33,6 +33,7 @@ import {
   AMENITY_TO_TAXONOMY_NAME_MAP,
   TaxonomySubCategory,
   NEARBY_SORT_BY_VALUE,
+  ScheduleData,
 } from "./common";
 import moment from "moment";
 
@@ -265,6 +266,21 @@ export async function getFullLocationData({
   });
 }
 
+function isServiceClosed(schedule: ScheduleData[]) {
+  const isScheduleKnown = schedule && schedule.length;
+
+  let isClosed = false;
+  let openDays;
+  if (isScheduleKnown) {
+    openDays = schedule.filter(({ closed }) => !closed);
+
+    if (!openDays.length) {
+      isClosed = true;
+    }
+  }
+  return isClosed;
+}
+
 function filter_services_by_name(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
@@ -293,9 +309,6 @@ function filter_services_by_name(
           }
         }
       }
-      const schedules = service?.HolidaySchedules?.filter(
-        (x) => x.opens_at && x.closes_at,
-      );
       services.push({
         id: service.id,
         name: service["name"],
@@ -305,7 +318,7 @@ function filter_services_by_name(
         info: service?.EventRelatedInfos?.map((x) => x.information).filter(
           (information) => information !== null,
         ),
-        closed: !schedules.length || schedules.every((x) => x.closed),
+        closed: isServiceClosed(service.HolidaySchedules),
         schedule: Object.fromEntries(
           Object.entries(
             _.groupBy(
