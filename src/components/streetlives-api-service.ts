@@ -309,9 +309,6 @@ function filter_services_by_name(
           }
         }
       }
-      const schedules = service?.HolidaySchedules?.filter(
-        (x) => x.opens_at && x.closes_at,
-      );
       services.push({
         id: service.id,
         name: service["name"],
