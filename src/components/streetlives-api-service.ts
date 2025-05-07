@@ -272,7 +272,7 @@ export async function getFullLocationData({
   });
 }
 
-function isServiceClosed(schedule: ScheduleData[]){
+function isServiceClosed(schedule: ScheduleData[]) {
   const isScheduleKnown = schedule && schedule.length;
 
   let isClosed = false;
