@@ -288,7 +288,8 @@ export default function Service({
                       ></p>
                     ) : undefined}
                     <ul className="flex flex-col space-y-3">
-                      {service.schedule ? (
+                      {service.schedule &&
+                      Object.keys(service.schedule).length > 0 ? (
                         <li className="flex items-start space-x-2">
                           <span className="text-success">
                             <svg
