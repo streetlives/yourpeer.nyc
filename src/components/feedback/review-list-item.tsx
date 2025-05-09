@@ -163,6 +163,11 @@ export default function ReviewListItem({
                     Hide
                   </DropdownMenuItem>
                 ))}
+              {isAdmin || isStuffUser ? (
+                <DropdownMenuItem onClick={() => console.log('Exclude comment')}>
+                  Exclude
+                </DropdownMenuItem>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
