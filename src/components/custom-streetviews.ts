@@ -74,7 +74,7 @@ const customStreetViews: Record<string, string> = {
     "40.7345397,-73.9950773&fov=75&heading=2.53",
   "city-living-ny-hells-kitchen": "40.7530035,-73.9928408&fov=41&heading=302",
   "holy-apostles-soup-kitchen-chelsea":
-    "40.7494307,-73.999226&fov=75&heading=103",
+    "40.7494307,-73.999226&fov=75&heading=103&pano=sFzzJeWn6t0EmmTsuzzjKQ",
   "archdiocese-drug-abuse-prevention-program-adapp-throgs-neck":
     "40.8142485,-73.8188966&fov=75&heading=344",
   "department-of-probation-concourse":
