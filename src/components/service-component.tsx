@@ -225,10 +225,7 @@ export default function Service({
     if (window.location.hash && !hasScrolled) {
       const elementId = window.location.hash.slice(1);
       const element = document.getElementById(elementId);
-      if (
-        element &&
-        convertString(service.name || "no name") == elementId
-      ) {
+      if (element && convertString(service.name || "no name") == elementId) {
         setIsExpanded(true);
         element.scrollIntoView({ behavior: "smooth" });
         setHasScrolled(true);
