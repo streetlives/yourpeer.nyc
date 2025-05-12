@@ -61,8 +61,12 @@ export default function Service({
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
   //console.log('isExpanded', isExpanded)
-  const hasSomethingToShow =
-    service.description || service.info || service.docs || service.schedule;
+  const hasSomethingToShow = !!(
+    service.description ||
+    service.info.length ||
+    service.docs?.length ||
+    Object.keys(service.schedule).length
+  );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
@@ -79,7 +83,7 @@ export default function Service({
   }
 
   function toggleIsExpanded() {
-    if (!service.closed) {
+    if (hasSomethingToShow) {
       const newState = !isExpanded;
       logCustomAnalyticsEvent(newState);
       setIsExpanded(newState);
@@ -219,10 +223,11 @@ export default function Service({
       setHasScrolled(true);
     }
     if (window.location.hash && !hasScrolled) {
-      const element = document.querySelector(window.location.hash);
+      const elementId = window.location.hash.slice(1);
+      const element = document.getElementById(elementId);
       if (
         element &&
-        "#" + convertString(service.name || "no name") == window.location.hash
+        convertString(service.name || "no name") == elementId
       ) {
         setIsExpanded(true);
         element.scrollIntoView({ behavior: "smooth" });
@@ -241,7 +246,7 @@ export default function Service({
       id={convertString(service.name || "No name")}
       className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative"
     >
-      {hasSomethingToShow && !service.closed ? (
+      {hasSomethingToShow ? (
         <button
           onClick={toggleIsExpanded}
           className="flex-shrink-0 collapseButton absolute left-3 top-2"
