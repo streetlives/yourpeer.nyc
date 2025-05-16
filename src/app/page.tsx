@@ -10,7 +10,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
-import {getServicesCount} from "@/components/streetlives-api-service";
+import { getServicesCount } from "@/components/streetlives-api-service";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -38,7 +38,8 @@ export default async function HomePage() {
             <TranslatableText text="Free support services validated by your peers"></TranslatableText>
           </h1>
           <p className="text-base text-grey-900 text-center my-5 sm:my-6 font-semibold">
-            Search through {servicesCount.count}+ free support services across NYC
+            Search through {servicesCount.count}+ free support services across
+            NYC
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
             <Link href="/locations" className="primary-button ">
