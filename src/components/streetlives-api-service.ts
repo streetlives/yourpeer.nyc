@@ -831,7 +831,7 @@ export async function editCommentReply(
   return res.data;
 }
 
-export async function getServicesCount(): Promise<unknown> {
+export async function getServicesCount(): Promise<{count: number}> {
   const res = await axios.get(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/services/get-count`,
   );
