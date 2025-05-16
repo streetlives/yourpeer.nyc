@@ -322,8 +322,14 @@ function filter_services_by_name(
           description: service["description"],
           category: service["Taxonomies"][0]["parent_name"],
           subcategory: service["Taxonomies"][0]["name"],
-          info: service?.EventRelatedInfos?.map((x) => x.information).filter(
-            (information) => information !== null,
+          // FIXME: there's some bug in the stack where the server is returning duplicate EventRelatedInfos
+          // We de-deuplicate here as a workaround
+          info: Array.from(
+            new Set(
+              service?.EventRelatedInfos?.map((x) => x.information).filter(
+                (information) => information !== null,
+              ),
+            ),
           ),
           closed: isServiceClosed(service.HolidaySchedules),
           schedule: Object.fromEntries(
