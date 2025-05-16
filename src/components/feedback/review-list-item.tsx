@@ -21,11 +21,13 @@ import {
   ChatBubbleLeftEllipsisIcon,
   EyeSlashIcon,
   HandThumbUpIcon,
+  ShieldExclamationIcon,
 } from "@heroicons/react/20/solid";
 import ReplyForm from "@/components/feedback/reply-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  excludeComment,
   hideComment,
   likeComment,
   undoLikeComment,
@@ -58,6 +60,17 @@ export default function ReviewListItem({
     onSuccess: () =>
       queryClient.setQueryData(["comments"], (old: Comment[]) =>
         old.map((c) => (c.id === comment.id ? { ...c, hidden: !c.hidden } : c)),
+      ),
+    onError: (error) => toast.error(error.message),
+  });
+
+  const { mutate: mutateExclude, isPending: pendingExclude } = useMutation({
+    mutationFn: (hidden: boolean) => excludeComment(comment.id, hidden),
+    onSuccess: () =>
+      queryClient.setQueryData(["comments"], (old: Comment[]) =>
+        old.map((c) =>
+          c.id === comment.id ? { ...c, exclude: !c.exclude } : c,
+        ),
       ),
     onError: (error) => toast.error(error.message),
   });
@@ -101,7 +114,7 @@ export default function ReviewListItem({
       />
 
       <div className="bg-white py-5 px-4 relative">
-        {isPending && (
+        {(isPending || pendingExclude) && (
           <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
             <Spinner />
           </div>
@@ -125,6 +138,16 @@ export default function ReviewListItem({
                     className="text-neutral-700 disabled:text-neutral-500 disabled:cursor-not-allowed"
                   >
                     <EyeSlashIcon className="w-4 h-4" />
+                  </button>
+                )}
+
+                {comment.exclude === true && isAdmin && (
+                  <button
+                    onClick={() => mutateExclude(false)}
+                    title={"Unexclude the comment"}
+                    className="text-neutral-800 disabled:text-neutral-500 disabled:cursor-not-allowed"
+                  >
+                    <ShieldExclamationIcon className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -153,16 +176,28 @@ export default function ReviewListItem({
                   Reply
                 </DropdownMenuItem>
               )}
-              {isAdmin &&
-                (comment.hidden === true ? (
-                  <DropdownMenuItem onClick={() => mutateHideComment(false)}>
-                    Unhide
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onClick={() => mutateHideComment(true)}>
-                    Hide
-                  </DropdownMenuItem>
-                ))}
+              {isAdmin && (
+                <>
+                  {comment.hidden === true ? (
+                    <DropdownMenuItem onClick={() => mutateHideComment(false)}>
+                      Unhide
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => mutateHideComment(true)}>
+                      Hide
+                    </DropdownMenuItem>
+                  )}
+                  {comment.exclude ? (
+                    <DropdownMenuItem onClick={() => mutateExclude(false)}>
+                      Unexclude
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => mutateExclude(true)}>
+                      Exclude
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

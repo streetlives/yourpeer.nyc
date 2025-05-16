@@ -751,6 +751,26 @@ export async function hideComment(
   return res.data;
 }
 
+export async function excludeComment(
+  commentId: string,
+  exclude: boolean,
+): Promise<Comment> {
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/exclude`,
+    {
+      exclude,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
 export async function submitCommentEmail(
   commentId: string,
   email: string,

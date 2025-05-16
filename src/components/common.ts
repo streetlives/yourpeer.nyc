@@ -888,6 +888,7 @@ export interface Comment {
   id: string;
   content: CommentContent;
   hidden?: boolean | null;
+  exclude?: boolean;
   report_count: number;
   likes_count: number;
   created_at: string;
