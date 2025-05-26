@@ -233,7 +233,7 @@ export default function ReviewListItem({
               <h4 className="text-grey-900 text-sm font-bold mb-1">
                 What went well
               </h4>
-              <p className="text-grey-900 text-sm">
+              <p className="text-grey-900 text-sm break-words">
                 {typeof comment.content !== "string" &&
                 comment.content.whatWentWell
                   ? comment.content.whatWentWell
@@ -244,7 +244,7 @@ export default function ReviewListItem({
               <h4 className="text-grey-900 text-sm font-bold mb-1">
                 What could be improved
               </h4>
-              <p className="text-grey-900 text-sm">
+              <p className="text-grey-900 text-sm break-words">
                 {typeof comment.content !== "string" &&
                 comment.content.whatCouldBeImproved
                   ? comment.content.whatCouldBeImproved
