@@ -42,17 +42,17 @@ const services = [
   },
   {
     name: "Mental Health",
-    icon: "/img/icons/mental-health.svg",
+    icon: "/img/icons/services/mental-health.svg",
     href: "/mental-health",
   },
   {
     name: "Legal Services",
-    icon: "/img/icons/legal-services.svg",
+    icon: "/img/icons/services/legal.svg",
     href: "/legal-services",
   },
   {
     name: "Employment",
-    icon: "/img/icons/employment.svg",
+    icon: "/img/icons/services/employment.svg",
     href: "/employment",
   },
   {
@@ -63,7 +63,6 @@ const services = [
 ];
 
 export default async function HomePage() {
-  const servicesLength = await getServicesCount();
 
   return (
     <>
@@ -83,7 +82,7 @@ export default async function HomePage() {
           </h1>
           <p className="text-base text-grey-900 text-center my-5 sm:my-6 font-semibold">
             <TranslatableText
-              text={`Search through ${servicesLength}+ free support services across NYC`}
+              text={`Search through 2500+ free support services across NYC`}
             ></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
