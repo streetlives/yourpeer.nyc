@@ -243,8 +243,8 @@ export default function HomePage() {
           <div className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 justify-center place-content-center items-center gap-x-3">
             <div className="flex items-center justify-center">
               <img
-                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-1.png"
+                className="object-cover object-center w-24 sm:w-36 flex-shrink-0"
+                src="/img/partners-logo/logo-1-updated.png"
                 alt="Logo"
               />
             </div>
@@ -374,11 +374,19 @@ export default function HomePage() {
                 alt="Logo"
               />
             </div>
+            <a href={'https://doobneek.org/'} target='_blank' className="flex items-center justify-center">
+              <img
+                className="object-cover object-center w-20 sm:w-24 flex-shrink-0"
+                src="/img/partners-logo/logo-21.png"
+                alt="Logo"
+              />
+            </a>
+
             <div className="flex items-center justify-center">
               <img
-                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-4.png"
-                alt="Logo"
+                  className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                  src="/img/partners-logo/logo-4.png"
+                  alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
@@ -471,21 +479,21 @@ export default function HomePage() {
               src="/img/partners-logo/logo-2.png"
               alt="Logo"
             />
-            
-            
-            
-            
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-7.png"
               alt="Logo"
             />
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-14.png"
@@ -496,9 +504,9 @@ export default function HomePage() {
               src="/img/partners-logo/logo-15.png"
               alt="Logo"
             />
-            
-            
-            
+
+
+
             <img
               className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
               src="/img/partners-logo/logo-19.png"
