@@ -5,15 +5,16 @@
 // https://opensource.org/licenses/MIT.
 
 const customStreetViews: Record<string, string> = {
-  "translatinx-network-hells-kitchen":
-    "40.7453799,-73.9927467&fov=100&heading=43&pano=jlbFtqGBI2T9IaqNzaVNIg",
+  "translatinx-network-chelsea":
+    "40.7453799,-73.9927467&fov=100&heading=43",
   "safe-horizon-streetwork-project-harlem":
     "40.8092233,-73.9489415&fov=75&heading=23&pano=1q_4cNgUdlutTKy1krIbMQ",
-  "hebrew-immigrant-aid-society-hias-manhattan":
-    "40.7505814,-73.9828556&fov=90&heading=120&pano=SUvsumL8fZZm3TtiQCKT5w",
+  "hebrew-immigrant-aid-society-hias-chelsea":
+    "40.7505814,-73.9828556&fov=90&heading=120",
   "onpoint-nyc-fka-new-york-harm-reduction-educators-nyhre-new-york":
     "40.8476188,-73.9318492&fov=75&heading=172&pano=5G7xi0rjQI9bMsP93dBAJA",
-  "exponents-manhattan": "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
+  "exponents-financial-district": "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
+
   "fifth-avenue-committee-fac-brooklyn":
     "40.6788677,-73.982829&fov=75&heading=25",
   "osborne-association-brooklyn":
