@@ -189,7 +189,7 @@ export default function ReviewListItem({
                   )}
                   {comment.exclude ? (
                     <DropdownMenuItem onClick={() => mutateExclude(false)}>
-                      Unexclude
+                      Include
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem onClick={() => mutateExclude(true)}>
