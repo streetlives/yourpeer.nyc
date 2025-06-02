@@ -5,43 +5,40 @@
 // https://opensource.org/licenses/MIT.
 
 const customStreetViews: Record<string, string> = {
-  "translatinx-network-hells-kitchen":
-    "40.7453799,-73.9927467&fov=100&heading=43&pano=jlbFtqGBI2T9IaqNzaVNIg",
+  "translatinx-network-chelsea": "40.7453799,-73.9927467&fov=100&heading=43",
   "safe-horizon-streetwork-project-harlem":
     "40.8092233,-73.9489415&fov=75&heading=23&pano=1q_4cNgUdlutTKy1krIbMQ",
-  "hebrew-immigrant-aid-society-hias-manhattan":
-    "40.7505814,-73.9828556&fov=90&heading=120&pano=SUvsumL8fZZm3TtiQCKT5w",
+  "hebrew-immigrant-aid-society-hias-chelsea":
+    "40.7505814,-73.9828556&fov=90&heading=120",
   "onpoint-nyc-fka-new-york-harm-reduction-educators-nyhre-new-york":
     "40.8476188,-73.9318492&fov=75&heading=172&pano=5G7xi0rjQI9bMsP93dBAJA",
-  "exponents-manhattan": "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
-  "fifth-avenue-committee-fac-brooklyn":
+  "exponents-financial-district":
+    "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
+  "fifth-avenue-committee-fac-park-slope":
     "40.6788677,-73.982829&fov=75&heading=25",
-  "osborne-association-brooklyn":
-    "40.6933035,-73.991688&fov=75&heading=21&pano=892end3jrlXm4ZXqwPaDmA",
   "project-renewal-greenwich-village":
-    "40.7283476,-74.0055243&fov=75&heading=102&pano=h8KUmOxuQZ9XsHdY1zp-6w",
-  "association-of-community-employment-programs-for-the-homeless-ace-new-york-astoria":
-    "40.7515371,-73.9337768",
-  "nyc-communities-for-health-nycc4h-bronx-westchester-ave":
+    "40.7283476,-74.0055243&fov=75&heading=102",
+  "nyc-communities-for-health-nycc4h-greenwich-village":
     "40.8159089,-73.911101",
   "mount-sinai-east-village":
     "40.7232584,-73.9855946&fov=46&heading=138&pano=CuRFzBd1H38nBOgxCMmNMg",
   "mount-sinai-hells-kitchen": "40.7457307,-73.9944414&fov=100&heading=136",
   "safe-horizon-streetwork-project-lower-east-side":
     "40.715962,-73.9895885&pano=Og8nfXYAeqPuIhCULFwlHA",
-  "curtis-community-school-food-club-staten-island":
+  "curtis-community-school-food-club-st-george":
     "40.6447041,-74.0815597&heading=5&pano=g5Ri7-AoY0bwIihb1VflLA",
   "the-catholic-charities-community-services-of-the-archdiocese-of-new-york-cccs-yonkers":
     "40.9333832,-73.8730035",
-  "cardinal-mccloskey-community-services-bronx-e":
+  "cardinal-mccloskey-community-services-co-op-city":
     "40.8167429,-73.9201074&fov=40&heading=329",
-  "rising-ground-fka-sheltering-arms-episcopal-social-services-queens--19-jamaica-ave":
+  "rising-ground-fka-sheltering-arms-episcopal-social-services-queens-village":
     "40.7056394,-73.7944034&fov=30&heading=342",
   "ali-forney-center-afc-harlem":
     "40.8107313,-73.952378&fov=50&heading=66&pano=lBxUK6Ri31nB8eQxEVtx-g",
-  "nyc-health-hospitalsgotham-health-soho":
+  "nyc-health-hospitalsgotham-health-stapleton":
     "40.7217531,-73.9957673&heading=209&fov=90",
-  "xavier-mission-chelsea-west": "40.7377792,-73.995688&heading=52&fov=47",
+  "xavier-mission-chelsea-46-w-16th-st-east-gate":
+    "40.7377792,-73.995688&heading=52&fov=47",
   "betances-health-center-lower-east-side":
     "40.7139134,-73.9837604&heading=138&fov=75",
   "the-door-soho": "40.7242914,-74.0048353&heading=218",
@@ -57,11 +54,10 @@ const customStreetViews: Record<string, string> = {
   "community-counseling-and-mediation-ccm-clinton-hill":
     "40.6825612,-73.9666928&fov=75&heading=76",
   "xavier-mission-chelsea": "40.737738,-73.9955903&fov=75&heading=19",
-  "community-access-inc-harlem":
-    "40.8086959,-73.9486068&fov=68.8&heading=279&pano=6-F9iLESnScNeF1zjPVXpw",
+  "community-access-inc-harlem": "40.8086959,-73.9486068&fov=68.8&heading=279",
   "the-door-mott-haven": "40.8191353,-73.9139016&fov=75&heading=319",
   "kings-county-family-court-downtown-brooklyn":
-    "40.7019938,-73.8050714&fov=75&heading=343&pano=Hyc69FGf9s2axmODEP0wZQ",
+    "40.7019938,-73.8050714&fov=75&heading=343",
   "urban-justice-center-ujc-financial-district-40-rector-st-9th-fl":
     "40.7083989,-74.0148744&fov=75&heading=17&pano=9MWNrKcXa9qCGDKfVmBeBA",
   "osborne-association-brooklyn-heights":
