@@ -5,24 +5,19 @@
 // https://opensource.org/licenses/MIT.
 
 const customStreetViews: Record<string, string> = {
-  "translatinx-network-chelsea":
-    "40.7453799,-73.9927467&fov=100&heading=43",
+  "translatinx-network-chelsea": "40.7453799,-73.9927467&fov=100&heading=43",
   "safe-horizon-streetwork-project-harlem":
     "40.8092233,-73.9489415&fov=75&heading=23&pano=1q_4cNgUdlutTKy1krIbMQ",
   "hebrew-immigrant-aid-society-hias-chelsea":
     "40.7505814,-73.9828556&fov=90&heading=120",
   "onpoint-nyc-fka-new-york-harm-reduction-educators-nyhre-new-york":
     "40.8476188,-73.9318492&fov=75&heading=172&pano=5G7xi0rjQI9bMsP93dBAJA",
-  "exponents-financial-district": "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
+  "exponents-financial-district":
+    "40.7049851,-74.015982&pano=vpvwchRJL6CFb6tllWqDig",
   "fifth-avenue-committee-fac-park-slope":
     "40.6788677,-73.982829&fov=75&heading=25",
-  "osborne-association-brooklyn-heights":
-    "40.6933035,-73.991688&fov=75&heading=21&pano=892end3jrlXm4ZXqwPaDmA",
-
   "project-renewal-greenwich-village":
     "40.7283476,-74.0055243&fov=75&heading=102",
-  "association-of-community-employment-programs-for-the-homeless-ace-new-york-long-island-city":
-    "40.7515371,-73.9337768",
   "nyc-communities-for-health-nycc4h-greenwich-village":
     "40.8159089,-73.911101",
   "mount-sinai-east-village":
@@ -42,7 +37,8 @@ const customStreetViews: Record<string, string> = {
     "40.8107313,-73.952378&fov=50&heading=66&pano=lBxUK6Ri31nB8eQxEVtx-g",
   "nyc-health-hospitalsgotham-health-stapleton":
     "40.7217531,-73.9957673&heading=209&fov=90",
-  "xavier-mission-chelsea-46-w-16th-st-east-gate": "40.7377792,-73.995688&heading=52&fov=47",
+  "xavier-mission-chelsea-46-w-16th-st-east-gate":
+    "40.7377792,-73.995688&heading=52&fov=47",
   "betances-health-center-lower-east-side":
     "40.7139134,-73.9837604&heading=138&fov=75",
   "the-door-soho": "40.7242914,-74.0048353&heading=218",
@@ -58,8 +54,7 @@ const customStreetViews: Record<string, string> = {
   "community-counseling-and-mediation-ccm-clinton-hill":
     "40.6825612,-73.9666928&fov=75&heading=76",
   "xavier-mission-chelsea": "40.737738,-73.9955903&fov=75&heading=19",
-  "community-access-inc-harlem":
-    "40.8086959,-73.9486068&fov=68.8&heading=279",
+  "community-access-inc-harlem": "40.8086959,-73.9486068&fov=68.8&heading=279",
   "the-door-mott-haven": "40.8191353,-73.9139016&fov=75&heading=319",
   "kings-county-family-court-downtown-brooklyn":
     "40.7019938,-73.8050714&fov=75&heading=343",
