@@ -1,9 +1,9 @@
-import type { MetadataRoute } from 'next'
- 
+import type { MetadataRoute } from "next";
+
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   const environmentIsProd = baseUrl?.startsWith(
-    "https://yourpeer.nyc" // TODO: Refactor this hard-coded string out into config variable
+    "https://yourpeer.nyc", // TODO: Refactor this hard-coded string out into config variable
   );
 
   return environmentIsProd
