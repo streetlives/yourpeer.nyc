@@ -59,7 +59,7 @@ export function getFormatedHighlights(
   categories.forEach((category) => {
     commentsObj[category as keyof CommentHighlights] = commentsObj[
       category as keyof CommentHighlights
-    ].filter((comment) => comment.informativeness_score >= 4);
+    ].filter((comment) => comment.informativeness_score >= 3);
     commentsObj[category as keyof CommentHighlights].forEach((comment) => {
       comment.key_negative_sentiment_takeaways =
         comment.key_negative_sentiment_takeaways.filter((s) => s !== "");
@@ -73,50 +73,24 @@ export function getFormatedHighlights(
     (category) => commentsObj[category as keyof CommentHighlights].length > 0,
   );
 
-  if (availableCategories.length === 3) {
-    // Select one from each category by informativeness score
-    availableCategories.forEach((category) => {
-      let sortedComments = commentsObj[
-        category as keyof CommentHighlights
-      ].sort((a, b) => b.informativeness_score - a.informativeness_score);
-      let comment = sortedComments[0];
-      let highlightedComment = highlightTakeaways(
-        comment.comment,
-        comment.key_positive_sentiment_takeaways,
-        "text-green-600",
-      );
-      highlightedComment = highlightTakeaways(
-        highlightedComment,
-        comment.key_negative_sentiment_takeaways,
-        "text-danger",
-      );
-      selectedComments.push(highlightedComment);
-    });
-  } else {
-    // Gather all comments, sort by informativeness, and take top 3
-    let allComments: CommentHighlightsItem[] = [];
-    availableCategories.forEach((category) => {
-      allComments = allComments.concat(
-        commentsObj[category as keyof CommentHighlights],
-      );
-    });
-
-    allComments.sort(
-      (a, b) => b.informativeness_score - a.informativeness_score,
+  // Select one from each category by informativeness score
+  availableCategories.forEach((category) => {
+    let sortedComments = commentsObj[
+      category as keyof CommentHighlights
+    ].sort((a, b) => b.informativeness_score - a.informativeness_score);
+    let comment = sortedComments[0];
+    let highlightedComment = highlightTakeaways(
+      comment.comment,
+      comment.key_positive_sentiment_takeaways,
+      "text-green-600",
     );
-    selectedComments = allComments.slice(0, 3).map((comment) => {
-      let highlightedComment = highlightTakeaways(
-        comment.comment,
-        comment.key_positive_sentiment_takeaways,
-        "text-green-600",
-      );
-      return highlightTakeaways(
-        highlightedComment,
-        comment.key_negative_sentiment_takeaways,
-        "text-danger",
-      );
-    });
-  }
+    highlightedComment = highlightTakeaways(
+      highlightedComment,
+      comment.key_negative_sentiment_takeaways,
+      "text-danger",
+    );
+    selectedComments.push(highlightedComment);
+  });
 
   return selectedComments;
 }
