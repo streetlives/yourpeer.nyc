@@ -1,9 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {
-  CommentContent,
-  CommentHighlights,
-} from "@/components/common";
+import { CommentContent, CommentHighlights } from "@/components/common";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
