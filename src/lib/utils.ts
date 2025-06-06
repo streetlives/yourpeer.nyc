@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge";
 import {
   CommentContent,
   CommentHighlights,
-  CommentHighlightsItem,
 } from "@/components/common";
 
 export function cn(...inputs: ClassValue[]) {
@@ -57,9 +56,8 @@ export function getFormatedHighlights(
   // do some preprocessing to filter out empty strings
   // and comments with low informativeness score
   categories.forEach((category) => {
-    commentsObj[category as keyof CommentHighlights] = commentsObj[
-      category as keyof CommentHighlights
-    ];
+    commentsObj[category as keyof CommentHighlights] =
+      commentsObj[category as keyof CommentHighlights];
     commentsObj[category as keyof CommentHighlights].forEach((comment) => {
       comment.key_negative_sentiment_takeaways =
         comment.key_negative_sentiment_takeaways.filter((s) => s !== "");
@@ -75,9 +73,9 @@ export function getFormatedHighlights(
 
   // Select one from each category by informativeness score
   availableCategories.forEach((category) => {
-    let sortedComments = commentsObj[
-      category as keyof CommentHighlights
-    ].sort((a, b) => b.informativeness_score - a.informativeness_score);
+    let sortedComments = commentsObj[category as keyof CommentHighlights].sort(
+      (a, b) => b.informativeness_score - a.informativeness_score,
+    );
     let comment = sortedComments[0];
     let highlightedComment = highlightTakeaways(
       comment.comment,
