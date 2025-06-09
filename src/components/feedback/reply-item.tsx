@@ -4,7 +4,7 @@ import { UserIcon } from "@heroicons/react/24/outline";
 
 const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
   return (
-    <div className="mt-3 rounded-3xl p-4 bg-grey-100  ">
+    <div className="mt-3 rounded-3xl p-4 bg-grey-100 overflow-hidden">
       <div className="flex items-center space-x-2">
         <div className="w-9 h-9 flex items-center justify-center text-white bg-amber-500 rounded-full">
           <UserIcon className="w-4 h-4" />
@@ -16,7 +16,9 @@ const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
           </div>
         </div>
       </div>
-      <p className="mt-4 text-dark text-sm">{reply.content}</p>
+      <p className="mt-4 text-dark text-sm break-words overflow-hidden">
+        {reply.content}
+      </p>
     </div>
   );
 };
