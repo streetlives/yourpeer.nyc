@@ -374,7 +374,11 @@ export default function HomePage() {
                 alt="Logo"
               />
             </div>
-            <a href={'https://doobneek.org/'} target='_blank' className="flex items-center justify-center">
+            <a
+              href={"https://doobneek.org/"}
+              target="_blank"
+              className="flex items-center justify-center"
+            >
               <img
                 className="object-cover object-center w-20 sm:w-24 flex-shrink-0"
                 src="/img/partners-logo/logo-21.png"
@@ -384,9 +388,9 @@ export default function HomePage() {
 
             <div className="flex items-center justify-center">
               <img
-                  className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                  src="/img/partners-logo/logo-4.png"
-                  alt="Logo"
+                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                src="/img/partners-logo/logo-4.png"
+                alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">

@@ -16,7 +16,9 @@ const ReplyItem = ({ reply, orgName }: { reply: Reply; orgName: string }) => {
           </div>
         </div>
       </div>
-      <p className="mt-4 text-dark text-sm break-words overflow-hidden">{reply.content}</p>
+      <p className="mt-4 text-dark text-sm break-words overflow-hidden">
+        {reply.content}
+      </p>
     </div>
   );
 };
