@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { TranslatableText } from "./translatable-text";
 import axios from "axios";
+import { toast } from "sonner";
 
 export function ReportIssueForm({
   location,
@@ -38,15 +39,20 @@ export function ReportIssueForm({
         issues += (checks[i] as HTMLInputElement).value + "\n";
       }
     }
-    issues += (
+    const reportContent = (
       (event.target as HTMLFormElement).querySelector(
         "#reportContent",
       ) as HTMLInputElement
     ).value;
+    issues += reportContent;
+
+    if (!reportContent.trim()) {
+      toast("Please describe the issue before sending.");
+      return;
+    }
 
     try {
       const res = axios.post("/api/report", { text: issues });
-      console.log(res);
       setIsShowingSuccessForm(true);
     } catch (e) {
       console.error(e);
