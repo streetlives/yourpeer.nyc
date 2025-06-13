@@ -698,10 +698,12 @@ export async function fetchComments(locationId: string): Promise<Comment[]> {
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
   );
 
-  const comments = res.data.sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
+  const comments = res.data.sort((a, b) => {
+    if (b.likes_count !== a.likes_count) {
+      return b.likes_count - a.likes_count;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   return comments.map((comment) => {
     let content;

@@ -78,7 +78,6 @@ export default function ReviewListItem({
   const { mutate: mutateLike } = useMutation({
     mutationFn: comment.likedByCurrentUser ? undoLikeComment : likeComment,
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ["comments"] });
       const previousComments = queryClient.getQueryData(["comments"]);
 
       queryClient.setQueryData(["comments"], (old: Comment[]) =>
@@ -97,7 +96,6 @@ export default function ReviewListItem({
 
       return { previousComments };
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["comments"] }),
     onError: (err, _, context) => {
       queryClient.setQueryData(["comments"], context?.previousComments);
       toast.error(err.message);
