@@ -47,7 +47,7 @@ export function ReportIssueForm({
     issues += reportContent;
 
     if (!reportContent.trim()) {
-      toast("Please describe the issue before submitting the report.");
+      toast("Please describe the issue before sending.");
       return;
     }
 
