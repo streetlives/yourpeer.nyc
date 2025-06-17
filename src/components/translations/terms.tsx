@@ -32,8 +32,10 @@ export function TermsOfUseRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6">Что мы предлагаем</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-                <span>Наша платформа, основанная на поддержке равных, с актуальной
-                информацией о социальных услугах в Нью-Йорке.</span>
+                <span>
+                  Наша платформа, основанная на поддержке равных, с актуальной
+                  информацией о социальных услугах в Нью-Йорке.
+                </span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Одежда</li>
                   <li>Образование</li>
@@ -84,14 +86,14 @@ export function TermsOfUseRussianTranslation() {
             <ul className="list-disc list-inside">
               <li>Спасибо, что поддерживаете нас.</li>
               <li>
-                <span>У Вас есть предложения или вопросы? Пишите нам на{" "}</span>
+                <span>У Вас есть предложения или вопросы? Пишите нам на </span>
                 <a
                   href="mailto:team@streetlives.nyc"
                   className="text-blue-600 underline"
                 >
                   team@streetlives.nyc
                 </a>
-               <span> .</span>
+                <span> .</span>
               </li>
             </ul>
             <p className="mt-4 font-semibold">
