@@ -32,8 +32,11 @@ export function StatementRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6">Что мы предлагаем</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-               <span> Наша платформа, основанная на поддержке равных, с актуальной
-                информацией о социальных услугах в Нью-Йорке.</span>
+                <span>
+                  {" "}
+                  Наша платформа, основанная на поддержке равных, с актуальной
+                  информацией о социальных услугах в Нью-Йорке.
+                </span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Одежда</li>
                   <li>Образование</li>

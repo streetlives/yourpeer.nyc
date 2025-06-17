@@ -1,7 +1,7 @@
 "use client";
 
 import { StatementRussianTranslation } from "@/components/translations/statement";
-import {  LOCATION_ROUTE } from "../../../components/common"; // ✅ keep STATEMENT_ROUTE
+import { LOCATION_ROUTE } from "../../../components/common"; // ✅ keep STATEMENT_ROUTE
 import { useContext } from "react";
 import {
   getTargetLanguage,
@@ -54,10 +54,10 @@ export function Statement() {
             <h2 className="text-xl font-semibold mt-6">What We Offer</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-               <span>
-      Our peer-powered platform with up-to-date information on social
-      services in New York City.
-    </span>
+                <span>
+                  Our peer-powered platform with up-to-date information on
+                  social services in New York City.
+                </span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Clothing</li>
                   <li>Education</li>
@@ -105,21 +105,20 @@ export function Statement() {
 
             <h2 className="text-xl font-semibold mt-6">Connect With Us</h2>
             <ul className="list-disc list-inside">
-              <li>    <span>
-    
-    Thank you for standing with us.</span></li>
-        <li>
-  <span>
-    Have suggestions or concerns? We welcome them at{" "}
-  </span>
-  <a
-    href="mailto:team@streetlives.nyc"
-    className="text-blue-600 underline"
-  >
-    team@streetlives.nyc
-  </a>
-  <span>.</span>
-</li>
+              <li>
+                {" "}
+                <span>Thank you for standing with us.</span>
+              </li>
+              <li>
+                <span>Have suggestions or concerns? We welcome them at </span>
+                <a
+                  href="mailto:team@streetlives.nyc"
+                  className="text-blue-600 underline"
+                >
+                  team@streetlives.nyc
+                </a>
+                <span>.</span>
+              </li>
             </ul>
 
             <p className="mt-4 font-semibold">
