@@ -12,7 +12,7 @@ import {
   DONATE_ROUTE,
   LOCATION_ROUTE,
   PRIVACY_POLICY_ROUTE,
-  TERMS_OF_USE_ROUTE,
+  TERMS_OF_USE_ROUTE,STATEMENT_ROUTE
 } from "./common";
 import { TranslatableText } from "./translatable-text";
 
@@ -41,6 +41,13 @@ export function Footer() {
                     className="text-gray-300 text-base font-normal"
                   >
                     <TranslatableText text="Terms" />
+                  </Link>
+                </div>               <div>
+                  <Link
+                    href={`/${STATEMENT_ROUTE}`}
+                    className="text-gray-300 text-base font-normal"
+                  >
+                    <TranslatableText text="Statement" />
                   </Link>
                 </div>
                 <div>

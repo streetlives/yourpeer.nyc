@@ -401,6 +401,11 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                           className="text-xl text-dark hover:text-gray-800 transition"
                         >
                           <TranslatableText text="Terms" />
+                        </Link>       <Link
+                          href={"/statement"}
+                          className="text-xl text-dark hover:text-gray-800 transition"
+                        >
+                          <TranslatableText text="Statement" />
                         </Link>
                       </div>
                     </div>

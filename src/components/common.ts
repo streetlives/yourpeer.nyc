@@ -48,6 +48,7 @@ export const DONATE_ROUTE = "donate";
 export const TERMS_OF_USE_ROUTE = "terms-of-use";
 export const PRIVACY_POLICY_ROUTE = "privacy-policy";
 export const LOGIN_ROUTE = "login";
+export const STATEMENT_ROUTE = "statement";
 
 export const COMPANY_ROUTES = [
   ABOUT_US_ROUTE,
@@ -56,6 +57,7 @@ export const COMPANY_ROUTES = [
   TERMS_OF_USE_ROUTE,
   PRIVACY_POLICY_ROUTE,
   LOGIN_ROUTE,
+  STATEMENT_ROUTE,
 ] as const;
 
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
@@ -888,33 +890,10 @@ export interface Comment {
   id: string;
   content: CommentContent;
   hidden?: boolean | null;
-  exclude?: boolean;
   report_count: number;
   likes_count: number;
   created_at: string;
   contact_info?: string;
   Replies: Reply[];
   likedByCurrentUser: boolean;
-}
-
-type Sentiment =
-  | "Strongly Positive"
-  | "Positive"
-  | "Neutral"
-  | "Negative"
-  | "Strongly Negative"
-  | "Mixed";
-
-export interface CommentHighlightsItem {
-  comment: string;
-  sentiment: Sentiment;
-  informativeness_score: number;
-  key_positive_sentiment_takeaways: string[];
-  key_negative_sentiment_takeaways: string[];
-}
-
-export interface CommentHighlights {
-  top_positive_comments: CommentHighlightsItem[];
-  top_negative_comments: CommentHighlightsItem[];
-  top_mixed_comments: CommentHighlightsItem[];
 }

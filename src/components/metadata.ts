@@ -24,6 +24,7 @@ import {
   RouteParams,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  STATEMENT_ROUTE,
   SubRouteParams,
   TERMS_OF_USE_ROUTE,
 } from "./common";
@@ -196,6 +197,8 @@ export async function generateMetadata({
       break;
     case TERMS_OF_USE_ROUTE:
       title = attachSuffix("Terms");
+      break;    case STATEMENT_ROUTE:
+      title = attachSuffix("Statement");
       break;
     case PRIVACY_POLICY_ROUTE:
       title = attachSuffix("Privacy");
