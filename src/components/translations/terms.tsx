@@ -32,8 +32,8 @@ export function TermsOfUseRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6">Что мы предлагаем</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-                Наша платформа, основанная на поддержке равных, с актуальной
-                информацией о социальных услугах в Нью-Йорке.
+                <span>Наша платформа, основанная на поддержке равных, с актуальной
+                информацией о социальных услугах в Нью-Йорке.</span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Одежда</li>
                   <li>Образование</li>
@@ -51,11 +51,11 @@ export function TermsOfUseRussianTranslation() {
             </h2>
             <ul className="list-disc list-inside">
               <li>
-                Мы указываем требования к получению услуг, чтобы вы знали, чего
+                Мы указываем требования к получению услуг, чтобы Вы знали, чего
                 ожидать.
               </li>
               <li>
-                Мы обеспечиваем вашу конфиденциальность, никогда не собирая
+                Мы обеспечиваем Вашу конфиденциальность, никогда не собирая
                 личные данные.
               </li>
               <li>
@@ -75,7 +75,7 @@ export function TermsOfUseRussianTranslation() {
                   может столкнуться с ICE.
                 </li>
                 <li>
-                  Несмотря на эти вызовы, наша преданность вам остается
+                  Несмотря на эти вызовы, наша преданность Вам остается
                   неизменной.
                 </li>
               </ul>
@@ -84,18 +84,18 @@ export function TermsOfUseRussianTranslation() {
             <ul className="list-disc list-inside">
               <li>Спасибо, что поддерживаете нас.</li>
               <li>
-                У вас есть предложения или вопросы? Пишите нам на{" "}
+                <span>У Вас есть предложения или вопросы? Пишите нам на{" "}</span>
                 <a
                   href="mailto:team@streetlives.nyc"
                   className="text-blue-600 underline"
                 >
                   team@streetlives.nyc
                 </a>
-                .
+               <span> .</span>
               </li>
             </ul>
             <p className="mt-4 font-semibold">
-              Мы здесь, чтобы помочь вам найти нужные ресурсы — сейчас и всегда.
+              Мы здесь, чтобы помочь Вам найти нужные ресурсы — сейчас и всегда.
             </p>
           </div>
         </div>
