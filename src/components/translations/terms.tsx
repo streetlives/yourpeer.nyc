@@ -51,11 +51,11 @@ export function TermsOfUseRussianTranslation() {
             </h2>
             <ul className="list-disc list-inside">
               <li>
-                Мы указываем требования к получению услуг, чтобы вы знали, чего
+                Мы указываем требования к получению услуг, чтобы Вы знали, чего
                 ожидать.
               </li>
               <li>
-                Мы обеспечиваем вашу конфиденциальность, никогда не собирая
+                Мы обеспечиваем Вашу конфиденциальность, никогда не собирая
                 личные данные.
               </li>
               <li>
@@ -75,7 +75,7 @@ export function TermsOfUseRussianTranslation() {
                   может столкнуться с ICE.
                 </li>
                 <li>
-                  Несмотря на эти вызовы, наша преданность вам остается
+                  Несмотря на эти вызовы, наша преданность Вам остается
                   неизменной.
                 </li>
               </ul>
@@ -84,7 +84,7 @@ export function TermsOfUseRussianTranslation() {
             <ul className="list-disc list-inside">
               <li>Спасибо, что поддерживаете нас.</li>
               <li>
-                <span>У вас есть предложения или вопросы? Пишите нам на{" "}</span>
+                <span>У Вас есть предложения или вопросы? Пишите нам на{" "}</span>
                 <a
                   href="mailto:team@streetlives.nyc"
                   className="text-blue-600 underline"
@@ -95,7 +95,7 @@ export function TermsOfUseRussianTranslation() {
               </li>
             </ul>
             <p className="mt-4 font-semibold">
-              Мы здесь, чтобы помочь вам найти нужные ресурсы — сейчас и всегда.
+              Мы здесь, чтобы помочь Вам найти нужные ресурсы — сейчас и всегда.
             </p>
           </div>
         </div>
