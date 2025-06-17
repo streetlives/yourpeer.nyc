@@ -4,17 +4,17 @@ export function StatementRussianTranslation() {
   const governingLawInternalLinkId = "governing_law_footnote";
   return (
     <>
-   <section className="bg-white pt-28 lg:pt-32 lg:py-20">
-  <div className="px-5 w-full max-w-3xl mx-auto">
-    <h1 className="text-left font-medium text-2xl lg:text-4xl mb-8">
-      Streetlives: Стараемся Вам помочь
-    </h1>
-    <div className="text-base prose prose-a:text-blue">
-      <p>
-        В Streetlives мы верим, что каждый заслуживает доступа к ресурсам,
-        поддерживающим его благополучие, независимо от происхождения или
-        иммиграционного статуса.
-      </p>
+      <section className="bg-white pt-28 lg:pt-32 lg:py-20">
+        <div className="px-5 w-full max-w-3xl mx-auto">
+          <h1 className="text-left font-medium text-2xl lg:text-4xl mb-8">
+            Streetlives: Стараемся Вам помочь
+          </h1>
+          <div className="text-base prose prose-a:text-blue">
+            <p>
+              В Streetlives мы верим, что каждый заслуживает доступа к ресурсам,
+              поддерживающим его благополучие, независимо от происхождения или
+              иммиграционного статуса.
+            </p>
             <h2 className="text-xl font-semibold mt-6">Кто мы</h2>
             <ul className="list-disc list-inside">
               <li>
@@ -32,8 +32,8 @@ export function StatementRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6">Что мы предлагаем</h2>
             <ul className="list-disc list-inside ml-4">
               <li>
-                Наша платформа, основанная на поддержке равных, с актуальной
-                информацией о социальных услугах в Нью-Йорке.
+               <span> Наша платформа, основанная на поддержке равных, с актуальной
+                информацией о социальных услугах в Нью-Йорке.</span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Одежда</li>
                   <li>Образование</li>
@@ -66,18 +66,18 @@ export function StatementRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6 bg-yellow-100 p-3 rounded-md">
               Наша приверженность в неопределенные времена
             </h2>
-              <ul className="list-disc list-inside">
-                <li>
-                  С изменением политики в отношении репродуктивных прав,
-                  гендерной идентификации и иммиграции многие испытывают страх и
-                  неопределенность, особенно те, у кого нет документов и кто
-                  может столкнуться с миграционными службами.
-                </li>
-                <li>
-                  Несмотря на эти вызовы, наша преданность Вам остается
-                  неизменной.
-                </li>
-              </ul>
+            <ul className="list-disc list-inside">
+              <li>
+                С изменением политики в отношении репродуктивных прав, гендерной
+                идентификации и иммиграции многие испытывают страх и
+                неопределенность, особенно те, у кого нет документов и кто может
+                столкнуться с миграционными службами.
+              </li>
+              <li>
+                Несмотря на эти вызовы, наша преданность Вам остается
+                неизменной.
+              </li>
+            </ul>
             <h2 className="text-xl font-semibold mt-6">Свяжитесь с нами</h2>
             <ul className="list-disc list-inside">
               <li>Спасибо, что поддерживаете нас.</li>
