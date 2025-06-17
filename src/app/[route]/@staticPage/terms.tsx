@@ -15,7 +15,7 @@ import {
   LanguageTranslationContextType,
 } from "@/components/language-translation-context";
 
-export function Statem() {
+export function Terms() {
   const governingLawInternalLinkId = "governing_law_footnote";
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,

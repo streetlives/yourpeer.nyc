@@ -1,7 +1,7 @@
 "use client";
 
 import { StatementRussianTranslation } from "@/components/translations/statement";
-import { STATEMENT_ROUTE } from "../../../components/common"; // ✅ keep STATEMENT_ROUTE
+import { STATEMENT_ROUTE, LOCATION_ROUTE } from "../../../components/common"; // ✅ keep STATEMENT_ROUTE
 import { useContext } from "react";
 import {
   getTargetLanguage,
@@ -67,15 +67,14 @@ export function Statement() {
               <li>We offer language support for non-native English speakers.</li>
             </ul>
 
-            <h2 className="text-xl font-semibold mt-6 bg-yellow-100 p-3 rounded-md">
-              Our Commitment In Uncertain Times
-            </h2>
-            <div className="bg-yellow-100 p-3 rounded-md">
+           
+                 <h2 className="text-xl font-semibold mt-6"> Our Commitment In Uncertain Times</h2>
+            
               <ul className="list-disc list-inside">
                 <li>As new policies target reproductive rights, gender self-identification, and immigration, we recognize many feel fear and uncertainty—particularly undocumented individuals who may face ICE encounters.</li>
                 <li>Despite these challenges, our dedication to serving you remains unwavering.</li>
               </ul>
-            </div>
+            
 
             <h2 className="text-xl font-semibold mt-6">Connect With Us</h2>
             <ul className="list-disc list-inside">
@@ -95,10 +94,32 @@ export function Statement() {
             <p className="mt-4 font-semibold">
               We’re here to help you find the resources you need—now and always.
             </p>
+          </div>
+        </div>
+      </section>
 
-            <div className="mt-4">
-              <a href={`/${STATEMENT_ROUTE}`} className="primary-button">
-                Explore services
+    <section className="py-12 bg-neutral-50">
+        <div className="px-5 max-w-3xl mx-auto">
+          <div className="flex flex-col items-center justify-center">
+            <img
+              src="/img/icons/unity-icon.svg"
+              className="w-28 mx-auto object-contain mb-10"
+              alt=""
+            />
+            <h2 className="text-4xl text-dark mb-10 text-center font-light">
+              You&apos;re not alone in this journey
+            </h2>
+            <p className="text-center text-gray-800 text-sm px-2 mb-5">
+              People rely on social services for many reasons. Our information
+              specialists all have lived experiences navigating the support
+              system and apply their knowledge collecting the information you
+              find here. We’re building YourPeer so it&apos;s easier for you to
+              find the right service.
+            </p>
+            <div>
+              <a href={`/${LOCATION_ROUTE}`} className="primary-button">
+                {" "}
+                Explore services{" "}
               </a>
             </div>
           </div>

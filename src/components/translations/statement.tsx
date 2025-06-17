@@ -4,17 +4,17 @@ export function StatementRussianTranslation() {
   const governingLawInternalLinkId = "governing_law_footnote";
   return (
     <>
-      <section className="bg-white pt-28 lg:pt-32 lg:py-20">
-        <div className="px-5 max-w-3xl mx-auto">
-          <h1 className="text-center font-medium text-2xl lg:text-4xl mb-8">
-            Streetlives: Стараемся Вам помочь
-          </h1>
-          <div className="text-base prose prose-a:text-blue">
-            <p>
-              В Streetlives мы верим, что каждый заслуживает доступа к ресурсам,
-              поддерживающим его благополучие, независимо от происхождения или
-              иммиграционного статуса.
-            </p>
+   <section className="bg-white pt-28 lg:pt-32 lg:py-20">
+  <div className="px-5 w-full max-w-3xl mx-auto">
+    <h1 className="text-left font-medium text-2xl lg:text-4xl mb-8">
+      Streetlives: Стараемся Вам помочь
+    </h1>
+    <div className="text-base prose prose-a:text-blue">
+      <p>
+        В Streetlives мы верим, что каждый заслуживает доступа к ресурсам,
+        поддерживающим его благополучие, независимо от происхождения или
+        иммиграционного статуса.
+      </p>
             <h2 className="text-xl font-semibold mt-6">Кто мы</h2>
             <ul className="list-disc list-inside">
               <li>
@@ -66,7 +66,6 @@ export function StatementRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6 bg-yellow-100 p-3 rounded-md">
               Наша приверженность в неопределенные времена
             </h2>
-            <div className="bg-yellow-100 p-3 rounded-md">
               <ul className="list-disc list-inside">
                 <li>
                   С изменением политики в отношении репродуктивных прав,
@@ -79,21 +78,20 @@ export function StatementRussianTranslation() {
                   неизменной.
                 </li>
               </ul>
-            </div>
             <h2 className="text-xl font-semibold mt-6">Свяжитесь с нами</h2>
-              <ul className="list-disc list-inside">
-                <li>Спасибо, что поддерживаете нас.</li>
-                <li>
-                  <span>У вас есть предложения или вопросы? Пишите нам на </span>
-                  <a
-                    href="mailto:team@streetlives.nyc"
-                    className="text-blue-600 underline"
-                  >
-                    team@streetlives.nyc
-                  </a>
-                  <span>.</span>
-                </li>
-              </ul>
+            <ul className="list-disc list-inside">
+              <li>Спасибо, что поддерживаете нас.</li>
+              <li>
+                <span>У вас есть предложения или вопросы? Пишите нам на </span>
+                <a
+                  href="mailto:team@streetlives.nyc"
+                  className="text-blue-600 underline"
+                >
+                  team@streetlives.nyc
+                </a>
+                <span>.</span>
+              </li>
+            </ul>
 
             <p className="mt-4 font-semibold">
               Мы здесь, чтобы помочь Вам найти нужные ресурсы — в любое время.
