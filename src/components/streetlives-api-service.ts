@@ -386,7 +386,7 @@ export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
 ): YourPeerLegacyLocationData {
-  console.log(d) ;
+  console.log(d);
   const org_name = d["Organization"]["name"];
   let address,
     street,
@@ -457,15 +457,15 @@ export function map_gogetta_to_yourpeer(
     ),
 
     mental_health_services: filter_services_by_name(
-        d,
-        is_location_detail,
-        "mental-health",
+      d,
+      is_location_detail,
+      "mental-health",
     ),
 
     employment_services: filter_services_by_name(
-        d,
-        is_location_detail,
-        "employment",
+      d,
+      is_location_detail,
+      "employment",
     ),
     other_services: {
       services: filter_services_by_name(
@@ -486,9 +486,9 @@ export function map_gogetta_to_yourpeer(
               "Food",
               "Clothing",
               "Personal Care",
-                "Mental Health",
-                "Legal Services",
-                "Employment"
+              "Mental Health",
+              "Legal Services",
+              "Employment",
             ]),
           ),
         ).length;
@@ -627,17 +627,17 @@ export async function getTaxonomies(
 
     case "mental-health":
       taxonomies = taxonomyResponse.flatMap((r) =>
-          r.name === parentTaxonomyName
-              ? [r as Taxonomy].concat(r.children ? r.children : [])
-              : [],
+        r.name === parentTaxonomyName
+          ? [r as Taxonomy].concat(r.children ? r.children : [])
+          : [],
       );
       break;
 
     case "employment":
       taxonomies = taxonomyResponse.flatMap((r) =>
-          r.name === parentTaxonomyName
-              ? [r as Taxonomy].concat(r.children ? r.children : [])
-              : [],
+        r.name === parentTaxonomyName
+          ? [r as Taxonomy].concat(r.children ? r.children : [])
+          : [],
       );
       break;
     case "personal-care":

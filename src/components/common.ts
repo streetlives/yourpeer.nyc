@@ -35,7 +35,7 @@ export const CATEGORY_TO_ROUTE_MAP: Record<CategoryNotNull, string> = {
   "personal-care": "personal-care",
   "legal-services": "legal-services",
   "mental-health": "mental-health",
-  "employment": "employment",
+  employment: "employment",
 };
 
 export const ROUTE_TO_CATEGORY_MAP: Record<string, CategoryNotNull> =
@@ -62,7 +62,7 @@ export const COMPANY_ROUTES = [
   TERMS_OF_USE_ROUTE,
   PRIVACY_POLICY_ROUTE,
   LOGIN_ROUTE,
-    'statement'
+  "statement",
 ] as const;
 
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
@@ -92,7 +92,7 @@ export const CATEGORY_DESCRIPTION_MAP: Record<CategoryNotNull, string> = {
   "personal-care": "Personal Care",
   "legal-services": "Legal Services",
   "mental-health": "Mental Health",
-  "employment": "Employment",
+  employment: "Employment",
 };
 
 export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -104,7 +104,7 @@ export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   "personal-care": "personal-care",
   "legal-services": "legal-services",
   "mental-health": "mental-health",
-  "employment": "employment",
+  employment: "employment",
 };
 
 export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -116,7 +116,7 @@ export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   "personal-care": "personal-care-2",
   "legal-services": "legal-services",
   "mental-health": "mental-health",
-  "employment": "employment",
+  employment: "employment",
 };
 
 export function getIconPath(iconName: string): string {
@@ -710,7 +710,7 @@ export const TAXONOMY_CATEGORIES = [
   "Food",
   "Clothing",
   "Personal Care",
-    "Legal Services",
+  "Legal Services",
   "Mental Health",
   "Employment",
 ] as const;
@@ -745,7 +745,7 @@ export const CATEGORY_TO_TAXONOMY_NAME_MAP: Record<
   "personal-care": "Personal Care",
   "legal-services": "Legal Services",
   "mental-health": "Mental Health",
-  "employment": "Employment",
+  employment: "Employment",
 };
 
 export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<

@@ -26,7 +26,7 @@ const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   "personal-care": "personal-care-icon",
   "legal-services": "legal-services",
   "mental-health": "mental-health",
-  "employment": "employment",
+  employment: "employment",
 };
 
 function LocationService({

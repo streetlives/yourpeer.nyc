@@ -10,7 +10,6 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
-import { getServicesCount } from "@/components/streetlives-api-service";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -63,7 +62,6 @@ const services = [
 ];
 
 export default async function HomePage() {
-
   return (
     <>
       <GTranslateWrapper />
