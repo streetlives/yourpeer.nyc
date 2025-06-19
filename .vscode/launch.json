@@ -42,6 +42,27 @@
       "envFile": "${workspaceFolder}/.env.local"
     },
     {
+      "name": "Next.js: debug server-side (http/remote prod)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "env": {
+        "NEXT_PUBLIC_GO_GETTA_PROD_URL": "https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod"
+      },
+      "envFile": "${workspaceFolder}/.env.local"
+    },
+    {
+      "name": "Next.js: debug server-side (http/remote prod/feedback disabled)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "env": {
+        "NEXT_PUBLIC_GO_GETTA_PROD_URL": "https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/prod",
+        "NEXT_PUBLIC_DISABLE_FEEDBACK": "true"  
+      },
+      "envFile": "${workspaceFolder}/.env.local"
+    },
+    {
       "name": "Next.js: debug server-side (http)",
       "type": "node-terminal",
       "request": "launch",
