@@ -164,7 +164,9 @@ export default function LocationDetailComponent({
             area={location.area}
             lastUpdated={location.last_updated}
           />
-          <LocationDetailNavigation currentSection={activeSection} />
+          {!DISABLE_FEEDBACK ? (
+            <LocationDetailNavigation currentSection={activeSection} />
+          ) : undefined}
 
           <div id="locationDetailsContainer">
             <StreetView location={location} />
