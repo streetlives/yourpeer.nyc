@@ -1,13 +1,13 @@
 import { YouAreNotAlone } from "../you-are-not-alone";
 
-export function TermsOfUseRussianTranslation() {
+export function StatementRussianTranslation() {
   const governingLawInternalLinkId = "governing_law_footnote";
   return (
     <>
       <section className="bg-white pt-28 lg:pt-32 lg:py-20">
-        <div className="px-5 max-w-3xl mx-auto">
-          <h1 className="text-center font-medium text-2xl lg:text-4xl mb-8">
-            Streetlives: Здесь, чтобы помочь
+        <div className="px-5 w-full max-w-3xl mx-auto">
+          <h1 className="text-left font-medium text-2xl lg:text-4xl mb-8">
+            Streetlives: Стараемся Вам помочь
           </h1>
           <div className="text-base prose prose-a:text-blue">
             <p>
@@ -21,7 +21,7 @@ export function TermsOfUseRussianTranslation() {
                 Разнообразная команда с личным опытом бездомности и иммиграции.
               </li>
               <li>
-                Среди нас — ищущие убежища, люди разных национальностей, полов и
+                Среди нас — беженцы, люди разных национальностей, полов и
                 ориентаций.
               </li>
               <li>
@@ -33,6 +33,7 @@ export function TermsOfUseRussianTranslation() {
             <ul className="list-disc list-inside ml-4">
               <li>
                 <span>
+                  {" "}
                   Наша платформа, основанная на поддержке равных, с актуальной
                   информацией о социальных услугах в Нью-Йорке.
                 </span>
@@ -68,36 +69,35 @@ export function TermsOfUseRussianTranslation() {
             <h2 className="text-xl font-semibold mt-6 bg-yellow-100 p-3 rounded-md">
               Наша приверженность в неопределенные времена
             </h2>
-            <p className="bg-yellow-100 p-3 rounded-md">
-              <ul className="list-disc list-inside">
-                <li>
-                  С изменением политики в отношении репродуктивных прав,
-                  гендерной идентификации и иммиграции многие испытывают страх и
-                  неопределенность, особенно те, у кого нет документов и кто
-                  может столкнуться с ICE.
-                </li>
-                <li>
-                  Несмотря на эти вызовы, наша преданность Вам остается
-                  неизменной.
-                </li>
-              </ul>
-            </p>
+            <ul className="list-disc list-inside">
+              <li>
+                С изменением политики в отношении репродуктивных прав, гендерной
+                идентификации и иммиграции многие испытывают страх и
+                неопределенность, особенно те, у кого нет документов и кто может
+                столкнуться с миграционными службами.
+              </li>
+              <li>
+                Несмотря на эти вызовы, наша преданность Вам остается
+                неизменной.
+              </li>
+            </ul>
             <h2 className="text-xl font-semibold mt-6">Свяжитесь с нами</h2>
             <ul className="list-disc list-inside">
               <li>Спасибо, что поддерживаете нас.</li>
               <li>
-                <span>У Вас есть предложения или вопросы? Пишите нам на </span>
+                <span>У вас есть предложения или вопросы? Пишите нам на </span>
                 <a
                   href="mailto:team@streetlives.nyc"
                   className="text-blue-600 underline"
                 >
                   team@streetlives.nyc
                 </a>
-                <span> .</span>
+                <span>.</span>
               </li>
             </ul>
+
             <p className="mt-4 font-semibold">
-              Мы здесь, чтобы помочь Вам найти нужные ресурсы — сейчас и всегда.
+              Мы здесь, чтобы помочь Вам найти нужные ресурсы — в любое время.
             </p>
           </div>
         </div>

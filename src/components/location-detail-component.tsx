@@ -39,6 +39,8 @@ export function getIconPath(iconName: string): string {
   return `/img/icons/${fileName}`;
 }
 
+const DISABLE_FEEDBACK = !!process.env.NEXT_PUBLIC_DISABLE_FEEDBACK;
+
 export default function LocationDetailComponent({
   location,
   slug,
@@ -166,7 +168,9 @@ export default function LocationDetailComponent({
             area={location.area}
             lastUpdated={location.last_updated}
           />
-          <LocationDetailNavigation currentSection={activeSection} />
+          {!DISABLE_FEEDBACK ? (
+            <LocationDetailNavigation currentSection={activeSection} />
+          ) : undefined}
 
           <div id="locationDetailsContainer">
             <StreetView location={location} />
@@ -188,58 +192,60 @@ export default function LocationDetailComponent({
             </div>
 
             {/*Review Highlight section*/}
-            <div className="bg-neutral-50 pt-2" id="reviews">
-              <div className="bg-white p-4 pt-8">
-                {location.name && (
-                  <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">
-                    <img
-                      src="/img/icons/group-users-icon.svg"
-                      className="flex-shrink-0 w-6 h-6 object-contain"
-                      alt=""
-                    />
-                    <div className="pr-6">
-                      <p className="text-sm mb-2">
-                        {location.partners
-                          ? `YourPeer works with ${location.name} to collect community feedback.`
-                          : "YourPeer partners with social service providers to collect community feedback."}
-                      </p>
+            {!DISABLE_FEEDBACK ? (
+              <div className="bg-neutral-50 pt-2" id="reviews">
+                <div className="bg-white p-4 pt-8">
+                  {location.name && (
+                    <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">
+                      <img
+                        src="/img/icons/group-users-icon.svg"
+                        className="flex-shrink-0 w-6 h-6 object-contain"
+                        alt=""
+                      />
+                      <div className="pr-6">
+                        <p className="text-sm mb-2">
+                          {location.partners
+                            ? `YourPeer works with ${location.name} to collect community feedback.`
+                            : "YourPeer partners with social service providers to collect community feedback."}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-base text-grey-900">
-                      Review highlights
-                    </h3>
-                    <button
-                      className="text-blue text-sm"
-                      onClick={() => setIsShowingReviewDetails(true)}
-                    >
-                      View all
-                    </button>
-                  </div>
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-base text-grey-900">
+                        Review highlights
+                      </h3>
+                      <button
+                        className="text-blue text-sm"
+                        onClick={() => setIsShowingReviewDetails(true)}
+                      >
+                        View all
+                      </button>
+                    </div>
 
-                  <ReviewHighlights locationId={location.id} />
+                    <ReviewHighlights locationId={location.id} />
 
-                  <div>
-                    <button
-                      onClick={() => setIsShowingReviewForm(true)}
-                      className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
-                    >
-                      <PlusCircleIcon className="w-5 h-5 text-white" />
-                      <span>Add review</span>
-                    </button>
-                    <button
-                      onClick={() => setIsShowingReviewDetails(true)}
-                      className="mt-3 flex items-center justify-center py-2 px-4 space-x-2 text-grey-900 font-medium bg-white border border-neutral-300 rounded-full w-full"
-                    >
-                      View all
-                    </button>
+                    <div>
+                      <button
+                        onClick={() => setIsShowingReviewForm(true)}
+                        className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+                      >
+                        <PlusCircleIcon className="w-5 h-5 text-white" />
+                        <span>Add review</span>
+                      </button>
+                      <button
+                        onClick={() => setIsShowingReviewDetails(true)}
+                        className="mt-3 flex items-center justify-center py-2 px-4 space-x-2 text-grey-900 font-medium bg-white border border-neutral-300 rounded-full w-full"
+                      >
+                        View all
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : undefined}
 
             <LocationServices location={location} />
           </div>

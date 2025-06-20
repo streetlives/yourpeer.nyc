@@ -206,8 +206,8 @@ export default async function HomePage() {
           <div className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 justify-center place-content-center items-center gap-x-3">
             <div className="flex items-center justify-center">
               <img
-                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-1.png"
+                className="object-cover object-center w-24 sm:w-36 flex-shrink-0"
+                src="/img/partners-logo/logo-1-updated.png"
                 alt="Logo"
               />
             </div>
@@ -337,6 +337,18 @@ export default async function HomePage() {
                 alt="Logo"
               />
             </div>
+            <a
+              href={"https://doobneek.org/"}
+              target="_blank"
+              className="flex items-center justify-center"
+            >
+              <img
+                className="object-cover object-center w-20 sm:w-24 flex-shrink-0"
+                src="/img/partners-logo/logo-21.png"
+                alt="Logo"
+              />
+            </a>
+
             <div className="flex items-center justify-center">
               <img
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
