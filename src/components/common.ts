@@ -103,9 +103,9 @@ export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   food: "food-icon",
   clothing: "clothing",
   "personal-care": "personal-care",
-  "legal-services": "legal-services",
-  "mental-health": "mental-health",
-  employment: "employment",
+  "legal-services": "services/legal-small",
+  "mental-health": "services/mental-health-small",
+  employment: "services/employment-small",
 };
 
 export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
