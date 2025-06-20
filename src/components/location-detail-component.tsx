@@ -34,7 +34,9 @@ import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
 
 export function getIconPath(iconName: string): string {
-  return `/img/icons/${iconName}.png`;
+  const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
+  const fileName = hasExtension ? iconName : `${iconName}.png`;
+  return `/img/icons/${fileName}`;
 }
 
 export default function LocationDetailComponent({
