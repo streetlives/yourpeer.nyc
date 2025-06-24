@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
             allow: ["/"], // Allow all paths for all crawlers
           },
         ],
-        sitemap: `${baseUrl}/sitemap.xml`,
+        sitemap: `https://yourpeer.nyc/sitemap.xml`,
       }
     : {
         rules: [
