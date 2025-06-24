@@ -1,12 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const environmentIsProd = baseUrl?.startsWith(
-    "https://yourpeer.nyc", // TODO: Refactor this hard-coded string out into config variable
-  );
-
-  return environmentIsProd
+  return process.env.NODE_ENV === "production"
     ? {
         rules: [
           {
@@ -14,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
             allow: ["/"], // Allow all paths for all crawlers
           },
         ],
-        sitemap: `${baseUrl}/sitemap.xml`,
+        sitemap: `https://yourpeer.nyc/sitemap.xml`,
       }
     : {
         rules: [
