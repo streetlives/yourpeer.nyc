@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  return process.env.HEROKU_APP_NAME === "yourpeer-prod"
+  return "IS_PROD" in process.env
     ? {
         rules: [
           {
