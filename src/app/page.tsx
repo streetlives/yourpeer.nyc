@@ -31,7 +31,7 @@ const services = [
   },
   {
     name: "Personal Care",
-    icon: "/img/icons/services/pesonal-care.svg",
+    icon: "/img/icons/services/personal-care.svg",
     href: "/personal-care",
   },
   {
