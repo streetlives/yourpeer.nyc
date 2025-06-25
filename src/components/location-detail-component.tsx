@@ -61,7 +61,9 @@ export default function LocationDetailComponent({
   const router = useRouter();
   const previousRoute = usePreviousRoute();
 
-  console.log(location);
+  if (process.env.NODE_ENV !== "production") {
+    console.log(location);
+  }
 
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
