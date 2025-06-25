@@ -386,7 +386,7 @@ export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
 ): YourPeerLegacyLocationData {
-  console.log(d);
+  // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
   let address,
     street,
