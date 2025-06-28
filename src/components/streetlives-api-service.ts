@@ -378,6 +378,7 @@ function filter_services_by_name(
       }
     }
   }
+
   return { services };
 }
 
@@ -385,6 +386,7 @@ export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
 ): YourPeerLegacyLocationData {
+  // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
   let address,
     street,
@@ -448,6 +450,23 @@ export function map_gogetta_to_yourpeer(
       is_location_detail,
       "health-care",
     ),
+    legal_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "legal-services",
+    ),
+
+    mental_health_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "mental-health",
+    ),
+
+    employment_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "employment",
+    ),
     other_services: {
       services: filter_services_by_name(
         d,
@@ -467,6 +486,9 @@ export function map_gogetta_to_yourpeer(
               "Food",
               "Clothing",
               "Personal Care",
+              "Mental Health",
+              "Legal Services",
+              "Employment",
             ]),
           ),
         ).length;
@@ -588,6 +610,30 @@ export async function getTaxonomies(
       break;
     case "other":
       //query = TAXONOMIES_BASE_SQL + " and (t.name = 'Other service' or t.parent_name = 'Other service')"
+      taxonomies = taxonomyResponse.flatMap((r) =>
+        r.name === parentTaxonomyName
+          ? [r as Taxonomy].concat(r.children ? r.children : [])
+          : [],
+      );
+      break;
+
+    case "legal-services":
+      taxonomies = taxonomyResponse.flatMap((r) =>
+        r.name === parentTaxonomyName
+          ? [r as Taxonomy].concat(r.children ? r.children : [])
+          : [],
+      );
+      break;
+
+    case "mental-health":
+      taxonomies = taxonomyResponse.flatMap((r) =>
+        r.name === parentTaxonomyName
+          ? [r as Taxonomy].concat(r.children ? r.children : [])
+          : [],
+      );
+      break;
+
+    case "employment":
       taxonomies = taxonomyResponse.flatMap((r) =>
         r.name === parentTaxonomyName
           ? [r as Taxonomy].concat(r.children ? r.children : [])
