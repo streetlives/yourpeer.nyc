@@ -31,6 +31,7 @@ import {
   hideComment,
   likeComment,
   undoLikeComment,
+  unReportComment,
 } from "@/components/streetlives-api-service";
 import { toast } from "sonner";
 import Spinner from "@/components/spinner";
@@ -102,6 +103,19 @@ export default function ReviewListItem({
     },
   });
 
+  const { mutate: mutateUnReport, isPending: pendingUnReport } = useMutation({
+    mutationFn: unReportComment,
+    onSuccess: () => {
+      queryClient.setQueryData(["comments"], (old: Comment[]) =>
+        old.map((c) =>
+          c.id === comment.id ? { ...c, report_count: c.report_count - 1 } : c,
+        ),
+      );
+      toast.success("Comment is unreported");
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
   return (
     <li>
       <ReportComment
@@ -112,7 +126,7 @@ export default function ReviewListItem({
       />
 
       <div className="bg-white py-5 px-4 relative">
-        {(isPending || pendingExclude) && (
+        {(isPending || pendingExclude || pendingUnReport) && (
           <div className="absolute bg-white/85 size-full inset-0 z-10 flex items-center justify-center">
             <Spinner />
           </div>
@@ -168,6 +182,12 @@ export default function ReviewListItem({
               <DropdownMenuItem onClick={() => setIsReporting(true)}>
                 Report
               </DropdownMenuItem>
+
+              {(isAdmin || isStuffUser) && comment.report_count > 0 ? (
+                <DropdownMenuItem onClick={() => mutateUnReport(comment.id)}>
+                  Unreport
+                </DropdownMenuItem>
+              ) : null}
 
               {isStuffUser && (
                 <DropdownMenuItem onClick={() => setIsReplying(true)}>
