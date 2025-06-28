@@ -88,20 +88,20 @@ export default function StreetView({
   return location.closed ? undefined : (
     <div>
       <div>
-        <div className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block">
+        <a
+          href={streetviewHref}
+          target="_blank"
+          className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block"
+        >
           <img
             src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=${GOOGLE_MAPS_API_KEY}&fov=100&location=${streetview}`}
             className="w-full h-full object-cover object-center cursor-pointer"
             loading="lazy"
           />
-          <a
-            href={streetviewHref}
-            target="_blank"
-            className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow-sm rounded-full px-5 py-2 text-dark font-medium text-sm"
-          >
+          <span className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow-sm rounded-full px-5 py-2 text-dark font-medium text-sm">
             Open Street View
-          </a>
-        </div>
+          </span>
+        </a>
       </div>
       <div className="w-full max-h-52 h-52 overflow-hidden relative md:hidden">
         <div id="miniMap" className="w-full h-full bg-neutral-100">
