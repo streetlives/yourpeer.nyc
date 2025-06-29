@@ -58,9 +58,6 @@ export default function FiltersHeader({
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
 
-  console.log("curernt category");
-  console.log(currentCategory);
-
   const { normalizedSearchParams } = useNormalizedSearchParams();
 
   const personalCareParam =
