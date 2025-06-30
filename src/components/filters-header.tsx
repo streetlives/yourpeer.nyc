@@ -324,21 +324,18 @@ export default function FiltersHeader({
           </Link>
         ) : undefined}
 
-          <Link
-            className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
-            style={linkHeight}
-            href={getUrlWithNewFilterParameter(
-              pathname,
-              searchParams,
-              SHOW_ADVANCED_FILTERS_PARAM,
-            )}
-          >
-            <img src="/img/icons/filters.svg" className="w-4 h-4" alt="" />
-            <TranslatableText
-              text="All Filters"
-              className="leading-3 truncate"
-            />
-          </Link>
+        <Link
+          className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
+          style={linkHeight}
+          href={getUrlWithNewFilterParameter(
+            pathname,
+            searchParams,
+            SHOW_ADVANCED_FILTERS_PARAM,
+          )}
+        >
+          <img src="/img/icons/filters.svg" className="w-4 h-4" alt="" />
+          <TranslatableText text="All Filters" className="leading-3 truncate" />
+        </Link>
       </div>
     </div>
   );
