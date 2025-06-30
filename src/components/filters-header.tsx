@@ -324,7 +324,6 @@ export default function FiltersHeader({
           </Link>
         ) : undefined}
 
-        {currentCategory !== null && (
           <Link
             className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
             style={linkHeight}
@@ -340,7 +339,6 @@ export default function FiltersHeader({
               className="leading-3 truncate"
             />
           </Link>
-        )}
       </div>
     </div>
   );
