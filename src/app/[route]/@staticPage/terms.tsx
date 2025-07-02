@@ -48,7 +48,6 @@ export function Terms() {
               MUST BE RESOLVED IN ARBITRATION OR SMALL CLAIMS COURT.
             </h4>
             <p>
-              <span>z</span>
               <span>These Terms of Use, together with Streetlives Inc. (</span>
               <strong>&quot;Streetlives,&quot;</strong>{" "}
               <strong>&quot;we&quot;</strong>
