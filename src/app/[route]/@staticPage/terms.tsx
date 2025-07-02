@@ -283,9 +283,9 @@ export function Terms() {
                   <strong>Artificial Intelligence.</strong>
                   <span>
                     &nbsp;Some features of the Site may use artificial
-                    intelligence or machine learning ("AI"), including tools
+                    intelligence or machine learning (&quot;AI&quot;), including tools
                     that generate suggestions or responses. These tools rely on
-                    third-party technologies and are provided "as is" without
+                    third-party technologies and are provided &quot;as is&quot; without
                     warranties of any kind, including with respect to
                     completeness, accuracy, or appropriateness. By using our
                     Site, you expressly acknowledge and agree that any
@@ -517,7 +517,7 @@ export function Terms() {
                     your use of the Site, and you agree to defend, indemnify,
                     and hold harmless Streetlives from and against any and all
                     claims, liabilities, damages, losses, and expenses
-                    (including attorneys' and accounting fees and costs),
+                    (including attorneys&apos; and accounting fees and costs),
                     arising out of or in any way connected with (i) your access
                     to, use of, or alleged use of the Site; (ii) your violation
                     of the Terms or any applicable law or regulation; (iii) your
