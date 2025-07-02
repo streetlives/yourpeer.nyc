@@ -283,12 +283,12 @@ export function Terms() {
                   <strong>Artificial Intelligence.</strong>
                   <span>
                     &nbsp;Some features of the Site may use artificial
-                    intelligence or machine learning (&quot;AI&quot;), including tools
-                    that generate suggestions or responses. These tools rely on
-                    third-party technologies and are provided &quot;as is&quot; without
-                    warranties of any kind, including with respect to
-                    completeness, accuracy, or appropriateness. By using our
-                    Site, you expressly acknowledge and agree that any
+                    intelligence or machine learning (&quot;AI&quot;), including
+                    tools that generate suggestions or responses. These tools
+                    rely on third-party technologies and are provided &quot;as
+                    is&quot; without warranties of any kind, including with
+                    respect to completeness, accuracy, or appropriateness. By
+                    using our Site, you expressly acknowledge and agree that any
                     information or knowledge you gain as a result of using any
                     AI-generated content on this Site is used at solely at your
                     own risk. You should not rely solely on AI-generated content
