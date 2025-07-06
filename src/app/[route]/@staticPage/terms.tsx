@@ -55,8 +55,18 @@ export function Terms() {
               <strong>&quot;us&quot;</strong>
               <span>
                 <span>
-                  ) Privacy Policy and Streetlives Guidelines for comment
-                  moderation, set forth the terms and conditions (
+                  <span>)&nbsp;</span>
+                  <a href={PRIVACY_POLICY_ROUTE}>Privacy Policy</a>
+                  <span>
+                    <span>&nbsp; and&nbsp;</span>
+                    <a
+                      target="_blank"
+                      href="https://docs.google.com/document/d/e/2PACX-1vTi6AR2Q-PpTNMLTimvdVg8yDuLJ5DURswQ-heCToXj3OwuqNXyt-LIBs-By9znC2A_0HxqlO8vQ_DJ/pub"
+                    >
+                      Comment Moderation Guidelines for YourPeer
+                    </a>
+                    <span>, set forth the terms and conditions (</span>
+                  </span>
                 </span>
                 <strong>&quot;Terms&quot;</strong>
                 <span>
@@ -64,9 +74,13 @@ export function Terms() {
                     ) that apply to your access and use of the Streetlives
                     website, located at&nbsp;
                   </span>
-                  <a href="https://yourpeer.nyc">https://yourpeer.nyc</a>
-                  <span>&nbsp;,&nbsp;</span>
-                  <a href="https://streetlives.nyc">https://streetlives.nyc</a>
+                  <a href="https://yourpeer.nyc" target="_blank">
+                    https://yourpeer.nyc
+                  </a>
+                  <span>, </span>
+                  <a href="https://streetlives.nyc" target="_blank">
+                    https://streetlives.nyc
+                  </a>
                   <span>
                     &nbsp; and any other Streetlives website, mobile
                     application, online portal, electronic form, survey or other

@@ -200,7 +200,10 @@ export function PrivacyPage() {
                       more information about Google Analytics, please refer
                       to&nbsp;
                     </span>
-                    <a href="https://policies.google.com/technologies/partner-sites" target='_blank'>
+                    <a
+                      href="https://policies.google.com/technologies/partner-sites"
+                      target="_blank"
+                    >
                       https://policies.google.com/technologies/partner-sites.
                     </a>
                     <span>
