@@ -159,7 +159,7 @@ export function Terms() {
                       <a href="mailto:useraccounts@streetlives.nyc">
                         useraccounts@streetlives.nyc
                       </a>
-                      <span>&nbsp;.</span>
+                      <span>.</span>
                     </span>
                   </span>
                 </p>
@@ -194,7 +194,15 @@ export function Terms() {
               </li>
               <li>
                 <p>
-                  <strong>Prohibited Conduct.</strong>
+                  <strong>Prohibited Conduct.</strong>{" "}
+                  <span>
+                    Streetlives reserves the right, but is not obligated, to
+                    monitor activity on the Site and to investigate any
+                    violation of these Terms. We may remove or block content,
+                    suspend access, or terminate accounts at our sole discretion
+                    if we believe these terms have been violated or for any
+                    other reason without notice. You agree not to:
+                  </span>
                 </p>
                 <ol type="A">
                   <li>
@@ -761,12 +769,12 @@ export function Terms() {
                         <span>&nbsp;These Terms, together with the&nbsp;</span>
                         <a href={PRIVACY_POLICY_ROUTE}>Privacy Policy</a>
                         <span>
-                          &nbsp;, constitute the entire and exclusive
-                          understanding and agreement between you and
-                          Streetlives regarding your use of and access to the
-                          Site, and except as expressly permitted above, may
-                          only be amended by a written agreement signed by
-                          authorized representatives of the parties.&nbsp;
+                          , constitute the entire and exclusive understanding
+                          and agreement between you and Streetlives regarding
+                          your use of and access to the Site, and except as
+                          expressly permitted above, may only be amended by a
+                          written agreement signed by authorized representatives
+                          of the parties.&nbsp;
                         </span>
                       </span>
                     </p>
@@ -830,7 +838,7 @@ export function Terms() {
                   <a href="mailto:rights@streetlives.nyc">
                     rights@streetlives.nyc
                   </a>
-                  <span>&nbsp;.</span>
+                  <span>.</span>
                 </p>
               </li>
             </ol>
