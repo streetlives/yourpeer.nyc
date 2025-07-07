@@ -812,31 +812,28 @@ export function Terms() {
                 <p>
                   <strong>Notice.</strong>
                   <span>
-                    &nbsp;We may provide all notices, including pursuant to
-                    legal process, by any lawful method. You agree to provide us
-                    with current, accurate contact information and to check for
+                    We may provide all notices, including pursuant to legal
+                    process, by any lawful method. You agree to provide us with
+                    current, accurate contact information and to check for
                     notices posted via the Site.
-                  </span>{" "}
-                  <a href="tel:+1-800-952-5210">(800) 952-5210</a>{" "}
-                  <span>
-                    in order to resolve a complaint regarding the service or to
-                    receive further information regarding use of the service.
                   </span>
+                </p>
+                <p>
+                  <span>
+                    Other than any notices described in Section 11 (which must
+                    be provided as described in Section 11), and any
+                    privacy-related inquiries (which must be provided as
+                    described in the &quot:Our contact information&quot; section
+                    of the Privacy Policy) all notices to us must be sent to the
+                    following address:&nbsp;
+                  </span>
+                  <a href="mailto:rights@streetlives.nyc">
+                    rights@streetlives.nyc
+                  </a>
+                  <span>&nbsp;.</span>
                 </p>
               </li>
             </ol>
-
-            <p>
-              <span>
-                Other than any notices described in Section 11 (which must be
-                provided as described in Section 11), and any privacy-related
-                inquiries (which must be provided as described in the &quot:Our
-                contact information&quot; section of the Privacy Policy) all
-                notices to us must be sent to the following address:&nbsp;
-              </span>
-              <a href="mailto:rights@streetlives.nyc">rights@streetlives.nyc</a>
-              <span>&nbsp;.</span>
-            </p>
           </div>
         </div>
       </section>
