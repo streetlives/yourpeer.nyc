@@ -107,7 +107,7 @@ const customStreetViews: Record<string, string> = {
     "40.6313348,-73.9664652&pano=UEKBdxOrUfLu2udaTOR0vQ&heading=87",
   "bay-ridge-center-bay-ridge-15-bay-ridge-ave":
     "40.6385644,-74.0351451&fov=75&heading=90",
-  "bay-ridge-center-bay-ridge": "40.6385644,-74.0351451&fov=75&heading=90",  
+  "bay-ridge-center-bay-ridge": "40.6385644,-74.0351451&fov=75&heading=90",
   "strive-aka-east-harlem-employment-services-east-harlem":
     "40.8016565,-73.9369507&fov=75&heading=50&pano=4cAi0Lm5z7LW57x6x0KU4Q",
 };
