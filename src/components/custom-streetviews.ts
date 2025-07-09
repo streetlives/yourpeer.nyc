@@ -103,6 +103,10 @@ const customStreetViews: Record<string, string> = {
   "safe-horizon-fort-greene": "40.6874692,-73.9798123&fov=75&heading=51",
   "morris-heights-health-center-mhhc-melrose":
     "40.8221619,-73.9149579&fov=75&heading=296",
+  "council-of-peoples-organization-copo-ditmas-park":
+    "40.6313348,-73.9664652&pano=UEKBdxOrUfLu2udaTOR0vQ&heading=87",
+  "strive-aka-east-harlem-employment-services-east-harlem":
+    "40.8016565,-73.9369507&fov=75&heading=50&pano=4cAi0Lm5z7LW57x6x0KU4Q",
 };
 
 export default customStreetViews;
