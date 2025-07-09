@@ -501,7 +501,9 @@ export function Terms() {
                   <span>1 800 927 9801</span>
                   <br />
                   <br />
-                  <span>copyright@streetlives.nyc</span>
+                  <a href="mailto:copyright@streetlives.nyc">
+                    copyright@streetlives.nyc
+                  </a>
                   <br />
                   <br />
                   <span>
@@ -513,7 +515,12 @@ export function Terms() {
                   </span>
                   <br />
                   <br />
-
+                  <span>
+                    You may also have similar rights under other local laws. Any
+                    concerns under such local laws should also be addressed to
+                    us at:
+                  </span>{" "}
+                  <br /> <br />
                   <span>Copyright Officer</span>
                   <br />
                   <span>Streetlives, Inc.</span>
@@ -526,7 +533,9 @@ export function Terms() {
                   <span>1 800 927 9801</span>
                   <br />
                   <br />
-                  <span>copyright@streetlives.nyc</span>
+                  <a href="mailto:copyright@streetlives.nyc">
+                    copyright@streetlives.nyc
+                  </a>
                 </p>
               </li>
 
@@ -818,7 +827,7 @@ export function Terms() {
               </li>
               <li>
                 <p>
-                  <strong>Notice.</strong>
+                  <strong>Notice. </strong>
                   <span>
                     We may provide all notices, including pursuant to legal
                     process, by any lawful method. You agree to provide us with
