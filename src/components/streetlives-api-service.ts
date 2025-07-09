@@ -801,6 +801,14 @@ export async function reportComment(commentId: string): Promise<unknown> {
   return res.data;
 }
 
+export async function unReportComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/unreport/${commentId}`,
+  );
+
+  return res.data;
+}
+
 export async function likeComment(commentId: string): Promise<unknown> {
   const res = await axios.put(
     `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
