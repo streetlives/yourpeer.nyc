@@ -104,7 +104,7 @@ const customStreetViews: Record<string, string> = {
   "morris-heights-health-center-mhhc-melrose":
     "40.8221619,-73.9149579&fov=75&heading=296",
   "council-of-peoples-organization-copo-ditmas-park":
-    "40.6313213,-73.96646&fov=39&heading=87&pano=OB3HC6m_bky8xISw4CxZNA",
+    "40.6313348,-73.9664652,3a,75y,87h,90t",
   "bay-ridge-center-bay-ridge-15-bay-ridge-ave":
     "40.6385644,-74.0351451&fov=75&heading=90",
   "strive-aka-east-harlem-employment-services-east-harlem":
