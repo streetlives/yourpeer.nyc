@@ -235,6 +235,33 @@ export default function FiltersPopup({
             />
             <CategoryFilterLabel
               currentCategory={category}
+              labelCategory={"mental-health"}
+              activeImgSrc="/img/icons/services/mental-health-active.svg"
+              imgSrc="/img/icons/services/mental-health-2.svg"
+              labelText="Mental Health"
+              normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+              currentCategory={category}
+              labelCategory={"legal-services"}
+              activeImgSrc="/img/icons/services/legal-active.svg"
+              imgSrc="/img/icons/services/legal-2.svg"
+              labelText="Legal Services"
+              normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+              currentCategory={category}
+              labelCategory={"employment"}
+              activeImgSrc="/img/icons/services/employment-active.svg"
+              imgSrc="/img/icons/services/employment-2.svg"
+              labelText="Employment"
+              normalizedSearchParams={normalizedSearchParams}
+            />
+
+            <CategoryFilterLabel
+              currentCategory={category}
               labelCategory={"other"}
               activeImgSrc="/img/icons/active-dots-icon.svg"
               imgSrc="/img/icons/dots-icon.svg"
