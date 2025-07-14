@@ -840,7 +840,7 @@ export function Terms() {
                     Other than any notices described in Section 11 (which must
                     be provided as described in Section 11), and any
                     privacy-related inquiries (which must be provided as
-                    described in the &quot:Our contact information&quot; section
+                    described in the &quot;Our contact information&quot; section
                     of the Privacy Policy) all notices to us must be sent to the
                     following address:&nbsp;
                   </span>
