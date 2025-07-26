@@ -17,7 +17,6 @@ import {
   SimplifiedLocationData,
   YourPeerLegacyLocationData,
 } from "@/components/common";
-import customStreetViews from "@/components/custom-streetviews";
 import { useCallback, useEffect, useState } from "react";
 
 const GOOGLE_MAPS_API_KEY = (
@@ -32,6 +31,53 @@ function trimLocationFromSlug(path: string) {
   return path.startsWith("/") ? path.slice(1) : path;
 }
 
+interface StreetViewData {
+  lat?: number;
+  lng?: number;
+  heading?: number;
+  pitch?: number;
+  fov?: number;
+  pano?: string;
+}
+
+function extractStreetViewData(url: string | null): StreetViewData | null {
+  if (!url) return null;
+  const result: StreetViewData = {};
+
+  // Lat and Lng after @lat,lng
+  const latLngMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (latLngMatch) {
+    result.lat = parseFloat(latLngMatch[1]);
+    result.lng = parseFloat(latLngMatch[2]);
+  }
+
+  // Heading: after h in the URL (e.g., 14.82h)
+  const headingMatch = url.match(/,(\d+(?:\.\d+)?)h/);
+  if (headingMatch) {
+    result.heading = parseFloat(headingMatch[1]);
+  }
+
+  // Pitch: after t in the URL (e.g., 88.07t)
+  const pitchMatch = url.match(/,(\d+(?:\.\d+)?)t/);
+  if (pitchMatch) {
+    result.pitch = parseFloat(pitchMatch[1]);
+  }
+
+  // FOV: after y in the URL (e.g., 75y)
+  const fovMatch = url.match(/,(\d+(?:\.\d+)?)y/);
+  if (fovMatch) {
+    result.fov = parseFloat(fovMatch[1]);
+  }
+
+  // Pano ID: after !1s in the URL
+  const panoMatch = url.match(/!1s([^!]+)/);
+  if (panoMatch) {
+    result.pano = panoMatch[1];
+  }
+
+  return result;
+}
+
 export default function StreetView({
   location,
 }: {
@@ -42,10 +88,12 @@ export default function StreetView({
   const [locationStubs, setLocationStubs] = useState<SimplifiedLocationData[]>(
     [],
   );
+  const data = extractStreetViewData(location.streetview_url);
 
-  const streetview =
-    customStreetViews[trimLocationFromSlug(location.slug)] ||
-    `${location.lat},${location.lng}`;
+  let streetview = `${location.lat},${location.lng}`;
+  if (data !== null) {
+    streetview = `${data.lat},${data.lng}&fov=${data.fov ?? 75}&heading=${data.heading ?? 0}&pano=${data.pano ?? ""}`;
+  }
   const streetviewHref = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${streetview}`;
 
   // TODO: eliminate duplicate code
