@@ -15,6 +15,7 @@ import { useState } from "react";
 import { TranslatableText } from "./translatable-text";
 import axios from "axios";
 import { toast } from "sonner";
+import { isEmailOrPhone } from "@/lib/utils";
 
 export function ReportIssueForm({
   location,
@@ -24,6 +25,7 @@ export function ReportIssueForm({
   hideReportIssueForm: () => void;
 }) {
   const [isShowingSuccessForm, setIsShowingSuccessForm] = useState(false);
+  const [contactInfo, setContactInfo] = useState("");
 
   async function submitReport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,6 +52,17 @@ export function ReportIssueForm({
       toast("Please describe the issue before sending.");
       return;
     }
+
+    if (contactInfo.trim() === "") {
+      toast("Please enter your contact information.");
+      return;
+    }
+    if (!isEmailOrPhone(contactInfo)) {
+      toast("Please enter a valid email or phone number.");
+      return;
+    }
+
+    issues += `\nContact info: ${contactInfo}`;
 
     try {
       const res = axios.post("/api/report", { text: issues });
@@ -147,17 +160,45 @@ export function ReportIssueForm({
                 htmlFor="reportContent"
                 className="text-base text-dark font-medium"
               >
-                <TranslatableText text="Please describe the issue below (Please don't enter any private information)" />
+                <TranslatableText text="Please describe the issue below" />
+                <br />
+                <span className="text-sm text-gray-500 font-normal">
+                  Please don&apos;t enter private information
+                </span>
               </label>
               <div className="mt-4">
                 <textarea
                   id="reportContent"
-                  className="w-full focus:ring-primary resize-none border-neutral-500 rounded"
+                  className="w-full focus:ring-primary text-sm resize-none border-neutral-500 rounded"
                   rows={6}
-                  placeholder="..."
+                  placeholder="Describe the issue here"
                 ></textarea>
               </div>
             </div>
+
+            <div id="StepThree" className="mt-8">
+              <label
+                htmlFor="reportContactInfo"
+                className="text-base text-dark font-medium"
+              >
+                <span>How can we reach you?</span>
+                <br />
+                <span className="text-sm text-gray-500 font-normal">
+                  we&apos;ll only use your contact info to follow up about this
+                  issue, nothing else.
+                </span>
+              </label>
+              <div className="mt-4">
+                <input
+                  id="reportContactInfo"
+                  value={contactInfo}
+                  onChange={(e) => setContactInfo(e.target.value)}
+                  className="w-full focus:ring-primary text-sm resize-none border-neutral-500 rounded placeholder:text-neutral-500"
+                  placeholder="Your email or phone number"
+                />
+              </div>
+            </div>
+
             <div className="py-5">
               <input
                 className="primary-button mt-5 w-full block"

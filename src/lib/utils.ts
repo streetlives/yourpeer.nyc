@@ -6,6 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function isEmailOrPhone(input: string) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?\d{10,15}$/; // Allows optional "+" and 10–15 digits
+
+  return emailRegex.test(input) || phoneRegex.test(input);
+}
+
 export function getFormatedHighlights(
   commentsObj: CommentHighlights,
 ): string[] {
