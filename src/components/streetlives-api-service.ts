@@ -295,12 +295,17 @@ function filter_services_by_name(
   const services: YourPeerLegacyServiceData[] = [];
   for (let service of d.Services) {
     let age_eligibilities = null;
-    const taxonomiesForService = new Set(
+    let taxonomiesForService = new Set(
       service.Taxonomies.flatMap((taxonomy) => [
         taxonomy.name,
         taxonomy.parent_name,
       ]).filter((t) => t !== null),
     );
+    if (category_name == "health-care") {
+      taxonomiesForService = new Set(
+        service.Taxonomies.map((taxonomy) => taxonomy.name),
+      );
+    }
     if (
       !category_name ||
       taxonomiesForService.has(CATEGORY_TO_TAXONOMY_NAME_MAP[category_name])
