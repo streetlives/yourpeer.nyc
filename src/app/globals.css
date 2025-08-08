@@ -428,7 +428,8 @@ font {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #9f9e9e;
+  border-radius: 8px;
 }
 
 /* Handle on hover */

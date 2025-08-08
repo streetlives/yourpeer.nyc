@@ -178,7 +178,7 @@ export default function FiltersPopup({
         </Link>
       </div>
       <form
-        className="flex-1 px-4 overflow-y-scroll scrollbar-hide py-5"
+        className="flex-1 px-4 overflow-y-scroll py-5"
         id="filters_form"
         onSubmit={handleFilterFormSubmit}
       >
