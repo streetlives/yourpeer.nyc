@@ -714,6 +714,7 @@ export const TAXONOMY_CATEGORIES = [
   "Legal Services",
   "Mental Health",
   "Employment",
+  "Advocates / Legal Aid"
 ] as const;
 
 const TOILETRIES_TAXONOMY = "Toiletries";

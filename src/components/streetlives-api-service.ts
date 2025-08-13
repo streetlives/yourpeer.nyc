@@ -494,6 +494,7 @@ export function map_gogetta_to_yourpeer(
               "Mental Health",
               "Legal Services",
               "Employment",
+               "Advocates / Legal Aid"
             ]),
           ),
         ).length;
