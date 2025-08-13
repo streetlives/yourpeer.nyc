@@ -15,6 +15,9 @@ export const CATEGORIES = [
   "personal-care",
   "health-care",
   "other",
+  "legal-services",
+  "mental-health",
+  "employment",
 ] as const;
 
 // TODO: other pages
@@ -30,6 +33,9 @@ export const CATEGORY_TO_ROUTE_MAP: Record<CategoryNotNull, string> = {
   food: "food",
   clothing: "clothing",
   "personal-care": "personal-care",
+  "legal-services": "legal-services",
+  "mental-health": "mental-health",
+  employment: "employment",
 };
 
 export const ROUTE_TO_CATEGORY_MAP: Record<string, CategoryNotNull> =
@@ -85,6 +91,9 @@ export const CATEGORY_DESCRIPTION_MAP: Record<CategoryNotNull, string> = {
   food: "Food",
   clothing: "Clothing",
   "personal-care": "Personal Care",
+  "legal-services": "Legal Services",
+  "mental-health": "Mental Health",
+  employment: "Employment",
 };
 
 export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -94,6 +103,9 @@ export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   food: "food-icon",
   clothing: "clothing",
   "personal-care": "personal-care",
+  "legal-services": "services/legal-small",
+  "mental-health": "services/mental-health-small",
+  employment: "services/employment-small",
 };
 
 export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -103,6 +115,9 @@ export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   food: "food-icon-2",
   clothing: "clothing-icon",
   "personal-care": "personal-care-2",
+  "legal-services": "legal-services",
+  "mental-health": "mental-health",
+  employment: "employment",
 };
 
 export function getIconPath(iconName: string): string {
@@ -696,6 +711,10 @@ export const TAXONOMY_CATEGORIES = [
   "Food",
   "Clothing",
   "Personal Care",
+  "Legal Services",
+  "Mental Health",
+  "Employment",
+  "Advocates / Legal Aid",
 ] as const;
 
 const TOILETRIES_TAXONOMY = "Toiletries";
@@ -726,6 +745,9 @@ export const CATEGORY_TO_TAXONOMY_NAME_MAP: Record<
   food: "Food",
   clothing: "Clothing",
   "personal-care": "Personal Care",
+  "legal-services": "Legal Services",
+  "mental-health": "Mental Health",
+  employment: "Employment",
 };
 
 export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
@@ -794,6 +816,9 @@ export interface YourPeerLegacyLocationData {
   personal_care_services: YourPeerLegacyServiceDataWrapper;
   health_services: YourPeerLegacyServiceDataWrapper;
   other_services: YourPeerLegacyServiceDataWrapper;
+  legal_services: YourPeerLegacyServiceDataWrapper;
+  mental_health_services: YourPeerLegacyServiceDataWrapper;
+  employment_services: YourPeerLegacyServiceDataWrapper;
   closed: boolean;
 }
 
@@ -808,6 +833,12 @@ export function getServicesWrapper(
       return location.food_services;
     case "health-care":
       return location.health_services;
+    case "legal-services":
+      return location.legal_services;
+    case "mental-health":
+      return location.mental_health_services;
+    case "employment":
+      return location.employment_services;
     case "other":
       return location.other_services;
     case "personal-care":
