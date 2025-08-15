@@ -8,7 +8,6 @@ import type { Metadata } from "next";
 import { Footer } from "../components/footer";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      <GTranslateWrapper />
+      {/*<GTranslateWrapper />*/}
       <Navbar background={false} />
 
       <div
@@ -556,7 +555,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       <Footer />
     </>
   );

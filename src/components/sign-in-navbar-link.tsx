@@ -22,7 +22,7 @@ function SignInNavbarLinkWrapper() {
   return user ? (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex gap-2 items-center text-neutral-800">
-        <span className="max-w-14 truncate">{user.username}</span>
+        <span className="max-w-14 truncate notranslate">{user.username}</span>
         <UserCircle className="w-5 h-5" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>

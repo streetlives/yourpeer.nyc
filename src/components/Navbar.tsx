@@ -8,9 +8,9 @@
 
 import React, { useEffect, useState } from "react";
 import OffCanvasMenu from "./OffCanvasMenu";
-import { GTranslateSelect } from "./gtranslate-select";
 import "@aws-amplify/ui-react/styles.css";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
+import GoogleTranslate from "@/components/google-translate";
 
 export default function Navbar({ background = true }: { background: boolean }) {
   const [open, setOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function Navbar({ background = true }: { background: boolean }) {
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            <GTranslateSelect />
+            <GoogleTranslate />
             <SignInNavbarLink />
           </div>
         </nav>
