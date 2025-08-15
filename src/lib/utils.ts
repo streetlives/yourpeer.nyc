@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function isEmailOrPhone(input: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^\+?\d{10,15}$/; // Allows optional "+" and 10–15 digits
+  const phoneRegex = /^(\+0?1\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/
 
   return emailRegex.test(input) || phoneRegex.test(input);
 }
