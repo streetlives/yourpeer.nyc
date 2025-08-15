@@ -53,16 +53,13 @@ export function ReportIssueForm({
       return;
     }
 
-    if (contactInfo.trim() === "") {
-      toast("Please enter your contact information.");
-      return;
+    if (contactInfo.trim()) {
+      if (!isEmailOrPhone(contactInfo)) {
+        toast("Please enter a valid email or phone number.");
+        return;
+      }
+      issues += `\nContact info: ${contactInfo}`;
     }
-    if (!isEmailOrPhone(contactInfo)) {
-      toast("Please enter a valid email or phone number.");
-      return;
-    }
-
-    issues += `\nContact info: ${contactInfo}`;
 
     try {
       const res = axios.post("/api/report", { text: issues });
