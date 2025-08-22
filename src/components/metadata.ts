@@ -128,6 +128,25 @@ export async function generateMetadata({
           break;
       }
       break;
+    case CATEGORY_TO_ROUTE_MAP["legal-services"]:
+      title = attachSuffix(
+        "Free Legal Services & Aid for Unhoused People in NYC",
+      );
+      description =
+        "Free legal services for unhoused individuals, including help with housing, evictions, immigration, and other aid throughout NYC. ";
+      break;
+    case CATEGORY_TO_ROUTE_MAP["mental-health"]:
+      title = attachSuffix("Mental Health Services for the Unhoused in NYC");
+      description =
+        "Discover free and low-cost mental health services in NYC for unhoused people, offering compassionate care and support.";
+      break;
+    case CATEGORY_TO_ROUTE_MAP["employment"]:
+      title = attachSuffix(
+        "Employment & Job Training Programs for Unhoused People NYC",
+      );
+      description =
+        "Find employment programs, job training, and other resources to help you secure work that supports your well-being.";
+      break;
     case CATEGORY_TO_ROUTE_MAP["clothing"]:
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
         case null:
