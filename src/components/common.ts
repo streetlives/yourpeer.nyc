@@ -491,6 +491,7 @@ export interface SimplifiedLocationData {
   };
   additional_info: string | null;
   slug: string;
+  streetview_url: string | null;
   last_validated_at: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -810,6 +811,7 @@ export interface YourPeerLegacyLocationData {
   name: string | null;
   phone: string | null;
   url: string | null;
+  streetview_url: string | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;
   food_services: YourPeerLegacyServiceDataWrapper;
   clothing_services: YourPeerLegacyServiceDataWrapper;
