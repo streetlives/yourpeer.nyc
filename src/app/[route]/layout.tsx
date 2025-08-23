@@ -18,7 +18,7 @@ import {
 import { notFound } from "next/navigation";
 import { SearchProvider } from "@/components/search-context";
 import { MainComponent } from "@/components/main-component";
-import GTranslateWrapper from "@/components/gtranslate-wrapper";
+// import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
 
 export default function LocationsLayout({
@@ -34,7 +34,7 @@ export default function LocationsLayout({
 }) {
   return (
     <>
-      <GTranslateWrapper />
+      {/*<GTranslateWrapper />*/}
       <span>
         {RESOURCE_ROUTES.includes(route) ? (
           <>

@@ -313,10 +313,10 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   }
 }
 
-div.skiptranslate,
-#google_translate_element {
-  display: none !important;
-}
+/*div.skiptranslate,*/
+/*#google_translate_element {*/
+/*  display: none !important;*/
+/*}*/
 
 body {
   top: 0 !important;
@@ -435,4 +435,48 @@ font {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Make Google Translate dropdown visible */
+#google_translate_element {
+  display: inline-block;
+}
+
+.goog-te-gadget {
+  font-size: 12px !important;
+  color: #000 !important;
+}
+
+.goog-te-gadget-simple {
+  background-color: #f4f4f4 !important;
+  border: 1px solid #d5d5d5 !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  cursor: pointer;
+}
+
+.goog-te-gadget-simple span {
+  color: #000 !important;
+}
+
+.goog-te-gadget img {
+  display: inline !important;
+}
+
+/* Hide Google’s top banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
+.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+}
+html,
+body {
+  margin-top: 0 !important;
 }
