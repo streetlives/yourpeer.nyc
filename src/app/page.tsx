@@ -42,17 +42,17 @@ const services = [
   {
     name: "Mental Health",
     icon: "/img/icons/services/mental-health.svg",
-    href: "/mental-health",
+    href: "/health-care/mental-health",
   },
   {
     name: "Legal Services",
     icon: "/img/icons/services/legal.svg",
-    href: "/legal-services",
+    href: "/other-services/legal-services",
   },
   {
     name: "Employment",
     icon: "/img/icons/services/employment.svg",
-    href: "/employment",
+    href: "/other-services/employment",
   },
   {
     name: "Other",

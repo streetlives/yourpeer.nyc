@@ -62,7 +62,7 @@ export default function LocationsLayout({
             <Footer />
           </>
         ) : (
-          notFound()
+          (console.log("not found in layout.tsx"), notFound())
         )}
       </span>
     </>
