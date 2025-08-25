@@ -39,7 +39,6 @@ export default async function LocationDetail({
   const previousParams = usePreviousParams();
   try {
     if (!isOnLocationDetailPage(params)) {
-      console.log("hello world", params);
       // validate
       getParsedSubCategory(params);
       redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
@@ -75,7 +74,6 @@ export default async function LocationDetail({
       );
     }
   } catch (e) {
-    console.log("Error in location detail page:", e);
     if (e instanceof Error404Response) {
       return notFound();
     } else {

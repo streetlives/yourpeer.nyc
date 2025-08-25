@@ -41,6 +41,6 @@ export default async function SidePanelPage({
       })}
     />
   ) : (
-    (console.log("not found in sidepanel page.tsx"), notFound())
+    notFound()
   );
 }
