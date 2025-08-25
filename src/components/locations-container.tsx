@@ -16,6 +16,7 @@ import {
   getIconPath,
   getServicesWrapper,
   SearchParams,
+  SubCategory,
   YourPeerLegacyLocationData,
   YourPeerLegacyServiceDataWrapper,
 } from "./common";
@@ -106,9 +107,11 @@ export default function LocationsContainer({
   resultCount,
   numberOfPages,
   currentPage,
+  subCategory,
 }: {
   searchParams: SearchParams;
   category: Category;
+  subCategory?: SubCategory | null;
   yourPeerLegacyLocationData: YourPeerLegacyLocationData[];
   resultCount: number;
   numberOfPages: number;
@@ -131,34 +134,51 @@ export default function LocationsContainer({
     "block",
   ]);
 
+  console.log(category, searchParams);
+
+  function getCategoryHeaderText(
+    category: Category,
+    subCategory?: SubCategory | null,
+  ): string {
+    switch (category) {
+      case "shelters-housing":
+        return "All Shelter & Housing locations";
+      case "food":
+        return "All Food locations";
+      case "clothing":
+        return "All Clothing locations";
+      case "personal-care":
+        return "All Personal care locations";
+      case "health-care":
+        switch (subCategory) {
+          case "mental-health":
+            return "All Mental Health locations";
+          default:
+            break;
+        }
+        return "All Health locations";
+      case "other":
+        switch (subCategory) {
+          case "legal-services":
+            return "All Legal Services locations";
+          case "employment":
+            return "All Employment locations";
+          default:
+            break;
+        }
+        return "All Other locations";
+      default:
+        return "All service locations";
+    }
+  }
+
   return (
     <div className={classnames} id="locations_container">
       <div className="flex-1 flex flex-col">
         <div className="text-sm px-6 py-4 flex items-center border-b border-dotted border-neutral-200 justify-between">
           <h1>
             <TranslatableText
-              text={
-                // TODO: fix these
-                category === "shelters-housing"
-                  ? "All Shelter & Housing locations"
-                  : category === "food"
-                    ? "All Food locations"
-                    : category === "clothing"
-                      ? "All Clothing locations"
-                      : category === "legal-services"
-                        ? "All Legal-Services locations"
-                        : category === "mental-health"
-                          ? "All Mental Health locations"
-                          : category === "employment"
-                            ? "All Employment locations"
-                            : category === "personal-care"
-                              ? "All Personal care locations"
-                              : category === "health-care"
-                                ? "All Health locations"
-                                : category === "other"
-                                  ? "All Other locations"
-                                  : "All service locations"
-              }
+              text={getCategoryHeaderText(category, subCategory)}
             />
           </h1>
 
