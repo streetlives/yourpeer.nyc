@@ -142,6 +142,17 @@ export type FoodValues =
   | typeof FOOD_PARAM_SOUP_KITCHEN_VALUE
   | typeof FOOD_PARAM_PANTRY_VALUE;
 
+export const OTHER_PARAM = "other-services";
+export const OTHER_PARAM_LEGAL_VALUE = "legal-services";
+export const OTHER_PARAM_EMPLOYMENT_VALUE = "employment";
+export type OtherValues =
+  | typeof OTHER_PARAM_LEGAL_VALUE
+  | typeof OTHER_PARAM_EMPLOYMENT_VALUE;
+
+export const HEALTH_PARAM = "health-care";
+export const HEALTH_PARAM_MENTAL_HEALTH = "mental-health";
+export type HealthValues = typeof HEALTH_PARAM_MENTAL_HEALTH;
+
 export const CLOTHING_PARAM = "clothing";
 export const CLOTHING_PARAM_CASUAL_VALUE = "casual";
 export const CLOTHING_PARAM_PROFESSIONAL_VALUE = "professional";
@@ -205,6 +216,8 @@ export function parseAmenitiesQueryParam(
 export type SubCategory =
   | AmenitiesSubCategory
   | ClothingValues
+  | OtherValues
+  | HealthValues
   | FoodValues
   | ShelterValues;
 
@@ -230,6 +243,18 @@ export function getParsedSubCategory(
       subCategory === CLOTHING_PARAM_PROFESSIONAL_VALUE)
   ) {
     return subCategory as ClothingValues;
+  } else if (
+    category === CATEGORY_TO_ROUTE_MAP["other"] &&
+    (!subCategory ||
+      subCategory === OTHER_PARAM_LEGAL_VALUE ||
+      subCategory === OTHER_PARAM_EMPLOYMENT_VALUE)
+  ) {
+    return subCategory as OtherValues;
+  } else if (
+    category === CATEGORY_TO_ROUTE_MAP["health-care"] &&
+    (!subCategory || subCategory === HEALTH_PARAM_MENTAL_HEALTH)
+  ) {
+    return subCategory as HealthValues;
   } else if (
     category === CATEGORY_TO_ROUTE_MAP["food"] &&
     (!subCategory ||
@@ -286,6 +311,8 @@ export interface YourPeerParsedRequestParams {
   [OPEN_PARAM]: boolean | null;
   [SHELTER_PARAM]: ShelterValues | null;
   [FOOD_PARAM]: FoodValues | null;
+  [OTHER_PARAM]: OtherValues | null;
+  [HEALTH_PARAM]: HealthValues | null;
   [CLOTHING_PARAM]: ClothingValues | null;
   [SHOW_ADVANCED_FILTERS_PARAM]: boolean;
   [REQUIREMENT_PARAM]: ParsedRequirements;
@@ -437,6 +464,17 @@ export function parseRequest({
       searchParams[FOOD_PARAM] === FOOD_PARAM_PANTRY_VALUE
         ? (searchParams[FOOD_PARAM] as FoodValues)
         : (parsedSubCategory as FoodValues),
+    [OTHER_PARAM]:
+      (typeof searchParams[OTHER_PARAM] === "string" &&
+        searchParams[OTHER_PARAM] === OTHER_PARAM_LEGAL_VALUE) ||
+      searchParams[OTHER_PARAM] === OTHER_PARAM_EMPLOYMENT_VALUE
+        ? (searchParams[OTHER_PARAM] as OtherValues)
+        : (parsedSubCategory as OtherValues),
+    [HEALTH_PARAM]:
+      typeof searchParams[HEALTH_PARAM] === "string" &&
+      searchParams[HEALTH_PARAM] === HEALTH_PARAM_MENTAL_HEALTH
+        ? (searchParams[HEALTH_PARAM] as HealthValues)
+        : (parsedSubCategory as HealthValues),
     [CLOTHING_PARAM]:
       (typeof searchParams[CLOTHING_PARAM] === "string" &&
         searchParams[CLOTHING_PARAM] === CLOTHING_PARAM_CASUAL_VALUE) ||

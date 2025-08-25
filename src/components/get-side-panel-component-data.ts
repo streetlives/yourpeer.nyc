@@ -42,10 +42,10 @@ export async function getSidePanelComponentData({
   console.log(searchParams);
   const category = parseCategoryFromRoute(params.route);
   const subCategory = getParsedSubCategory(params);
-  // FIXME: the string composition in the next line is a bit ugly. I should clean up the type used in this interface
   const parsedSearchParams = parseRequest({ params, searchParams, cookies });
   console.log(parsedSearchParams);
   const taxonomiesResults = await getTaxonomies(category, parsedSearchParams);
+  console.log("taxonomyresults", taxonomiesResults);
   const { locations, numberOfPages, resultCount } =
     await await getFullLocationData({
       ...parsedSearchParams,

@@ -21,8 +21,13 @@ import {
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
   FullLocationData,
+  HEALTH_PARAM,
+  HEALTH_PARAM_MENTAL_HEALTH,
   LocationDetailData,
   NEARBY_SORT_BY_VALUE,
+  OTHER_PARAM,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
   Reply,
   ScheduleData,
   setIntersection,
@@ -614,39 +619,50 @@ export async function getTaxonomies(
           ? [r as Taxonomy].concat(r.children ? r.children : [])
           : [],
       );
+      switch (parsedSearchParams[HEALTH_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case HEALTH_PARAM_MENTAL_HEALTH:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Mental Health"),
+          );
+          break;
+      }
       break;
     case "other":
       //query = TAXONOMIES_BASE_SQL + " and (t.name = 'Other service' or t.parent_name = 'Other service')"
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
+      switch (parsedSearchParams[OTHER_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case OTHER_PARAM_LEGAL_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Legal Services"),
+          );
+          break;
+        case OTHER_PARAM_EMPLOYMENT_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Employment"),
+          );
+          break;
+      }
       break;
 
-    case "legal-services":
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
-      break;
-
-    case "mental-health":
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
-      break;
-
-    case "employment":
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
-      break;
     case "personal-care":
       // TODO: do this after we finish the other filters
 

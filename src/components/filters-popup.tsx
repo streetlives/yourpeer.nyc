@@ -12,6 +12,11 @@ import {
   LOCATION_ROUTE,
   SHOW_ADVANCED_FILTERS_PARAM,
   AGE_PARAM,
+  OtherValues,
+  OTHER_PARAM_LEGAL_VALUE,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  HEALTH_PARAM_MENTAL_HEALTH,
+  HealthValues,
 } from "./common";
 import React, { ChangeEvent } from "react";
 import classNames from "classnames";
@@ -21,6 +26,7 @@ import FilterHours from "./filter-hours";
 import FilterHousing from "./filter-housing";
 import {
   getUrlWithNewCategory,
+  getUrlWithNewCategoryAndSubcategory,
   getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
 } from "./navigation";
@@ -38,6 +44,7 @@ function CategoryFilterLabel({
   activeImgSrc,
   labelText,
   normalizedSearchParams,
+  subcategory,
 }: {
   labelCategory: CategoryNotNull;
   currentCategory: Category;
@@ -45,12 +52,45 @@ function CategoryFilterLabel({
   activeImgSrc: string;
   labelText: string;
   normalizedSearchParams?: Map<string, string>;
+  subcategory?: OtherValues | HealthValues | undefined;
 }) {
-  const isActive = labelCategory == currentCategory;
+  const pathname = usePathname() as string;
+  let isActive = !subcategory
+    ? labelCategory == currentCategory
+    : labelCategory == currentCategory && pathname.includes(subcategory);
+
+  if (
+    currentCategory === "other" &&
+    labelCategory === "other" &&
+    !subcategory
+  ) {
+    // "other" is active if currentCategory is "other" and no subcategory is selected
+    isActive =
+      pathname.includes(OTHER_PARAM_LEGAL_VALUE) ||
+      pathname.includes(OTHER_PARAM_EMPLOYMENT_VALUE)
+        ? false
+        : true;
+  }
+
+  if (
+    currentCategory === "health-care" &&
+    labelCategory === "health-care" &&
+    !subcategory
+  ) {
+    isActive = pathname.includes(HEALTH_PARAM_MENTAL_HEALTH) ? false : true;
+  }
 
   return (
     <Link
-      href={getUrlWithNewCategory(labelCategory, normalizedSearchParams)}
+      href={
+        subcategory !== undefined
+          ? getUrlWithNewCategoryAndSubcategory(
+              labelCategory,
+              subcategory,
+              normalizedSearchParams,
+            )
+          : getUrlWithNewCategory(labelCategory, normalizedSearchParams)
+      }
       aria-labelledby="service-type-0-label"
       aria-describedby="service-type-0-description-0 service-type-0-description-1"
       className={classNames(
@@ -235,29 +275,32 @@ export default function FiltersPopup({
             />
             <CategoryFilterLabel
               currentCategory={category}
-              labelCategory={"mental-health"}
+              labelCategory={"health-care"}
               activeImgSrc="/img/icons/services/mental-health-active.svg"
               imgSrc="/img/icons/services/mental-health-2.svg"
               labelText="Mental Health"
               normalizedSearchParams={normalizedSearchParams}
+              subcategory={HEALTH_PARAM_MENTAL_HEALTH}
             />
 
             <CategoryFilterLabel
               currentCategory={category}
-              labelCategory={"legal-services"}
+              labelCategory={"other"}
               activeImgSrc="/img/icons/services/legal-active.svg"
               imgSrc="/img/icons/services/legal-2.svg"
               labelText="Legal Services"
               normalizedSearchParams={normalizedSearchParams}
+              subcategory={OTHER_PARAM_LEGAL_VALUE}
             />
 
             <CategoryFilterLabel
               currentCategory={category}
-              labelCategory={"employment"}
+              labelCategory={"other"}
               activeImgSrc="/img/icons/services/employment-active.svg"
               imgSrc="/img/icons/services/employment-2.svg"
               labelText="Employment"
               normalizedSearchParams={normalizedSearchParams}
+              subcategory={OTHER_PARAM_EMPLOYMENT_VALUE}
             />
 
             <CategoryFilterLabel

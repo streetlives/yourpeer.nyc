@@ -64,6 +64,7 @@ export function SidePanelComponent({
           numberOfPages={numberOfPages}
           currentPage={parsedSearchParams[PAGE_PARAM]}
           category={category}
+          subCategory={subCategory}
           yourPeerLegacyLocationData={yourPeerLegacyLocationData}
         />
       </div>

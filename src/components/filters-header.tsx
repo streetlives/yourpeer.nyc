@@ -12,7 +12,12 @@ import {
   CATEGORY_ICON_SRC_MAP,
   CATEGORY_TO_ROUTE_MAP,
   getIconPath,
+  HEALTH_PARAM,
+  HEALTH_PARAM_MENTAL_HEALTH,
   LOCATION_ROUTE,
+  OTHER_PARAM,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
   SearchParams,
   SHOW_ADVANCED_FILTERS_PARAM,
   SubCategory,
@@ -25,6 +30,30 @@ import {
   getUrlWithoutFilterParameter,
 } from "./navigation";
 import { TranslatableText } from "./translatable-text";
+
+const otherCategories = [
+  {
+    category: HEALTH_PARAM_MENTAL_HEALTH,
+    parent_category: HEALTH_PARAM,
+    name: "Mental Health",
+    icon: "/img/icons/services/mental-health-small.svg",
+    href: "/health-care/mental-health",
+  },
+  {
+    category: OTHER_PARAM_LEGAL_VALUE,
+    parent_category: OTHER_PARAM,
+    name: "Legal Services",
+    icon: "/img/icons/services/legal-small.svg",
+    href: "/other-services/legal-services",
+  },
+  {
+    category: OTHER_PARAM_EMPLOYMENT_VALUE,
+    parent_category: OTHER_PARAM,
+    name: "Employment",
+    icon: "/img/icons/services/employment-small.svg",
+    href: "/other-services/employment",
+  },
+];
 
 export default function FiltersHeader({
   category: currentCategory,
@@ -56,38 +85,65 @@ export default function FiltersHeader({
     "location_filter",
   ];
   const linkHeight = { minHeight: "24px" };
+  console.log({ currentCategory, subCategory, searchParams });
   return (
     <div className="sticky top-0 w-full inset-x-0 bg-white z-10">
       <div className="flex gap-2 py-3 px-4  flex-nowrap lg:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide">
         {CATEGORIES.filter(
           (thisCategory) =>
-            currentCategory === thisCategory || currentCategory === null,
-        ).map((thisCategory) => (
-          <Link
-            key={thisCategory}
-            style={linkHeight}
-            className={classNames(
-              commonClassNames,
-              currentCategory === thisCategory
-                ? { "bg-primary": true }
-                : { "bg-neutral-100": true },
-            )}
-            href={getUrlWithNewCategory(
-              currentCategory === thisCategory ? null : thisCategory,
-              searchParams,
-            )}
-          >
-            <img
-              src={getIconPath(CATEGORY_ICON_SRC_MAP[thisCategory])}
-              className="w-4 h-4"
-              alt=""
-            />
-            <TranslatableText
-              text={CATEGORY_DESCRIPTION_MAP[thisCategory]}
-              className="leading-3 truncate"
-            />
-          </Link>
-        ))}
+            (currentCategory === thisCategory || currentCategory === null) &&
+            otherCategories.every((item) => item.category !== thisCategory),
+        ).map((thisCategory) =>
+          (thisCategory === "other" || thisCategory === "health-care") &&
+          subCategory !== null ? null : (
+            <Link
+              key={thisCategory}
+              style={linkHeight}
+              className={classNames(
+                commonClassNames,
+                currentCategory === thisCategory
+                  ? { "bg-primary": true }
+                  : { "bg-neutral-100": true },
+              )}
+              href={getUrlWithNewCategory(
+                currentCategory === thisCategory ? null : thisCategory,
+                searchParams,
+              )}
+            >
+              <img
+                src={getIconPath(CATEGORY_ICON_SRC_MAP[thisCategory])}
+                className="w-4 h-4"
+                alt=""
+              />
+              <TranslatableText
+                text={CATEGORY_DESCRIPTION_MAP[thisCategory]}
+                className="leading-3 truncate"
+              />
+            </Link>
+          ),
+        )}
+
+        {otherCategories
+          .filter(
+            (item) => subCategory === item.category || currentCategory === null,
+          )
+          .map((item, idx) => (
+            <Link
+              key={idx}
+              style={linkHeight}
+              className={classNames(
+                commonClassNames,
+                subCategory === item.category
+                  ? { "bg-primary": true }
+                  : { "bg-neutral-100": true },
+              )}
+              href={item.href}
+            >
+              <img src={item.icon} className="w-4 h-4" alt="" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+
         {searchParams[AGE_PARAM] ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
