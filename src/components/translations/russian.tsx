@@ -300,6 +300,7 @@ const translations: Record<string, string> = {
     "Социальные работники, доступное жилье и профессиональная подготовка",
   "Clothing Pantry Sign-Up": "Регистрация для раздачи одежды",
   "Constituent Services": "Услуги для избирателей",
+  Employment: "Трудоустройство",
 };
 
 export default translations;
