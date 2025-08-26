@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Category,
   CategoryNotNull,
   ROUTE_TO_CATEGORY_MAP,
   YourPeerLegacyLocationData,
@@ -77,6 +78,16 @@ export default function LocationServices({
   const previousCategory =
     ROUTE_TO_CATEGORY_MAP[previousParams?.params.route as string];
   const previousRoute = usePreviousRoute();
+  console.log("previousRoute", previousRoute, previousParams);
+  const previousSubcategory =
+    previousParams?.params.locationSlugOrPersonalCareSubCategory;
+
+  const previousSubcategoryAsCategory =
+    previousSubcategory === "mental-health" ||
+    previousSubcategory === "legal-services" ||
+    previousSubcategory === "employment"
+      ? (previousSubcategory as Category)
+      : undefined;
 
   return !location.closed ? (
     <div
@@ -84,9 +95,15 @@ export default function LocationServices({
       className="px-4 py-5 bg-neutral-50 flex flex-col gap-y-4"
     >
       {(previousCategory
-        ? [previousCategory].concat(
-            CATEGORIES.filter((category) => category !== previousCategory),
-          )
+        ? previousSubcategoryAsCategory
+          ? [previousSubcategoryAsCategory].concat(
+              CATEGORIES.filter(
+                (category) => category !== previousSubcategoryAsCategory,
+              ),
+            )
+          : [previousCategory].concat(
+              CATEGORIES.filter((category) => category !== previousCategory),
+            )
         : CATEGORIES
       ).map((serviceCategory) => {
         const servicesWrapper = getServicesWrapper(serviceCategory, location);
@@ -97,7 +114,14 @@ export default function LocationServices({
             serviceInfo={servicesWrapper}
             name={CATEGORY_DESCRIPTION_MAP[serviceCategory]}
             icon={CATEGORY_ICON_SRC_MAP[serviceCategory]}
-            startExpanded={serviceCategory === previousCategory}
+            startExpanded={
+              serviceCategory === previousSubcategory ||
+              (serviceCategory === previousCategory && !previousSubcategory) ||
+              (previousCategory &&
+                previousCategory === serviceCategory &&
+                serviceCategory !== "health-care" &&
+                serviceCategory !== "other")
+            }
           />
         ) : undefined;
       })}
