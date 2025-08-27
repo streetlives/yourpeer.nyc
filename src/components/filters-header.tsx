@@ -137,7 +137,11 @@ export default function FiltersHeader({
                   ? { "bg-primary": true }
                   : { "bg-neutral-100": true },
               )}
-              href={item.href}
+              href={
+                subCategory === item.category
+                  ? getUrlWithNewCategory(null, searchParams)
+                  : item.href
+              }
             >
               <img src={item.icon} className="w-4 h-4" alt="" />
               <span>{item.name}</span>
