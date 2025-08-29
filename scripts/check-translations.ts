@@ -123,7 +123,8 @@ walk(path.join(__dirname, "..", "src"));
 
 console.log("Translatable strings found:");
 collected.forEach((text) => {
-  console.log(` - ${text}`);
+  const translation = russian[text];
+  console.log(` - ${text} -> ${translation ?? "(missing)"}`);
 });
 
 const missing: string[] = [];
