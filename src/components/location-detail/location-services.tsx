@@ -111,14 +111,7 @@ export default function LocationServices({
             serviceInfo={servicesWrapper}
             name={CATEGORY_DESCRIPTION_MAP[serviceCategory]}
             icon={CATEGORY_ICON_SRC_MAP[serviceCategory]}
-            startExpanded={
-              serviceCategory === previousSubcategory ||
-              (serviceCategory === previousCategory && !previousSubcategory) ||
-              (previousCategory &&
-                previousCategory === serviceCategory &&
-                serviceCategory !== "health-care" &&
-                serviceCategory !== "other")
-            }
+            startExpanded={serviceCategory === previousCategoryAndSubcategoryAsCategory}
           />
         ) : undefined;
       })}
