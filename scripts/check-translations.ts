@@ -121,6 +121,11 @@ function analyzeFile(filePath: string) {
 
 walk(path.join(__dirname, "..", "src"));
 
+console.log("Translatable strings found:");
+collected.forEach((text) => {
+  console.log(` - ${text}`);
+});
+
 const missing: string[] = [];
 collected.forEach((text) => {
   if (!Object.prototype.hasOwnProperty.call(russian, text)) {
