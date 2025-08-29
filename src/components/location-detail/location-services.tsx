@@ -82,28 +82,25 @@ export default function LocationServices({
   const previousSubcategory =
     previousParams?.params.locationSlugOrPersonalCareSubCategory;
 
-  const previousSubcategoryAsCategory =
+  const previousCategoryAndSubcategoryAsCategory =
     previousSubcategory === "mental-health" ||
     previousSubcategory === "legal-services" ||
     previousSubcategory === "employment"
       ? (previousSubcategory as Category)
-      : undefined;
+      : previousCategory;
 
   return !location.closed ? (
     <div
       id="services"
       className="px-4 py-5 bg-neutral-50 flex flex-col gap-y-4"
     >
-      {(previousCategory
-        ? previousSubcategoryAsCategory
-          ? [previousSubcategoryAsCategory].concat(
-              CATEGORIES.filter(
-                (category) => category !== previousSubcategoryAsCategory,
-              ),
-            )
-          : [previousCategory].concat(
-              CATEGORIES.filter((category) => category !== previousCategory),
-            )
+      {(previousCategoryAndSubcategoryAsCategory
+        ? [previousCategoryAndSubcategoryAsCategory].concat(
+            CATEGORIES.filter(
+              (category) =>
+                category !== previousCategoryAndSubcategoryAsCategory,
+            ),
+          )
         : CATEGORIES
       ).map((serviceCategory) => {
         const servicesWrapper = getServicesWrapper(serviceCategory, location);
