@@ -319,6 +319,9 @@ function filter_services_by_name(
         age_eligibilities = [];
         for (let elig of service.Eligibilities) {
           if (elig.EligibilityParameter.name === "age") {
+            if (!elig.eligible_values.length) {
+              continue;
+            }
             for (let elig_value of elig.eligible_values) {
               age_eligibilities.push(elig_value);
             }

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Category,
   CategoryNotNull,
   ROUTE_TO_CATEGORY_MAP,
   YourPeerLegacyLocationData,
@@ -77,15 +78,28 @@ export default function LocationServices({
   const previousCategory =
     ROUTE_TO_CATEGORY_MAP[previousParams?.params.route as string];
   const previousRoute = usePreviousRoute();
+  console.log("previousRoute", previousRoute, previousParams);
+  const previousSubcategory =
+    previousParams?.params.locationSlugOrPersonalCareSubCategory;
+
+  const previousCategoryAndSubcategoryAsCategory =
+    previousSubcategory === "mental-health" ||
+    previousSubcategory === "legal-services" ||
+    previousSubcategory === "employment"
+      ? (previousSubcategory as Category)
+      : previousCategory;
 
   return !location.closed ? (
     <div
       id="services"
       className="px-4 py-5 bg-neutral-50 flex flex-col gap-y-4"
     >
-      {(previousCategory
-        ? [previousCategory].concat(
-            CATEGORIES.filter((category) => category !== previousCategory),
+      {(previousCategoryAndSubcategoryAsCategory
+        ? [previousCategoryAndSubcategoryAsCategory].concat(
+            CATEGORIES.filter(
+              (category) =>
+                category !== previousCategoryAndSubcategoryAsCategory,
+            ),
           )
         : CATEGORIES
       ).map((serviceCategory) => {
@@ -97,7 +111,9 @@ export default function LocationServices({
             serviceInfo={servicesWrapper}
             name={CATEGORY_DESCRIPTION_MAP[serviceCategory]}
             icon={CATEGORY_ICON_SRC_MAP[serviceCategory]}
-            startExpanded={serviceCategory === previousCategory}
+            startExpanded={
+              serviceCategory === previousCategoryAndSubcategoryAsCategory
+            }
           />
         ) : undefined;
       })}
