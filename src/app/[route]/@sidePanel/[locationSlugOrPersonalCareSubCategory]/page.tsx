@@ -18,7 +18,6 @@ import {
 } from "../../../../components/streetlives-api-service";
 import { SidePanelComponent } from "../../../../components/side-panel-component";
 import LocationDetailComponent from "../../../../components/location-detail-component";
-import { usePreviousParams } from "@/components/use-previous-params";
 import { getSidePanelComponentData } from "@/components/get-side-panel-component-data";
 import {
   isOnLocationDetailPage,
@@ -36,7 +35,6 @@ export default async function LocationDetail({
   params: SubRouteParams;
   searchParams: SearchParams;
 }) {
-  const previousParams = usePreviousParams();
   try {
     if (!isOnLocationDetailPage(params)) {
       // validate
