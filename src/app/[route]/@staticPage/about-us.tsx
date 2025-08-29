@@ -89,7 +89,7 @@ export function AboutUsPage() {
                   <TranslatableText text="(they/them)" />
                 </h3>
                 <div className="text-base text-gray-800 text-center">
-                  <TranslatableText text="I am passionate about helping others and participate in NYC DYCD’s plans to eradicate homelessness." />
+                  <TranslatableText text="I am passionate about helping others and participating in NYC DYCD’s plans to eradicate homelessness." />
                 </div>
               </div>
             </SwiperSlide>
