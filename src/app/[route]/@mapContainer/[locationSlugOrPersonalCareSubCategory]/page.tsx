@@ -16,7 +16,7 @@ import {
   fetchLocationsDetailData,
 } from "../../../../components/streetlives-api-service";
 import { getMapContainerData } from "../../../../components/map-container-component";
-import { usePreviousParams } from "@/components/use-previous-params";
+import { getPreviousParams } from "@/components/use-previous-params";
 import {
   isOnLocationDetailPage,
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet,
@@ -30,7 +30,7 @@ export default async function MapDetail({
   searchParams: SearchParams;
   params: SubRouteParams;
 }) {
-  const previousParams = usePreviousParams();
+  const previousParams = getPreviousParams();
   try {
     if (!isOnLocationDetailPage(params)) {
       // validate

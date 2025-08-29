@@ -10,7 +10,7 @@ export interface PreviousParams {
   params: RouteParams;
 }
 
-export function usePreviousParams(): PreviousParams | null {
+export function getPreviousParams(): PreviousParams | null {
   const cookie = cookies().get(LAST_SET_PARAMS_COOKIE_NAME);
   console.log("cookie", cookie);
   if (cookie && cookie.value) {
