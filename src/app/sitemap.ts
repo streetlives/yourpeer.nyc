@@ -23,10 +23,19 @@ const DEFAULT_SITEMAP_PROPERTIES = {
 } as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const simplifiedLocationData = await getSimplifiedLocationData({
-    taxonomies: null,
-    taxonomySpecificAttributes: null,
-  });
+  let simplifiedLocationData: { slug: string }[] = [];
+  try {
+    simplifiedLocationData = await getSimplifiedLocationData({
+      taxonomies: null,
+      taxonomySpecificAttributes: null,
+    });
+  } catch (err) {
+    console.error("Failed to load location data for sitemap", err);
+  }
+
+  const locationEntries = Array.isArray(simplifiedLocationData)
+    ? simplifiedLocationData
+    : [];
 
   return [
     {
@@ -49,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     )
     .concat(
-      simplifiedLocationData.map((d) => ({
+      locationEntries.map((d) => ({
         url: `${ROOT_DOMAIN}/${LOCATION_ROUTE}/${d.slug}`,
         ...DEFAULT_SITEMAP_PROPERTIES,
       })),

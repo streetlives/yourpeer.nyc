@@ -10,7 +10,9 @@
     "check-types": "tsc --noEmit",
     "format": "prettier . --write",
     "check-format": "prettier --check .",
-    "all-checks": "npm run check-format && npm run check-types && npm run lint"
+    "all-checks": "npm run check-format && npm run check-types && npm run lint",
+    "chaos-monkey": "tsx scripts/chaos-monkey.ts",
+    "test": "npm run chaos-monkey"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
@@ -73,6 +75,7 @@
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
     "prettier": "^3.3.2",
+    "puppeteer": "^24.17.1",
     "tailwind-scrollbar": "^3.1.0",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.4.3",
