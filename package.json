@@ -10,7 +10,8 @@
     "check-types": "tsc --noEmit",
     "format": "prettier . --write",
     "check-format": "prettier --check .",
-    "all-checks": "npm run check-format && npm run check-types && npm run lint"
+    "all-checks": "npm run check-format && npm run check-types && npm run lint",
+    "check-translations": "tsx scripts/check-translations.ts"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
