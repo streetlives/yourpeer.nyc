@@ -2,8 +2,8 @@
 const translations: Record<string, string> = {
   "Free support services validated by your peers":
     "Бесплатные социальные услуги, проверенные людьми, прошедшими через сложные жизненные ситуации",
-  "Search through 2600+ free support services across NYC":
-    "Вы найдете более 2600+ сервисов для любых нужд по всему Нью-Йорку на нашей платформе.",
+  "Search through 2500+ free support services across NYC":
+    "Вы найдете более 2500+ сервисов для любых нужд по всему Нью-Йорку на нашей платформе.",
   "Explore services": "Ознакомьтесь с услугами",
   Home: "Домашняя страница",
   "Shelter & Housing": "Приюты для бездомных и соц. жилье",
@@ -16,7 +16,7 @@ const translations: Record<string, string> = {
   Other: "Другие услуги",
   "Other Services": "Другие услуги",
   "YourPeer offers hope": "YourPeer дает мне надежду.",
-  "Usually, if I need something, I ask. But this is faster, easier, better.":
+  "Usually if I need something, I ask. But this is faster, easier, better.":
     "Обычно, если мне что-то нужно, я спрашиваю у знакомых. Но это быстрее, проще, лучше.",
   "I know this information is good. It’s from people like me.":
     "Я знаю, что это качественный ресурс. Публицисты, работающие на YourPeer, — такие же люди, как и я.",
@@ -41,16 +41,16 @@ const translations: Record<string, string> = {
   "All locations": "Все филиалы",
   Social: "Соцсети",
   "Quick Exit": "Быстрый выход",
-  "Thank you for your interest in supporting us. We accept donations through our Open Collective page.":
+  "Thank you for your interest in supporting us. We accept donations through our page on Open Collective.":
     "Благодарим Вас за интерес к нашей работе. Мы принимаем пожертвования через нашу страницу на Open Collective.",
-  "Each $50 covers an hour's stipend for unhoused people or those with lived expertise to participate in Streetlives' research or product testing.":
-    "Каждые 50 долларов могут пойти на почасовую стипендию для людей, которые были бездомными или испытывают жилищные проблемы в настоящее время, за их участие в исследовании Streetlives или тестировании нашего продукта.",
+  "Each $30 covers an hour's stipend for unhoused people or people with lived expertise to participate in Streetlives research or product testing.":
+    "Каждые 30 долларов могут пойти на почасовую стипендию для людей, которые были бездомными или испытывают жилищные проблемы в настоящее время, за их участие в исследовании Streetlives или тестировании нашего продукта.",
   "Donate Now": "Пожертвуйте сейчас",
   "Thank you for your interest in YourPeer.":
     "Благодарим Вас за интерес к YourPeer.",
   "If you have general questions or feedback for us, please email us at":
     "Если у Вас есть вопросы или пожелания, пожалуйста, отправьте письмо на",
-  "If are an organization or individual interested in working with us please email us at":
+  "If you are an organization or individual interested in working with us, please email us at":
     "Если Вы представитель организации или частное лицо и заинтересованы в сотрудничестве, пожалуйста, напишите по адресу",
   "YourPeer is a Streetlives product. Streetlives is a US nonprofit based in New York City.":
     " YourPeer - это продукт Streetlives - некоммерческая организация в США, базирующаяся в Нью-Йорке.",

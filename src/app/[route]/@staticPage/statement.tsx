@@ -30,9 +30,9 @@ export function Statement() {
           </h1>
           <div className="text-base prose prose-a:text-blue">
             <p>
-              At Streetlives, we believe everyone deserves access to resources
-              that support their well-being, regardless of background or
-              immigration status.
+              At Streetlives, we believe everyone should have access to
+              resources that support their well-being, no matter their
+              background or immigration status.
             </p>
 
             <h2 className="text-xl font-semibold mt-6">Who We Are</h2>
@@ -56,7 +56,7 @@ export function Statement() {
               <li>
                 <span>
                   Our peer-powered platform with up-to-date information on
-                  social services in New York City.
+                  social services in New York City, including:
                 </span>
                 <ul className="list-[circle] list-inside ml-4">
                   <li>Clothing</li>
@@ -78,7 +78,8 @@ export function Statement() {
                 expect.
               </li>
               <li>
-                We prioritize your privacy by never collecting personal data.
+                We prioritize your privacy by never collecting personal data
+                without your permission.
               </li>
               <li>
                 We offer language support for non-native English speakers.
@@ -98,8 +99,8 @@ export function Statement() {
                 may face ICE encounters.
               </li>
               <li>
-                Despite these challenges, our dedication to serving you remains
-                unwavering.
+                Despite these challenges, our commitment to serving you stays
+                strong.
               </li>
             </ul>
 
@@ -122,7 +123,8 @@ export function Statement() {
             </ul>
 
             <p className="mt-4 font-semibold">
-              We’re here to help you find the resources you need—now and always.
+              We&apos;re here to help you find the resources you need—now and
+              always.
             </p>
           </div>
         </div>
@@ -142,9 +144,9 @@ export function Statement() {
             <p className="text-center text-gray-800 text-sm px-2 mb-5">
               People rely on social services for many reasons. Our information
               specialists all have lived experiences navigating the support
-              system and apply their knowledge collecting the information you
-              find here. We’re building YourPeer so it&apos;s easier for you to
-              find the right service.
+              system and apply their knowledge to collect the information you
+              find here. We&apos;re building YourPeer so it&apos;s easier for
+              you to find the right support.
             </p>
             <div>
               <a href={`/${LOCATION_ROUTE}`} className="primary-button">
