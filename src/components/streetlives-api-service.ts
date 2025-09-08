@@ -47,7 +47,7 @@ import {
 import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -763,7 +763,7 @@ export async function fetchLocationsDetailData(
     const redirect_data = await redirect_res.json();
 
     if (redirect_res.status && redirect_data.slug) {
-      redirect(`/locations/${redirect_data.slug}`);
+      permanentRedirect(`/locations/${redirect_data.slug}`);
     }
 
     if (response.status === 404) {
