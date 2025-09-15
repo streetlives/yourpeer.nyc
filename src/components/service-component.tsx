@@ -111,7 +111,7 @@ export default function Service({
       s =
         targetLanguage === "ru"
           ? `Для доступа, Вам должно быть не более, чем ${ageReq["age_max"]}`
-          : `'Under ${ageReq["age_max"]}'`;
+          : `Under ${ageReq["age_max"]}`;
     }
 
     return s;
