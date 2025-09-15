@@ -1,6 +1,6 @@
 // TODO: populate this
 const translations: Record<string, string> = {
-  "Home": "Accueil"
+  Home: "Accueil",
 };
 
 export default translations;
