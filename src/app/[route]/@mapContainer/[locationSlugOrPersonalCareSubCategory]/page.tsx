@@ -16,7 +16,7 @@ import {
   fetchLocationsDetailData,
 } from "../../../../components/streetlives-api-service";
 import { getMapContainerData } from "../../../../components/map-container-component";
-import { getPreviousParams as getPreviousParams } from "@/components/get-previous-params";
+import { getPreviousParams } from "@/components/get-previous-params";
 import {
   isOnLocationDetailPage,
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet,
