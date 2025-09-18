@@ -12,7 +12,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run check-types
 
   check-format:
@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run check-format
 
   check-lint:
@@ -36,5 +36,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-      - run: npm install
+      - run: npm install --legacy-peer-deps
       - run: npm run lint
