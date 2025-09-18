@@ -1,7 +1,7 @@
 "use client";
 
 import { useCookies } from "next-client-cookies";
-import { PreviousParams } from "./use-previous-params";
+import { PreviousParams } from "./get-previous-params";
 import { LAST_SET_PARAMS_COOKIE_NAME } from "./common";
 
 export function usePreviousParamsOnClient(): PreviousParams | null {

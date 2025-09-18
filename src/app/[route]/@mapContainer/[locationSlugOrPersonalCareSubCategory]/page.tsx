@@ -16,21 +16,21 @@ import {
   fetchLocationsDetailData,
 } from "../../../../components/streetlives-api-service";
 import { getMapContainerData } from "../../../../components/map-container-component";
-import { usePreviousParams } from "@/components/use-previous-params";
+import { getPreviousParams as getPreviousParams } from "@/components/get-previous-params";
 import {
   isOnLocationDetailPage,
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet,
 } from "@/components/navigation";
 import { cookies } from "next/headers";
 
-export default async function MapDetail({
-  searchParams,
-  params,
-}: {
-  searchParams: SearchParams;
-  params: SubRouteParams;
+export default async function MapDetail(props: {
+  searchParams: Promise<SearchParams>;
+  params: Promise<SubRouteParams>;
 }) {
-  const previousParams = usePreviousParams();
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const previousParams = await getPreviousParams();
+
   try {
     if (!isOnLocationDetailPage(params)) {
       // validate
@@ -38,7 +38,7 @@ export default async function MapDetail({
       redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
         searchParams,
         params,
-        cookies: cookies(),
+        cookies: await cookies(),
       });
       return (
         <LocationsMap

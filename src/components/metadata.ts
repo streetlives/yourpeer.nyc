@@ -33,18 +33,27 @@ import {
 import { fetchLocationsDetailData } from "./streetlives-api-service";
 
 type Props = {
-  params: RouteParams | SubRouteParams;
-  searchParams: { [key: string]: string | string[] | undefined };
+  params:
+    | RouteParams
+    | SubRouteParams
+    | Promise<RouteParams | SubRouteParams>;
+  searchParams:
+    | { [key: string]: string | string[] | undefined }
+    | Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 function attachSuffix(s: string): string {
   return `${s} | YourPeer`;
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const paramsMaybe = (props as any).params;
+  const searchParamsMaybe = (props as any).searchParams;
+  const [params, searchParams] = await Promise.all([
+    paramsMaybe,
+    searchParamsMaybe,
+  ]);
+
   let title, description;
   let subRouteParams = params as SubRouteParams;
   console.log(
