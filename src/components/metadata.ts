@@ -33,10 +33,7 @@ import {
 import { fetchLocationsDetailData } from "./streetlives-api-service";
 
 type Props = {
-  params:
-    | RouteParams
-    | SubRouteParams
-    | Promise<RouteParams | SubRouteParams>;
+  params: RouteParams | SubRouteParams | Promise<RouteParams | SubRouteParams>;
   searchParams:
     | { [key: string]: string | string[] | undefined }
     | Promise<{ [key: string]: string | string[] | undefined }>;
