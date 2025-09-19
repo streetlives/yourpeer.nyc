@@ -176,12 +176,12 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
                                   : undefined}
                         </h2>
                       ) : (
-                        <a href="/" translate="no" className="text-[15]">
+                        <Link href="/" translate="no" className="text-[15]">
                           <span className="text-black font-[900]">
                             YourPeer
                           </span>
                           <span>NYC</span>
-                        </a>
+                        </Link>
                       )}
                     </div>
                     <div className="flex items-center space-x-3">

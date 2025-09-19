@@ -4,7 +4,7 @@ import {
   SEARCH_PARAM,
   SearchParams,
 } from "./common";
-import { PreviousParams } from "./use-previous-params";
+import { PreviousParams } from "./get-previous-params";
 
 function serializeToQueryParams(searchParams: SearchParams): string {
   return Object.entries(searchParams)

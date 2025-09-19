@@ -16,17 +16,16 @@ import { getMapContainerData } from "../../../components/map-container-component
 import { cookies } from "next/headers";
 import { redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet } from "@/components/navigation";
 
-export default async function MapContainerPage({
-  searchParams,
-  params,
-}: {
-  searchParams: SearchParams;
-  params: RouteParams;
+export default async function MapContainerPage(props: {
+  searchParams: Promise<SearchParams>;
+  params: Promise<RouteParams>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
     searchParams,
     params,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   return RESOURCE_ROUTES.includes(params.route) ? (
     <LocationsMap

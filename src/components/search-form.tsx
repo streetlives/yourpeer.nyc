@@ -24,7 +24,7 @@ import {
 } from "./navigation";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
-import { PreviousParams } from "./use-previous-params";
+import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
 
 function SearchPanel({

@@ -10,9 +10,10 @@ export interface PreviousParams {
   params: RouteParams;
 }
 
-export function usePreviousParams(): PreviousParams | null {
-  const cookie = cookies().get(LAST_SET_PARAMS_COOKIE_NAME);
-  console.log("cookie", cookie);
+export async function getPreviousParams(): Promise<PreviousParams | null> {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(LAST_SET_PARAMS_COOKIE_NAME);
+
   if (cookie && cookie.value) {
     return JSON.parse(cookie.value) as unknown as PreviousParams;
   } else {

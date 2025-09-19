@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,

@@ -19,17 +19,16 @@ import { cookies } from "next/headers";
 
 export { generateMetadata } from "../../../components/metadata";
 
-export default async function SidePanelPage({
-  searchParams,
-  params,
-}: {
-  searchParams: SearchParams;
-  params: SubRouteParams;
+export default async function SidePanelPage(props: {
+  searchParams: Promise<SearchParams>;
+  params: Promise<SubRouteParams>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
     searchParams,
     params,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   return RESOURCE_ROUTES.includes(params.route) ? (
     <SidePanelComponent

@@ -5,6 +5,7 @@
 // https://opensource.org/licenses/MIT.
 
 "use client";
+import { use } from "react";
 
 import {
   ABOUT_US_ROUTE,
@@ -25,11 +26,13 @@ import { notFound } from "next/navigation";
 import { LoginPage } from "./login";
 import { Terms } from "./terms";
 
-export default function StaticPage({
-  params: { route },
-}: {
-  params: { route: string };
+export default function StaticPage(props: {
+  params: Promise<{ route: string }>;
 }) {
+  const params = use(props.params);
+
+  const { route } = params;
+
   const companyRoute: CompanyRoute = route as CompanyRoute;
   switch (companyRoute) {
     case ABOUT_US_ROUTE:

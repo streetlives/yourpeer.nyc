@@ -26,6 +26,7 @@ import { getUrlWithNewCategory } from "./navigation";
 import { SortDropdown } from "./sort-dropdown";
 import { TranslatableText } from "./translatable-text";
 import { useGTranslateCookie } from "./use-translated-text-hook";
+import React from "react";
 
 function NoLocationsFound({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -93,10 +94,10 @@ export function ServicesList({
     .filter((name) => name !== null);
 
   return serviceNames.map((name, i) => (
-    <>
+    <React.Fragment key={i}>
       <TranslatableText key={name} text={name} expectTranslation={false} />
       {i < serviceNames.length - 1 ? <span> • </span> : undefined}
-    </>
+    </React.Fragment>
   ));
 }
 
