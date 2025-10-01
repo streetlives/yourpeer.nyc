@@ -133,7 +133,7 @@ export function ReviewForm({
           onSubmit={handleSubmit(() => {
             // for now disable recaptcha checking since the captcha key is working will come back to it later
             // if (token) {
-              setIsConfirm(true);
+            setIsConfirm(true);
             // }
           })}
           className="bg-white h-full flex flex-col relative pt-2 overflow-y-hidden"
