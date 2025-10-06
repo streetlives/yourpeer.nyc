@@ -148,11 +148,7 @@ export function ReviewForm({
                   improve. Your feedback may be reviewed. For more information,
                   see our&nbsp;
                 </span>
-                <a
-                  target="_blank"
-                  className="link"
-                  href="https://docs.google.com/document/d/e/2PACX-1vTi6AR2Q-PpTNMLTimvdVg8yDuLJ5DURswQ-heCToXj3OwuqNXyt-LIBs-By9znC2A_0HxqlO8vQ_DJ/pub"
-                >
+                <a target="_blank" className="link" href="/comment-guidelines">
                   feedback guidelines
                 </a>
               </p>
