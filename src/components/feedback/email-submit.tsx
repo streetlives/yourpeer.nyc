@@ -116,7 +116,7 @@ export default function EmailSubmit({
                   >
                     Enter your email to get updates related to your feedback. It
                     is OPTIONAL to provide your email. Use the Skip button below
-                    if you don't wish to.
+                    if you don&apos;t wish to.
                   </label>
 
                   <input
