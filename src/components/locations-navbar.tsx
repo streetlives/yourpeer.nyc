@@ -11,6 +11,7 @@ import SearchForm from "./search-form";
 import { useState } from "react";
 import { GTranslateSelect } from "./gtranslate-select";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
+import Link from "next/link";
 
 export const LocationsNavbarResourceRoutes = () => {
   const [open, setOpen] = useState(false);
@@ -38,14 +39,14 @@ export const LocationsNavbarResourceRoutes = () => {
                 />
               </svg>
             </button>
-            <a
+            <Link
               href="/"
               translate="no"
               className="text-sm ml-3 leading-3 hidden sm:inline-block"
             >
               <span className="text-black font-extrabold">YourPeer</span>
               <span>NYC</span>
-            </a>
+            </Link>
           </div>
           <div id="search_container" className="flex-grow md:flex-none">
             <div className="flex items-center relative rounded py-1 px-2 sm:px-3 md:p-3 border border-gray-300 w-full sm:w-64 md:w-96">
@@ -103,10 +104,10 @@ export const LocationsNavbarCompanyRoutes = () => {
                 />
               </svg>
             </button>
-            <a href="/" translate="no" className="text-[15px]">
+            <Link href="/" translate="no" className="text-[15px]">
               <span className="text-black font-extrabold ">YourPeer</span>
               <span>NYC</span>
-            </a>
+            </Link>
           </div>
           <div className="flex items-center space-x-2">
             <GTranslateSelect />

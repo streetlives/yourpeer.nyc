@@ -4,21 +4,6 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import { notFound } from "next/navigation";
-import {
-  getParsedSubCategory,
-  SearchParams,
-  SubRouteParams,
-} from "../../../../components/common";
-import {
-  Error404Response,
-  fetchComments,
-  fetchLocationsDetailData,
-  map_gogetta_to_yourpeer,
-} from "../../../../components/streetlives-api-service";
-import { SidePanelComponent } from "../../../../components/side-panel-component";
-import LocationDetailComponent from "../../../../components/location-detail-component";
-import { usePreviousParams } from "@/components/use-previous-params";
 import { getSidePanelComponentData } from "@/components/get-side-panel-component-data";
 import {
   isOnLocationDetailPage,
@@ -26,17 +11,30 @@ import {
 } from "@/components/navigation";
 import { getCookies } from "next-client-cookies/server";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
+import {
+  getParsedSubCategory,
+  SearchParams,
+  SubRouteParams,
+} from "../../../../components/common";
+import LocationDetailComponent from "../../../../components/location-detail-component";
+import { SidePanelComponent } from "../../../../components/side-panel-component";
+import {
+  Error404Response,
+  fetchComments,
+  fetchLocationsDetailData,
+  map_gogetta_to_yourpeer,
+} from "../../../../components/streetlives-api-service";
 
 export { generateMetadata } from "../../../../components/metadata";
 
-export default async function LocationDetail({
-  params,
-  searchParams,
-}: {
-  params: SubRouteParams;
-  searchParams: SearchParams;
+export default async function LocationDetail(props: {
+  params: Promise<SubRouteParams>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const previousParams = usePreviousParams();
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+
   try {
     if (!isOnLocationDetailPage(params)) {
       // validate
@@ -44,7 +42,7 @@ export default async function LocationDetail({
       redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
         searchParams,
         params,
-        cookies: cookies(),
+        cookies: await cookies(),
       });
       return (
         <SidePanelComponent

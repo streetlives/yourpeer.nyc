@@ -5,7 +5,7 @@
 import { useCookies } from "next-client-cookies";
 import React, { createContext, useState } from "react";
 import { Position } from "./common";
-import { PreviousParams } from "./use-previous-params";
+import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;

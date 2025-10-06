@@ -7,6 +7,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
 import "@aws-amplify/ui-react/styles.css";
@@ -62,10 +63,10 @@ export default function Navbar({ background = true }: { background: boolean }) {
                 />
               </svg>
             </button>
-            <a href="/" translate="no" className="text-[15px] pt-[2px]">
+            <Link href="/" translate="no" className="text-[15px] pt-[2px]">
               <span className="text-black font-extrabold ">YourPeer</span>
               <span>NYC</span>
-            </a>
+            </Link>
           </div>
           <div className="flex items-center space-x-2">
             <GTranslateSelect />
