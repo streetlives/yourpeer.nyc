@@ -112,9 +112,11 @@ export default function EmailSubmit({
                 <div className="mt-6">
                   <label
                     htmlFor="email"
-                    className="mb-2 text-black font-medium text-center block w-full"
+                    className="mb-2 text-black text-sm text-center block w-full"
                   >
-                    Enter your email to get updates related to your feedback.
+                    Enter your email to get updates related to your feedback. It
+                    is OPTIONAL to provide your email. Use the Skip button below
+                    if you don't wish to.
                   </label>
 
                   <input
