@@ -75,7 +75,7 @@ export default function ReplyForm({
   };
 
   useEffect(() => {
-    scrollWithOffset(200);
+    scrollWithOffset(100);
   }, []);
 
   return isSuccess ? (

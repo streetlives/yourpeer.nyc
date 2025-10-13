@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import ReplyItem from "@/components/feedback/reply-item";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChatBubbleLeftEllipsisIcon,
@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import Spinner from "@/components/spinner";
 import ReportComment from "@/components/feedback/report-comment";
 import { clsx } from "clsx";
+import { useReply } from "@/context/ReplyContext";
 
 export default function ReviewListItem({
   comment,
@@ -52,9 +53,14 @@ export default function ReviewListItem({
   orgName: string;
 }) {
   const [isReplying, setIsReplying] = useState(false);
+  const replyContext = useReply()
   const [isReporting, setIsReporting] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    replyContext.setIsReplying(isReplying)
+  }, [isReplying])
 
   const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),
