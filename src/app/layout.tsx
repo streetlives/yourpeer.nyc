@@ -12,6 +12,7 @@ import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
 import { Toaster } from "sonner";
 import QueryClientProvider from "@/app/QueryClientProvider";
+import { ReplyProvider } from "@/context/ReplyContext";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
