@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef } from "react";
 
-type ScrollContextType = React.RefObject<HTMLUListElement> | null;
+type ScrollContextType = React.RefObject<HTMLUListElement | null> | null;
 
 const ScrollContext = createContext<ScrollContextType>(null);
 
@@ -18,4 +18,5 @@ export const ScrollProvider: React.FC<{ children: React.ReactNode }> = ({
 
 // Custom hook for consuming the scroll container ref
 export const useScrollContainer =
-  (): React.RefObject<HTMLUListElement> | null => useContext(ScrollContext);
+  (): React.RefObject<HTMLUListElement | null> | null =>
+    useContext(ScrollContext);
