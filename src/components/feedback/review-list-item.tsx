@@ -53,14 +53,14 @@ export default function ReviewListItem({
   orgName: string;
 }) {
   const [isReplying, setIsReplying] = useState(false);
-  const replyContext = useReply()
+  const replyContext = useReply();
   const [isReporting, setIsReporting] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    replyContext.setIsReplying(isReplying)
-  }, [isReplying])
+    replyContext.setIsReplying(isReplying);
+  }, [isReplying]);
 
   const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),

@@ -59,7 +59,7 @@ export default function LocationDetailComponent({
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
-  const {isReplying} = useReply()
+  const { isReplying } = useReply();
   const router = useRouter();
   const previousRoute = usePreviousRoute();
 
