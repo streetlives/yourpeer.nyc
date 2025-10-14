@@ -7,7 +7,7 @@
 import {
   RESOURCE_ROUTES,
   SearchParams,
-  SubRouteParams,
+  RouteParams,
 } from "../../../components/common";
 
 import { notFound } from "next/navigation";
@@ -17,11 +17,9 @@ import { getCookies } from "next-client-cookies/server";
 import { redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet } from "@/components/navigation";
 import { cookies } from "next/headers";
 
-export { generateMetadata } from "../../../components/metadata";
-
 export default async function SidePanelPage(props: {
   searchParams: Promise<SearchParams>;
-  params: Promise<SubRouteParams>;
+  params: Promise<RouteParams>;
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;

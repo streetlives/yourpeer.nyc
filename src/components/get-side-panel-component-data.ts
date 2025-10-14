@@ -35,13 +35,17 @@ export async function getSidePanelComponentData({
   cookies,
 }: {
   searchParams: SearchParams;
-  params: SubRouteParams;
+  params: RouteParams | SubRouteParams;
   cookies: Cookies;
 }): Promise<SidePanelComponentData> {
   console.log(params);
   console.log(searchParams);
   const category = parseCategoryFromRoute(params.route);
-  const subCategory = getParsedSubCategory(params);
+  const subCategory =
+    "locationSlugOrPersonalCareSubCategory" in params &&
+    params.locationSlugOrPersonalCareSubCategory
+      ? getParsedSubCategory(params as SubRouteParams)
+      : null;
   const parsedSearchParams = parseRequest({ params, searchParams, cookies });
   console.log(parsedSearchParams);
   const taxonomiesResults = await getTaxonomies(category, parsedSearchParams);
