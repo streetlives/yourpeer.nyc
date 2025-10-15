@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useAdminUser, useStuffUser } from "@/components/use-user-role";
 import { Authenticator } from "@aws-amplify/ui-react";
+import { ScrollProvider, useScrollContainer } from "@/context/ScrollContext";
 
 export default function ReviewListWrapper({
   locationId,
@@ -20,12 +21,14 @@ export default function ReviewListWrapper({
 }) {
   return (
     <Authenticator.Provider>
-      <ReviewList
-        locationId={locationId}
-        organizationId={organizationId}
-        location_services={location_services}
-        orgName={orgName}
-      />
+      <ScrollProvider>
+        <ReviewList
+          locationId={locationId}
+          organizationId={organizationId}
+          location_services={location_services}
+          orgName={orgName}
+        />
+      </ScrollProvider>
     </Authenticator.Provider>
   );
 }
@@ -43,6 +46,7 @@ export function ReviewList({
 }) {
   const { isStuffUser } = useStuffUser(organizationId);
   const { isAdmin } = useAdminUser();
+  const containerRef = useScrollContainer();
 
   const { data, status, error } = useQuery({
     queryKey: ["comments"],
@@ -64,7 +68,10 @@ export function ReviewList({
   ) : (
     <>
       {data?.length ? (
-        <ul className="flex flex-col space-y-2 h-full overflow-y-auto pb-12">
+        <ul
+          ref={containerRef}
+          className="flex flex-col space-y-2 h-full overflow-y-auto pb-12"
+        >
           {data.map((comment) => (
             <ReviewListItem
               key={comment.id}
