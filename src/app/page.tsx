@@ -429,7 +429,7 @@ export default async function HomePage() {
             <div className="flex items-center justify-center">
               <img
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-19.png"
+                src="/img/partners-logo/covenant-house.png"
                 alt="Logo"
               />
             </div>
