@@ -38,7 +38,6 @@ const observer = new MutationObserver(() => {
   setNoTranslateOnTitle();
 });
 
-
 export default function GTranslateWrapper() {
   const GOOGLE_TRANSLATE_ELEMENT_ID = "google_translate_element";
   const SCRIPT_SRC =
@@ -60,7 +59,7 @@ export default function GTranslateWrapper() {
       setNoTranslateOnTitle();
 
       // Observe the <head> element for child list changes (like a new <title>)
-      const headElement = document.querySelector('head');
+      const headElement = document.querySelector("head");
       if (headElement) {
         observer.observe(headElement, { childList: true });
       }
