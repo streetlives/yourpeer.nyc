@@ -53,6 +53,17 @@ export default function GTranslateWrapper() {
       // do not translate the title, in order to prevent Google Translate from breaking the page
       setNoTranslateOnTitle();
 
+      // Set up a Mutation Observer to watch for changes in the head
+      const observer = new MutationObserver(() => {
+        setNoTranslateOnTitle();
+      });
+
+      // Observe the <head> element for child list changes (like a new <title>)
+      const headElement = document.querySelector('head');
+      if (headElement) {
+        observer.observe(headElement, { childList: true });
+      }
+
       if (!window.googleTranslateElementInit) {
         window.googleTranslateElementInit = googleTranslateElementInit;
       }
