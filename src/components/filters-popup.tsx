@@ -329,7 +329,7 @@ export default function FiltersPopup({
               aria-describedby="age_filter-0-description-0"
               pattern="[0-9][0-9][0-9]"
               inputMode="numeric"
-              value={ageParam ? ageParam.toString() : undefined}
+              value={ageParam ? ageParam.toString() : ""}
               onBlur={handleAgeInputBlur}
               onChange={handleAgeInputChange}
             />
