@@ -26,6 +26,13 @@ function googleTranslateElementInit() {
   );
 }
 
+function setNoTranslateOnTitle(): void {
+  const titleElement = document.querySelector("title");
+  if (titleElement) {
+    titleElement.setAttribute("translate", "no");
+  }
+}
+
 export default function GTranslateWrapper() {
   const GOOGLE_TRANSLATE_ELEMENT_ID = "google_translate_element";
   const SCRIPT_SRC =
@@ -43,6 +50,9 @@ export default function GTranslateWrapper() {
 
   useEffect(() => {
     function poll() {
+      // do not translate the title, in order to prevent Google Translate from breaking the page
+      setNoTranslateOnTitle();
+
       if (!window.googleTranslateElementInit) {
         window.googleTranslateElementInit = googleTranslateElementInit;
       }
