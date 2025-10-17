@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function MapContainerError({
   error,
@@ -7,8 +7,8 @@ export default function MapContainerError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Map container segment failed', error);
+  if (process.env.NODE_ENV === "development") {
+    console.error("Map container segment failed", error);
   }
   return (
     <div className="flex h-full w-full items-center justify-center bg-gray-200 p-6 text-center">
@@ -17,7 +17,8 @@ export default function MapContainerError({
           We’re having trouble loading the map right now
         </h2>
         <p className="text-sm text-gray-700">
-          The interactive map failed to render. You can try reloading this section or continue using the list view.
+          The interactive map failed to render. You can try reloading this
+          section or continue using the list view.
         </p>
         <button
           type="button"

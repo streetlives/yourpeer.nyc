@@ -9,9 +9,9 @@ export function simulateTranslateInJSDOM(root: HTMLElement) {
     queue.push(t);
   }
   for (const t of queue) {
-    const font = document.createElement('font');
-    font.className = 'gt-sim';
-    font.textContent = t.nodeValue || '';
+    const font = document.createElement("font");
+    font.className = "gt-sim";
+    font.textContent = t.nodeValue || "";
     t.parentNode?.replaceChild(font, t);
   }
 }

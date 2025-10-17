@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function StaticPageError({
   error,
@@ -7,14 +7,17 @@ export default function StaticPageError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Static content segment failed', error);
+  if (process.env.NODE_ENV === "development") {
+    console.error("Static content segment failed", error);
   }
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-md border border-gray-200 bg-white p-6 text-center">
-      <h2 className="text-xl font-semibold text-gray-900">We can’t show this page right now</h2>
+      <h2 className="text-xl font-semibold text-gray-900">
+        We can’t show this page right now
+      </h2>
       <p className="text-sm text-gray-700">
-        Something went wrong while rendering this content. Try reloading to give it another shot.
+        Something went wrong while rendering this content. Try reloading to give
+        it another shot.
       </p>
       <div>
         <button

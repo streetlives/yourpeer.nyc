@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function SidePanelError({
   error,
@@ -7,8 +7,8 @@ export default function SidePanelError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Side panel segment failed', error);
+  if (process.env.NODE_ENV === "development") {
+    console.error("Side panel segment failed", error);
   }
   return (
     <div className="flex h-full w-full items-center justify-center bg-white p-6 text-center">
@@ -17,7 +17,8 @@ export default function SidePanelError({
           We couldn’t load the results list
         </h2>
         <p className="text-sm text-gray-700">
-          Refresh this panel to keep browsing, or use the map while we restore the list.
+          Refresh this panel to keep browsing, or use the map while we restore
+          the list.
         </p>
         <button
           type="button"

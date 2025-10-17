@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function GlobalError({
   error,
@@ -13,9 +13,9 @@ export default function GlobalError({
         <main style={{ padding: 24 }}>
           <h1>Something went wrong</h1>
           <p>
-            {process.env.NODE_ENV === 'development'
+            {process.env.NODE_ENV === "development"
               ? String(error)
-              : 'A temporary issue occurred.'}
+              : "A temporary issue occurred."}
           </p>
           <button onClick={() => reset()}>Reload this section</button>
         </main>
