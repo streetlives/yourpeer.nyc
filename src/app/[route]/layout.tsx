@@ -20,6 +20,7 @@ import { SearchProvider } from "@/components/search-context";
 import { MainComponent } from "@/components/main-component";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
+import GTProdGuardScript from "@/components/gt-prod-guard-script";
 
 export default async function LocationsLayout(props: {
   mapContainer: React.ReactNode;
@@ -35,6 +36,7 @@ export default async function LocationsLayout(props: {
 
   return (
     <>
+      <GTProdGuardScript />
       <GTranslateWrapper />
       <span>
         {RESOURCE_ROUTES.includes(route) ? (
