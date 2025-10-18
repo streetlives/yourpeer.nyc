@@ -11,11 +11,13 @@ import {
   getServicesWrapper,
   YourPeerLegacyLocationData,
 } from "./common";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { TranslatableText } from "./translatable-text";
 import axios from "axios";
 import { toast } from "sonner";
 import { isEmailOrPhone } from "@/lib/utils";
+import Spinner from "./spinner";
+import { Button } from "./ui/button";
 
 export function ReportIssueForm({
   location,
@@ -26,6 +28,7 @@ export function ReportIssueForm({
 }) {
   const [isShowingSuccessForm, setIsShowingSuccessForm] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
+  const [isLoading, startTransition] = useTransition();
 
   async function submitReport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,14 +64,16 @@ export function ReportIssueForm({
       issues += `\nContact info: ${contactInfo}`;
     }
 
-    try {
-      const res = axios.post("/api/report", { text: issues });
-      setIsShowingSuccessForm(true);
-    } catch (e) {
-      console.error(e);
-      alert("Error creating report");
-      hideReportIssueForm();
-    }
+    startTransition(async () => {
+      try {
+        await axios.post("/api/report", { text: issues });
+        setIsShowingSuccessForm(true);
+      } catch (e) {
+        console.error(e);
+        alert("Error creating report");
+        hideReportIssueForm();
+      }
+    });
   }
 
   return (
@@ -197,12 +202,14 @@ export function ReportIssueForm({
             </div>
 
             <div className="py-5">
-              <input
-                className="primary-button mt-5 w-full block"
+              <Button
+                className="mt-5 w-full rounded-md"
+                disabled={isLoading}
                 id="reportActionButton"
                 type="submit"
-                value="Send"
-              ></input>
+              >
+                <span>Send</span> {isLoading && <Spinner />}
+              </Button>
             </div>
           </div>
         </div>
