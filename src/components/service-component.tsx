@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,
@@ -111,7 +111,7 @@ export default function Service({
       s =
         targetLanguage === "ru"
           ? `Для доступа, Вам должно быть не более, чем ${ageReq["age_max"]}`
-          : `'Under ${ageReq["age_max"]}'`;
+          : `under ${ageReq["age_max"]}`;
     }
 
     return s;

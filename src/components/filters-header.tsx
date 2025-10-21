@@ -12,10 +12,8 @@ import {
   CATEGORY_ICON_SRC_MAP,
   CATEGORY_TO_ROUTE_MAP,
   getIconPath,
-  HEALTH_PARAM,
   HEALTH_PARAM_MENTAL_HEALTH,
   LOCATION_ROUTE,
-  OTHER_PARAM,
   OTHER_PARAM_EMPLOYMENT_VALUE,
   OTHER_PARAM_LEGAL_VALUE,
   SearchParams,
@@ -26,6 +24,7 @@ import Link from "next/link";
 import classNames from "classnames";
 import {
   getUrlWithNewCategory,
+  getUrlWithNewCategoryAndSubcategory,
   getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
 } from "./navigation";
@@ -34,21 +33,21 @@ import { TranslatableText } from "./translatable-text";
 const otherCategories = [
   {
     category: HEALTH_PARAM_MENTAL_HEALTH,
-    parent_category: HEALTH_PARAM,
+    parent_category: "health-care" as Category,
     name: "Mental Health",
     icon: "/img/icons/services/mental-health-small.svg",
     href: "/health-care/mental-health",
   },
   {
     category: OTHER_PARAM_LEGAL_VALUE,
-    parent_category: OTHER_PARAM,
+    parent_category: "other" as Category,
     name: "Legal Services",
     icon: "/img/icons/services/legal-small.svg",
     href: "/other-services/legal-services",
   },
   {
     category: OTHER_PARAM_EMPLOYMENT_VALUE,
-    parent_category: OTHER_PARAM,
+    parent_category: "other" as Category,
     name: "Employment",
     icon: "/img/icons/services/employment-small.svg",
     href: "/other-services/employment",
@@ -137,7 +136,15 @@ export default function FiltersHeader({
                   ? { "bg-primary": true }
                   : { "bg-neutral-100": true },
               )}
-              href={item.href}
+              href={
+                subCategory === item.category
+                  ? getUrlWithNewCategory(null, searchParams)
+                  : getUrlWithNewCategoryAndSubcategory(
+                      item.parent_category,
+                      item.category as SubCategory,
+                      searchParams,
+                    )
+              }
             >
               <img src={item.icon} className="w-4 h-4" alt="" />
               <span>{item.name}</span>

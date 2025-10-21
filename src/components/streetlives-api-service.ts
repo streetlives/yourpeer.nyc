@@ -47,6 +47,7 @@ import {
 import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
+import { permanentRedirect } from "next/navigation";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -319,6 +320,9 @@ function filter_services_by_name(
         age_eligibilities = [];
         for (let elig of service.Eligibilities) {
           if (elig.EligibilityParameter.name === "age") {
+            if (!elig.eligible_values.length) {
+              continue;
+            }
             for (let elig_value of elig.eligible_values) {
               age_eligibilities.push(elig_value);
             }
@@ -754,6 +758,14 @@ export async function fetchLocationsDetailData(
   const query_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations-by-slug/${slug}`;
   const response = await fetch(query_url);
   if (response.status !== 200) {
+    const redirect_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/location-slug-redirects/${slug}`;
+    const redirect_res = await fetch(redirect_url);
+    const redirect_data = await redirect_res.json();
+
+    if (redirect_res.status && redirect_data.slug) {
+      permanentRedirect(`/locations/${redirect_data.slug}`);
+    }
+
     if (response.status === 404) {
       throw new Error404Response();
     }
