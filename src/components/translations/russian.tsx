@@ -117,8 +117,7 @@ const translations: Record<string, string> = {
   "Report Issue": "Сообщить о проблеме",
   "Which parts of the information have an issue?":
     "В какой информации присутствует проблема?",
-  "Please describe the issue below (Please don't enter any private information)":
-    "Опишите проблему ниже (пожалуйста, не вводите личную информацию)",
+  "Please describe the issue below": "Опишите проблему ниже",
   Send: "Отправить",
   "All service locations": "Все филиалы",
   "All Services": "Все филиалы",
