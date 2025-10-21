@@ -34,6 +34,7 @@ import {
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_YOUTH_VALUE,
   SimplifiedLocationData,
   Taxonomy,
   TaxonomyCategory,
@@ -720,6 +721,16 @@ export async function getTaxonomies(
                   (t) =>
                     t.parent_name === parentTaxonomyName &&
                     t.name === "Families",
+                ),
+          );
+          break;
+        case SHELTER_PARAM_YOUTH_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter(
+                  (t) =>
+                    t.parent_name === parentTaxonomyName && t.name === "Youth",
                 ),
           );
           break;
