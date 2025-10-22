@@ -9,6 +9,7 @@ import { use } from "react";
 
 import {
   ABOUT_US_ROUTE,
+  COMMENT_GUIDELINES_ROUTE,
   CompanyRoute,
   CONTACT_US_ROUTE,
   DONATE_ROUTE,
@@ -25,6 +26,7 @@ import { PrivacyPage } from "./privacy";
 import { notFound } from "next/navigation";
 import { LoginPage } from "./login";
 import { Terms } from "./terms";
+import { CommentGuidelines } from "./comment-guidelines";
 
 export default function StaticPage(props: {
   params: Promise<{ route: string }>;
@@ -49,6 +51,8 @@ export default function StaticPage(props: {
       return <LoginPage />;
     case TERMS_OF_USE_ROUTE:
       return <Terms />;
+    case COMMENT_GUIDELINES_ROUTE:
+      return <CommentGuidelines />;
     default:
       return notFound();
   }

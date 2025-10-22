@@ -55,6 +55,7 @@ export const TERMS_OF_USE_ROUTE = "terms-of-use";
 export const PRIVACY_POLICY_ROUTE = "privacy-policy";
 export const LOGIN_ROUTE = "login";
 export const STATEMENT_ROUTE = "statement";
+export const COMMENT_GUIDELINES_ROUTE = "comment-guidelines";
 
 export const COMPANY_ROUTES = [
   ABOUT_US_ROUTE,
@@ -64,6 +65,7 @@ export const COMPANY_ROUTES = [
   PRIVACY_POLICY_ROUTE,
   LOGIN_ROUTE,
   STATEMENT_ROUTE,
+  COMMENT_GUIDELINES_ROUTE,
 ] as const;
 
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
