@@ -46,13 +46,12 @@ export async function getSidePanelComponentData({
   console.log(parsedSearchParams);
   const taxonomiesResults = await getTaxonomies(category, parsedSearchParams);
   console.log("taxonomyresults", taxonomiesResults);
-  const { locations, numberOfPages, resultCount } =
-    await await getFullLocationData({
-      ...parsedSearchParams,
-      ...parsedSearchParams[REQUIREMENT_PARAM],
-      ...taxonomiesResults,
-      sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
-    });
+  const { locations, numberOfPages, resultCount } = await getFullLocationData({
+    ...parsedSearchParams,
+    ...parsedSearchParams[REQUIREMENT_PARAM],
+    ...taxonomiesResults,
+    sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
+  });
 
   const yourPeerLegacyLocationData = locations.map((location) =>
     map_gogetta_to_yourpeer(location, false),

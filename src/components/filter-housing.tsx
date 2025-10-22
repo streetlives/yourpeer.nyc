@@ -11,6 +11,7 @@ import {
   SHELTER_PARAM_SINGLE_VALUE,
   SHELTER_PARAM_FAMILY_VALUE,
   parsePathnameToCategoryAndSubCategory,
+  SHELTER_PARAM_YOUTH_VALUE,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
 import { useNormalizedSearchParams } from "./use-normalized-search-params";
@@ -75,6 +76,16 @@ export default function FilterHousing() {
     );
   }
 
+  function handleIsYouthClick() {
+    router.push(
+      getUrlWithSubCategoryAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        SHELTER_PARAM_YOUTH_VALUE,
+      ),
+    );
+  }
+
   return (
     <fieldset className="mt-6">
       <legend className="text-xs font-semibold leading-6 text-dark">
@@ -128,13 +139,11 @@ export default function FilterHousing() {
         <label
           className={classNames.call(
             null,
-            commonClasses
-              .concat("rounded-r-lg")
-              .concat(
-                shelterParam == SHELTER_PARAM_FAMILY_VALUE
-                  ? selectedClasses
-                  : notSelectedClasses,
-              ),
+            commonClasses.concat(
+              shelterParam == SHELTER_PARAM_FAMILY_VALUE
+                ? selectedClasses
+                : notSelectedClasses,
+            ),
           )}
         >
           <input
@@ -150,6 +159,30 @@ export default function FilterHousing() {
             onClick={handleIsFamiliesClick}
           />
           <TranslatableText text="Families" />
+        </label>
+        <label
+          className={classNames.call(
+            null,
+            commonClasses
+              .concat("rounded-r-lg")
+              .concat(
+                shelterParam == SHELTER_PARAM_YOUTH_VALUE
+                  ? selectedClasses
+                  : notSelectedClasses,
+              ),
+          )}
+        >
+          <input
+            type="radio"
+            id="filter_shelter_type_youth"
+            name="accommodationType"
+            value={
+              shelterParam == SHELTER_PARAM_YOUTH_VALUE ? "true" : undefined
+            }
+            className="sr-only"
+            onClick={handleIsYouthClick}
+          />
+          <TranslatableText text="Youth" />
         </label>
       </div>
     </fieldset>
