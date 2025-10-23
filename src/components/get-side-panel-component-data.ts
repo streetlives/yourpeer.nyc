@@ -38,7 +38,7 @@ export async function getSidePanelComponentData({
   params: SubRouteParams;
   cookies: Cookies;
 }): Promise<SidePanelComponentData> {
-  console.log(params);
+  console.log({ params });
   console.log(searchParams);
   const category = parseCategoryFromRoute(params.route);
   const subCategory = getParsedSubCategory(params);

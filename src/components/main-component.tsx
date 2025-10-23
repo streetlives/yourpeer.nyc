@@ -7,6 +7,7 @@ import { SearchContext, SearchContextType } from "./search-context";
 import classNames from "classnames";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { MapLoadingAnimation } from "./map-loading-animation";
+import FiltersPopup from "./filters-popup";
 
 export function MainComponent({
   mapContainer,
@@ -43,6 +44,7 @@ export function MainComponent({
         className="relative w-full md:w-1/2 lg:w-1/3 bg-white overflow-hidden"
         id="left_panel"
       >
+        <FiltersPopup />
         <Suspense fallback={<SidebarLoadingAnimation />}>{sidePanel}</Suspense>
       </div>
       <div

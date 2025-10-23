@@ -135,7 +135,6 @@ export const SHELTER_PARAM_FAMILY_VALUE = "families";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
   | typeof SHELTER_PARAM_FAMILY_VALUE;
-export const SHOW_ADVANCED_FILTERS_PARAM = "adv";
 
 export const FOOD_PARAM = "food";
 export const FOOD_PARAM_SOUP_KITCHEN_VALUE = "soup-kitchens";
@@ -287,7 +286,6 @@ export const FILTERS_THAT_APPLY_TO_ALL_CATEGORIES = [
   SEARCH_PARAM,
   AGE_PARAM,
   OPEN_PARAM,
-  SHOW_ADVANCED_FILTERS_PARAM,
 ];
 
 export const SORT_BY_QUERY_PARAM = "sortBy";
@@ -299,7 +297,6 @@ export const URL_PARAM_NAMES = [
   SHELTER_PARAM,
   FOOD_PARAM,
   CLOTHING_PARAM,
-  SHOW_ADVANCED_FILTERS_PARAM,
   SORT_BY_QUERY_PARAM,
 ] as const;
 
@@ -316,7 +313,6 @@ export interface YourPeerParsedRequestParams {
   [OTHER_PARAM]: OtherValues | null;
   [HEALTH_PARAM]: HealthValues | null;
   [CLOTHING_PARAM]: ClothingValues | null;
-  [SHOW_ADVANCED_FILTERS_PARAM]: boolean;
   [REQUIREMENT_PARAM]: ParsedRequirements;
   [AMENITIES_PARAM]: ParsedAmenities;
   [PAGE_PARAM]: number;
@@ -483,7 +479,6 @@ export function parseRequest({
       searchParams[CLOTHING_PARAM] === CLOTHING_PARAM_PROFESSIONAL_VALUE
         ? (searchParams[CLOTHING_PARAM] as ClothingValues)
         : (parsedSubCategory as ClothingValues),
-    [SHOW_ADVANCED_FILTERS_PARAM]: !!searchParams[SHOW_ADVANCED_FILTERS_PARAM],
     [REQUIREMENT_PARAM]: {
       noRequirement: parsedRequirements.includes(
         REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
