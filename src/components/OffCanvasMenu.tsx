@@ -191,13 +191,18 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
             <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col">
               <div className="flex-1 relative">
                 {nestedNav ? (
-                  <motion.div animate={{ x: "0" }} initial={{ x: "100%" }}>
+                  <motion.div
+                    animate={{ x: "0" }}
+                    initial={{ x: "100%" }}
+                    transition={{ type: "tween", duration: 0.3 }}
+                  >
                     {subCategoryMenu ? (
                       <motion.div
                         className={`flex pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0`}
                         id="servicesNav"
                         animate={{ x: "0" }}
                         initial={{ x: "100%" }}
+                        transition={{ type: "tween", duration: 0.3 }}
                       >
                         {links["shelter-housing"].map((item, idx) => (
                           <Link
