@@ -35,9 +35,11 @@ export function SidePanelComponent({
 }) {
   const cookies = useCookies();
   const updateResultsCount = useFilters((state) => state.updateResultCount);
+  const setLoading = useFilters((state) => state.setLoading);
 
   useEffect(() => {
     updateResultsCount(resultCount);
+    setLoading(false);
     cookies.set(
       LAST_SET_PARAMS_COOKIE_NAME,
       JSON.stringify({

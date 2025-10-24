@@ -18,8 +18,7 @@ import {
   HealthValues,
   parseCategoryFromRoute,
 } from "./common";
-import React, { ChangeEvent } from "react";
-import classNames from "classnames";
+import React, { ChangeEvent, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import FilterHours from "./filter-hours";
@@ -38,6 +37,7 @@ import { useTranslatedText } from "./use-translated-text-hook";
 import { useFilters } from "@/lib/store";
 import { XIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Button } from "./ui/button";
 
 function CategoryFilterLabel({
   labelCategory,
@@ -57,6 +57,14 @@ function CategoryFilterLabel({
   subcategory?: OtherValues | HealthValues | undefined;
 }) {
   const pathname = usePathname() as string;
+  const setLoading = useFilters((state) => state.setLoading);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  useEffect(() => {
+    setLoading(isPending);
+  }, [isPending, setLoading]);
+
   let isActive = !subcategory
     ? labelCategory == currentCategory
     : labelCategory == currentCategory && pathname.includes(subcategory);
@@ -82,37 +90,32 @@ function CategoryFilterLabel({
     isActive = pathname.includes(HEALTH_PARAM_MENTAL_HEALTH) ? false : true;
   }
 
-  return (
-    <Link
-      href={
+  const handleClick = () => {
+    startTransition(() => {
+      router.push(
         subcategory !== undefined
           ? getUrlWithNewCategoryAndSubcategory(
               labelCategory,
               subcategory,
               normalizedSearchParams,
             )
-          : getUrlWithNewCategory(labelCategory, normalizedSearchParams)
-      }
-      aria-labelledby="service-type-0-label"
-      aria-describedby="service-type-0-description-0 service-type-0-description-1"
-      className={classNames(
-        "relative",
-        "flex",
-        "flex-col",
-        "items-center",
-        "justify-center",
-        "cursor-pointer",
-        "border",
-        "p-5",
-        "focus:outline-none",
-        "overflow-hidden",
-        "rounded",
-        isActive
-          ? { "bg-primary": true, "border-black": true }
-          : { "bg-white": true, "border-gray-300": true },
-      )}
+          : getUrlWithNewCategory(labelCategory, normalizedSearchParams),
+      );
+    });
+  };
+
+  return (
+    <label
+      onClick={handleClick}
+      className="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded bg-white border-gray-300 has-[:checked]:bg-primary has-[:checked]:border-black"
     >
-      <input type="radio" className="sr-only" />
+      <input
+        type="radio"
+        name="category"
+        value={labelCategory}
+        defaultChecked={isActive}
+        className="sr-only"
+      />
       <img
         src={isActive ? activeImgSrc : imgSrc}
         className="max-h-8 w-8 h-8 object-contain"
@@ -128,7 +131,7 @@ function CategoryFilterLabel({
       >
         <TranslatableText text={labelText} />
       </div>
-    </Link>
+    </label>
   );
 }
 
@@ -138,7 +141,7 @@ export default function FiltersPopup() {
   const params = useParams();
   const { normalizedSearchParams, ageParam, search, setAgeParam } =
     useNormalizedSearchParams();
-  const { close, resultsCount, isOpen } = useFilters();
+  const { close, resultsCount, isOpen, isLoading } = useFilters();
 
   const enterAgeSourceText = "Enter Age";
   const ageTranslation = useTranslatedText({
@@ -323,56 +326,31 @@ export default function FiltersPopup() {
             {category === "clothing" ? <FilterClothing /> : undefined}
             {category === "personal-care" ? <FilterPersonalCare /> : undefined}
           </form>
-          <table className="w-full">
-            <tbody>
-              <tr>
-                <td className="w-1/2 relative">
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "1rem",
-                      bottom: "1rem",
-                      left: "1rem",
-                      right: ".5rem",
-                    }}
-                  >
-                    <Link
-                      className="outline-button block"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                      }}
-                      href={`/${LOCATION_ROUTE}`}
-                    >
-                      <TranslatableText
-                        text="Clear All"
-                        className="block text-center w-full"
-                      />
-                    </Link>
-                  </div>
-                </td>
-                <td
-                  style={{
-                    width: "50%",
-                    paddingLeft: ".5rem",
-                    paddingRight: "1rem",
-                    paddingTop: "1rem",
-                    paddingBottom: "1rem",
-                  }}
-                >
-                  <button
-                    onClick={close}
-                    className="primary-button block w-full px-5"
-                  >
-                    Show {resultsCount} results
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+          <div className="w-full flex p-4 space-x-4">
+            <Button
+              asChild
+              variant={"outline"}
+              size={"lg"}
+              className="flex-1 w-full"
+            >
+              <Link href={`/${LOCATION_ROUTE}`} onClick={close}>
+                <TranslatableText text="Clear All" />
+              </Link>
+            </Button>
+            <Button
+              onClick={close}
+              size={"lg"}
+              disabled={isLoading}
+              className="flex-1 w-full transition-all duration-500"
+            >
+              {isLoading ? (
+                <span className="animate-pulse">Loading...</span>
+              ) : (
+                `Show ${resultsCount} results`
+              )}
+            </Button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

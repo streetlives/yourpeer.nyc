@@ -16,10 +16,30 @@ import {
   getParsedAmenities,
 } from "./common";
 import { getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved } from "./navigation";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useTransition } from "react";
 import { RequirementFieldset } from "./requirements-fieldset";
 import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
+import { useFilters } from "@/lib/store";
+
+const options = [
+  {
+    value: AMENITIES_PARAM_TOILETRIES_VALUE,
+    label: "Toiletries",
+  },
+  {
+    value: AMENITIES_PARAM_RESTROOM_VALUE,
+    label: "Restrooms",
+  },
+  {
+    value: AMENITIES_PARAM_SHOWER_VALUE,
+    label: "Shower",
+  },
+  {
+    value: AMENITIES_PARAM_LAUNDRY_VALUE,
+    label: "Laundry",
+  },
+];
 
 // TODO: route should get a type enum
 export default function FilterPersonalCare() {
@@ -39,75 +59,25 @@ export default function FilterPersonalCare() {
     amenitiesSubCategory,
     personalCareParam,
   );
+  const setLoading = useFilters((state) => state.setLoading);
+  const [isPending, startTransition] = useTransition();
 
-  function handleToiletriesChange(e: ChangeEvent) {
-    router.push(
-      getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        AMENITIES_PARAM_TOILETRIES_VALUE,
-        (e.target as HTMLFormElement).checked,
-      ),
-    );
-  }
+  useEffect(() => {
+    setLoading(isPending);
+  }, [isPending, setLoading]);
 
-  function handleRestroomsChange(e: ChangeEvent) {
-    router.push(
-      getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        AMENITIES_PARAM_RESTROOM_VALUE,
-        (e.target as HTMLFormElement).checked,
-      ),
-    );
-  }
-
-  function handleShowerChange(e: ChangeEvent) {
-    router.push(
-      getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        AMENITIES_PARAM_SHOWER_VALUE,
-        (e.target as HTMLFormElement).checked,
-      ),
-    );
-  }
-
-  function handleLaundryChange(e: ChangeEvent) {
-    router.push(
-      getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        AMENITIES_PARAM_LAUNDRY_VALUE,
-        (e.target as HTMLFormElement).checked,
-      ),
-    );
-  }
-
-  function PersonalCareLabel({
-    amenitiesSubCategory,
-    onChange,
-    label,
-    subLabel,
-  }: {
-    amenitiesSubCategory: AmenitiesSubCategory;
-    onChange: (e: ChangeEvent) => void;
-    label: string;
-    subLabel?: string;
-  }) {
-    return (
-      <label className="relative flex-1 flex space-x-2 cursor-pointer">
-        <input
-          type="checkbox"
-          className="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark"
-          checked={parsedAmenities.includes(amenitiesSubCategory)}
-          onChange={onChange}
-        />
-        <TranslatableText text={label} className="text-xs text-dark mt-0.5" />
-        {subLabel ? <p className="text-gray-600">{subLabel}</p> : undefined}
-      </label>
-    );
-  }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    startTransition(() => {
+      router.push(
+        getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
+          pathname,
+          normalizedSearchParams,
+          e.target.value as AmenitiesSubCategory,
+          e.target.checked,
+        ),
+      );
+    });
+  };
 
   return (
     <>
@@ -116,26 +86,26 @@ export default function FilterPersonalCare() {
           <TranslatableText text="Amenities" />
         </legend>
         <div className="mt-2 flex w-full flex-col space-y-4 ml-1">
-          <PersonalCareLabel
-            amenitiesSubCategory={AMENITIES_PARAM_TOILETRIES_VALUE}
-            label="Toiletries"
-            onChange={handleToiletriesChange}
-          />
-          <PersonalCareLabel
-            amenitiesSubCategory={AMENITIES_PARAM_RESTROOM_VALUE}
-            label="Restrooms"
-            onChange={handleRestroomsChange}
-          />
-          <PersonalCareLabel
-            amenitiesSubCategory={AMENITIES_PARAM_SHOWER_VALUE}
-            label="Shower"
-            onChange={handleShowerChange}
-          />
-          <PersonalCareLabel
-            amenitiesSubCategory={AMENITIES_PARAM_LAUNDRY_VALUE}
-            label="Laundry"
-            onChange={handleLaundryChange}
-          />
+          {options.map((option) => (
+            <label
+              key={option.value}
+              className="relative flex-1 flex space-x-2 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                className="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark"
+                defaultChecked={parsedAmenities.includes(
+                  option.value as AmenitiesSubCategory,
+                )}
+                value={option.value}
+                onChange={handleChange}
+              />
+              <TranslatableText
+                text={option.label}
+                className="text-xs text-dark mt-0.5"
+              />
+            </label>
+          ))}
         </div>
       </fieldset>
       <RequirementFieldset />
