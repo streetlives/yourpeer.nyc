@@ -162,7 +162,7 @@ export default function SearchForm() {
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
   function clearSearch() {
-    setSearch("");
+    setSearch(null);
     setShowMapViewOnMobile(false);
     router.push(
       getUrlWithoutFilterParameter(
@@ -171,14 +171,17 @@ export default function SearchForm() {
         SEARCH_PARAM,
       ),
     );
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
-    setSearch((e.target as HTMLFormElement).value);
-
-    if ((e.target as HTMLFormElement).value === "") {
+    const nextValue = (e.target as HTMLFormElement).value;
+    if (nextValue === "") {
       clearSearch();
+      return;
     }
+
+    setSearch(nextValue);
   }
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
