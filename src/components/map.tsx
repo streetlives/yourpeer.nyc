@@ -34,6 +34,7 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
+import { useFilters } from "@/lib/store";
 
 function isMobile(): boolean {
   return window.innerWidth <= 600;
@@ -133,6 +134,7 @@ function MapWrapper({
   const [lastImportantCenter, setLastImportantCenter] = useState<Position>();
   const [lastImportantZoom, setLastImportantZoom] = useState<number>();
   const googleMap = useMap();
+  const closFilters = useFilters((state) => state.close);
 
   function getUserPositionOrCentralPark(): Position {
     if (!userPosition) return centralPark;
@@ -170,6 +172,7 @@ function MapWrapper({
     locationStub: SimplifiedLocationData,
   ) {
     const pageWidth = document.documentElement.scrollWidth;
+    closFilters();
 
     if (!isMobile()) {
       router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);

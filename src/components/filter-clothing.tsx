@@ -5,17 +5,31 @@
 // https://opensource.org/licenses/MIT.
 
 import { usePathname, useRouter } from "next/navigation";
-import classNames from "classnames";
 import {
   CLOTHING_PARAM_CASUAL_VALUE,
   CLOTHING_PARAM,
   CLOTHING_PARAM_PROFESSIONAL_VALUE,
   parsePathnameToCategoryAndSubCategory,
+  ClothingValues,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
 import { RequirementFieldset } from "./requirements-fieldset";
 import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
+import { ChangeEvent, useEffect, useTransition } from "react";
+import { useFilters } from "@/lib/store";
+
+const options = [
+  { value: null, label: "Any" },
+  {
+    value: CLOTHING_PARAM_CASUAL_VALUE,
+    label: "Casual",
+  },
+  {
+    value: CLOTHING_PARAM_PROFESSIONAL_VALUE,
+    label: "Professional",
+  },
+];
 
 export default function FilterClothing() {
   const router = useRouter();
@@ -27,55 +41,26 @@ export default function FilterClothing() {
   const clothingParam =
     (normalizedSearchParams && normalizedSearchParams.get(CLOTHING_PARAM)) ||
     subCategory;
-  const commonClasses = [
-    "text-xs",
-    "relative",
-    "flex-1",
-    "flex",
-    "flex-col",
-    "items-center",
-    "justify-center",
-    "cursor-pointer",
-    "border",
-    "py-2",
-    "px-5",
-    "focus:outline-none",
-    "text-center",
-  ];
-  //rounded-l-lg
-  //rounded-r-lg
-  const selectedClasses = ["bg-primary", "border-black"];
-  const notSelectedClasses = ["bg-white", "border-gray-300"];
+  const setLoading = useFilters((state) => state.setLoading);
+  const [isPending, startTransition] = useTransition();
 
-  function handleIsAnyClick() {
-    router.push(
-      getUrlWithSubCategoryAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        null,
-      ),
-    );
-  }
+  useEffect(() => {
+    setLoading(isPending);
+  }, [isPending, setLoading]);
 
-  function handleIsCasualClick() {
-    router.push(
-      getUrlWithSubCategoryAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        CLOTHING_PARAM_CASUAL_VALUE,
-      ),
-    );
-  }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value as ClothingValues | "any";
 
-  function handleIsProfessionalClick() {
-    router.push(
-      getUrlWithSubCategoryAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        CLOTHING_PARAM_PROFESSIONAL_VALUE,
-      ),
-    );
-  }
+    startTransition(() => {
+      router.push(
+        getUrlWithSubCategoryAddedOrRemoved(
+          pathname,
+          normalizedSearchParams,
+          value === "any" ? null : value,
+        ),
+      );
+    });
+  };
 
   return (
     <>
@@ -84,76 +69,22 @@ export default function FilterClothing() {
           <TranslatableText text="Clothing type" />
         </legend>
         <div className="mt-2 flex w-full">
-          <label
-            className={classNames.call(
-              null,
-              commonClasses
-                .concat("rounded-l-lg")
-                .concat(!clothingParam ? selectedClasses : notSelectedClasses),
-            )}
-          >
-            <input
-              type="radio"
-              id="filter_shelter_type_any"
-              name="accommodation-type"
-              value={!clothingParam ? "true" : undefined}
-              className="sr-only"
-              aria-labelledby="accommodationType-0-label"
-              aria-describedby="accommodationType-0-description-0 accommodationType-0-description-1"
-              onClick={handleIsAnyClick}
-            />
-            <TranslatableText text="Any" />
-          </label>
-          <label
-            className={classNames.call(
-              null,
-              commonClasses.concat(
-                clothingParam == CLOTHING_PARAM_CASUAL_VALUE
-                  ? selectedClasses
-                  : notSelectedClasses,
-              ),
-            )}
-          >
-            <input
-              type="radio"
-              id="filter_clothing_casual"
-              name="filter_clothing_casual"
-              value={
-                clothingParam == CLOTHING_PARAM_CASUAL_VALUE
-                  ? "true"
-                  : undefined
-              }
-              className="sr-only"
-              onClick={handleIsCasualClick}
-            />
-            <TranslatableText text="Casual" />
-          </label>
-          <label
-            className={classNames.call(
-              null,
-              commonClasses
-                .concat("rounded-r-lg")
-                .concat(
-                  clothingParam == CLOTHING_PARAM_PROFESSIONAL_VALUE
-                    ? selectedClasses
-                    : notSelectedClasses,
-                ),
-            )}
-          >
-            <input
-              type="radio"
-              id="filter_clothing_professional"
-              name="filter_clothing_professional"
-              value={
-                clothingParam == CLOTHING_PARAM_PROFESSIONAL_VALUE
-                  ? "true"
-                  : undefined
-              }
-              className="sr-only"
-              onClick={handleIsProfessionalClick}
-            />
-            <TranslatableText text="Professional" />
-          </label>
+          {options.map((option) => (
+            <label
+              key={option.value}
+              className="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center first:rounded-l-lg last:rounded-r-lg has-[:checked]:bg-primary has-[:checked]:border-black"
+            >
+              <input
+                type="radio"
+                name="shelter-type"
+                value={option.value ?? "any"}
+                defaultChecked={clothingParam === option.value}
+                className="sr-only"
+                onChange={handleChange}
+              />
+              <TranslatableText text={option.label} />
+            </label>
+          ))}
         </div>
       </fieldset>
       <RequirementFieldset />
