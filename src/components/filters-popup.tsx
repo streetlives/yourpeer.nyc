@@ -10,71 +10,31 @@ import { useFilters } from "@/lib/store";
 import { AnimatePresence, motion } from "framer-motion";
 import { XIcon } from "lucide-react";
 import Link from "next/link";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { ChangeEvent } from "react";
+import { useParams } from "next/navigation";
 import {
-  AGE_PARAM,
   HEALTH_PARAM_MENTAL_HEALTH,
   LOCATION_ROUTE,
   OTHER_PARAM_EMPLOYMENT_VALUE,
   OTHER_PARAM_LEGAL_VALUE,
   parseCategoryFromRoute,
 } from "./common";
+import FilterAge from "./filter-age";
 import CategoryFilterLabel from "./filter-category";
 import FilterClothing from "./filter-clothing";
 import FilterFood from "./filter-food";
 import FilterHours from "./filter-hours";
 import FilterHousing from "./filter-housing";
 import FilterPersonalCare from "./filter-personal-care";
-import { getUrlWithNewFilterParameter } from "./navigation";
 import { TranslatableText } from "./translatable-text";
 import { Button } from "./ui/button";
 import { useNormalizedSearchParams } from "./use-normalized-search-params";
-import { useTranslatedText } from "./use-translated-text-hook";
 
 export default function FiltersPopup() {
-  const router = useRouter();
-  const pathname = usePathname();
   const params = useParams();
-  const { normalizedSearchParams, ageParam, search, setAgeParam } =
-    useNormalizedSearchParams();
+  const { normalizedSearchParams } = useNormalizedSearchParams();
   const { close, resultsCount, isOpen, isLoading } = useFilters();
 
-  const enterAgeSourceText = "Enter Age";
-  const ageTranslation = useTranslatedText({
-    text: enterAgeSourceText,
-  }) as string;
-
   const category = parseCategoryFromRoute(params.route as string);
-
-  function handleFilterFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (ageParam) {
-      router.push(
-        getUrlWithNewFilterParameter(
-          pathname,
-          normalizedSearchParams,
-          AGE_PARAM,
-          ageParam.toString(),
-        ),
-      );
-    }
-  }
-
-  function handleAgeInputBlur(e: React.FocusEvent<HTMLInputElement>) {
-    router.push(
-      getUrlWithNewFilterParameter(
-        pathname,
-        normalizedSearchParams,
-        AGE_PARAM,
-        e.target.value,
-      ),
-    );
-  }
-
-  function handleAgeInputChange(e: ChangeEvent) {
-    setAgeParam(parseInt((e.target as HTMLFormElement).value, 10));
-  }
 
   return (
     <AnimatePresence initial={false}>
@@ -99,11 +59,7 @@ export default function FiltersPopup() {
               <XIcon />
             </button>
           </div>
-          <form
-            className="flex-1 px-4 overflow-y-scroll py-5"
-            id="filters_form"
-            onSubmit={handleFilterFormSubmit}
-          >
+          <div className="flex-1 px-4 overflow-y-scroll py-5" role="form">
             <fieldset>
               <legend className="text-xs font-semibold leading-6 text-dark">
                 <TranslatableText text="Service type" />
@@ -189,34 +145,13 @@ export default function FiltersPopup() {
                 />
               </div>
             </fieldset>
-            <fieldset className="mt-6">
-              <legend className="text-xs font-semibold leading-6 text-dark">
-                <TranslatableText text="Age" id="#filters-popup-age-label" />
-              </legend>
-              <div className="mt-2 flex w-full">
-                <input
-                  type="number"
-                  style={{ width: "100%", borderRadius: ".25rem" }}
-                  id="age_filter"
-                  placeholder={ageTranslation || enterAgeSourceText}
-                  min="0"
-                  max="120"
-                  aria-labelledby="age_filter-0-label"
-                  aria-describedby="age_filter-0-description-0"
-                  pattern="[0-9][0-9][0-9]"
-                  inputMode="numeric"
-                  value={ageParam ? ageParam.toString() : undefined}
-                  onBlur={handleAgeInputBlur}
-                  onChange={handleAgeInputChange}
-                />
-              </div>
-            </fieldset>
+            <FilterAge />
             <FilterHours />
             {category === "shelters-housing" ? <FilterHousing /> : undefined}
             {category === "food" ? <FilterFood /> : undefined}
             {category === "clothing" ? <FilterClothing /> : undefined}
             {category === "personal-care" ? <FilterPersonalCare /> : undefined}
-          </form>
+          </div>
 
           <div className="w-full flex p-4 space-x-4">
             <Button
