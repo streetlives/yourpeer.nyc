@@ -6,134 +6,31 @@
 
 "use client";
 
-import {
-  Category,
-  CategoryNotNull,
-  LOCATION_ROUTE,
-  AGE_PARAM,
-  OtherValues,
-  OTHER_PARAM_LEGAL_VALUE,
-  OTHER_PARAM_EMPLOYMENT_VALUE,
-  HEALTH_PARAM_MENTAL_HEALTH,
-  HealthValues,
-  parseCategoryFromRoute,
-} from "./common";
-import React, { ChangeEvent, useEffect, useTransition } from "react";
+import { useFilters } from "@/lib/store";
+import { AnimatePresence, motion } from "framer-motion";
+import { XIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
+import React, { ChangeEvent } from "react";
+import {
+  AGE_PARAM,
+  HEALTH_PARAM_MENTAL_HEALTH,
+  LOCATION_ROUTE,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
+  parseCategoryFromRoute,
+} from "./common";
+import CategoryFilterLabel from "./filter-category";
+import FilterClothing from "./filter-clothing";
+import FilterFood from "./filter-food";
 import FilterHours from "./filter-hours";
 import FilterHousing from "./filter-housing";
-import {
-  getUrlWithNewCategory,
-  getUrlWithNewCategoryAndSubcategory,
-  getUrlWithNewFilterParameter,
-} from "./navigation";
-import FilterFood from "./filter-food";
-import FilterClothing from "./filter-clothing";
 import FilterPersonalCare from "./filter-personal-care";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
+import { getUrlWithNewFilterParameter } from "./navigation";
 import { TranslatableText } from "./translatable-text";
-import { useTranslatedText } from "./use-translated-text-hook";
-import { useFilters } from "@/lib/store";
-import { XIcon } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
-
-function CategoryFilterLabel({
-  labelCategory,
-  currentCategory,
-  imgSrc,
-  activeImgSrc,
-  labelText,
-  normalizedSearchParams,
-  subcategory,
-}: {
-  labelCategory: CategoryNotNull;
-  currentCategory: Category;
-  imgSrc: string;
-  activeImgSrc: string;
-  labelText: string;
-  normalizedSearchParams?: Map<string, string>;
-  subcategory?: OtherValues | HealthValues | undefined;
-}) {
-  const pathname = usePathname() as string;
-  const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
-
-  let isActive = !subcategory
-    ? labelCategory == currentCategory
-    : labelCategory == currentCategory && pathname.includes(subcategory);
-
-  if (
-    currentCategory === "other" &&
-    labelCategory === "other" &&
-    !subcategory
-  ) {
-    // "other" is active if currentCategory is "other" and no subcategory is selected
-    isActive =
-      pathname.includes(OTHER_PARAM_LEGAL_VALUE) ||
-      pathname.includes(OTHER_PARAM_EMPLOYMENT_VALUE)
-        ? false
-        : true;
-  }
-
-  if (
-    currentCategory === "health-care" &&
-    labelCategory === "health-care" &&
-    !subcategory
-  ) {
-    isActive = pathname.includes(HEALTH_PARAM_MENTAL_HEALTH) ? false : true;
-  }
-
-  const handleClick = () => {
-    startTransition(() => {
-      router.push(
-        subcategory !== undefined
-          ? getUrlWithNewCategoryAndSubcategory(
-              labelCategory,
-              subcategory,
-              normalizedSearchParams,
-            )
-          : getUrlWithNewCategory(labelCategory, normalizedSearchParams),
-      );
-    });
-  };
-
-  return (
-    <label
-      onClick={handleClick}
-      className="relative flex flex-col items-center justify-center cursor-pointer border p-5 focus:outline-none overflow-hidden rounded bg-white border-gray-300 has-[:checked]:bg-primary has-[:checked]:border-black"
-    >
-      <input
-        type="radio"
-        name="category"
-        value={labelCategory}
-        defaultChecked={isActive}
-        className="sr-only"
-      />
-      <img
-        src={isActive ? activeImgSrc : imgSrc}
-        className="max-h-8 w-8 h-8 object-contain"
-        alt=""
-      />
-      <div
-        className="text-center text-xs text-dark mt-3"
-        style={{
-          width: "100%",
-          overflowWrap: "break-word",
-          hyphens: "auto",
-        }}
-      >
-        <TranslatableText text={labelText} />
-      </div>
-    </label>
-  );
-}
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
+import { useTranslatedText } from "./use-translated-text-hook";
 
 export default function FiltersPopup() {
   const router = useRouter();
@@ -208,12 +105,6 @@ export default function FiltersPopup() {
             onSubmit={handleFilterFormSubmit}
           >
             <fieldset>
-              <input
-                type="hidden"
-                name="is_advanced_filters"
-                value=""
-                id="is_advanced_filters"
-              />
               <legend className="text-xs font-semibold leading-6 text-dark">
                 <TranslatableText text="Service type" />
               </legend>

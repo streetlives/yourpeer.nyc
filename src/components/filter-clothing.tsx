@@ -4,20 +4,20 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent } from "react";
 import {
-  CLOTHING_PARAM_CASUAL_VALUE,
   CLOTHING_PARAM,
+  CLOTHING_PARAM_CASUAL_VALUE,
   CLOTHING_PARAM_PROFESSIONAL_VALUE,
-  parsePathnameToCategoryAndSubCategory,
   ClothingValues,
+  parsePathnameToCategoryAndSubCategory,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
 import { RequirementFieldset } from "./requirements-fieldset";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { ChangeEvent, useEffect, useTransition } from "react";
-import { useFilters } from "@/lib/store";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 const options = [
   { value: null, label: "Any" },
@@ -42,24 +42,18 @@ export default function FilterClothing() {
     (normalizedSearchParams && normalizedSearchParams.get(CLOTHING_PARAM)) ||
     subCategory;
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as ClothingValues | "any";
 
-    startTransition(() => {
-      router.push(
-        getUrlWithSubCategoryAddedOrRemoved(
-          pathname,
-          normalizedSearchParams,
-          value === "any" ? null : value,
-        ),
-      );
-    });
+    setLoading(true);
+    router.push(
+      getUrlWithSubCategoryAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        value === "any" ? null : value,
+      ),
+    );
   };
 
   return (

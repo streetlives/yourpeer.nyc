@@ -4,23 +4,22 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent, useEffect, useState } from "react";
 import { OPEN_PARAM } from "./common";
 import {
   getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
 } from "./navigation";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { ChangeEvent, useEffect, useState, useTransition } from "react";
-import { useFilters } from "@/lib/store";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 export default function FilterHours() {
   const router = useRouter();
   const pathname = usePathname();
   const { normalizedSearchParams } = useNormalizedSearchParams();
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
   const [openValue, setOpenValue] = useState<string | null>(null);
   const openParam = normalizedSearchParams?.get(OPEN_PARAM)
     ? OPEN_PARAM
@@ -30,32 +29,27 @@ export default function FilterHours() {
     setOpenValue(openParam);
   }, [openParam]);
 
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setOpenValue(e.target.value);
+    setLoading(true);
 
-    startTransition(() => {
-      if (e.target.value === OPEN_PARAM) {
-        router.push(
-          getUrlWithNewFilterParameter(
-            pathname,
-            normalizedSearchParams,
-            OPEN_PARAM,
-          ),
-        );
-      } else {
-        router.push(
-          getUrlWithoutFilterParameter(
-            pathname,
-            normalizedSearchParams,
-            OPEN_PARAM,
-          ),
-        );
-      }
-    });
+    if (e.target.value === OPEN_PARAM) {
+      router.push(
+        getUrlWithNewFilterParameter(
+          pathname,
+          normalizedSearchParams,
+          OPEN_PARAM,
+        ),
+      );
+    } else {
+      router.push(
+        getUrlWithoutFilterParameter(
+          pathname,
+          normalizedSearchParams,
+          OPEN_PARAM,
+        ),
+      );
+    }
   };
 
   const options = [

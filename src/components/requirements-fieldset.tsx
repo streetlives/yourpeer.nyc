@@ -6,13 +6,9 @@
 
 "use client";
 
-import {
-  ChangeEvent,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { useFilters } from "@/lib/store";
+import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
   parseRequirementParam,
   REQUIREMENT_PARAM,
@@ -21,11 +17,9 @@ import {
   REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
   RequirementValue,
 } from "./common";
-import { usePathname, useRouter } from "next/navigation";
 import { getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved } from "./navigation";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { useFilters } from "@/lib/store";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 const options = [
   {
@@ -51,7 +45,6 @@ export function RequirementFieldset() {
   const pathname = usePathname();
   const { normalizedSearchParams } = useNormalizedSearchParams();
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
   const [selected, setSelected] = useState<RequirementValue[]>([]);
 
   const parsedRequirementParam = useMemo(
@@ -66,10 +59,6 @@ export function RequirementFieldset() {
     setSelected([...parsedRequirementParam]);
   }, [parsedRequirementParam]);
 
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RequirementValue;
     setSelected((prev) =>
@@ -78,16 +67,15 @@ export function RequirementFieldset() {
         : [...prev, value],
     );
 
-    startTransition(() => {
-      router.push(
-        getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
-          pathname,
-          normalizedSearchParams,
-          value as RequirementValue,
-          e.target.checked,
-        ),
-      );
-    });
+    setLoading(true);
+    router.push(
+      getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        value as RequirementValue,
+        e.target.checked,
+      ),
+    );
   };
 
   return (

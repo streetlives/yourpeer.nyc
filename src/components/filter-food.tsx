@@ -4,19 +4,19 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent } from "react";
 import {
   FOOD_PARAM,
-  FOOD_PARAM_SOUP_KITCHEN_VALUE,
   FOOD_PARAM_PANTRY_VALUE,
-  parsePathnameToCategoryAndSubCategory,
+  FOOD_PARAM_SOUP_KITCHEN_VALUE,
   FoodValues,
+  parsePathnameToCategoryAndSubCategory,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { ChangeEvent, useEffect, useTransition } from "react";
-import { useFilters } from "@/lib/store";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 const options = [
   { value: null, label: "Any" },
@@ -40,24 +40,18 @@ export default function FilterFood() {
     (normalizedSearchParams && normalizedSearchParams.get(FOOD_PARAM)) ||
     subCategory;
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as FoodValues | "any";
 
-    startTransition(() => {
-      router.push(
-        getUrlWithSubCategoryAddedOrRemoved(
-          pathname,
-          normalizedSearchParams,
-          value === "any" ? null : value,
-        ),
-      );
-    });
+    setLoading(true);
+    router.push(
+      getUrlWithSubCategoryAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        value === "any" ? null : value,
+      ),
+    );
   };
 
   return (

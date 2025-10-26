@@ -4,19 +4,19 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent } from "react";
 import {
-  SHELTER_PARAM,
-  SHELTER_PARAM_SINGLE_VALUE,
-  SHELTER_PARAM_FAMILY_VALUE,
   parsePathnameToCategoryAndSubCategory,
+  SHELTER_PARAM,
+  SHELTER_PARAM_FAMILY_VALUE,
+  SHELTER_PARAM_SINGLE_VALUE,
   ShelterValues,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { useFilters } from "@/lib/store";
-import { ChangeEvent, useEffect, useTransition } from "react";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 const options = [
   { value: null, label: "Any" },
@@ -35,29 +35,23 @@ export default function FilterHousing() {
   const pathname = usePathname() as string;
   const { normalizedSearchParams } = useNormalizedSearchParams();
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
   const [category, subCategory] =
     parsePathnameToCategoryAndSubCategory(pathname);
   const shelterParam =
     (normalizedSearchParams && normalizedSearchParams.get(SHELTER_PARAM)) ||
     subCategory;
 
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as ShelterValues | "any";
 
-    startTransition(() => {
-      router.push(
-        getUrlWithSubCategoryAddedOrRemoved(
-          pathname,
-          normalizedSearchParams,
-          value === "any" ? null : value,
-        ),
-      );
-    });
+    setLoading(true);
+    router.push(
+      getUrlWithSubCategoryAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        value === "any" ? null : value,
+      ),
+    );
   };
 
   return (

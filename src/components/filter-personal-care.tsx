@@ -4,23 +4,23 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
+import { ChangeEvent } from "react";
 import {
-  AmenitiesSubCategory,
   AMENITIES_PARAM_LAUNDRY_VALUE,
-  AMENITIES_PARAM_TOILETRIES_VALUE,
-  PERSONAL_CARE_CATEGORY,
   AMENITIES_PARAM_RESTROOM_VALUE,
   AMENITIES_PARAM_SHOWER_VALUE,
-  parsePathnameToCategoryAndSubCategory,
+  AMENITIES_PARAM_TOILETRIES_VALUE,
+  AmenitiesSubCategory,
   getParsedAmenities,
+  parsePathnameToCategoryAndSubCategory,
+  PERSONAL_CARE_CATEGORY,
 } from "./common";
 import { getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved } from "./navigation";
-import { ChangeEvent, useEffect, useTransition } from "react";
 import { RequirementFieldset } from "./requirements-fieldset";
-import { useNormalizedSearchParams } from "./use-normalized-search-params";
 import { TranslatableText } from "./translatable-text";
-import { useFilters } from "@/lib/store";
+import { useNormalizedSearchParams } from "./use-normalized-search-params";
 
 const options = [
   {
@@ -60,23 +60,17 @@ export default function FilterPersonalCare() {
     personalCareParam,
   );
   const setLoading = useFilters((state) => state.setLoading);
-  const [isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    setLoading(isPending);
-  }, [isPending, setLoading]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    startTransition(() => {
-      router.push(
-        getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
-          pathname,
-          normalizedSearchParams,
-          e.target.value as AmenitiesSubCategory,
-          e.target.checked,
-        ),
-      );
-    });
+    setLoading(true);
+    router.push(
+      getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        e.target.value as AmenitiesSubCategory,
+        e.target.checked,
+      ),
+    );
   };
 
   return (
