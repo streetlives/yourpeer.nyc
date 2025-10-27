@@ -14,7 +14,12 @@ import {
 } from "next/navigation";
 import Link from "next/link";
 import React, { ChangeEvent, useContext, useEffect, useState } from "react";
-import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
+import {
+  LAST_SET_PARAMS_COOKIE_NAME,
+  LOCATION_ROUTE,
+  SEARCH_PARAM,
+  SearchParams,
+} from "./common";
 import {
   getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
@@ -26,6 +31,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { useCookies } from "next-client-cookies";
 
 function SearchPanel({
   currentSearch,
@@ -152,6 +158,7 @@ export default function SearchForm() {
         searchParams:
           convertReadonlyURLSearchParamsToSearchParams(searchParams),
       };
+  const cookies = useCookies();
 
   useEffect(() => {
     setSearch(
@@ -162,23 +169,39 @@ export default function SearchForm() {
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
   function clearSearch() {
-    setSearch("");
+    setSearch(null);
     setShowMapViewOnMobile(false);
+    const nextSearchParams = {
+      ...(paramsToUseForNextUrl.searchParams || {}),
+    } as SearchParams;
+    delete nextSearchParams[SEARCH_PARAM];
+
+    cookies.set(
+      LAST_SET_PARAMS_COOKIE_NAME,
+      JSON.stringify({
+        params: paramsToUseForNextUrl.params,
+        searchParams: nextSearchParams,
+      }),
+    );
+
     router.push(
       getUrlWithoutFilterParameter(
         paramsToPathname(paramsToUseForNextUrl.params),
-        paramsToUseForNextUrl.searchParams,
+        nextSearchParams,
         SEARCH_PARAM,
       ),
     );
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
-    setSearch((e.target as HTMLFormElement).value);
-
-    if ((e.target as HTMLFormElement).value === "") {
+    const nextValue = (e.target as HTMLFormElement).value;
+    if (nextValue === "") {
       clearSearch();
+      return;
     }
+
+    setSearch(nextValue);
   }
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
