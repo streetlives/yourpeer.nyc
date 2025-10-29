@@ -12,7 +12,6 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import Link from "next/link";
 import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import {
@@ -26,6 +25,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { Button } from "@headlessui/react";
 
 function SearchPanel({
   currentSearch,
@@ -161,16 +161,16 @@ export default function SearchForm() {
     );
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
-  function clearSearch() {
+  async function clearSearch() {
     setSearch("");
     setShowMapViewOnMobile(false);
-    router.push(
-      getUrlWithoutFilterParameter(
-        paramsToPathname(paramsToUseForNextUrl.params),
-        paramsToUseForNextUrl.searchParams,
-        SEARCH_PARAM,
-      ),
+    const clearedUrl = getUrlWithoutFilterParameter(
+      paramsToPathname(currentParams),
+      {},
+      SEARCH_PARAM,
     );
+    await router.push(clearedUrl);
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
@@ -230,18 +230,11 @@ export default function SearchForm() {
           onBlur={handleBlur}
           value={search || ""}
         />
-        {search ? (
-          <Link
-            onClick={clearSearch}
-            href={getUrlWithoutFilterParameter(
-              paramsToPathname(paramsToUseForNextUrl.params),
-              paramsToUseForNextUrl.searchParams,
-              SEARCH_PARAM,
-            )}
-          >
+        {search && (
+          <Button onClick={clearSearch}>
             <XMarkIcon className="w-5 h-5 text-black" />
-          </Link>
-        ) : undefined}
+          </Button>
+        )}
       </form>
       {inputHasFocus && search ? (
         <SearchPanel
