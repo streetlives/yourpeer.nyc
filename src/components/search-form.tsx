@@ -232,7 +232,7 @@ export default function SearchForm() {
         />
         {search ? (
           <Link
-            onClick={clearSearch}
+            // onClick={clearSearch}
             href={getUrlWithoutFilterParameter(
               paramsToPathname(paramsToUseForNextUrl.params),
               paramsToUseForNextUrl.searchParams,
