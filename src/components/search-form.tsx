@@ -12,7 +12,6 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import Link from "next/link";
 import React, { ChangeEvent, useContext, useEffect, useState } from "react";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import {
@@ -26,6 +25,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SearchContext, SearchContextType } from "./search-context";
 import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { Button } from "@headlessui/react";
 
 function SearchPanel({
   currentSearch,
@@ -171,6 +171,7 @@ export default function SearchForm() {
         SEARCH_PARAM,
       ),
     );
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
@@ -230,7 +231,7 @@ export default function SearchForm() {
           onBlur={handleBlur}
           value={search || ""}
         />
-        {search ? (
+        {/* {search ? (
           <Link
             // onClick={clearSearch}
             href={getUrlWithoutFilterParameter(
@@ -241,7 +242,12 @@ export default function SearchForm() {
           >
             <XMarkIcon className="w-5 h-5 text-black" />
           </Link>
-        ) : undefined}
+        ) : undefined} */}
+        {search && (
+          <Button onClick={clearSearch}>
+            <XMarkIcon className="w-5 h-5 text-black" />
+          </Button>
+        )}
       </form>
       {inputHasFocus && search ? (
         <SearchPanel
