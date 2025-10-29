@@ -37,7 +37,7 @@ import {
 import { useFilters } from "@/lib/store";
 
 function isMobile(): boolean {
-  return window.innerWidth <= 600;
+  return window.innerWidth <= 768;
 }
 
 const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 5;

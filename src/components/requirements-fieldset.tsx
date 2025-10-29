@@ -52,11 +52,11 @@ export function RequirementFieldset() {
       parseRequirementParam(
         normalizedSearchParams && normalizedSearchParams.get(REQUIREMENT_PARAM),
       ),
-    [normalizedSearchParams?.get(REQUIREMENT_PARAM)],
+    [normalizedSearchParams],
   );
 
   useEffect(() => {
-    setSelected([...parsedRequirementParam]);
+    setSelected(parsedRequirementParam);
   }, [parsedRequirementParam]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

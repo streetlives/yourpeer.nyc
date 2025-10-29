@@ -6,7 +6,7 @@
 
 import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
   AMENITIES_PARAM_LAUNDRY_VALUE,
   AMENITIES_PARAM_RESTROOM_VALUE,
@@ -46,22 +46,37 @@ export default function FilterPersonalCare() {
   const router = useRouter();
   const pathname = usePathname();
   const { normalizedSearchParams } = useNormalizedSearchParams();
+  const [selected, setSelected] = useState<AmenitiesSubCategory[]>([]);
+
   if (!pathname) {
     throw new Error("Expected pathname to not be null");
   }
+
   const personalCareParam =
     normalizedSearchParams &&
     normalizedSearchParams.get(PERSONAL_CARE_CATEGORY);
   const [category, amenitiesSubCategory] =
     parsePathnameToCategoryAndSubCategory(pathname);
-  const parsedAmenities = getParsedAmenities(
-    null,
-    amenitiesSubCategory,
-    personalCareParam,
+
+  const parsedAmenities = useMemo(
+    () => getParsedAmenities(null, amenitiesSubCategory, personalCareParam),
+    [normalizedSearchParams],
   );
+
   const setLoading = useFilters((state) => state.setLoading);
 
+  useEffect(() => {
+    setSelected(parsedAmenities);
+  }, [parsedAmenities]);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value as AmenitiesSubCategory;
+    setSelected((prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value],
+    );
+
     setLoading(true);
     router.push(
       getUrlWithNewPersonalCareServiceSubCategoryAndFilterParameterAddedOrRemoved(
@@ -88,7 +103,7 @@ export default function FilterPersonalCare() {
               <input
                 type="checkbox"
                 className="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark"
-                defaultChecked={parsedAmenities.includes(
+                checked={selected.includes(
                   option.value as AmenitiesSubCategory,
                 )}
                 value={option.value}
