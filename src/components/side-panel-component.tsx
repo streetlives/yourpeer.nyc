@@ -10,14 +10,13 @@ import { useCookies } from "next-client-cookies";
 import {
   LAST_SET_PARAMS_COOKIE_NAME,
   PAGE_PARAM,
-  SHOW_ADVANCED_FILTERS_PARAM,
   SearchParams,
 } from "./common";
 import FiltersHeader from "./filters-header";
-import FiltersPopup from "./filters-popup";
 import LocationsContainer from "./locations-container";
 import { useEffect } from "react";
 import { SidePanelComponentData } from "./get-side-panel-component-data";
+import { useFilters } from "@/lib/store";
 
 export function SidePanelComponent({
   searchParams,
@@ -35,7 +34,12 @@ export function SidePanelComponent({
   sidePanelComponentData: SidePanelComponentData;
 }) {
   const cookies = useCookies();
+  const updateResultsCount = useFilters((state) => state.updateResultCount);
+  const setLoading = useFilters((state) => state.setLoading);
+
   useEffect(() => {
+    updateResultsCount(resultCount);
+    setLoading(false);
     cookies.set(
       LAST_SET_PARAMS_COOKIE_NAME,
       JSON.stringify({
@@ -44,15 +48,13 @@ export function SidePanelComponent({
       }),
     );
   }, [params, searchParams]);
+
   return (
     <>
       <div
         className="w-full h-full md:h-full flex flex-col"
         id="filters_and_list_screen"
       >
-        {parsedSearchParams[SHOW_ADVANCED_FILTERS_PARAM] ? (
-          <FiltersPopup category={category} numLocationResults={resultCount} />
-        ) : undefined}
         <FiltersHeader
           category={category}
           subCategory={subCategory}

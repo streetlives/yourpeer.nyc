@@ -60,7 +60,6 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  //console.log('isExpanded', isExpanded)
   const hasSomethingToShow = !!(
     service.description ||
     service.info.length ||

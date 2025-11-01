@@ -108,22 +108,17 @@ export default function StreetView({
       )
         return;
 
-      //console.log("camera changed: ", ev.detail);
       const newCenter = ev.detail.center;
-      console.log("newCenter", newCenter);
       if (
         newCenter.lat !== 0 &&
         newCenter.lng !== 0 &&
         (mapCenter.lat !== newCenter.lat || mapCenter.lng !== newCenter.lng)
       ) {
-        console.log("setMapCenter(newCenter);", newCenter);
         setMapCenter(newCenter);
       }
 
       const newZoom = ev.detail.zoom;
-      console.log("newZoom ", newZoom);
       if (newZoom && newZoom !== zoom) {
-        console.log("setZoom(newZoom);", newZoom);
         setZoom(newZoom);
       }
     },

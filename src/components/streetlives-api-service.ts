@@ -150,8 +150,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     }
   }
 
-  console.log(query_url);
-
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
     if (gogetta_response.status === 404) {
@@ -550,15 +548,6 @@ export async function getTaxonomies(
     (amenity) => AMENITY_TO_TAXONOMY_NAME_MAP[amenity],
   );
 
-  console.log(
-    "taxonomyResponse",
-    taxonomyResponse.map((r) => r.name),
-    "selectedAmenities",
-    selectedAmenities,
-    "selectedAmenityTaxonomies",
-    selectedAmenityTaxonomies,
-  );
-
   // FIXME: currently it's only two layers deep. Technically, taxonomy can be arbitrary depth, and we should handle that case
   let taxonomies: Taxonomy[] = [];
   let taxonomySpecificAttributes: string[] | null = null;
@@ -736,10 +725,7 @@ export async function getTaxonomies(
           break;
       }
   }
-  console.log(
-    "taxonomies",
-    taxonomies.map((t) => t.id),
-  );
+
   return {
     taxonomies: taxonomies.map((t) => t.id),
     taxonomySpecificAttributes,

@@ -1,4 +1,3 @@
-import { Cookies } from "next-client-cookies";
 import {
   Category,
   REQUIREMENT_PARAM,
@@ -18,6 +17,7 @@ import {
   getTaxonomies,
   map_gogetta_to_yourpeer,
 } from "./streetlives-api-service";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export interface SidePanelComponentData {
   params: RouteParams | SubRouteParams;
@@ -36,23 +36,18 @@ export async function getSidePanelComponentData({
 }: {
   searchParams: SearchParams;
   params: SubRouteParams;
-  cookies: Cookies;
+  cookies: ReadonlyRequestCookies;
 }): Promise<SidePanelComponentData> {
-  console.log(params);
-  console.log(searchParams);
   const category = parseCategoryFromRoute(params.route);
   const subCategory = getParsedSubCategory(params);
   const parsedSearchParams = parseRequest({ params, searchParams, cookies });
-  console.log(parsedSearchParams);
   const taxonomiesResults = await getTaxonomies(category, parsedSearchParams);
-  console.log("taxonomyresults", taxonomiesResults);
-  const { locations, numberOfPages, resultCount } =
-    await await getFullLocationData({
-      ...parsedSearchParams,
-      ...parsedSearchParams[REQUIREMENT_PARAM],
-      ...taxonomiesResults,
-      sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
-    });
+  const { locations, numberOfPages, resultCount } = await getFullLocationData({
+    ...parsedSearchParams,
+    ...parsedSearchParams[REQUIREMENT_PARAM],
+    ...taxonomiesResults,
+    sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
+  });
 
   const yourPeerLegacyLocationData = locations.map((location) =>
     map_gogetta_to_yourpeer(location, false),

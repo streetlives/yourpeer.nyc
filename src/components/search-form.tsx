@@ -39,8 +39,6 @@ function SearchPanel({
   ) as SearchContextType;
   const router = useRouter();
 
-  //console.log("currentSearch", currentSearch);
-
   function handleSearchPanelClick() {
     if (currentSearch) {
       setShowMapViewOnMobile(false);

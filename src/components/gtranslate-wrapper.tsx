@@ -14,7 +14,6 @@ import {
 import { useEffect } from "react";
 
 function googleTranslateElementInit() {
-  console.log("googleTranslateElementInit");
   new (window.google as any).translate.TranslateElement(
     {
       pageLanguage: "auto",
