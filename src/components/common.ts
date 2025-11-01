@@ -71,7 +71,6 @@ export const COMPANY_ROUTES = [
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
 
 export function parseCategoryFromRoute(route: string): Category {
-  //console.log(route, ROUTE_TO_CATEGORY_MAP)
   if (route === LOCATION_ROUTE) {
     return null;
   } else if (route in ROUTE_TO_CATEGORY_MAP) {
@@ -225,7 +224,6 @@ export type SubCategory =
 export function getParsedSubCategory(
   params: SubRouteParams,
 ): SubCategory | null {
-  console.log("getParsedSubCategory");
   const category = params.route;
   const subCategory = params.locationSlugOrPersonalCareSubCategory;
   if (!subCategory) {
@@ -418,7 +416,6 @@ export function parseRequest({
   params: RouteParams | SubRouteParams;
   cookies?: Cookies;
 }): YourPeerParsedRequestParams {
-  console.log("parseRequest", parseRequest);
   assert.ok(pathname !== undefined || params !== undefined);
   // TODO: validate searchParams with Joi
   // TODO: return 400 on validation error

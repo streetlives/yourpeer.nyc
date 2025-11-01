@@ -53,10 +53,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   let title, description;
   let subRouteParams = params as SubRouteParams;
-  console.log(
-    "subRouteParams.locationSlugOrPersonalCareSubCategory",
-    subRouteParams.locationSlugOrPersonalCareSubCategory,
-  );
   switch (params.route) {
     case LOCATION_ROUTE:
       if ((params as SubRouteParams).locationSlugOrPersonalCareSubCategory) {

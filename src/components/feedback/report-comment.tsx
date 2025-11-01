@@ -33,8 +33,7 @@ export default function ReportComment({
 
   const reportSlack = (text: string) => {
     try {
-      const res = axios.post("/api/report", { text });
-      console.log(res);
+      axios.post("/api/report", { text });
     } catch (e) {
       console.error(e);
       alert("Error creating report");

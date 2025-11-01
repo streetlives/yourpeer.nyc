@@ -135,8 +135,6 @@ export default function LocationsContainer({
     "block",
   ]);
 
-  console.log(category, searchParams);
-
   function getCategoryHeaderText(
     category: Category,
     subCategory?: SubCategory | null,

@@ -22,7 +22,7 @@ export function LoginPage() {
         await getCurrentUser();
         router.replace("/");
       } catch (err) {
-        console.log("User not logged in");
+        //
       }
     };
 
