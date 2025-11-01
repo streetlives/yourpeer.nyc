@@ -6,7 +6,7 @@
 
 import assert from "assert";
 import { Error404Response } from "./streetlives-api-service";
-import { Cookies } from "next-client-cookies";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export const CATEGORIES = [
   "shelters-housing",
@@ -414,7 +414,7 @@ export function parseRequest({
   pathname?: string;
   searchParams: SearchParams;
   params: RouteParams | SubRouteParams;
-  cookies?: Cookies;
+  cookies?: ReadonlyRequestCookies;
 }): YourPeerParsedRequestParams {
   assert.ok(pathname !== undefined || params !== undefined);
   // TODO: validate searchParams with Joi
@@ -436,6 +436,7 @@ export function parseRequest({
   );
   const latitudeCookie = cookies && cookies.get(LATITUDE_COOKIE_NAME);
   const longitudeCookie = cookies && cookies.get(LONGITUDE_COOKIE_NAME);
+
   return {
     [SEARCH_PARAM]:
       typeof searchParams[SEARCH_PARAM] === "string"
@@ -505,9 +506,11 @@ export function parseRequest({
     [SORT_BY_QUERY_PARAM]: searchParams[SORT_BY_QUERY_PARAM]
       ? (searchParams[SORT_BY_QUERY_PARAM] as string)
       : null,
-    [LATITUDE_COOKIE_NAME]: latitudeCookie ? parseFloat(latitudeCookie) : null,
+    [LATITUDE_COOKIE_NAME]: latitudeCookie
+      ? parseFloat(latitudeCookie.name)
+      : null,
     [LONGITUDE_COOKIE_NAME]: longitudeCookie
-      ? parseFloat(longitudeCookie)
+      ? parseFloat(longitudeCookie.name)
       : null,
   };
 }

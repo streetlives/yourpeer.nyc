@@ -48,6 +48,7 @@ export function SidePanelComponent({
       }),
     );
   }, [params, searchParams]);
+
   return (
     <>
       <div
