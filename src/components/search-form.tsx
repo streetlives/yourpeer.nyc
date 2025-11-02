@@ -19,6 +19,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import {
   getUrlWithNewFilterParameter,
@@ -169,7 +170,9 @@ export default function SearchForm() {
       return;
     }
 
-    setSearch(null);
+    flushSync(() => {
+      setSearch(null);
+    });
     setShowMapViewOnMobile(false);
 
     const nextUrl = getUrlWithoutFilterParameter(
