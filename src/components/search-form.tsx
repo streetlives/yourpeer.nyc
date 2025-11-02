@@ -12,8 +12,13 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import Link from "next/link";
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
+import React, {
+  ChangeEvent,
+  startTransition,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import {
   getUrlWithNewFilterParameter,
@@ -160,15 +165,23 @@ export default function SearchForm() {
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
   function clearSearch() {
+    if (!search) {
+      return;
+    }
+
     setSearch(null);
     setShowMapViewOnMobile(false);
+
     const nextUrl = getUrlWithoutFilterParameter(
       paramsToPathname(paramsToUseForNextUrl.params),
       paramsToUseForNextUrl.searchParams,
       SEARCH_PARAM,
     );
-    router.push(nextUrl);
-    router.refresh();
+
+    router.replace(nextUrl);
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   function doSetSearch(e: ChangeEvent) {
@@ -232,16 +245,14 @@ export default function SearchForm() {
           value={search || ""}
         />
         {search ? (
-          <Link
+          <button
+            type="button"
             onClick={clearSearch}
-            href={getUrlWithoutFilterParameter(
-              paramsToPathname(paramsToUseForNextUrl.params),
-              paramsToUseForNextUrl.searchParams,
-              SEARCH_PARAM,
-            )}
+            aria-label="Clear search"
+            className="p-0"
           >
             <XMarkIcon className="w-5 h-5 text-black" />
-          </Link>
+          </button>
         ) : undefined}
       </form>
       {inputHasFocus && search ? (
