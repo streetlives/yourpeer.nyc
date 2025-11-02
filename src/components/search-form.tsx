@@ -160,23 +160,26 @@ export default function SearchForm() {
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
   function clearSearch() {
-    setSearch("");
+    setSearch(null);
     setShowMapViewOnMobile(false);
-    router.push(
-      getUrlWithoutFilterParameter(
-        paramsToPathname(paramsToUseForNextUrl.params),
-        paramsToUseForNextUrl.searchParams,
-        SEARCH_PARAM,
-      ),
+    const nextUrl = getUrlWithoutFilterParameter(
+      paramsToPathname(paramsToUseForNextUrl.params),
+      paramsToUseForNextUrl.searchParams,
+      SEARCH_PARAM,
     );
+    router.push(nextUrl);
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
-    setSearch((e.target as HTMLFormElement).value);
+    const value = (e.target as HTMLFormElement).value;
 
-    if ((e.target as HTMLFormElement).value === "") {
+    if (value === "") {
       clearSearch();
+      return;
     }
+
+    setSearch(value);
   }
 
   function handleFocus(e: React.FocusEvent<HTMLInputElement>) {
