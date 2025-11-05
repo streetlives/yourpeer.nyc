@@ -61,10 +61,6 @@ export default function LocationDetailComponent({
   const router = useRouter();
   const previousRoute = usePreviousRoute();
 
-  if (process.env.NODE_ENV !== "production") {
-    console.log(location);
-  }
-
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
   }
@@ -99,8 +95,6 @@ export default function LocationDetailComponent({
       .filter((name) => name !== null);
     servicesNames.push(...names);
   });
-
-  console.log(location);
 
   return (
     <LocationDetailContainer

@@ -17,7 +17,6 @@ import {
   OTHER_PARAM_EMPLOYMENT_VALUE,
   OTHER_PARAM_LEGAL_VALUE,
   SearchParams,
-  SHOW_ADVANCED_FILTERS_PARAM,
   SubCategory,
 } from "./common";
 import Link from "next/link";
@@ -25,10 +24,10 @@ import classNames from "classnames";
 import {
   getUrlWithNewCategory,
   getUrlWithNewCategoryAndSubcategory,
-  getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
 } from "./navigation";
 import { TranslatableText } from "./translatable-text";
+import { useFilters } from "@/lib/store";
 
 const otherCategories = [
   {
@@ -69,6 +68,7 @@ export default function FiltersHeader({
       ? LOCATION_ROUTE
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
+  const openFiltersPopup = useFilters((state) => state.open);
   const commonClassNames = [
     "inline-flex",
     "flex-shrink-0",
@@ -84,7 +84,6 @@ export default function FiltersHeader({
     "location_filter",
   ];
   const linkHeight = { minHeight: "24px" };
-  console.log({ currentCategory, subCategory, searchParams });
   return (
     <div className="sticky top-0 w-full inset-x-0 bg-white z-10">
       <div className="flex gap-2 py-3 px-4  flex-nowrap lg:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide">
@@ -166,18 +165,14 @@ export default function FiltersHeader({
             </span>
           </Link>
         ) : undefined}
-        <Link
+        <button
           className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
           style={linkHeight}
-          href={getUrlWithNewFilterParameter(
-            pathname,
-            searchParams,
-            SHOW_ADVANCED_FILTERS_PARAM,
-          )}
+          onClick={openFiltersPopup}
         >
           <img src="/img/icons/filters.svg" className="w-4 h-4" alt="" />
           <TranslatableText text="All Filters" className="leading-3 truncate" />
-        </Link>
+        </button>
       </div>
     </div>
   );

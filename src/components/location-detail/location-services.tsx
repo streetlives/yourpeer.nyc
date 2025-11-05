@@ -78,7 +78,6 @@ export default function LocationServices({
   const previousCategory =
     ROUTE_TO_CATEGORY_MAP[previousParams?.params.route as string];
   const previousRoute = usePreviousRoute();
-  console.log("previousRoute", previousRoute, previousParams);
   const previousSubcategory =
     previousParams?.params.locationSlugOrPersonalCareSubCategory;
 
