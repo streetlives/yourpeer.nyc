@@ -139,6 +139,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (sortBy) {
     query_url += `&sortBy=${sortBy}`;
 
+    console.log({ latitude, longitude, sortBy });
+
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
       throw new Error(
         `If sortBy is set to ${NEARBY_SORT_BY_VALUE}, then latitude and longitude must be defined`,
