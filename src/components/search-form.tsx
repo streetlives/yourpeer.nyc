@@ -226,7 +226,7 @@ export default function SearchForm() {
           onChange={doSetSearch}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          value={search || ""}
+          defaultValue={search || ""}
         />
         {search ? (
           <Link
