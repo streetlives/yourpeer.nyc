@@ -8,6 +8,7 @@
 
 import {
   ReadonlyURLSearchParams,
+  redirect,
   usePathname,
   useRouter,
   useSearchParams,
@@ -170,7 +171,7 @@ export default function SearchForm() {
     setSearch("");
     inputRef.current!.value = "";
     setShowMapViewOnMobile(false);
-    router.push(
+    redirect(
       getUrlWithoutFilterParameter(
         paramsToPathname(paramsToUseForNextUrl.params),
         paramsToUseForNextUrl.searchParams,
