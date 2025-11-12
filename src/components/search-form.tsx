@@ -153,17 +153,17 @@ export default function SearchForm() {
     );
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
-  function clearSearch() {
+  async function clearSearch() {
     setSearch("");
     inputRef.current!.value = "";
     setShowMapViewOnMobile(false);
-    router.push(
-      getUrlWithoutFilterParameter(
-        paramsToPathname(paramsToUseForNextUrl.params),
-        paramsToUseForNextUrl.searchParams,
-        SEARCH_PARAM,
-      ),
+    const clearedUrl = getUrlWithoutFilterParameter(
+      paramsToPathname(currentParams),
+      {},
+      SEARCH_PARAM,
     );
+    await router.push(clearedUrl);
+    // router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
