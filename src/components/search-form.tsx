@@ -163,7 +163,7 @@ export default function SearchForm() {
       SEARCH_PARAM,
     );
     await router.push(clearedUrl);
-    // router.refresh();
+    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
