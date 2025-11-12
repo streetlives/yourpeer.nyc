@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface FiltersStore {
   isOpen: boolean;
@@ -19,3 +20,21 @@ export const useFilters = create<FiltersStore>((set) => ({
   updateResultCount: (count: number) => set({ resultsCount: count }),
   setLoading: (value) => set({ isLoading: value }),
 }));
+
+interface ViewStore {
+  showMapViewOnMobile: boolean;
+  setShowMapViewOnMobile: (value: boolean) => void;
+}
+
+export const useViewStore = create<ViewStore>()(
+  persist(
+    (set) => ({
+      showMapViewOnMobile: false,
+      setShowMapViewOnMobile: (value: boolean) =>
+        set({ showMapViewOnMobile: value }),
+    }),
+    {
+      name: "view-store", // storage key name
+    },
+  ),
+);

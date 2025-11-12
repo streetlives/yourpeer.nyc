@@ -6,22 +6,18 @@
 
 "use client";
 
+import { useViewStore } from "@/lib/store";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import {
   ReadonlyURLSearchParams,
-  redirect,
   usePathname,
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import Link from "next/link";
-import React, {
-  ChangeEvent,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
+import { PreviousParams } from "./get-previous-params";
 import {
   getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
@@ -29,9 +25,6 @@ import {
   paramsToPathname,
   parsePathnameToSubRouteParams,
 } from "./navigation";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { SearchContext, SearchContextType } from "./search-context";
-import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
 
 function SearchPanel({
@@ -41,9 +34,7 @@ function SearchPanel({
   currentSearch: string;
   paramsToUseForNextUrl: PreviousParams;
 }) {
-  const { setShowMapViewOnMobile } = useContext(
-    SearchContext,
-  ) as SearchContextType;
+  const { setShowMapViewOnMobile } = useViewStore();
   const router = useRouter();
 
   function handleSearchPanelClick() {
@@ -125,13 +116,8 @@ function convertReadonlyURLSearchParamsToSearchParams(
 }
 
 export default function SearchForm() {
-  // TODO: if we are on the location detail screen,
-  // then we want to use the cookie to get the previous searchParams,
-  // construct the same URL we would use on the back button,
-  // but with modified search parameter,
-  // then navigate to the new URL
-  const { search, setSearch, showMapViewOnMobile, setShowMapViewOnMobile } =
-    useContext(SearchContext) as SearchContextType;
+  const { setShowMapViewOnMobile } = useViewStore();
+  const [search, setSearch] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams() as ReadonlyURLSearchParams;
   const searchParamFromQuery = searchParams && searchParams.get(SEARCH_PARAM);
@@ -171,7 +157,7 @@ export default function SearchForm() {
     setSearch("");
     inputRef.current!.value = "";
     setShowMapViewOnMobile(false);
-    redirect(
+    router.push(
       getUrlWithoutFilterParameter(
         paramsToPathname(paramsToUseForNextUrl.params),
         paramsToUseForNextUrl.searchParams,
@@ -197,10 +183,7 @@ export default function SearchForm() {
     setTimeout(() => setInputHasFocus(false), 250);
   }
 
-  function doSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-
+  function doSearchSubmit() {
     window["gtag"]("event", "search_event", {
       search_term: search,
     });
@@ -221,11 +204,7 @@ export default function SearchForm() {
 
   return (
     <>
-      <form
-        className="flex items-center ml-2 relative flex-1"
-        id="search_form"
-        onSubmit={doSearchSubmit}
-      >
+      <div className="flex items-center ml-2 relative flex-1" role="form">
         <input
           className="text-xs md:pl-3 sm:text-sm text-gray-600 w-full border-none p-0 focus:ring-0 block mt-0"
           type="text"
@@ -237,6 +216,11 @@ export default function SearchForm() {
           onBlur={handleBlur}
           ref={inputRef}
           defaultValue={search || ""}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              doSearchSubmit();
+            }
+          }}
         />
         {search ? (
           <Link
@@ -250,7 +234,7 @@ export default function SearchForm() {
             <XMarkIcon className="w-5 h-5 text-black" />
           </Link>
         ) : undefined}
-      </form>
+      </div>
       {inputHasFocus && search ? (
         <SearchPanel
           currentSearch={search}

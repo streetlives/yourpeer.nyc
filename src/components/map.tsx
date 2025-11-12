@@ -26,7 +26,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
 import LocationStubMarker from "./location-stub-marker";
 import { MobileTray } from "./mobile-tray";
-import { SearchContext, SearchContextType } from "./search-context";
 import { useCookies } from "next-client-cookies";
 import { getUrlWithNewFilterParameter } from "./navigation";
 import { useSearchParams } from "next/navigation";
@@ -34,7 +33,7 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
-import { useFilters } from "@/lib/store";
+import { useFilters, useViewStore } from "@/lib/store";
 
 function isMobile(): boolean {
   return window.innerWidth <= 768;
@@ -216,9 +215,7 @@ function MapWrapper({
     [mapCenter, setMapCenter, zoom, setZoom],
   );
 
-  const { showMapViewOnMobile } = useContext(
-    SearchContext,
-  ) as SearchContextType;
+  const { showMapViewOnMobile } = useViewStore();
 
   useEffect(() => {
     cookies.set("zoom", JSON.stringify(zoom));
