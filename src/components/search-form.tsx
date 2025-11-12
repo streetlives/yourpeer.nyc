@@ -8,7 +8,6 @@
 
 import { useViewStore } from "@/lib/store";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
 import {
   ReadonlyURLSearchParams,
   usePathname,
@@ -20,7 +19,6 @@ import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import { PreviousParams } from "./get-previous-params";
 import {
   getUrlWithNewFilterParameter,
-  getUrlWithoutFilterParameter,
   isOnLocationDetailPage,
   paramsToPathname,
   parsePathnameToSubRouteParams,
