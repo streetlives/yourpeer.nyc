@@ -8,7 +8,6 @@ import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent } from "react";
 import {
-  parsePathnameToCategoryAndSubCategory,
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
   parsePathnameToCategoryAndSubCategory,
@@ -30,7 +29,7 @@ const options = [
     value: SHELTER_PARAM_FAMILY_VALUE,
     label: "Families",
   },
-    {
+  {
     value: SHELTER_PARAM_YOUTH_VALUE,
     label: "Youth",
   },
