@@ -153,7 +153,9 @@ export default function SearchForm() {
 
   function clearSearch() {
     setSearch("");
-    inputRef.current!.value = "";
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
     setShowMapViewOnMobile(false);
     router.push(
       getUrlWithNewFilterParameter(
