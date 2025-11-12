@@ -11,6 +11,7 @@ import { ChangeEvent, useContext } from "react";
 import {
   DEFAULT_SORT_BY_VALUE,
   NEARBY_SORT_BY_VALUE,
+  SEARCH_PARAM,
   SORT_BY_LABELS,
   SORT_BY_QUERY_PARAM,
 } from "./common";
@@ -19,10 +20,8 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
-import { SearchContext, SearchContextType } from "./search-context";
 
 export function SortDropdown() {
-  const { search } = useContext(SearchContext) as SearchContextType;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,6 +45,8 @@ export function SortDropdown() {
 
   const _sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
   const sortBy = _sortBy ? _sortBy : DEFAULT_SORT_BY_VALUE;
+
+  const search = searchParams.get(SEARCH_PARAM);
 
   return !search || search.length === 0 ? (
     <select

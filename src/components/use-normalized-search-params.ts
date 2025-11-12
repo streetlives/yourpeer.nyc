@@ -1,14 +1,6 @@
 import { AGE_PARAM, SEARCH_PARAM, mapsAreEqual } from "./common";
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-
-import { SearchContext, SearchContextType } from "./search-context";
 
 export interface UseNormalizedSearchParamsType {
   normalizedSearchParams?: Map<string, string>;
@@ -18,8 +10,8 @@ export interface UseNormalizedSearchParamsType {
 }
 
 export function useNormalizedSearchParams(): UseNormalizedSearchParamsType {
-  const { search } = useContext(SearchContext) as SearchContextType;
   const searchParams = useSearchParams();
+  const search = searchParams.get(SEARCH_PARAM);
   const [normalizedSearchParams, setNormalizedSearchParams] =
     useState<Map<string, string>>();
   const [ageParam, setAgeParam] = useState<number>();
