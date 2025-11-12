@@ -9,7 +9,6 @@ import {
   isOnLocationDetailPage,
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet,
 } from "@/components/navigation";
-import { getCookies } from "next-client-cookies/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import {
@@ -50,7 +49,7 @@ export default async function LocationDetail(props: {
           sidePanelComponentData={await getSidePanelComponentData({
             searchParams,
             params,
-            cookies: getCookies(),
+            cookies: await cookies(),
           })}
         />
       );

@@ -140,6 +140,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (sortBy) {
     query_url += `&sortBy=${sortBy}`;
 
+    console.log({ latitude, longitude, sortBy });
+
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
       throw new Error(
         `If sortBy is set to ${NEARBY_SORT_BY_VALUE}, then latitude and longitude must be defined`,
@@ -150,8 +152,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
       query_url += `&latitude=${latitude}&longitude=${longitude}`;
     }
   }
-
-  console.log(query_url);
 
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
@@ -551,15 +551,6 @@ export async function getTaxonomies(
     (amenity) => AMENITY_TO_TAXONOMY_NAME_MAP[amenity],
   );
 
-  console.log(
-    "taxonomyResponse",
-    taxonomyResponse.map((r) => r.name),
-    "selectedAmenities",
-    selectedAmenities,
-    "selectedAmenityTaxonomies",
-    selectedAmenityTaxonomies,
-  );
-
   // FIXME: currently it's only two layers deep. Technically, taxonomy can be arbitrary depth, and we should handle that case
   let taxonomies: Taxonomy[] = [];
   let taxonomySpecificAttributes: string[] | null = null;
@@ -747,10 +738,7 @@ export async function getTaxonomies(
           break;
       }
   }
-  console.log(
-    "taxonomies",
-    taxonomies.map((t) => t.id),
-  );
+
   return {
     taxonomies: taxonomies.map((t) => t.id),
     taxonomySpecificAttributes,

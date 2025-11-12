@@ -39,8 +39,6 @@ function SearchPanel({
   ) as SearchContextType;
   const router = useRouter();
 
-  //console.log("currentSearch", currentSearch);
-
   function handleSearchPanelClick() {
     if (currentSearch) {
       setShowMapViewOnMobile(false);
@@ -228,7 +226,7 @@ export default function SearchForm() {
           onChange={doSetSearch}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          value={search || ""}
+          defaultValue={search || ""}
         />
         {search ? (
           <Link

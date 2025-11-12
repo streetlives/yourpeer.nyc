@@ -52,7 +52,7 @@ export default function LocationDetailContainer({
 
   return (
     <div
-      className="details-screen bg-white md:flex z-50 sm:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scroll-smooth flex flex-col"
+      className="details-screen bg-white md:flex z-50 md:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto scroll-smooth flex flex-col"
       ref={containerRef}
       onScroll={handleScroll}
     >

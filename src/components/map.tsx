@@ -34,9 +34,10 @@ import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
+import { useFilters } from "@/lib/store";
 
 function isMobile(): boolean {
-  return window.innerWidth <= 600;
+  return window.innerWidth <= 768;
 }
 
 const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 5;
@@ -133,6 +134,7 @@ function MapWrapper({
   const [lastImportantCenter, setLastImportantCenter] = useState<Position>();
   const [lastImportantZoom, setLastImportantZoom] = useState<number>();
   const googleMap = useMap();
+  const closFilters = useFilters((state) => state.close);
 
   function getUserPositionOrCentralPark(): Position {
     if (!userPosition) return centralPark;
@@ -170,6 +172,7 @@ function MapWrapper({
     locationStub: SimplifiedLocationData,
   ) {
     const pageWidth = document.documentElement.scrollWidth;
+    closFilters();
 
     if (!isMobile()) {
       router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);
@@ -196,22 +199,17 @@ function MapWrapper({
       )
         return;
 
-      //console.log("camera changed: ", ev.detail);
       const newCenter = ev.detail.center;
-      console.log("newCenter", newCenter);
       if (
         newCenter.lat !== 0 &&
         newCenter.lng !== 0 &&
         (mapCenter.lat !== newCenter.lat || mapCenter.lng !== newCenter.lng)
       ) {
-        console.log("setMapCenter(newCenter);", newCenter);
         setMapCenter(newCenter);
       }
 
       const newZoom = ev.detail.zoom;
-      console.log("newZoom ", newZoom);
       if (newZoom && newZoom !== zoom) {
-        console.log("setZoom(newZoom);", newZoom);
         setZoom(newZoom);
       }
     },
@@ -233,7 +231,6 @@ function MapWrapper({
   // FIXME: we might not actually need this?
   useEffect(() => {
     if (showMapViewOnMobile && googleMap) {
-      console.log("set initial mapCenter, zoom", mapCenter, zoom);
       googleMap.setCenter(mapCenter);
       googleMap.setZoom(zoom);
     }
