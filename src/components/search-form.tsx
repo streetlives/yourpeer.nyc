@@ -153,17 +153,18 @@ export default function SearchForm() {
     );
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
-  async function clearSearch() {
+  function clearSearch() {
     setSearch("");
     inputRef.current!.value = "";
     setShowMapViewOnMobile(false);
-    const clearedUrl = getUrlWithoutFilterParameter(
-      paramsToPathname(currentParams),
-      {},
-      SEARCH_PARAM,
+    router.push(
+      getUrlWithNewFilterParameter(
+        paramsToPathname(paramsToUseForNextUrl.params),
+        paramsToUseForNextUrl.searchParams,
+        SEARCH_PARAM,
+        "",
+      ),
     );
-    await router.push(clearedUrl);
-    router.refresh();
   }
 
   function doSetSearch(e: ChangeEvent) {
@@ -223,16 +224,9 @@ export default function SearchForm() {
           }}
         />
         {search ? (
-          <Link
-            onClick={clearSearch}
-            href={getUrlWithoutFilterParameter(
-              paramsToPathname(paramsToUseForNextUrl.params),
-              paramsToUseForNextUrl.searchParams,
-              SEARCH_PARAM,
-            )}
-          >
+          <button onClick={clearSearch}>
             <XMarkIcon className="w-5 h-5 text-black" />
-          </Link>
+          </button>
         ) : undefined}
       </div>
       {inputHasFocus && search ? (
