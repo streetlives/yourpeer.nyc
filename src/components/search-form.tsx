@@ -13,7 +13,13 @@ import {
   useSearchParams,
 } from "next/navigation";
 import Link from "next/link";
-import React, { ChangeEvent, useContext, useEffect, useState } from "react";
+import React, {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
 import {
   getUrlWithNewFilterParameter,
@@ -125,6 +131,7 @@ export default function SearchForm() {
   // then navigate to the new URL
   const { search, setSearch, showMapViewOnMobile, setShowMapViewOnMobile } =
     useContext(SearchContext) as SearchContextType;
+  const inputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams() as ReadonlyURLSearchParams;
   const searchParamFromQuery = searchParams && searchParams.get(SEARCH_PARAM);
   const [inputHasFocus, setInputHasFocus] = useState(false);
@@ -161,6 +168,7 @@ export default function SearchForm() {
 
   function clearSearch() {
     setSearch("");
+    inputRef.current!.value = "";
     setShowMapViewOnMobile(false);
     router.push(
       getUrlWithoutFilterParameter(
@@ -226,6 +234,7 @@ export default function SearchForm() {
           onChange={doSetSearch}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          ref={inputRef}
           defaultValue={search || ""}
         />
         {search ? (
