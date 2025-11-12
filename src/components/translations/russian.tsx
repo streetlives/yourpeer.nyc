@@ -303,6 +303,7 @@ const translations: Record<string, string> = {
   "All Employment locations": "Все места работы",
   "All Legal Services locations": "Все офисы юридических услуг",
   "All Mental Health locations": "Все центры психического здоровья",
+  Youth: "Молодость",
 };
 
 export default translations;
