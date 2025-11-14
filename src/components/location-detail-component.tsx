@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { EditIcon } from "@/components/icons/edit-icon";
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
+import { useReply } from "@/context/ReplyContext";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -58,6 +59,7 @@ export default function LocationDetailComponent({
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
+  const { isReplying } = useReply();
   const router = useRouter();
   const previousRoute = usePreviousRoute();
 
@@ -142,7 +144,8 @@ export default function LocationDetailComponent({
                 setIsShowingReviewDetails(false);
                 setIsShowingReviewForm(true);
               }}
-              className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+              disabled={isReplying}
+              className=" flex items-center disabled:opacity-55 disabled:cursor-not-allowed justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
             >
               <PlusCircleIcon className="w-5 h-5 text-white" />
               <span>Add review</span>
@@ -226,7 +229,7 @@ export default function LocationDetailComponent({
                     <div>
                       <button
                         onClick={() => setIsShowingReviewForm(true)}
-                        className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+                        className=" flex items-center disabled:opacity-65 disabled:cursor-not-allowed justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
                       >
                         <PlusCircleIcon className="w-5 h-5 text-white" />
                         <span>Add review</span>
