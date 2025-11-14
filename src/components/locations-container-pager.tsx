@@ -53,7 +53,7 @@ export function LocationsContainerPager({
           </svg>
           <TranslatableText text="Previous" />
         </a>
-        <div className="text-dark font-medium">
+        <div className="text-dark font-medium" translate="no">
           <span> {currentPage + 1} </span>
           <span>&nbsp;of&nbsp;</span>
           <span>{numberOfPages + 1}</span>
