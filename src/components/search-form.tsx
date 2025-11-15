@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useViewStore } from "@/lib/store";
+import { useFilters, useViewStore } from "@/lib/store";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   ReadonlyURLSearchParams,
@@ -33,10 +33,14 @@ function SearchPanel({
   paramsToUseForNextUrl: PreviousParams;
 }) {
   const { setShowMapViewOnMobile } = useViewStore();
+  const setLoading = useFilters((state) => state.setLoading);
   const router = useRouter();
 
   function handleSearchPanelClick() {
     if (currentSearch) {
+      if (shouldStartLoading(currentSearch, paramsToUseForNextUrl)) {
+        setLoading(true);
+      }
       setShowMapViewOnMobile(false);
       router.push(
         getUrlWithNewFilterParameter(
@@ -113,6 +117,23 @@ function convertReadonlyURLSearchParamsToSearchParams(
   return Object.fromEntries(Array.from(readonlyURLSearchParams.entries()));
 }
 
+function getSearchParamValue(previousParams: PreviousParams): string {
+  const searchParamValue = previousParams.searchParams?.[SEARCH_PARAM];
+
+  if (Array.isArray(searchParamValue)) {
+    return searchParamValue[0] ?? "";
+  }
+
+  return searchParamValue ?? "";
+}
+
+function shouldStartLoading(
+  nextSearchValue: string,
+  paramsToUseForNextUrl: PreviousParams,
+): boolean {
+  return getSearchParamValue(paramsToUseForNextUrl) !== nextSearchValue;
+}
+
 export default function SearchForm() {
   const { setShowMapViewOnMobile } = useViewStore();
   const [search, setSearch] = useState<string | null>(null);
@@ -123,6 +144,7 @@ export default function SearchForm() {
   const router = useRouter();
   const pathname = usePathname() as string;
   const previousParams = usePreviousParamsOnClient();
+  const setLoading = useFilters((state) => state.setLoading);
   const searchParamFromCookie = previousParams?.searchParams[
     SEARCH_PARAM
   ] as string;
@@ -153,8 +175,9 @@ export default function SearchForm() {
 
   function clearSearch() {
     setSearch("");
-    if (inputRef.current) {
-      inputRef.current.value = "";
+    if (inputRef.current) inputRef.current.value = "";
+    if (shouldStartLoading("", paramsToUseForNextUrl)) {
+      setLoading(true);
     }
     setShowMapViewOnMobile(false);
     router.push(
@@ -190,6 +213,9 @@ export default function SearchForm() {
     });
 
     if (search) {
+      if (shouldStartLoading(search, paramsToUseForNextUrl)) {
+        setLoading(true);
+      }
       setShowMapViewOnMobile(false);
       router.push(
         getUrlWithNewFilterParameter(
