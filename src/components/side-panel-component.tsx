@@ -17,6 +17,7 @@ import LocationsContainer from "./locations-container";
 import { useEffect } from "react";
 import { SidePanelComponentData } from "./get-side-panel-component-data";
 import { useFilters } from "@/lib/store";
+import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 
 export function SidePanelComponent({
   searchParams,
@@ -36,6 +37,7 @@ export function SidePanelComponent({
   const cookies = useCookies();
   const updateResultsCount = useFilters((state) => state.updateResultCount);
   const setLoading = useFilters((state) => state.setLoading);
+  const isLoading = useFilters((state) => state.isLoading);
 
   useEffect(() => {
     updateResultsCount(resultCount);
@@ -52,9 +54,14 @@ export function SidePanelComponent({
   return (
     <>
       <div
-        className="w-full h-full md:h-full flex flex-col"
+        className="w-full h-full md:h-full flex flex-col relative"
         id="filters_and_list_screen"
       >
+        {isLoading ? (
+          <div className="absolute inset-0 z-20 overflow-y-auto bg-white">
+            <SidebarLoadingAnimation />
+          </div>
+        ) : undefined}
         <FiltersHeader
           category={category}
           subCategory={subCategory}
