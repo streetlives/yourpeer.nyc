@@ -136,7 +136,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     query_url += `&openAt=${new Date().toISOString()}`;
   }
 
-  if (sortBy) {
+  if (sortBy && !search) {
     query_url += `&sortBy=${sortBy}`;
 
     console.log({ latitude, longitude, sortBy });

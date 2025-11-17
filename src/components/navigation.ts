@@ -143,9 +143,9 @@ export function getUrlWithNewFilterParameter(
   // always delete the current page
   // FIXME: should we just call removeExtraneousSearchParams instead of duplicating the logic here?
   currentUrlSearchParams.delete(PAGE_PARAM);
-  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
-    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
-  }
+  // if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+  //   currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
+  // }
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
