@@ -6,7 +6,7 @@
 
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -72,6 +72,22 @@ const links = {
 
 type CategoryHasSubmenu = keyof typeof links;
 
+const slideLeftVariants: Variants = {
+  hidden: {
+    x: "100%", // off-screen right
+    opacity: 0,
+    pointerEvents: "none",
+  },
+  visible: {
+    x: 0,
+    opacity: 1,
+    pointerEvents: "auto",
+    transition: {
+      type: "tween",
+    },
+  },
+};
+
 const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   const [nestedNav, setNestedNav] = useState(false);
   const [activeSubcategory, setActiveSubcategory] =
@@ -103,6 +119,7 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
           : activeSubcategory === "personal-care"
             ? CATEGORY_DESCRIPTION_MAP["personal-care"]
             : undefined;
+
   return (
     <AnimatePresence>
       <>
@@ -193,17 +210,16 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
           <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col">
             <div className="flex-1 relative">
               <motion.div
-                animate={{ x: "0" }}
-                initial={{ x: "100%" }}
-                transition={{ type: "tween", duration: 0.3 }}
-                className={`${nestedNav ? "block" : "hidden"}`}
+                variants={slideLeftVariants}
+                initial="hidden"
+                animate={nestedNav ? "visible" : "hidden"}
               >
                 <motion.div
-                  className={`${subCategoryMenu ? "flex" : "hidden"}  pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0`}
+                  className={`flex  pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0`}
                   id="servicesNav"
-                  animate={{ x: "0" }}
-                  initial={{ x: "100%" }}
-                  transition={{ type: "tween", duration: 0.3 }}
+                  variants={slideLeftVariants}
+                  initial="hidden"
+                  animate={subCategoryMenu ? "visible" : "hidden"}
                 >
                   {links["shelter-housing"].map((item, idx) => (
                     <Link
