@@ -14,24 +14,29 @@ const DonationBanner = () => {
             <HeartIcon className="w-6 h-6 mt-1 md:mt-1.5 text-amber-300" />
           </span>
           <div className="flex-1">
-            <div
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
+            <div className="flex items-center justify-between">
               {isExpanded ? (
                 <p className="text-sm text-gray-800 font-medium">
                   Help us keep going
                 </p>
               ) : (
                 <p className="text-sm">
-                  <a href="#" className="text-blue underline">
+                  <a
+                    href="https://opencollective.com/streetlives"
+                    target="_blank"
+                    className="text-blue underline"
+                  >
                     Donate here
                   </a>{" "}
                   <span>to help us keep going.</span>
                 </p>
               )}
 
-              <button aria-expanded={isExpanded} className="p-1">
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                aria-expanded={isExpanded}
+                className="p-1"
+              >
                 <motion.span
                   animate={{ rotate: isExpanded ? 180 : 0 }}
                   transition={{ duration: 0.18 }}
@@ -55,7 +60,11 @@ const DonationBanner = () => {
                 >
                   <div className="pt-2">
                     <p className="text-sm text-neutral-700">
-                      <a href="#" className="underline text-blue">
+                      <a
+                        href="https://opencollective.com/streetlives"
+                        target="_blank"
+                        className="underline text-blue"
+                      >
                         Donate here.
                       </a>
                       <br />
