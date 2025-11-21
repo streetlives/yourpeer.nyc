@@ -71,7 +71,7 @@ export default async function HomePage() {
         className="w-full flex flex-col bg-center pt-16 bg-cover bg-no-repeat bg-amber-300"
         style={{ backgroundImage: "url(/img/home-banner.png)" }}
       >
-        <div className="pt-8 pb-12 sm:pt-20 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
+        <div className="pb-12 pt-28 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
           <h1
             className="customTranslation text-grey-900 font-extrabold text-3xl md:text-5xl text-center lg:leading-tight"
             data-text="Free support services validated by your peers"

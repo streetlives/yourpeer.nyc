@@ -58,7 +58,7 @@ export default async function LocationsLayout(props: {
         ) : COMPANY_ROUTES.includes(route as CompanyRoute) ? (
           <>
             <LocationsNavbarCompanyRoutes />
-            {staticPage}
+            <div className="pt-14 lg:pt-16">{staticPage}</div>
             <Footer />
           </>
         ) : (
