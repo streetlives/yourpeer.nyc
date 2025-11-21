@@ -56,7 +56,7 @@ function SearchPanel({
 
   return (
     <div
-      className="bg-white fixed md:absolute bottom-0 md:bottom-auto w-full top-[49.6px] md:top-full inset-x-0 rounded border md:border-gray-300"
+      className="bg-white fixed md:absolute bottom-0 md:bottom-auto w-full top-[104.6px] md:top-full inset-x-0 rounded border md:border-gray-300"
       id="search_panel"
     >
       <div>
