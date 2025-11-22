@@ -3,6 +3,9 @@ import { ChevronDownIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
 
+const donationLink =
+  "https://opencollective.com/streetlives#category-CONTRIBUTE";
+
 const DonationBanner = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -22,7 +25,7 @@ const DonationBanner = () => {
               ) : (
                 <p className="text-sm">
                   <a
-                    href="https://opencollective.com/streetlives"
+                    href={donationLink}
                     target="_blank"
                     className="text-blue underline"
                   >
@@ -61,7 +64,7 @@ const DonationBanner = () => {
                   <div className="pt-2">
                     <p className="text-sm text-neutral-700">
                       <a
-                        href="https://opencollective.com/streetlives"
+                        href={donationLink}
                         target="_blank"
                         className="underline text-blue"
                       >

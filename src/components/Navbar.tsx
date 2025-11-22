@@ -14,6 +14,8 @@ import "@aws-amplify/ui-react/styles.css";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
 import DonationBanner from "./donation-banner";
 
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
+
 export default function Navbar({ background = true }: { background: boolean }) {
   const [open, setOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
@@ -44,8 +46,7 @@ export default function Navbar({ background = true }: { background: boolean }) {
         }`}
         id="header"
       >
-        <DonationBanner />
-
+        {SHOW_DONATION_BANNER && <DonationBanner />}
         <nav className="flex items-center justify-between px-5 py-5 h-16 max-w-5xl mx-auto w-full">
           <div className="flex items-center space-x-3">
             <button
