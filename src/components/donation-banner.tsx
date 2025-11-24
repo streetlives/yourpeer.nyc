@@ -17,29 +17,22 @@ const DonationBanner = () => {
             <HeartIcon className="w-6 h-6 mt-1 md:mt-1.5 text-amber-300" />
           </span>
           <div className="flex-1">
-            <div className="flex items-center justify-between">
-              {isExpanded ? (
-                <p className="text-sm text-gray-800 font-medium">
-                  Help us keep going
-                </p>
-              ) : (
-                <p className="text-sm">
-                  <a
-                    href={donationLink}
-                    target="_blank"
-                    className="text-blue underline"
-                  >
-                    Donate here
-                  </a>{" "}
-                  <span>to help us keep going.</span>
-                </p>
-              )}
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
+              <p className="text-sm">
+                <a
+                  href={donationLink}
+                  target="_blank"
+                  className="text-blue font-medium underline"
+                >
+                  Donate now
+                </a>
+                <span>, support real-time help in NYC</span>
+              </p>
 
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                aria-expanded={isExpanded}
-                className="p-1"
-              >
+              <button className="p-1">
                 <motion.span
                   animate={{ rotate: isExpanded ? 180 : 0 }}
                   transition={{ duration: 0.18 }}
@@ -61,20 +54,10 @@ const DonationBanner = () => {
                   className="overflow-hidden"
                   style={{ willChange: "height, opacity" }}
                 >
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <p className="text-sm text-neutral-700">
-                      <a
-                        href={donationLink}
-                        target="_blank"
-                        className="underline text-blue"
-                      >
-                        Donate here.
-                      </a>
-                      <br />
-                      <span>
-                        Or email team@streetlives.nyc about relevant funding
-                        opportunities.
-                      </span>
+                      Thank you! You&apos;re making it easier for more New
+                      Yorkers to find the services they need.
                     </p>
                   </div>
                 </motion.div>
