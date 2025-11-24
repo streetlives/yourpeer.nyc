@@ -54,7 +54,7 @@ const DonationBanner = () => {
                   className="overflow-hidden"
                   style={{ willChange: "height, opacity" }}
                 >
-                  <div className="pt-1">
+                  <div className="py-1">
                     <p className="text-sm text-neutral-700">
                       Thank you! You&apos;re making it easier for more New
                       Yorkers to find the services they need.
