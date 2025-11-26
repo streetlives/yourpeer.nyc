@@ -375,8 +375,9 @@ export default function Service({
                             {service.docs
                               ? service.docs.map((req) => (
                                   <p key={req} className="text-dark text-sm">
-                                    {req === null || req === "None"
-                                      ? "No proofs required"
+                                    {req === null ||
+                                    req === "No documents required"
+                                      ? "No documents required"
                                       : `Requires ${req}`}
                                   </p>
                                 ))
