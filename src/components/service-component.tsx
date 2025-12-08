@@ -400,7 +400,7 @@ export default function Service({
                               <p className="text-dark text-sm">
                                 Age requirements:
                               </p>
-                              <ul className="flex flex-col space-y-3">
+                              <ul className="flex flex-col">
                                 {service.age.map((ageReq) => (
                                   <li
                                     key={JSON.stringify(ageReq)}
