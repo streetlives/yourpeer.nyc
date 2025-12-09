@@ -418,10 +418,7 @@ export default function Service({
                                         lang={targetLanguage || undefined}
                                       >
                                         {renderAgeEligibility(ageReq)}
-                                      </span>{" "}
-                                      {ageReq["population_served"] ? (
-                                        <span>{`(${ageReq["population_served"]})`}</span>
-                                      ) : undefined}
+                                      </span>
                                     </p>
                                   </li>
                                 ))}
