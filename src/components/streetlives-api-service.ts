@@ -307,11 +307,7 @@ function filter_services_by_name(
         taxonomy.parent_name,
       ]).filter((t) => t !== null),
     );
-    if (category_name == "health-care") {
-      taxonomiesForService = new Set(
-        service.Taxonomies.map((taxonomy) => taxonomy.name),
-      );
-    }
+
     if (
       !category_name ||
       taxonomiesForService.has(CATEGORY_TO_TAXONOMY_NAME_MAP[category_name])
@@ -329,7 +325,14 @@ function filter_services_by_name(
           }
         }
       }
-      if (service["Taxonomies"].length !== 0) {
+
+      if (
+        !(
+          category_name === "health-care" &&
+          taxonomiesForService.has("Mental Health")
+        ) &&
+        service["Taxonomies"].length !== 0
+      ) {
         services.push({
           id: service.id,
           name: service["name"],
