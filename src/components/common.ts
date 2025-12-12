@@ -14,10 +14,10 @@ export const CATEGORIES = [
   "clothing",
   "personal-care",
   "health-care",
-  "other",
-  "legal-services",
   "mental-health",
+  "legal-services",
   "employment",
+  "other",
 ] as const;
 
 // TODO: other pages
