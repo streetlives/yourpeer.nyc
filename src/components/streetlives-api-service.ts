@@ -301,6 +301,7 @@ function filter_services_by_name(
   const services: YourPeerLegacyServiceData[] = [];
   for (let service of d.Services) {
     let age_eligibilities = null;
+    console.log('filter_services_by_name', 'service.Taxonomies', service.Taxonomies, 'service', service);
     let taxonomiesForService = new Set(
       service.Taxonomies.flatMap((taxonomy) => [
         taxonomy.name,
