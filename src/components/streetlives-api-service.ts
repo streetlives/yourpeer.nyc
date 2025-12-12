@@ -303,10 +303,10 @@ function filter_services_by_name(
     let age_eligibilities = null;
     console.log(
       "filter_services_by_name",
+      "service.id",
+      service.id,
       "service.Taxonomies",
       service.Taxonomies,
-      "service",
-      service,
     );
     let taxonomiesForService = new Set(
       service.Taxonomies.flatMap((taxonomy) => [
