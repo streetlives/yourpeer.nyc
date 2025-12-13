@@ -65,7 +65,7 @@ export default function Service({
   const hasSomethingToShow = !!(
     service.description ||
     service.info.length ||
-    service.docs?.length ||
+    service.docs?.filter((doc) => doc.trim() !== "None").length ||
     Object.keys(service.schedule).length
   );
 
