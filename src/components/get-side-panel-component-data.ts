@@ -2,6 +2,7 @@ import {
   Category,
   REQUIREMENT_PARAM,
   RouteParams,
+  SHELTER_PARAM_YOUTH_VALUE,
   SORT_BY_QUERY_PARAM,
   SearchParams,
   SubCategory,
@@ -47,6 +48,8 @@ export async function getSidePanelComponentData({
     ...parsedSearchParams[REQUIREMENT_PARAM],
     ...taxonomiesResults,
     sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
+    ageMin: subCategory === SHELTER_PARAM_YOUTH_VALUE ? 16 : undefined,
+    ageMax: subCategory === SHELTER_PARAM_YOUTH_VALUE ? 24 : undefined,
   });
 
   const yourPeerLegacyLocationData = locations.map((location) =>

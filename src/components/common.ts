@@ -440,8 +440,6 @@ export function parseRequest({
   const latitudeCookie = cookies && cookies.get(LATITUDE_COOKIE_NAME);
   const longitudeCookie = cookies && cookies.get(LONGITUDE_COOKIE_NAME);
 
-  console.log({ latitudeCookie, longitudeCookie });
-
   return {
     [SEARCH_PARAM]:
       typeof searchParams[SEARCH_PARAM] === "string"

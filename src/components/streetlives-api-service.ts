@@ -71,6 +71,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search = undefined,
   location_fields_only,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy = null,
   latitude,
@@ -87,6 +89,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search?: string | null;
   location_fields_only?: boolean;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -101,9 +105,16 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (location_fields_only) {
     query_url += `&locationFieldsOnly=true`;
   }
+
+  console.log("ageMin", ageMin);
+  console.log("ageMax", ageMax);
+
   if (age) {
     query_url += `&age=${age}`;
+  } else if (ageMin || ageMax) {
+    query_url += `&ageMin=${ageMin}&ageMax=${ageMax}`;
   }
+
   if (taxonomies && taxonomies.length) {
     query_url += `&taxonomyId=${taxonomies.join(",")}`;
   }
@@ -140,8 +151,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (sortBy) {
     query_url += `&sortBy=${sortBy}`;
 
-    console.log({ latitude, longitude, sortBy });
-
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
       throw new Error(
         `If sortBy is set to ${NEARBY_SORT_BY_VALUE}, then latitude and longitude must be defined`,
@@ -152,6 +161,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
       query_url += `&latitude=${latitude}&longitude=${longitude}`;
     }
   }
+
+  console.log(`Fetching locations data from GoGetta: ${query_url}`);
 
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
@@ -198,6 +209,8 @@ export async function getSimplifiedLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMin = undefined,
+  ageMax = undefined,
   shelter = undefined,
 }: {
   page?: number;
@@ -210,6 +223,8 @@ export async function getSimplifiedLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
 }): Promise<SimplifiedLocationData[]> {
@@ -223,6 +238,8 @@ export async function getSimplifiedLocationData({
       open,
       search,
       age,
+      ageMin,
+      ageMax,
       shelter,
       location_fields_only: true,
     });
@@ -240,6 +257,8 @@ export async function getFullLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy,
   latitude,
@@ -255,6 +274,8 @@ export async function getFullLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -272,6 +293,8 @@ export async function getFullLocationData({
     search,
     sortBy,
     age,
+    ageMax,
+    ageMin,
     shelter,
     location_fields_only: false,
     latitude,
@@ -717,12 +740,7 @@ export async function getTaxonomies(
           break;
         case SHELTER_PARAM_YOUTH_VALUE:
           taxonomies = taxonomyResponse.flatMap((r) =>
-            !r.children
-              ? []
-              : r.children.filter(
-                  (t) =>
-                    t.parent_name === parentTaxonomyName && t.name === "Youth",
-                ),
+            r.name === parentTaxonomyName ? [r as Taxonomy] : [],
           );
           break;
         case SHELTER_PARAM_SINGLE_VALUE:
