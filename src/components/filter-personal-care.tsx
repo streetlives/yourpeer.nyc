@@ -8,6 +8,7 @@ import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import {
+  AMENITIES_PARAM_HAIRCUTS_VALUE,
   AMENITIES_PARAM_LAUNDRY_VALUE,
   AMENITIES_PARAM_RESTROOM_VALUE,
   AMENITIES_PARAM_SHOWER_VALUE,
@@ -38,6 +39,10 @@ const options = [
   {
     value: AMENITIES_PARAM_LAUNDRY_VALUE,
     label: "Laundry",
+  },
+  {
+    value: AMENITIES_PARAM_HAIRCUTS_VALUE,
+    label: "Haircuts",
   },
 ];
 
