@@ -51,8 +51,6 @@ export default function Service({
   const params = useParams();
   const [hasScrolled, setHasScrolled] = useState(false);
 
-  console.log({ service });
-
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -62,12 +60,14 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  const hasSomethingToShow = !!(
-    service.description ||
-    service.info.length ||
-    service.docs?.filter((doc) => doc.trim() !== "None").length ||
-    Object.keys(service.schedule).length
-  );
+  const hasSomethingToShow = service.closed
+    ? !!service.info.length
+    : !!(
+        service.description ||
+        service.info.length ||
+        service.docs?.filter((doc) => doc.trim() !== "None").length ||
+        Object.keys(service.schedule).length
+      );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
