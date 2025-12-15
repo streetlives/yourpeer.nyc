@@ -162,8 +162,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     }
   }
 
-  console.log(`Fetching locations data from GoGetta: ${query_url}`);
-
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
     if (gogetta_response.status === 404) {
