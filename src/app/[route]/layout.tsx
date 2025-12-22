@@ -16,7 +16,6 @@ import {
   LocationsNavbarResourceRoutes,
 } from "../../components/locations-navbar";
 import { notFound } from "next/navigation";
-import { SearchProvider } from "@/components/search-context";
 import { MainComponent } from "@/components/main-component";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
@@ -42,20 +41,18 @@ export default async function LocationsLayout(props: {
         {RESOURCE_ROUTES.includes(route) ? (
           <>
             <div className="h-[100vh] w-full">
-              <SearchProvider>
-                <GeoCoordinatesProvider>
-                  <MapListToggleButton />
-                  <div className="flex flex-col w-full h-full">
-                    <div>
-                      <LocationsNavbarResourceRoutes />
-                    </div>
-                    <MainComponent
-                      mapContainer={mapContainer}
-                      sidePanel={sidePanel}
-                    />
+              <GeoCoordinatesProvider>
+                <MapListToggleButton />
+                <div className="flex flex-col w-full h-full">
+                  <div>
+                    <LocationsNavbarResourceRoutes />
                   </div>
-                </GeoCoordinatesProvider>
-              </SearchProvider>
+                  <MainComponent
+                    mapContainer={mapContainer}
+                    sidePanel={sidePanel}
+                  />
+                </div>
+              </GeoCoordinatesProvider>
             </div>
           </>
         ) : COMPANY_ROUTES.includes(route as CompanyRoute) ? (

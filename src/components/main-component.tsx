@@ -2,12 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { LOCATION_ROUTE } from "./common";
-import { Suspense, useContext } from "react";
-import { SearchContext, SearchContextType } from "./search-context";
+import { Suspense } from "react";
 import classNames from "classnames";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { MapLoadingAnimation } from "./map-loading-animation";
 import FiltersPopup from "./filters-popup";
+import { useViewStore } from "@/lib/store";
 
 export function MainComponent({
   mapContainer,
@@ -23,9 +23,9 @@ export function MainComponent({
     firstPathComponent === LOCATION_ROUTE &&
     typeof secondPathComponent === "string";
 
-  const { showMapViewOnMobile } = useContext(
-    SearchContext,
-  ) as SearchContextType;
+  const showMapViewOnMobile = useViewStore(
+    (state) => state.showMapViewOnMobile,
+  );
 
   const showMapView = showMapViewOnMobile && !isLocationDetailPage;
 

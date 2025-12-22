@@ -51,6 +51,8 @@ export default function Service({
   const params = useParams();
   const [hasScrolled, setHasScrolled] = useState(false);
 
+  console.log({ service });
+
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -337,9 +339,9 @@ export default function Service({
                       ))}
                       <li className="flex items-start space-x-2">
                         {service.membership ||
-                        service.eligibility?.length ||
-                        service.docs?.length ||
-                        service.age?.length ? (
+                        service.eligibility?.some(Boolean) ||
+                        service.docs?.some(Boolean) ||
+                        service.age?.some(Boolean) ? (
                           <span className="text-danger">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
