@@ -4,6 +4,10 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import { useNormalizedSearchParams } from "@/components/use-normalized-search-params";
+import { useFilters } from "@/lib/store";
+import classNames from "classnames";
+import Link from "next/link";
 import {
   AGE_PARAM,
   CATEGORIES,
@@ -16,10 +20,12 @@ import {
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
   getIconPath,
-<<<<<<< HEAD
   getParsedAmenities,
+  HEALTH_PARAM_MENTAL_HEALTH,
   LOCATION_ROUTE,
   OPEN_PARAM,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
   parsePathnameToCategoryAndSubCategory,
   parseRequirementParam,
   PERSONAL_CARE_CATEGORY,
@@ -29,29 +35,17 @@ import {
   SearchParams,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
-  SHOW_ADVANCED_FILTERS_PARAM,
-=======
-  HEALTH_PARAM_MENTAL_HEALTH,
-  LOCATION_ROUTE,
-  OTHER_PARAM_EMPLOYMENT_VALUE,
-  OTHER_PARAM_LEGAL_VALUE,
-  SearchParams,
->>>>>>> origin/main
+  SORT_BY_QUERY_PARAM,
   SubCategory,
 } from "./common";
-import Link from "next/link";
-import classNames from "classnames";
 import {
   getUrlWithNewCategory,
   getUrlWithNewCategoryAndSubcategory,
+  getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
   getUrlWithSubCategoryAddedOrRemoved,
 } from "./navigation";
 import { TranslatableText } from "./translatable-text";
-<<<<<<< HEAD
-import { useNormalizedSearchParams } from "@/components/use-normalized-search-params";
-=======
-import { useFilters } from "@/lib/store";
 
 const otherCategories = [
   {
@@ -76,7 +70,6 @@ const otherCategories = [
     href: "/other-services/employment",
   },
 ];
->>>>>>> origin/main
 
 export default function FiltersHeader({
   category: currentCategory,
@@ -93,7 +86,6 @@ export default function FiltersHeader({
       ? LOCATION_ROUTE
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
-<<<<<<< HEAD
 
   const { normalizedSearchParams } = useNormalizedSearchParams();
 
@@ -123,9 +115,7 @@ export default function FiltersHeader({
     return "No Requirements";
   };
 
-=======
   const openFiltersPopup = useFilters((state) => state.open);
->>>>>>> origin/main
   const commonClassNames = [
     "inline-flex",
     "flex-shrink-0",
@@ -222,7 +212,6 @@ export default function FiltersHeader({
             </span>
           </Link>
         ) : undefined}
-<<<<<<< HEAD
         {searchParams[OPEN_PARAM] ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
@@ -337,7 +326,7 @@ export default function FiltersHeader({
             href={getUrlWithNewFilterParameter(
               pathname,
               searchParams,
-              SHOW_ADVANCED_FILTERS_PARAM,
+              SORT_BY_QUERY_PARAM,
             )}
           >
             <img
@@ -369,7 +358,7 @@ export default function FiltersHeader({
             href={getUrlWithNewFilterParameter(
               pathname,
               searchParams,
-              SHOW_ADVANCED_FILTERS_PARAM,
+              SORT_BY_QUERY_PARAM,
             )}
           >
             <svg
@@ -399,10 +388,7 @@ export default function FiltersHeader({
           </Link>
         ) : undefined}
 
-        <Link
-=======
         <button
->>>>>>> origin/main
           className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
           style={linkHeight}
           onClick={openFiltersPopup}
