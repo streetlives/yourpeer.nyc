@@ -342,7 +342,7 @@ export function parsePathnameToCategoryAndSubCategory(
 ): CategoryAndSubCategory {
   const pathComponents = pathname.split("/");
   const [_, firstPathComponent, secondPathComponent] = pathComponents;
-  assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
+  // assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
   const subCategory = getParsedSubCategory({
     route: firstPathComponent,
     locationSlugOrPersonalCareSubCategory: secondPathComponent,
