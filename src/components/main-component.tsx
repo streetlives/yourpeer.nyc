@@ -2,11 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { LOCATION_ROUTE } from "./common";
-import { Suspense, useContext } from "react";
-import { SearchContext, SearchContextType } from "./search-context";
+import { Suspense } from "react";
 import classNames from "classnames";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { MapLoadingAnimation } from "./map-loading-animation";
+import FiltersPopup from "./filters-popup";
+import { useViewStore } from "@/lib/store";
 
 export function MainComponent({
   mapContainer,
@@ -22,9 +23,9 @@ export function MainComponent({
     firstPathComponent === LOCATION_ROUTE &&
     typeof secondPathComponent === "string";
 
-  const { showMapViewOnMobile } = useContext(
-    SearchContext,
-  ) as SearchContextType;
+  const showMapViewOnMobile = useViewStore(
+    (state) => state.showMapViewOnMobile,
+  );
 
   const showMapView = showMapViewOnMobile && !isLocationDetailPage;
 
@@ -43,11 +44,12 @@ export function MainComponent({
         className="relative w-full md:w-1/2 lg:w-1/3 bg-white overflow-hidden"
         id="left_panel"
       >
+        <FiltersPopup />
         <Suspense fallback={<SidebarLoadingAnimation />}>{sidePanel}</Suspense>
       </div>
       <div
         id="map_container"
-        className="w-full md:block md:w-1/2 lg:w-2/3 bg-gray-300 h-full flex-1 relative"
+        className="w-full md:block md:w-1/2 lg:w-2/3 bg-gray-300 flex-1 relative"
       >
         <Suspense fallback={<MapLoadingAnimation />}>{mapContainer}</Suspense>
       </div>

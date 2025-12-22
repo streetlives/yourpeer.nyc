@@ -19,6 +19,7 @@ import {
   LOCATION_ROUTE,
   LONGITUDE_COOKIE_NAME,
   NEARBY_SORT_BY_VALUE,
+  OtherValues,
   PAGE_PARAM,
   parsePageParam,
   parsePathnameToCategoryAndSubCategory,
@@ -32,6 +33,7 @@ import {
   SearchParams,
   ShelterValues,
   SORT_BY_QUERY_PARAM,
+  SubCategory,
   SubRouteParams,
   UrlParamName,
 } from "./common";
@@ -75,6 +77,26 @@ export function getUrlWithNewCategory(
   const newSearchParamsStr = currentUrlSearchParams.toString();
   const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
   return `/${newCategory ? CATEGORY_TO_ROUTE_MAP[newCategory] : LOCATION_ROUTE}${query}`;
+}
+
+export function getUrlWithNewCategoryAndSubcategory(
+  newCategory: Category,
+  subCategory: SubCategory | null,
+  searchParams:
+    | ReadonlyURLSearchParams
+    | SearchParams
+    | Map<string, string>
+    | undefined
+    | null,
+): string {
+  const searchParamsList: string[][] = getSearchParamsList(searchParams);
+  const currentUrlSearchParams = new URLSearchParams(searchParamsList);
+
+  // always delete the current page
+  removeExtraneousSearchParams(newCategory, currentUrlSearchParams);
+  const newSearchParamsStr = currentUrlSearchParams.toString();
+  const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
+  return `/${newCategory ? CATEGORY_TO_ROUTE_MAP[newCategory] + "/" + subCategory : LOCATION_ROUTE}${query}`;
 }
 
 function getSearchParamsList(
@@ -121,9 +143,9 @@ export function getUrlWithNewFilterParameter(
   // always delete the current page
   // FIXME: should we just call removeExtraneousSearchParams instead of duplicating the logic here?
   currentUrlSearchParams.delete(PAGE_PARAM);
-  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
-    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
-  }
+  // if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+  //   currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
+  // }
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
@@ -310,6 +332,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
     | FoodValues
     | ClothingValues
     | ShelterValues
+    | OtherValues
     | null,
 ): string {
   if (!pathname) {

@@ -16,43 +16,43 @@ import {
   LocationsNavbarResourceRoutes,
 } from "../../components/locations-navbar";
 import { notFound } from "next/navigation";
-import { SearchProvider } from "@/components/search-context";
 import { MainComponent } from "@/components/main-component";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
+import GTProdGuardScript from "@/components/gt-prod-guard-script";
 
-export default function LocationsLayout({
-  mapContainer,
-  sidePanel,
-  staticPage,
-  params: { route },
-}: {
+export default async function LocationsLayout(props: {
   mapContainer: React.ReactNode;
   sidePanel: React.ReactNode;
   staticPage: React.ReactNode;
-  params: { route: string };
+  params: Promise<{ route: string }>;
 }) {
+  const params = await props.params;
+
+  const { route } = params;
+
+  const { mapContainer, sidePanel, staticPage } = props;
+
   return (
     <>
+      <GTProdGuardScript />
       <GTranslateWrapper />
       <span>
         {RESOURCE_ROUTES.includes(route) ? (
           <>
-            <div className="h-[100dvh] w-full">
-              <SearchProvider>
-                <GeoCoordinatesProvider>
-                  <MapListToggleButton />
-                  <div className="flex flex-col w-full h-full">
-                    <div>
-                      <LocationsNavbarResourceRoutes />
-                    </div>
-                    <MainComponent
-                      mapContainer={mapContainer}
-                      sidePanel={sidePanel}
-                    />
+            <div className="h-[100vh] w-full">
+              <GeoCoordinatesProvider>
+                <MapListToggleButton />
+                <div className="flex flex-col w-full h-full">
+                  <div>
+                    <LocationsNavbarResourceRoutes />
                   </div>
-                </GeoCoordinatesProvider>
-              </SearchProvider>
+                  <MainComponent
+                    mapContainer={mapContainer}
+                    sidePanel={sidePanel}
+                  />
+                </div>
+              </GeoCoordinatesProvider>
             </div>
           </>
         ) : COMPANY_ROUTES.includes(route as CompanyRoute) ? (

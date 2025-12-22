@@ -25,7 +25,7 @@ export function TranslatableText({
   const translation = useTranslatedText({
     text,
     id,
-    expectTranslation,
+    expectTranslation: false,
   });
 
   const { gTranslateCookie } = useContext(

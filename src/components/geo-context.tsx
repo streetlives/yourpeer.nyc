@@ -5,7 +5,7 @@
 import { useCookies } from "next-client-cookies";
 import React, { createContext, useState } from "react";
 import { Position } from "./common";
-import { PreviousParams } from "./use-previous-params";
+import { PreviousParams } from "./get-previous-params";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
@@ -66,15 +66,48 @@ function logGeoEvent(
             "sublocality",
           );
           const zipCode = getFirstAddressComponent(results, "postal_code");
+          const {
+            neighborhood,
+            borough,
+            districts: {
+              school: schoolDistrict,
+              congressional: congressionalDistrict,
+              community: communityDistrict,
+              state_assembly_district,
+              state_assembly_district_water_areas,
+              us_congressional_district,
+              us_congressional_district_water_areas,
+              state_senate_district,
+              state_senate_district_water_areas,
+              municipal_court_district,
+              municipal_court_district_water_areas,
+              city_council_district,
+              city_council_district_water_areas,
+              election_district,
+              election_district_water_areas,
+            },
+          } = geoAnalytics;
           window["gtag"]("event", "geolocation", {
             googleNeighborhood,
             googleBorough,
-            neighborhood: geoAnalytics.neighborhood,
-            borough: geoAnalytics.borough,
+            neighborhood,
+            borough,
             zipCode,
-            schoolDistrict: geoAnalytics.districts.school,
-            congressionalDistrict: geoAnalytics.districts.congressional,
-            communityDistrict: geoAnalytics.districts.community,
+            schoolDistrict,
+            congressionalDistrict,
+            communityDistrict,
+            state_assembly_district,
+            state_assembly_district_water_areas,
+            us_congressional_district,
+            us_congressional_district_water_areas,
+            state_senate_district,
+            state_senate_district_water_areas,
+            municipal_court_district,
+            municipal_court_district_water_areas,
+            city_council_district,
+            city_council_district_water_areas,
+            election_district,
+            election_district_water_areas,
             pathname: window.location.pathname,
             previousParamsRoute: previousParams?.params.route,
             previousParamsPersonalCareSubCategory:
@@ -117,7 +150,6 @@ export const GeoCoordinatesProvider: React.FC<{
         }
       },
       (error) => {
-        console.log("unable to get user position", error);
         if (errBack) {
           errBack(error);
         }

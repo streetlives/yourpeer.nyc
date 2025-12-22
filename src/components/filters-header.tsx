@@ -16,6 +16,7 @@ import {
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
   getIconPath,
+<<<<<<< HEAD
   getParsedAmenities,
   LOCATION_ROUTE,
   OPEN_PARAM,
@@ -29,18 +30,53 @@ import {
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   SHOW_ADVANCED_FILTERS_PARAM,
+=======
+  HEALTH_PARAM_MENTAL_HEALTH,
+  LOCATION_ROUTE,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
+  SearchParams,
+>>>>>>> origin/main
   SubCategory,
 } from "./common";
 import Link from "next/link";
 import classNames from "classnames";
 import {
   getUrlWithNewCategory,
-  getUrlWithNewFilterParameter,
+  getUrlWithNewCategoryAndSubcategory,
   getUrlWithoutFilterParameter,
   getUrlWithSubCategoryAddedOrRemoved,
 } from "./navigation";
 import { TranslatableText } from "./translatable-text";
+<<<<<<< HEAD
 import { useNormalizedSearchParams } from "@/components/use-normalized-search-params";
+=======
+import { useFilters } from "@/lib/store";
+
+const otherCategories = [
+  {
+    category: HEALTH_PARAM_MENTAL_HEALTH,
+    parent_category: "health-care" as Category,
+    name: "Mental Health",
+    icon: "/img/icons/services/mental-health-small.svg",
+    href: "/health-care/mental-health",
+  },
+  {
+    category: OTHER_PARAM_LEGAL_VALUE,
+    parent_category: "other" as Category,
+    name: "Legal Services",
+    icon: "/img/icons/services/legal-small.svg",
+    href: "/other-services/legal-services",
+  },
+  {
+    category: OTHER_PARAM_EMPLOYMENT_VALUE,
+    parent_category: "other" as Category,
+    name: "Employment",
+    icon: "/img/icons/services/employment-small.svg",
+    href: "/other-services/employment",
+  },
+];
+>>>>>>> origin/main
 
 export default function FiltersHeader({
   category: currentCategory,
@@ -57,6 +93,7 @@ export default function FiltersHeader({
       ? LOCATION_ROUTE
       : CATEGORY_TO_ROUTE_MAP[currentCategory]
   }${subCategory ? `/${subCategory}` : ""}`;
+<<<<<<< HEAD
 
   const { normalizedSearchParams } = useNormalizedSearchParams();
 
@@ -86,6 +123,9 @@ export default function FiltersHeader({
     return "No Requirements";
   };
 
+=======
+  const openFiltersPopup = useFilters((state) => state.open);
+>>>>>>> origin/main
   const commonClassNames = [
     "inline-flex",
     "flex-shrink-0",
@@ -106,33 +146,67 @@ export default function FiltersHeader({
       <div className="flex gap-2 py-3 px-4  flex-nowrap md:flex-wrap items-center overflow-x-auto border-b border-dotted border-neutral-200 scrollbar-hide">
         {CATEGORIES.filter(
           (thisCategory) =>
-            currentCategory === thisCategory || currentCategory === null,
-        ).map((thisCategory) => (
-          <Link
-            key={thisCategory}
-            style={linkHeight}
-            className={classNames(
-              commonClassNames,
-              currentCategory === thisCategory
-                ? { "bg-primary": true }
-                : { "bg-neutral-100": true },
-            )}
-            href={getUrlWithNewCategory(
-              currentCategory === thisCategory ? null : thisCategory,
-              searchParams,
-            )}
-          >
-            <img
-              src={getIconPath(CATEGORY_ICON_SRC_MAP[thisCategory])}
-              className="w-4 h-4"
-              alt=""
-            />
-            <TranslatableText
-              text={CATEGORY_DESCRIPTION_MAP[thisCategory]}
-              className="leading-3 truncate"
-            />
-          </Link>
-        ))}
+            (currentCategory === thisCategory || currentCategory === null) &&
+            otherCategories.every((item) => item.category !== thisCategory),
+        ).map((thisCategory) =>
+          (thisCategory === "other" || thisCategory === "health-care") &&
+          subCategory !== null ? null : (
+            <Link
+              key={thisCategory}
+              style={linkHeight}
+              className={classNames(
+                commonClassNames,
+                currentCategory === thisCategory
+                  ? { "bg-primary": true }
+                  : { "bg-neutral-100": true },
+              )}
+              href={getUrlWithNewCategory(
+                currentCategory === thisCategory ? null : thisCategory,
+                searchParams,
+              )}
+            >
+              <img
+                src={getIconPath(CATEGORY_ICON_SRC_MAP[thisCategory])}
+                className="w-4 h-4"
+                alt=""
+              />
+              <TranslatableText
+                text={CATEGORY_DESCRIPTION_MAP[thisCategory]}
+                className="leading-3 truncate"
+              />
+            </Link>
+          ),
+        )}
+
+        {otherCategories
+          .filter(
+            (item) => subCategory === item.category || currentCategory === null,
+          )
+          .map((item, idx) => (
+            <Link
+              key={idx}
+              style={linkHeight}
+              className={classNames(
+                commonClassNames,
+                subCategory === item.category
+                  ? { "bg-primary": true }
+                  : { "bg-neutral-100": true },
+              )}
+              href={
+                subCategory === item.category
+                  ? getUrlWithNewCategory(null, searchParams)
+                  : getUrlWithNewCategoryAndSubcategory(
+                      item.parent_category,
+                      item.category as SubCategory,
+                      searchParams,
+                    )
+              }
+            >
+              <img src={item.icon} className="w-4 h-4" alt="" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+
         {searchParams[AGE_PARAM] ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
@@ -148,6 +222,7 @@ export default function FiltersHeader({
             </span>
           </Link>
         ) : undefined}
+<<<<<<< HEAD
         {searchParams[OPEN_PARAM] ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
@@ -325,17 +400,16 @@ export default function FiltersHeader({
         ) : undefined}
 
         <Link
+=======
+        <button
+>>>>>>> origin/main
           className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
           style={linkHeight}
-          href={getUrlWithNewFilterParameter(
-            pathname,
-            searchParams,
-            SHOW_ADVANCED_FILTERS_PARAM,
-          )}
+          onClick={openFiltersPopup}
         >
           <img src="/img/icons/filters.svg" className="w-4 h-4" alt="" />
           <TranslatableText text="All Filters" className="leading-3 truncate" />
-        </Link>
+        </button>
       </div>
     </div>
   );

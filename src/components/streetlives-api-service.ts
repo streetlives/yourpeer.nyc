@@ -6,35 +6,48 @@
 
 import _ from "underscore";
 import {
-  Category,
-  CATEGORY_TO_TAXONOMY_NAME_MAP,
-  LocationDetailData,
-  SHELTER_PARAM,
-  SHELTER_PARAM_FAMILY_VALUE,
-  SHELTER_PARAM_SINGLE_VALUE,
-  YourPeerParsedRequestParams,
-  TaxonomyResponse,
-  Taxonomy,
-  SimplifiedLocationData,
-  FullLocationData,
-  YourPeerLegacyServiceData,
-  YourPeerLegacyLocationData,
-  YourPeerLegacyServiceDataWrapper,
-  setIntersection,
-  TaxonomyCategory,
-  FOOD_PARAM,
-  FOOD_PARAM_SOUP_KITCHEN_VALUE,
-  FOOD_PARAM_PANTRY_VALUE,
-  CLOTHING_PARAM,
-  CLOTHING_PARAM_CASUAL_VALUE,
-  CLOTHING_PARAM_PROFESSIONAL_VALUE,
   AMENITIES_PARAM,
   AmenitiesSubCategory,
   AMENITY_TO_TAXONOMY_NAME_MAP,
-  TaxonomySubCategory,
+  Category,
+  CATEGORY_TO_TAXONOMY_NAME_MAP,
+  CLOTHING_PARAM,
+  CLOTHING_PARAM_CASUAL_VALUE,
+  CLOTHING_PARAM_PROFESSIONAL_VALUE,
+  Comment,
+  CommentContent,
+  CommentHighlights,
+  FOOD_PARAM,
+  FOOD_PARAM_PANTRY_VALUE,
+  FOOD_PARAM_SOUP_KITCHEN_VALUE,
+  FullLocationData,
+  HEALTH_PARAM,
+  HEALTH_PARAM_MENTAL_HEALTH,
+  LocationDetailData,
   NEARBY_SORT_BY_VALUE,
+  OTHER_PARAM,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
+  Reply,
+  ScheduleData,
+  setIntersection,
+  SHELTER_PARAM,
+  SHELTER_PARAM_FAMILY_VALUE,
+  SHELTER_PARAM_SINGLE_VALUE,
+  SimplifiedLocationData,
+  Taxonomy,
+  TaxonomyCategory,
+  TaxonomyResponse,
+  TaxonomySubCategory,
+  YourPeerLegacyLocationData,
+  YourPeerLegacyServiceData,
+  YourPeerLegacyServiceDataWrapper,
+  YourPeerParsedRequestParams,
 } from "./common";
 import moment from "moment";
+import axios from "axios";
+import { getAuthToken } from "@/components/auth";
+import { permanentRedirect } from "next/navigation";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -123,8 +136,10 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     query_url += `&openAt=${new Date().toISOString()}`;
   }
 
-  if (sortBy) {
+  if (sortBy && !search) {
     query_url += `&sortBy=${sortBy}`;
+
+    console.log({ latitude, longitude, sortBy });
 
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
       throw new Error(
@@ -136,8 +151,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
       query_url += `&latitude=${latitude}&longitude=${longitude}`;
     }
   }
-
-  console.log(query_url);
 
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
@@ -265,6 +278,21 @@ export async function getFullLocationData({
   });
 }
 
+function isServiceClosed(schedule: ScheduleData[]) {
+  const isScheduleKnown = schedule && schedule.length;
+
+  let isClosed = false;
+  let openDays;
+  if (isScheduleKnown) {
+    openDays = schedule.filter(({ closed }) => !closed);
+
+    if (!openDays.length) {
+      isClosed = true;
+    }
+  }
+  return isClosed;
+}
+
 function filter_services_by_name(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
@@ -273,12 +301,17 @@ function filter_services_by_name(
   const services: YourPeerLegacyServiceData[] = [];
   for (let service of d.Services) {
     let age_eligibilities = null;
-    const taxonomiesForService = new Set(
+    let taxonomiesForService = new Set(
       service.Taxonomies.flatMap((taxonomy) => [
         taxonomy.name,
         taxonomy.parent_name,
       ]).filter((t) => t !== null),
     );
+    if (category_name == "health-care") {
+      taxonomiesForService = new Set(
+        service.Taxonomies.map((taxonomy) => taxonomy.name),
+      );
+    }
     if (
       !category_name ||
       taxonomiesForService.has(CATEGORY_TO_TAXONOMY_NAME_MAP[category_name])
@@ -287,70 +320,79 @@ function filter_services_by_name(
         age_eligibilities = [];
         for (let elig of service.Eligibilities) {
           if (elig.EligibilityParameter.name === "age") {
+            if (!elig.eligible_values.length) {
+              continue;
+            }
             for (let elig_value of elig.eligible_values) {
               age_eligibilities.push(elig_value);
             }
           }
         }
       }
-      const schedules = service?.HolidaySchedules?.filter(
-        (x) => x.opens_at && x.closes_at,
-      );
-      services.push({
-        id: service.id,
-        name: service["name"],
-        description: service["description"],
-        category: service["Taxonomies"][0]["parent_name"],
-        subcategory: service["Taxonomies"][0]["name"],
-        info: service?.EventRelatedInfos?.map((x) => x.information).filter(
-          (information) => information !== null,
-        ),
-        closed: !schedules.length || schedules.every((x) => x.closed),
-        schedule: Object.fromEntries(
-          Object.entries(
-            _.groupBy(
-              service.HolidaySchedules.filter(
-                (schedule) => schedule.opens_at && schedule.closes_at,
+      if (service["Taxonomies"].length !== 0) {
+        services.push({
+          id: service.id,
+          name: service["name"],
+          description: service["description"],
+          category: service["Taxonomies"][0]["parent_name"],
+          subcategory: service["Taxonomies"][0]["name"],
+          // FIXME: there's some bug in the stack where the server is returning duplicate EventRelatedInfos
+          // We de-deuplicate here as a workaround
+          info: Array.from(
+            new Set(
+              service?.EventRelatedInfos?.map((x) => x.information).filter(
+                (information) => information !== null,
               ),
-              "weekday",
             ),
-          ).map(([k, v]) => [
-            k,
-            v.sort((time1, time2) => (time1 < time2 ? 1 : -1)), // sort the times
-          ]),
-        ),
-        docs: is_location_detail
-          ? service.RequiredDocuments.filter(
-              (doc) => doc.document && doc.document != "None",
-            ).map((doc) => doc.document)
-          : null,
-        referral_letter: is_location_detail
-          ? !!service.RequiredDocuments.filter((doc) =>
-              doc.document.toLowerCase().includes("referral letter"),
-            ).length
-          : null,
-        eligibility: is_location_detail
-          ? service.Eligibilities.map(
-              (eligibility) => eligibility.description,
-            ).filter((description) => description !== null)
-          : null,
-        membership: is_location_detail
-          ? !!service.Eligibilities.filter(
-              (eligibility) =>
-                eligibility.EligibilityParameter.name
-                  .toLowerCase()
-                  .includes("membership") &&
-                eligibility.eligible_values.length &&
-                !eligibility.eligible_values
-                  .filter((elig_value) => typeof elig_value === "string")
-                  .map((elig_value) => elig_value.toLowerCase())
-                  .includes("false"),
-            ).length
-          : null,
-        age: age_eligibilities,
-      });
+          ),
+          closed: isServiceClosed(service.HolidaySchedules),
+          schedule: Object.fromEntries(
+            Object.entries(
+              _.groupBy(
+                service.HolidaySchedules.filter(
+                  (schedule) => schedule.opens_at && schedule.closes_at,
+                ),
+                "weekday",
+              ),
+            ).map(([k, v]) => [
+              k,
+              v.sort((time1, time2) => (time1 < time2 ? 1 : -1)), // sort the times
+            ]),
+          ),
+          docs: is_location_detail
+            ? service.RequiredDocuments.filter(
+                (doc) => doc.document && doc.document != "None",
+              ).map((doc) => doc.document)
+            : null,
+          referral_letter: is_location_detail
+            ? !!service.RequiredDocuments.filter((doc) =>
+                doc.document.toLowerCase().includes("referral letter"),
+              ).length
+            : null,
+          eligibility: is_location_detail
+            ? service.Eligibilities.map(
+                (eligibility) => eligibility.description,
+              ).filter((description) => description !== null)
+            : null,
+          membership: is_location_detail
+            ? !!service.Eligibilities.filter(
+                (eligibility) =>
+                  eligibility.EligibilityParameter.name
+                    .toLowerCase()
+                    .includes("membership") &&
+                  eligibility.eligible_values.length &&
+                  !eligibility.eligible_values
+                    .filter((elig_value) => typeof elig_value === "string")
+                    .map((elig_value) => elig_value.toLowerCase())
+                    .includes("false"),
+              ).length
+            : null,
+          age: age_eligibilities,
+        });
+      }
     }
   }
+
   return { services };
 }
 
@@ -358,6 +400,7 @@ export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
 ): YourPeerLegacyLocationData {
+  // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
   let address,
     street,
@@ -383,6 +426,7 @@ export function map_gogetta_to_yourpeer(
     id: d.id,
     email: d.Organization.email,
     location_name: d["name"],
+    organization_id: d["Organization"]["id"],
     address: street,
     city: address.city,
     region: address.region,
@@ -398,6 +442,8 @@ export function map_gogetta_to_yourpeer(
     name: org_name,
     phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
     url: d["Organization"]["url"],
+    streetview_url: d["streetview_url"],
+    partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,
       is_location_detail,
@@ -419,6 +465,23 @@ export function map_gogetta_to_yourpeer(
       is_location_detail,
       "health-care",
     ),
+    legal_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "legal-services",
+    ),
+
+    mental_health_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "mental-health",
+    ),
+
+    employment_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "employment",
+    ),
     other_services: {
       services: filter_services_by_name(
         d,
@@ -438,6 +501,10 @@ export function map_gogetta_to_yourpeer(
               "Food",
               "Clothing",
               "Personal Care",
+              "Mental Health",
+              "Legal Services",
+              "Employment",
+              "Advocates / Legal Aid",
             ]),
           ),
         ).length;
@@ -481,15 +548,6 @@ export async function getTaxonomies(
 
   const selectedAmenityTaxonomies = selectedAmenities.map(
     (amenity) => AMENITY_TO_TAXONOMY_NAME_MAP[amenity],
-  );
-
-  console.log(
-    "taxonomyResponse",
-    taxonomyResponse.map((r) => r.name),
-    "selectedAmenities",
-    selectedAmenities,
-    "selectedAmenityTaxonomies",
-    selectedAmenityTaxonomies,
   );
 
   // FIXME: currently it's only two layers deep. Technically, taxonomy can be arbitrary depth, and we should handle that case
@@ -556,15 +614,50 @@ export async function getTaxonomies(
           ? [r as Taxonomy].concat(r.children ? r.children : [])
           : [],
       );
+      switch (parsedSearchParams[HEALTH_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case HEALTH_PARAM_MENTAL_HEALTH:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Mental Health"),
+          );
+          break;
+      }
       break;
     case "other":
       //query = TAXONOMIES_BASE_SQL + " and (t.name = 'Other service' or t.parent_name = 'Other service')"
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
+      switch (parsedSearchParams[OTHER_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case OTHER_PARAM_LEGAL_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Legal Services"),
+          );
+          break;
+        case OTHER_PARAM_EMPLOYMENT_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Employment"),
+          );
+          break;
+      }
       break;
+
     case "personal-care":
       // TODO: do this after we finish the other filters
 
@@ -634,10 +727,7 @@ export async function getTaxonomies(
           break;
       }
   }
-  console.log(
-    "taxonomies",
-    taxonomies.map((t) => t.id),
-  );
+
   return {
     taxonomies: taxonomies.map((t) => t.id),
     taxonomySpecificAttributes,
@@ -656,12 +746,201 @@ export async function fetchLocationsDetailData(
   const query_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations-by-slug/${slug}`;
   const response = await fetch(query_url);
   if (response.status !== 200) {
+    const redirect_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/location-slug-redirects/${slug}`;
+    const redirect_res = await fetch(redirect_url);
+    const redirect_data = await redirect_res.json();
+
+    if (redirect_res.status && redirect_data.slug) {
+      permanentRedirect(`/locations/${redirect_data.slug}`);
+    }
+
     if (response.status === 404) {
       throw new Error404Response();
     }
     throw new Error5XXResponse();
   }
   return response.json();
+}
+
+export async function fetchComments(locationId: string): Promise<Comment[]> {
+  const res = await axios.get<Comment[]>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments?locationId=${locationId}`,
+  );
+
+  const comments = res.data.sort((a, b) => {
+    if (b.likes_count !== a.likes_count) {
+      return b.likes_count - a.likes_count;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  return comments.map((comment) => {
+    let content;
+    try {
+      content = JSON.parse(comment.content as string);
+    } catch (e) {
+      content = comment.content;
+    }
+
+    return { ...comment, content };
+  });
+}
+
+export async function getFeedbackHighlights(
+  locationId: string,
+): Promise<CommentHighlights> {
+  const res = await axios.get<CommentHighlights>(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comment-highlights?locationId=${locationId}`,
+  );
+
+  return res.data;
+}
+
+export async function postComment(data: {
+  locationId: string;
+  content: CommentContent;
+}): Promise<Comment> {
+  const res = await axios.post(`${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments`, {
+    locationId: data.locationId,
+    content: JSON.stringify(data.content),
+  });
+
+  return res.data;
+}
+
+export async function hideComment(
+  commentId: string,
+  hidden: boolean,
+): Promise<Comment> {
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/hidden`,
+    {
+      hidden,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function excludeComment(
+  commentId: string,
+  exclude: boolean,
+): Promise<Comment> {
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/exclude`,
+    {
+      exclude,
+    },
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function submitCommentEmail(
+  commentId: string,
+  email: string,
+): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/email/${commentId}`,
+    {
+      email,
+    },
+  );
+
+  return res.data;
+}
+
+export async function reportComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/report/${commentId}`,
+  );
+
+  return res.data;
+}
+
+export async function unReportComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/unreport/${commentId}`,
+  );
+
+  return res.data;
+}
+
+export async function likeComment(commentId: string): Promise<unknown> {
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
+  );
+  return res.data;
+}
+
+export async function undoLikeComment(commentId: string): Promise<unknown> {
+  const res = await axios.delete(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/like/${commentId}`,
+  );
+  return res.data;
+}
+
+export async function postCommentReply(
+  commentId: string,
+  postedBy: string,
+  content: string,
+): Promise<Reply> {
+  const data = {
+    postedBy,
+    content,
+  };
+  const token = await getAuthToken();
+  const res = await axios.post(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/${commentId}/reply`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function editCommentReply(
+  replyId: string,
+  content: string,
+): Promise<Reply> {
+  const data = {
+    content,
+  };
+  const token = await getAuthToken();
+  const res = await axios.put(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/comments/replies/${replyId}`,
+    data,
+    {
+      headers: {
+        Authorization: token,
+      },
+    },
+  );
+
+  return res.data;
+}
+
+export async function getServicesCount(): Promise<unknown> {
+  const res = await axios.get(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/services/get-count`,
+  );
+  return res.data;
 }
 
 export class Error404Response extends Error {}

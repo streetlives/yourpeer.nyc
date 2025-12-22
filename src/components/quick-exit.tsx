@@ -53,7 +53,6 @@ export default function QuickExit() {
         ) : (
           <>
             <span>{firstWord}</span>
-            <br />
             <span>{secondWord}</span>
           </>
         )}

@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,
@@ -51,6 +51,8 @@ export default function Service({
   const params = useParams();
   const [hasScrolled, setHasScrolled] = useState(false);
 
+  console.log({ service });
+
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -60,9 +62,12 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  //console.log('isExpanded', isExpanded)
-  const hasSomethingToShow =
-    service.description || service.info || service.docs || service.schedule;
+  const hasSomethingToShow = !!(
+    service.description ||
+    service.info.length ||
+    service.docs?.length ||
+    Object.keys(service.schedule).length
+  );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
@@ -79,7 +84,7 @@ export default function Service({
   }
 
   function toggleIsExpanded() {
-    if (!service.closed) {
+    if (hasSomethingToShow) {
       const newState = !isExpanded;
       logCustomAnalyticsEvent(newState);
       setIsExpanded(newState);
@@ -107,7 +112,7 @@ export default function Service({
       s =
         targetLanguage === "ru"
           ? `Для доступа, Вам должно быть не более, чем ${ageReq["age_max"]}`
-          : `'Under ${ageReq["age_max"]}'`;
+          : `under ${ageReq["age_max"]}`;
     }
 
     return s;
@@ -219,11 +224,9 @@ export default function Service({
       setHasScrolled(true);
     }
     if (window.location.hash && !hasScrolled) {
-      const element = document.querySelector(window.location.hash);
-      if (
-        element &&
-        "#" + convertString(service.name || "no name") == window.location.hash
-      ) {
+      const elementId = window.location.hash.slice(1);
+      const element = document.getElementById(elementId);
+      if (element && convertString(service.name || "no name") == elementId) {
         setIsExpanded(true);
         element.scrollIntoView({ behavior: "smooth" });
         setHasScrolled(true);
@@ -241,7 +244,7 @@ export default function Service({
       id={convertString(service.name || "No name")}
       className="flex items-start pl-3 pr-6 pt-2 pb-4 overflow-hidden relative"
     >
-      {hasSomethingToShow && !service.closed ? (
+      {hasSomethingToShow ? (
         <button
           onClick={toggleIsExpanded}
           className="flex-shrink-0 collapseButton absolute left-3 top-2"
@@ -288,7 +291,8 @@ export default function Service({
                       ></p>
                     ) : undefined}
                     <ul className="flex flex-col space-y-3">
-                      {service.schedule ? (
+                      {service.schedule &&
+                      Object.keys(service.schedule).length > 0 ? (
                         <li className="flex items-start space-x-2">
                           <span className="text-success">
                             <svg
@@ -335,9 +339,9 @@ export default function Service({
                       ))}
                       <li className="flex items-start space-x-2">
                         {service.membership ||
-                        service.eligibility?.length ||
-                        service.docs?.length ||
-                        service.age?.length ? (
+                        service.eligibility?.some(Boolean) ||
+                        service.docs?.some(Boolean) ||
+                        service.age?.some(Boolean) ? (
                           <span className="text-danger">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

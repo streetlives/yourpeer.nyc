@@ -12,6 +12,7 @@ const translations: Record<string, string> = {
   "Personal Care": "Личная гигиена",
   Health: "Здравоохранение",
   "Health Care": "Здравоохранение",
+  Statement: "Декларация",
   Other: "Другие услуги",
   "Other Services": "Другие услуги",
   "YourPeer offers hope": "YourPeer дает мне надежду.",
@@ -116,8 +117,7 @@ const translations: Record<string, string> = {
   "Report Issue": "Сообщить о проблеме",
   "Which parts of the information have an issue?":
     "В какой информации присутствует проблема?",
-  "Please describe the issue below (Please don't enter any private information)":
-    "Опишите проблему ниже (пожалуйста, не вводите личную информацию)",
+  "Please describe the issue below": "Опишите проблему ниже",
   Send: "Отправить",
   "All service locations": "Все филиалы",
   "All Services": "Все филиалы",
@@ -299,6 +299,10 @@ const translations: Record<string, string> = {
     "Социальные работники, доступное жилье и профессиональная подготовка",
   "Clothing Pantry Sign-Up": "Регистрация для раздачи одежды",
   "Constituent Services": "Услуги для избирателей",
+  Employment: "Трудоустройство",
+  "All Employment locations": "Все места работы",
+  "All Legal Services locations": "Все офисы юридических услуг",
+  "All Mental Health locations": "Все центры психического здоровья",
 };
 
 export default translations;

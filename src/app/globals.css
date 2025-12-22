@@ -14,6 +14,11 @@ https://opensource.org/licenses/MIT.
   html {
     scroll-behavior: smooth;
     width: 100%;
+    box-sizing: border-box;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 
   body {
@@ -22,6 +27,10 @@ https://opensource.org/licenses/MIT.
 
   [x-cloak] {
     display: none !important;
+  }
+
+  :root {
+    --radius: 0.5rem;
   }
 }
 
@@ -34,6 +43,10 @@ https://opensource.org/licenses/MIT.
     @apply bg-neutral-50 font-medium text-sm text-center py-3 px-5 rounded-lg transition hover:border-dark focus:outline-none shadow border-[1.5px] border-neutral-600 flex-1 inline-block;
   }
 
+  .secondary-button {
+    @apply text-xs flex-1 flex items-center justify-center py-1 px-5 space-x-2 text-dark transition hover:text-black hover:border-black border border-gray-300 rounded-3xl bg-neutral-50;
+  }
+
   .link {
     @apply text-[#1A73E9] underline hover:no-underline;
   }
@@ -41,6 +54,7 @@ https://opensource.org/licenses/MIT.
   .carousel-wrapper .swiper-pagination .swiper-pagination-bullet {
     @apply !bg-neutral-200 !w-2 !h-2;
   }
+
   .carousel-wrapper .swiper-pagination .swiper-pagination-bullet-active {
     @apply !bg-gray-700;
   }
@@ -57,6 +71,27 @@ https://opensource.org/licenses/MIT.
 .have-links a {
   color: #1a73e9 !important;
   text-decoration: underline !important;
+  display: inline-block;
+  /* Or block, depending on your layout */
+  white-space: normal;
+  /* Allows text to wrap */
+  word-wrap: break-word;
+  /* Breaks long words onto the next line if needed */
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 300px;
+}
+
+@media (max-width: 850px) {
+  .have-links a {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 350px) {
+  .have-links a {
+    max-width: 200px;
+  }
 }
 
 /* Google maps */
@@ -72,6 +107,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
 .gm-style-cc {
   display: none;
 }
+
 .gmnoprint div {
   background: white !important;
   border-radius: 8px !important;
@@ -94,6 +130,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   0% {
     background-position: -100% 0;
   }
+
   100% {
     background-position: 100% 0;
   }
@@ -103,6 +140,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   0% {
     background-position: -1200px 0;
   }
+
   100% {
     background-position: 1200px 0;
   }
@@ -257,7 +295,7 @@ a[href^="https://maps.google.com/maps"]{display:none !important} */
   margin-top: 24px;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 768px) {
   main.showMapOnMobile > #left_panel {
     display: none;
   }
@@ -307,6 +345,7 @@ font {
   animation: dot-pulse 1.5s infinite linear;
   animation-delay: 0.25s;
 }
+
 .dot-pulse::before,
 .dot-pulse::after {
   content: "";
@@ -319,11 +358,13 @@ font {
   background-color: #333333;
   color: #333333;
 }
+
 .dot-pulse::before {
   box-shadow: 9984px 0 0 -5px;
   animation: dot-pulse-before 1.5s infinite linear;
   animation-delay: 0s;
 }
+
 .dot-pulse::after {
   box-shadow: 10014px 0 0 -5px;
   animation: dot-pulse-after 1.5s infinite linear;
@@ -334,35 +375,64 @@ font {
   0% {
     box-shadow: 9984px 0 0 -5px;
   }
+
   30% {
     box-shadow: 9984px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 9984px 0 0 -5px;
   }
 }
+
 @keyframes dot-pulse {
   0% {
     box-shadow: 9999px 0 0 -5px;
   }
+
   30% {
     box-shadow: 9999px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 9999px 0 0 -5px;
   }
 }
+
 @keyframes dot-pulse-after {
   0% {
     box-shadow: 10014px 0 0 -5px;
   }
+
   30% {
     box-shadow: 10014px 0 0 2px;
   }
+
   60%,
   100% {
     box-shadow: 10014px 0 0 -5px;
   }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #9f9e9e;
+  border-radius: 8px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

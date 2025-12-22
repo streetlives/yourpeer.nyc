@@ -6,7 +6,7 @@
 
 import assert from "assert";
 import { Error404Response } from "./streetlives-api-service";
-import { Cookies } from "next-client-cookies";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export const CATEGORIES = [
   "shelters-housing",
@@ -15,6 +15,9 @@ export const CATEGORIES = [
   "personal-care",
   "health-care",
   "other",
+  "legal-services",
+  "mental-health",
+  "employment",
 ] as const;
 
 // TODO: other pages
@@ -30,6 +33,9 @@ export const CATEGORY_TO_ROUTE_MAP: Record<CategoryNotNull, string> = {
   food: "food",
   clothing: "clothing",
   "personal-care": "personal-care",
+  "legal-services": "legal-services",
+  "mental-health": "mental-health",
+  employment: "employment",
 };
 
 export const ROUTE_TO_CATEGORY_MAP: Record<string, CategoryNotNull> =
@@ -47,6 +53,9 @@ export const CONTACT_US_ROUTE = "contact-us";
 export const DONATE_ROUTE = "donate";
 export const TERMS_OF_USE_ROUTE = "terms-of-use";
 export const PRIVACY_POLICY_ROUTE = "privacy-policy";
+export const LOGIN_ROUTE = "login";
+export const STATEMENT_ROUTE = "statement";
+export const COMMENT_GUIDELINES_ROUTE = "comment-guidelines";
 
 export const COMPANY_ROUTES = [
   ABOUT_US_ROUTE,
@@ -54,12 +63,14 @@ export const COMPANY_ROUTES = [
   DONATE_ROUTE,
   TERMS_OF_USE_ROUTE,
   PRIVACY_POLICY_ROUTE,
+  LOGIN_ROUTE,
+  STATEMENT_ROUTE,
+  COMMENT_GUIDELINES_ROUTE,
 ] as const;
 
 export type CompanyRoute = (typeof COMPANY_ROUTES)[number];
 
 export function parseCategoryFromRoute(route: string): Category {
-  //console.log(route, ROUTE_TO_CATEGORY_MAP)
   if (route === LOCATION_ROUTE) {
     return null;
   } else if (route in ROUTE_TO_CATEGORY_MAP) {
@@ -81,6 +92,9 @@ export const CATEGORY_DESCRIPTION_MAP: Record<CategoryNotNull, string> = {
   food: "Food",
   clothing: "Clothing",
   "personal-care": "Personal Care",
+  "legal-services": "Legal Services",
+  "mental-health": "Mental Health",
+  employment: "Employment",
 };
 
 export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -90,6 +104,9 @@ export const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   food: "food-icon",
   clothing: "clothing",
   "personal-care": "personal-care",
+  "legal-services": "services/legal-small",
+  "mental-health": "services/mental-health-small",
+  employment: "services/employment-small",
 };
 
 export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
@@ -99,6 +116,9 @@ export const CATEGORY_FILTER_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   food: "food-icon-2",
   clothing: "clothing-icon",
   "personal-care": "personal-care-2",
+  "legal-services": "legal-services",
+  "mental-health": "mental-health",
+  employment: "employment",
 };
 
 export function getIconPath(iconName: string): string {
@@ -114,7 +134,6 @@ export const SHELTER_PARAM_FAMILY_VALUE = "families";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
   | typeof SHELTER_PARAM_FAMILY_VALUE;
-export const SHOW_ADVANCED_FILTERS_PARAM = "adv";
 
 export const FOOD_PARAM = "food";
 export const FOOD_PARAM_SOUP_KITCHEN_VALUE = "soup-kitchens";
@@ -122,6 +141,17 @@ export const FOOD_PARAM_PANTRY_VALUE = "pantry";
 export type FoodValues =
   | typeof FOOD_PARAM_SOUP_KITCHEN_VALUE
   | typeof FOOD_PARAM_PANTRY_VALUE;
+
+export const OTHER_PARAM = "other-services";
+export const OTHER_PARAM_LEGAL_VALUE = "legal-services";
+export const OTHER_PARAM_EMPLOYMENT_VALUE = "employment";
+export type OtherValues =
+  | typeof OTHER_PARAM_LEGAL_VALUE
+  | typeof OTHER_PARAM_EMPLOYMENT_VALUE;
+
+export const HEALTH_PARAM = "health-care";
+export const HEALTH_PARAM_MENTAL_HEALTH = "mental-health";
+export type HealthValues = typeof HEALTH_PARAM_MENTAL_HEALTH;
 
 export const CLOTHING_PARAM = "clothing";
 export const CLOTHING_PARAM_CASUAL_VALUE = "casual";
@@ -186,13 +216,14 @@ export function parseAmenitiesQueryParam(
 export type SubCategory =
   | AmenitiesSubCategory
   | ClothingValues
+  | OtherValues
+  | HealthValues
   | FoodValues
   | ShelterValues;
 
 export function getParsedSubCategory(
   params: SubRouteParams,
 ): SubCategory | null {
-  console.log("getParsedSubCategory");
   const category = params.route;
   const subCategory = params.locationSlugOrPersonalCareSubCategory;
   if (!subCategory) {
@@ -211,6 +242,18 @@ export function getParsedSubCategory(
       subCategory === CLOTHING_PARAM_PROFESSIONAL_VALUE)
   ) {
     return subCategory as ClothingValues;
+  } else if (
+    category === CATEGORY_TO_ROUTE_MAP["other"] &&
+    (!subCategory ||
+      subCategory === OTHER_PARAM_LEGAL_VALUE ||
+      subCategory === OTHER_PARAM_EMPLOYMENT_VALUE)
+  ) {
+    return subCategory as OtherValues;
+  } else if (
+    category === CATEGORY_TO_ROUTE_MAP["health-care"] &&
+    (!subCategory || subCategory === HEALTH_PARAM_MENTAL_HEALTH)
+  ) {
+    return subCategory as HealthValues;
   } else if (
     category === CATEGORY_TO_ROUTE_MAP["food"] &&
     (!subCategory ||
@@ -241,7 +284,6 @@ export const FILTERS_THAT_APPLY_TO_ALL_CATEGORIES = [
   SEARCH_PARAM,
   AGE_PARAM,
   OPEN_PARAM,
-  SHOW_ADVANCED_FILTERS_PARAM,
 ];
 
 export const SORT_BY_QUERY_PARAM = "sortBy";
@@ -253,7 +295,6 @@ export const URL_PARAM_NAMES = [
   SHELTER_PARAM,
   FOOD_PARAM,
   CLOTHING_PARAM,
-  SHOW_ADVANCED_FILTERS_PARAM,
   SORT_BY_QUERY_PARAM,
 ] as const;
 
@@ -267,8 +308,9 @@ export interface YourPeerParsedRequestParams {
   [OPEN_PARAM]: boolean | null;
   [SHELTER_PARAM]: ShelterValues | null;
   [FOOD_PARAM]: FoodValues | null;
+  [OTHER_PARAM]: OtherValues | null;
+  [HEALTH_PARAM]: HealthValues | null;
   [CLOTHING_PARAM]: ClothingValues | null;
-  [SHOW_ADVANCED_FILTERS_PARAM]: boolean;
   [REQUIREMENT_PARAM]: ParsedRequirements;
   [AMENITIES_PARAM]: ParsedAmenities;
   [PAGE_PARAM]: number;
@@ -372,9 +414,8 @@ export function parseRequest({
   pathname?: string;
   searchParams: SearchParams;
   params: RouteParams | SubRouteParams;
-  cookies?: Cookies;
+  cookies?: ReadonlyRequestCookies;
 }): YourPeerParsedRequestParams {
-  console.log("parseRequest", parseRequest);
   assert.ok(pathname !== undefined || params !== undefined);
   // TODO: validate searchParams with Joi
   // TODO: return 400 on validation error
@@ -395,6 +436,7 @@ export function parseRequest({
   );
   const latitudeCookie = cookies && cookies.get(LATITUDE_COOKIE_NAME);
   const longitudeCookie = cookies && cookies.get(LONGITUDE_COOKIE_NAME);
+
   return {
     [SEARCH_PARAM]:
       typeof searchParams[SEARCH_PARAM] === "string"
@@ -418,13 +460,23 @@ export function parseRequest({
       searchParams[FOOD_PARAM] === FOOD_PARAM_PANTRY_VALUE
         ? (searchParams[FOOD_PARAM] as FoodValues)
         : (parsedSubCategory as FoodValues),
+    [OTHER_PARAM]:
+      (typeof searchParams[OTHER_PARAM] === "string" &&
+        searchParams[OTHER_PARAM] === OTHER_PARAM_LEGAL_VALUE) ||
+      searchParams[OTHER_PARAM] === OTHER_PARAM_EMPLOYMENT_VALUE
+        ? (searchParams[OTHER_PARAM] as OtherValues)
+        : (parsedSubCategory as OtherValues),
+    [HEALTH_PARAM]:
+      typeof searchParams[HEALTH_PARAM] === "string" &&
+      searchParams[HEALTH_PARAM] === HEALTH_PARAM_MENTAL_HEALTH
+        ? (searchParams[HEALTH_PARAM] as HealthValues)
+        : (parsedSubCategory as HealthValues),
     [CLOTHING_PARAM]:
       (typeof searchParams[CLOTHING_PARAM] === "string" &&
         searchParams[CLOTHING_PARAM] === CLOTHING_PARAM_CASUAL_VALUE) ||
       searchParams[CLOTHING_PARAM] === CLOTHING_PARAM_PROFESSIONAL_VALUE
         ? (searchParams[CLOTHING_PARAM] as ClothingValues)
         : (parsedSubCategory as ClothingValues),
-    [SHOW_ADVANCED_FILTERS_PARAM]: !!searchParams[SHOW_ADVANCED_FILTERS_PARAM],
     [REQUIREMENT_PARAM]: {
       noRequirement: parsedRequirements.includes(
         REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
@@ -454,9 +506,11 @@ export function parseRequest({
     [SORT_BY_QUERY_PARAM]: searchParams[SORT_BY_QUERY_PARAM]
       ? (searchParams[SORT_BY_QUERY_PARAM] as string)
       : null,
-    [LATITUDE_COOKIE_NAME]: latitudeCookie ? parseFloat(latitudeCookie) : null,
+    [LATITUDE_COOKIE_NAME]: latitudeCookie
+      ? parseFloat(latitudeCookie.value)
+      : null,
     [LONGITUDE_COOKIE_NAME]: longitudeCookie
-      ? parseFloat(longitudeCookie)
+      ? parseFloat(longitudeCookie.value)
       : null,
   };
 }
@@ -472,6 +526,7 @@ export interface SimplifiedLocationData {
   };
   additional_info: string | null;
   slug: string;
+  streetview_url: string | null;
   last_validated_at: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -603,6 +658,7 @@ export interface AbstractDetailedLocationData {
     id: string;
     name: string | null;
     description: string | null;
+    partners: boolean;
     email: string | null;
     url: string | null;
     createdAt: Date;
@@ -691,6 +747,10 @@ export const TAXONOMY_CATEGORIES = [
   "Food",
   "Clothing",
   "Personal Care",
+  "Legal Services",
+  "Mental Health",
+  "Employment",
+  "Advocates / Legal Aid",
 ] as const;
 
 const TOILETRIES_TAXONOMY = "Toiletries";
@@ -721,6 +781,9 @@ export const CATEGORY_TO_TAXONOMY_NAME_MAP: Record<
   food: "Food",
   clothing: "Clothing",
   "personal-care": "Personal Care",
+  "legal-services": "Legal Services",
+  "mental-health": "Mental Health",
+  employment: "Employment",
 };
 
 export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
@@ -765,6 +828,7 @@ export interface YourPeerLegacyServiceDataWrapper {
 export interface YourPeerLegacyLocationData {
   id: string;
   location_name: string | null;
+  organization_id: string | null;
   email: string | null;
   address: string | null;
   city: string | null;
@@ -776,17 +840,22 @@ export interface YourPeerLegacyLocationData {
   area: string | null;
   info: string[] | null;
   slug: string;
+  partners: boolean;
   last_updated: string;
   last_updated_date: Date;
   name: string | null;
   phone: string | null;
   url: string | null;
+  streetview_url: string | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;
   food_services: YourPeerLegacyServiceDataWrapper;
   clothing_services: YourPeerLegacyServiceDataWrapper;
   personal_care_services: YourPeerLegacyServiceDataWrapper;
   health_services: YourPeerLegacyServiceDataWrapper;
   other_services: YourPeerLegacyServiceDataWrapper;
+  legal_services: YourPeerLegacyServiceDataWrapper;
+  mental_health_services: YourPeerLegacyServiceDataWrapper;
+  employment_services: YourPeerLegacyServiceDataWrapper;
   closed: boolean;
 }
 
@@ -801,6 +870,12 @@ export function getServicesWrapper(
       return location.food_services;
     case "health-care":
       return location.health_services;
+    case "legal-services":
+      return location.legal_services;
+    case "mental-health":
+      return location.mental_health_services;
+    case "employment":
+      return location.employment_services;
     case "other":
       return location.other_services;
     case "personal-care":
@@ -862,4 +937,54 @@ export const LONGITUDE_COOKIE_NAME = "longitude";
 export interface Position {
   lat: number;
   lng: number;
+}
+
+export interface Reply {
+  id: string;
+  content: string;
+  created_at: string;
+  posted_by?: string;
+}
+
+export type CommentContent =
+  | string
+  | {
+      whatServicesDidYouUse?: string[];
+      whatWentWell: string;
+      whatCouldBeImproved?: string;
+    };
+
+export interface Comment {
+  id: string;
+  content: CommentContent;
+  hidden?: boolean | null;
+  exclude?: boolean;
+  report_count: number;
+  likes_count: number;
+  created_at: string;
+  contact_info?: string;
+  Replies: Reply[];
+  likedByCurrentUser: boolean;
+}
+
+type Sentiment =
+  | "Strongly Positive"
+  | "Positive"
+  | "Neutral"
+  | "Negative"
+  | "Strongly Negative"
+  | "Mixed";
+
+export interface CommentHighlightsItem {
+  comment: string;
+  sentiment: Sentiment;
+  informativeness_score: number;
+  key_positive_sentiment_takeaways: string[];
+  key_negative_sentiment_takeaways: string[];
+}
+
+export interface CommentHighlights {
+  top_positive_comments: CommentHighlightsItem[];
+  top_negative_comments: CommentHighlightsItem[];
+  top_mixed_comments: CommentHighlightsItem[];
 }

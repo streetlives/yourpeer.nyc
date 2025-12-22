@@ -13,23 +13,21 @@ import {
 import { notFound } from "next/navigation";
 import { SidePanelComponent } from "../../../components/side-panel-component";
 import { getSidePanelComponentData } from "@/components/get-side-panel-component-data";
-import { getCookies } from "next-client-cookies/server";
 import { redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet } from "@/components/navigation";
 import { cookies } from "next/headers";
 
 export { generateMetadata } from "../../../components/metadata";
 
-export default async function SidePanelPage({
-  searchParams,
-  params,
-}: {
-  searchParams: SearchParams;
-  params: SubRouteParams;
+export default async function SidePanelPage(props: {
+  searchParams: Promise<SearchParams>;
+  params: Promise<SubRouteParams>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
     searchParams,
     params,
-    cookies: cookies(),
+    cookies: await cookies(),
   });
   return RESOURCE_ROUTES.includes(params.route) ? (
     <SidePanelComponent
@@ -37,7 +35,7 @@ export default async function SidePanelPage({
       sidePanelComponentData={await getSidePanelComponentData({
         searchParams,
         params,
-        cookies: getCookies(),
+        cookies: await cookies(),
       })}
     />
   ) : (

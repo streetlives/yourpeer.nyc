@@ -6,10 +6,13 @@
 
 import { LanguageTranslationProvider } from "@/components/language-translation-context";
 import "./globals.css";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import type { Viewport } from "next";
 import { CookiesProvider } from "next-client-cookies/server";
 import Script from "next/script";
+import { Toaster } from "sonner";
+import QueryClientProvider from "@/app/QueryClientProvider";
+import GTProdGuardScript from "@/components/gt-prod-guard-script";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -39,7 +42,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
           rel="stylesheet"
         />
+        <GTProdGuardScript />
       </head>
+
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}`}
         strategy="afterInteractive"
@@ -53,11 +58,16 @@ export default function RootLayout({
           gtag('config', '${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}');
         `}
       </Script>
+
       <body>
         <CookiesProvider>
-          <LanguageTranslationProvider>{children}</LanguageTranslationProvider>
+          <LanguageTranslationProvider>
+            <QueryClientProvider>{children}</QueryClientProvider>
+          </LanguageTranslationProvider>
         </CookiesProvider>
+        <Toaster />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_MEASUREMENT_ID} />
+        <GoogleTagManager gtmId="GTM-ND2QBSQH" />
       </body>
     </html>
   );
