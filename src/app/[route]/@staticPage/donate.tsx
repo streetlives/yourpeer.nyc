@@ -30,10 +30,10 @@ export function DonationPage() {
             <TranslatableText text="Donate" />
           </h1>
           <p className="text-dark text-center mb-6">
-            <TranslatableText text="Thank you for your interest in supporting us. We accept donations through our page on Open Collective." />
+            <TranslatableText text="Thank you for your interest in supporting us. We accept donations through our Open Collective page." />
           </p>
           <p className="text-dark text-center mb-6">
-            <TranslatableText text="Each $30 covers an hour's stipend for unhoused people or people with lived expertise to participate in Streetlives research or product testing." />
+            <TranslatableText text="Each $50 covers an hour's stipend for unhoused people or those with lived expertise to participate in Streetlives' research or product testing." />
           </p>
           {targetLanguage === "ru" ? (
             <p className="text-dark text-center mb-6">
@@ -43,7 +43,7 @@ export function DonationPage() {
           ) : undefined}
           <div className="">
             <a
-              href="https://opencollective.com/streetlives"
+              href="https://opencollective.com/streetlives#category-CONTRIBUTE"
               className="primary-button block w-full"
             >
               {" "}

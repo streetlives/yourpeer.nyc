@@ -80,7 +80,7 @@ export default async function HomePage() {
           </h1>
           <p className="text-base text-grey-900 text-center my-5 sm:my-6 font-semibold">
             <TranslatableText
-              text={`Search through 2500+ free support services across NYC`}
+              text={`Search through 2,600+ free support services across NYC`}
             ></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
@@ -160,7 +160,7 @@ export default async function HomePage() {
               </div>
               <blockquote className="mt-6 mb-3">
                 <p className="text-gray-900 font-semibold text-xl text-center">
-                  <TranslatableText text="Usually if I need something, I ask. But this is faster, easier, better." />
+                  <TranslatableText text="Usually, if I need something, I ask. But this is faster, easier, better." />
                 </p>
               </blockquote>
 

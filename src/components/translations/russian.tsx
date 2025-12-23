@@ -2,8 +2,8 @@
 const translations: Record<string, string> = {
   "Free support services validated by your peers":
     "Бесплатные социальные услуги, проверенные людьми, прошедшими через сложные жизненные ситуации",
-  "Search through 2500+ free support services across NYC":
-    "Вы найдете более 2500+ сервисов для любых нужд по всему Нью-Йорку на нашей платформе.",
+  "Search through 2,600+ free support services across NYC":
+    "Вы найдете более 2,600+ сервисов для любых нужд по всему Нью-Йорку на нашей платформе.",
   "Explore services": "Ознакомьтесь с услугами",
   Home: "Домашняя страница",
   "Shelter & Housing": "Приюты для бездомных и соц. жилье",
@@ -50,7 +50,7 @@ const translations: Record<string, string> = {
     "Благодарим Вас за интерес к YourPeer.",
   "If you have general questions or feedback for us, please email us at":
     "Если у Вас есть вопросы или пожелания, пожалуйста, отправьте письмо на",
-  "If are an organization or individual interested in working with us please email us at":
+  "If you are an organization or individual interested in working with us, please email us at":
     "Если Вы представитель организации или частное лицо и заинтересованы в сотрудничестве, пожалуйста, напишите по адресу",
   "YourPeer is a Streetlives product. Streetlives is a US nonprofit based in New York City.":
     " YourPeer - это продукт Streetlives - некоммерческая организация в США, базирующаяся в Нью-Йорке.",
