@@ -60,6 +60,10 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
+  // if service is closed, check that service.info is non-empty
+  // otherwise, check that description, info are non-empty
+  // or that there are some docs required
+  // or that there is a schedule
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(
