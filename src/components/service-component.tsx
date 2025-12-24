@@ -60,12 +60,18 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  const hasSomethingToShow = !!(
-    service.description ||
-    service.info.length ||
-    service.docs?.length ||
-    Object.keys(service.schedule).length
-  );
+  // if service is closed, check that service.info is non-empty
+  // otherwise, check that description, info are non-empty
+  // or that there are some docs required
+  // or that there is a schedule
+  const hasSomethingToShow = service.closed
+    ? !!service.info.length
+    : !!(
+        service.description ||
+        service.info.length ||
+        service.docs?.filter((doc) => doc.trim() !== "None").length ||
+        Object.keys(service.schedule).length
+      );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
