@@ -71,6 +71,10 @@ const links = {
       name: "Laundry",
       link: "/personal-care/laundry-services",
     },
+    {
+      name: "Haircuts",
+      link: "/personal-care/haircuts-barbers",
+    },
   ],
 };
 

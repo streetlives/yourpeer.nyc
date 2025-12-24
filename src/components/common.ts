@@ -191,17 +191,20 @@ export const AMENITIES_PARAM_LAUNDRY_VALUE = "laundry-services";
 export const AMENITIES_PARAM_RESTROOM_VALUE = "restrooms";
 export const AMENITIES_PARAM_SHOWER_VALUE = "showers";
 export const AMENITIES_PARAM_TOILETRIES_VALUE = "toiletries";
+export const AMENITIES_PARAM_HAIRCUTS_VALUE = "haircuts-barbers";
 export type PersonalCareValue =
   | typeof AMENITIES_PARAM_LAUNDRY_VALUE
   | typeof AMENITIES_PARAM_RESTROOM_VALUE
   | typeof AMENITIES_PARAM_SHOWER_VALUE
-  | typeof AMENITIES_PARAM_TOILETRIES_VALUE;
+  | typeof AMENITIES_PARAM_TOILETRIES_VALUE
+  | typeof AMENITIES_PARAM_HAIRCUTS_VALUE;
 
 export const AMENITIES_PARAM_SUBCATEGORY_AND_CANONICAL_ORDERING = [
   AMENITIES_PARAM_LAUNDRY_VALUE,
   AMENITIES_PARAM_RESTROOM_VALUE,
   AMENITIES_PARAM_SHOWER_VALUE,
   AMENITIES_PARAM_TOILETRIES_VALUE,
+  AMENITIES_PARAM_HAIRCUTS_VALUE,
 ] as const;
 
 export type AmenitiesSubCategory =
@@ -333,6 +336,7 @@ export interface ParsedAmenities {
   [AMENITIES_PARAM_RESTROOM_VALUE]: boolean;
   [AMENITIES_PARAM_SHOWER_VALUE]: boolean;
   [AMENITIES_PARAM_TOILETRIES_VALUE]: boolean;
+  [AMENITIES_PARAM_HAIRCUTS_VALUE]: boolean;
 }
 
 type CategoryAndSubCategory = [Category, SubCategory | null];
@@ -503,6 +507,9 @@ export function parseRequest({
       ),
       [AMENITIES_PARAM_TOILETRIES_VALUE]: parsedAmenities.includes(
         AMENITIES_PARAM_TOILETRIES_VALUE,
+      ),
+      [AMENITIES_PARAM_HAIRCUTS_VALUE]: parsedAmenities.includes(
+        AMENITIES_PARAM_HAIRCUTS_VALUE,
       ),
     },
     [PAGE_PARAM]: parsePageParam(searchParams[PAGE_PARAM]),
@@ -760,11 +767,13 @@ const TOILETRIES_TAXONOMY = "Toiletries";
 const SHOWER_TAXONOMY = "Shower";
 const LAUNDRY_TAXONOMY = "Laundry";
 const RESTROOM_TAXONOMY = "Restrooms";
+const HAIRCUTS_TAXONOMY = "Haircut";
 export const TAXONOMY_SUBCATEGORIES = [
   TOILETRIES_TAXONOMY,
   SHOWER_TAXONOMY,
   LAUNDRY_TAXONOMY,
   RESTROOM_TAXONOMY,
+  HAIRCUTS_TAXONOMY,
 ] as const;
 
 export type TaxonomyCategory = (typeof TAXONOMY_CATEGORIES)[number];
@@ -797,6 +806,7 @@ export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
   [AMENITIES_PARAM_RESTROOM_VALUE]: RESTROOM_TAXONOMY,
   [AMENITIES_PARAM_SHOWER_VALUE]: SHOWER_TAXONOMY,
   [AMENITIES_PARAM_TOILETRIES_VALUE]: TOILETRIES_TAXONOMY,
+  [AMENITIES_PARAM_HAIRCUTS_VALUE]: HAIRCUTS_TAXONOMY,
 };
 
 export interface AgeEligibility {
