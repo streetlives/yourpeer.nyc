@@ -131,8 +131,10 @@ export const OPEN_PARAM = "open";
 export const SHELTER_PARAM = "shelter";
 export const SHELTER_PARAM_SINGLE_VALUE = "adult";
 export const SHELTER_PARAM_FAMILY_VALUE = "families";
+export const SHELTER_PARAM_YOUTH_VALUE = "youth";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
+  | typeof SHELTER_PARAM_YOUTH_VALUE
   | typeof SHELTER_PARAM_FAMILY_VALUE;
 
 export const FOOD_PARAM = "food";
@@ -265,6 +267,7 @@ export function getParsedSubCategory(
     category === CATEGORY_TO_ROUTE_MAP["shelters-housing"] &&
     (!subCategory ||
       subCategory === SHELTER_PARAM_FAMILY_VALUE ||
+      subCategory === SHELTER_PARAM_YOUTH_VALUE ||
       subCategory === SHELTER_PARAM_SINGLE_VALUE)
   ) {
     return subCategory as ShelterValues;
@@ -339,7 +342,7 @@ export function parsePathnameToCategoryAndSubCategory(
 ): CategoryAndSubCategory {
   const pathComponents = pathname.split("/");
   const [_, firstPathComponent, secondPathComponent] = pathComponents;
-  assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
+  // assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
   const subCategory = getParsedSubCategory({
     route: firstPathComponent,
     locationSlugOrPersonalCareSubCategory: secondPathComponent,

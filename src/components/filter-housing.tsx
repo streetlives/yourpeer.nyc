@@ -8,9 +8,10 @@ import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent } from "react";
 import {
-  parsePathnameToCategoryAndSubCategory,
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
+  parsePathnameToCategoryAndSubCategory,
+  SHELTER_PARAM_YOUTH_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   ShelterValues,
 } from "./common";
@@ -27,6 +28,10 @@ const options = [
   {
     value: SHELTER_PARAM_FAMILY_VALUE,
     label: "Families",
+  },
+  {
+    value: SHELTER_PARAM_YOUTH_VALUE,
+    label: "Youth",
   },
 ];
 
@@ -53,6 +58,16 @@ export default function FilterHousing() {
       ),
     );
   };
+
+  function handleIsYouthClick() {
+    router.push(
+      getUrlWithSubCategoryAddedOrRemoved(
+        pathname,
+        normalizedSearchParams,
+        SHELTER_PARAM_YOUTH_VALUE,
+      ),
+    );
+  }
 
   return (
     <fieldset className="mt-6">

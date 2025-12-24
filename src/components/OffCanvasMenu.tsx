@@ -29,6 +29,10 @@ const links = {
       name: "Families",
       link: "/shelters-housing/families",
     },
+    {
+      name: "Youth",
+      link: "/shelters-housing/youth",
+    },
   ],
   food: [
     {

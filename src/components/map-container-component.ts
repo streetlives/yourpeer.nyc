@@ -7,6 +7,8 @@
 import {
   REQUIREMENT_PARAM,
   RouteParams,
+  SHELTER_PARAM,
+  SHELTER_PARAM_YOUTH_VALUE,
   SearchParams,
   SimplifiedLocationData,
   parseCategoryFromRoute,
@@ -31,6 +33,14 @@ export async function getMapContainerData({
     ...parsedSearchParams,
     ...parsedSearchParams[REQUIREMENT_PARAM],
     ...taxonomiesResults,
+    ageMin:
+      parsedSearchParams[SHELTER_PARAM] === SHELTER_PARAM_YOUTH_VALUE
+        ? 16
+        : undefined,
+    ageMax:
+      parsedSearchParams[SHELTER_PARAM] === SHELTER_PARAM_YOUTH_VALUE
+        ? 24
+        : undefined,
   });
   return locationStubs;
 }
