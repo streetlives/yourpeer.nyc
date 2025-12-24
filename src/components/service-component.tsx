@@ -113,6 +113,8 @@ export default function Service({
         targetLanguage === "ru"
           ? `Для доступа, Вам должно быть не более, чем ${ageReq["age_max"]}`
           : `under ${ageReq["age_max"]}`;
+    } else if (ageReq.all_ages) {
+      s = "All Ages";
     }
 
     return s;
