@@ -51,8 +51,6 @@ export default function Service({
   const params = useParams();
   const [hasScrolled, setHasScrolled] = useState(false);
 
-  console.log({ service });
-
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
