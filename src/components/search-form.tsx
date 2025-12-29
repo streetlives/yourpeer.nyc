@@ -24,6 +24,7 @@ import {
   parsePathnameToSubRouteParams,
 } from "./navigation";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { NoTranslate } from "./NoTranslate";
 
 function SearchPanel({
   currentSearch,
@@ -72,9 +73,9 @@ function SearchPanel({
           />
           <div className="flex-1 text-dark">
             <span>Search for</span>{" "}
-            <span id="search_for" translate="no">
-              {currentSearch}
-            </span>
+            <NoTranslate id="search_for" className="inline">
+              <span>{currentSearch}</span>
+            </NoTranslate>
           </div>
           <span className="text-dark">
             <svg

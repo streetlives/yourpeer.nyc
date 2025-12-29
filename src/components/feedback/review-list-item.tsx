@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import Spinner from "@/components/spinner";
 import ReportComment from "@/components/feedback/report-comment";
 import { clsx } from "clsx";
+import { NoTranslate } from "@/components/NoTranslate";
 
 export default function ReviewListItem({
   comment,
@@ -168,10 +169,10 @@ export default function ReviewListItem({
               </div>
             </div>
             {comment.report_count > 0 && (isAdmin || isStuffUser) && (
-              <span className="text-xs ml-3 self-start gap-1 border border-red-500 bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full inline-flex items-center">
+              <NoTranslate className="text-xs ml-3 self-start gap-1 border border-red-500 bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full inline-flex items-center">
                 <ExclamationTriangleIcon className="w-4 h-4" />
                 <span>{comment.report_count}</span>
-              </span>
+              </NoTranslate>
             )}
           </div>
           <DropdownMenu>
@@ -292,7 +293,11 @@ export default function ReviewListItem({
             >
               <HandThumbUpIcon />
               <span>Helpful</span>
-              {comment.likes_count > 0 && <span>({comment.likes_count})</span>}
+              {comment.likes_count > 0 && (
+                <NoTranslate className="inline-flex">
+                  <span>({comment.likes_count})</span>
+                </NoTranslate>
+              )}
             </Button>
 
             {isStuffUser === null ? (
