@@ -11,6 +11,7 @@ import {
   AmenitiesSubCategory,
   Category,
   CATEGORY_TO_ROUTE_MAP,
+  CLOTHING_PARAM,
   ClothingValues,
   FoodValues,
   getParsedAmenities,
@@ -51,6 +52,12 @@ function removeExtraneousSearchParams(
     const params = parsePathnameToSubRouteParams(pathname);
     if (params.route !== PERSONAL_CARE_CATEGORY) {
       currentUrlSearchParams.delete(PERSONAL_CARE_CATEGORY);
+    }
+    if (
+      params.route !== PERSONAL_CARE_CATEGORY &&
+      params.route !== CLOTHING_PARAM
+    ) {
+      currentUrlSearchParams.delete(REQUIREMENT_PARAM);
     }
   }
   // when search is set, SORT_BY_QUERY_PARAM  should get unset
