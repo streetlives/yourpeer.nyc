@@ -50,7 +50,6 @@ export default function LocationDetailComponent({
   comments: Comment[];
   slug: string;
 }) {
-  console.log(location);
   const [isShowingReviewDetails, setIsShowingReviewDetails] = useState(false);
   const [isShowingReviewForm, setIsShowingReviewForm] = useState(false);
   const [isShowingReportIssueForm, setIsShowingReportIssueForm] =
