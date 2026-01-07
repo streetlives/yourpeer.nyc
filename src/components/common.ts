@@ -838,6 +838,12 @@ export interface YourPeerLegacyServiceDataWrapper {
   services: YourPeerLegacyServiceData[];
 }
 
+export interface Phone {
+  number: string;
+  extension: string | null;
+  type: string | null;
+}
+
 export interface YourPeerLegacyLocationData {
   id: string;
   location_name: string | null;
@@ -857,7 +863,7 @@ export interface YourPeerLegacyLocationData {
   last_updated: string;
   last_updated_date: Date;
   name: string | null;
-  phone: string | null;
+  phones: null | Phone[];
   url: string | null;
   streetview_url: string | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;

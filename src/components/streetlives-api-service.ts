@@ -465,7 +465,11 @@ export function map_gogetta_to_yourpeer(
     last_updated: moment(updated_at).fromNow(),
     last_updated_date: updated_at,
     name: org_name,
-    phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
+    phones: d["Phones"].map((phone) => ({
+      number: phone["number"],
+      extension: phone["extension"],
+      type: phone["type"],
+    })),
     url: d["Organization"]["url"],
     streetview_url: d["streetview_url"],
     partners: d["Organization"]["partners"],

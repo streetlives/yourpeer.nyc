@@ -1,3 +1,4 @@
+/* eslint-disable @sayari/no-unwrapped-jsx-text */
 "use client";
 
 import { YourPeerLegacyLocationData } from "@/components/common";
@@ -58,7 +59,7 @@ export default function LocationDetailInfo({
           </div>
         </div>
       ) : undefined}
-      <ul className="flex flex-col space-y-4">
+      <ul className="flex flex-col space-y-3">
         <li className="flex space-x-3">
           <img
             src="/img/icons/location.svg"
@@ -80,69 +81,76 @@ export default function LocationDetailInfo({
             ) : undefined}
           </p>
         </li>
-        <span>
-          {!location.closed ? (
-            <>
-              {location.phone ? (
-                <li translate="no" className="flex space-x-3">
-                  <img
-                    src="/img/icons/phone.svg"
-                    className="flex-shrink-0 w-5 h-5 max-h-5"
-                    alt=""
-                  />
-                  <p className="text-dark text-sm ml-2">
-                    <a
-                      href={`tel:${location.phone}`}
-                      className="text-blue underline hover:no-underline"
-                    >
-                      {" "}
-                      {location.phone}{" "}
-                    </a>
-                  </p>
-                </li>
-              ) : undefined}
-              {location.email ? (
-                <li translate="no" className="flex space-x-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="text-dark w-5 h-5 max-h-5 flex-shrink-0"
+        {!location.closed ? (
+          <>
+            {location.phones?.length ? (
+              <li translate="no" className="flex space-x-3">
+                <img
+                  src="/img/icons/phone.svg"
+                  className="flex-shrink-0 w-5 h-5 max-h-5"
+                  alt=""
+                />
+                <p className="text-dark text-sm ml-2 flex flex-col space-y-0.5">
+                  {location.phones?.map((phone, index) => (
+                    <span key={index} className="block">
+                      <a
+                        href={`tel:${phone.number}${phone.extension ? `;ext=${phone.extension}` : ""}`}
+                        className="text-blue hover:no-underline underline"
+                      >
+                        {phone.number}{" "}
+                        <span>
+                          {phone.extension ? `ext. ${phone.extension}` : ""}
+                        </span>
+                      </a>
+                      <span className="text-neutral-700">
+                        {phone.type ? `(${phone.type})` : ""}
+                      </span>
+                    </span>
+                  ))}
+                </p>
+              </li>
+            ) : undefined}
+            {location.email ? (
+              <li translate="no" className="flex space-x-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="text-dark w-5 h-5 max-h-5 flex-shrink-0"
+                >
+                  <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                  <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
+                <p className="text-dark text-sm ml-2">
+                  <a
+                    href={`mailto:${location.email}`}
+                    className="text-blue underline hover:no-underline"
                   >
-                    <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
-                    <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
-                  </svg>
-                  <p className="text-dark text-sm ml-2">
-                    <a
-                      href={`mailto:${location.email}`}
-                      className="text-blue underline hover:no-underline"
-                    >
-                      {location.email}
-                    </a>
-                  </p>
-                </li>
-              ) : undefined}
-              {location.url ? (
-                <li translate="no" className="flex space-x-3 overflow-hidden">
-                  <img
-                    src="/img/icons/cursor.svg"
-                    className="flex-shrink-0 w-5 h-5 max-h-5"
-                    alt=""
-                  />
-                  <p className="text-dark text-sm ml-2">
-                    <a
-                      href={normalizeWebsiteUrl(location.url)}
-                      target="_blank"
-                      className="text-blue underline hover:no-underline cursor-pointer"
-                    >
-                      {renderNormalizedWebsiteUrl(location.url)}
-                    </a>
-                  </p>
-                </li>
-              ) : undefined}
-            </>
-          ) : undefined}
-        </span>
+                    {location.email}
+                  </a>
+                </p>
+              </li>
+            ) : undefined}
+            {location.url ? (
+              <li translate="no" className="flex space-x-3 overflow-hidden">
+                <img
+                  src="/img/icons/cursor.svg"
+                  className="flex-shrink-0 w-5 h-5 max-h-5"
+                  alt=""
+                />
+                <p className="text-dark text-sm ml-2">
+                  <a
+                    href={normalizeWebsiteUrl(location.url)}
+                    target="_blank"
+                    className="text-blue underline hover:no-underline cursor-pointer"
+                  >
+                    {renderNormalizedWebsiteUrl(location.url)}
+                  </a>
+                </p>
+              </li>
+            ) : undefined}
+          </>
+        ) : undefined}
       </ul>
     </>
   );
