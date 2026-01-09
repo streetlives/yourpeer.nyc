@@ -21,6 +21,8 @@ import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
 import GTProdGuardScript from "@/components/gt-prod-guard-script";
 
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
+
 export default async function LocationsLayout(props: {
   mapContainer: React.ReactNode;
   sidePanel: React.ReactNode;
@@ -58,7 +60,9 @@ export default async function LocationsLayout(props: {
         ) : COMPANY_ROUTES.includes(route as CompanyRoute) ? (
           <>
             <LocationsNavbarCompanyRoutes />
-            {staticPage}
+            <div className={`${SHOW_DONATION_BANNER ? "pt-14 lg:pt-16" : ""}`}>
+              {staticPage}
+            </div>
             <Footer />
           </>
         ) : (
