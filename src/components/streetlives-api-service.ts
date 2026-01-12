@@ -427,6 +427,18 @@ export function map_gogetta_to_yourpeer(
 ): YourPeerLegacyLocationData {
   // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
+  const primaryPhone = d["Phones"] && d["Phones"][0];
+  const phoneNumber = primaryPhone?.number?.trim() ?? null;
+  const phoneExtension = primaryPhone?.extension?.trim() || null;
+  const phoneHasExtension =
+    phoneNumber !== null &&
+    /(?:ext\.?|extension|x)\s*[:#-]?\s*\d+\s*$/i.test(phoneNumber);
+  const phone =
+    phoneNumber && phoneExtension
+      ? phoneHasExtension
+        ? phoneNumber
+        : `${phoneNumber} x${phoneExtension}`
+      : phoneNumber;
   let address,
     street,
     zip,
@@ -465,7 +477,7 @@ export function map_gogetta_to_yourpeer(
     last_updated: moment(updated_at).fromNow(),
     last_updated_date: updated_at,
     name: org_name,
-    phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
+    phone,
     url: d["Organization"]["url"],
     streetview_url: d["streetview_url"],
     partners: d["Organization"]["partners"],

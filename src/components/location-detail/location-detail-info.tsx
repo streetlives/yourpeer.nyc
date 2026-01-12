@@ -18,11 +18,64 @@ function renderNormalizedWebsiteUrl(url: string): string | undefined {
   }
 }
 
+type FormattedPhone = {
+  display: string;
+  tel: string;
+};
+
+function formatPhoneNumber(rawPhone: string): FormattedPhone | null {
+  const trimmed = rawPhone.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const extensionMatch = trimmed.match(
+    /(?:ext\.?|extension|x)\s*[:#-]?\s*(\d+)\s*$/i,
+  );
+  let extension: string | null = null;
+  let numberPart = trimmed;
+
+  if (extensionMatch) {
+    extension = extensionMatch[1];
+    numberPart = trimmed.slice(0, extensionMatch.index).trim();
+  }
+
+  let digits = numberPart.replace(/\D/g, "");
+  if (!digits) {
+    return { display: trimmed, tel: trimmed };
+  }
+
+  if (digits.length === 11 && digits.startsWith("1")) {
+    digits = digits.slice(1);
+  }
+
+  if (digits.length > 10) {
+    if (!extension) {
+      extension = digits.slice(10);
+    }
+    digits = digits.slice(0, 10);
+  }
+
+  if (digits.length !== 10) {
+    return { display: trimmed, tel: digits };
+  }
+
+  const formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  const display = extension ? `${formatted} x${extension}` : formatted;
+  const tel = extension ? `${digits};ext=${extension}` : digits;
+
+  return { display, tel };
+}
+
 export default function LocationDetailInfo({
   location,
 }: {
   location: YourPeerLegacyLocationData;
 }) {
+  const formattedPhone = location.phone
+    ? formatPhoneNumber(location.phone)
+    : null;
+
   return (
     <>
       {location.closed ? (
@@ -83,7 +136,7 @@ export default function LocationDetailInfo({
         <span>
           {!location.closed ? (
             <>
-              {location.phone ? (
+              {formattedPhone ? (
                 <li translate="no" className="flex space-x-3">
                   <img
                     src="/img/icons/phone.svg"
@@ -92,11 +145,10 @@ export default function LocationDetailInfo({
                   />
                   <p className="text-dark text-sm ml-2">
                     <a
-                      href={`tel:${location.phone}`}
+                      href={`tel:${formattedPhone.tel}`}
                       className="text-blue underline hover:no-underline"
                     >
-                      {" "}
-                      {location.phone}{" "}
+                      {formattedPhone.display}
                     </a>
                   </p>
                 </li>
