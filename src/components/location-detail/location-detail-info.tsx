@@ -19,6 +19,19 @@ function renderNormalizedWebsiteUrl(url: string): string | undefined {
   }
 }
 
+const formatPhoneNumber = (phone: string): string => {
+  const cleaned: string = phone.replace(/\D/g, "");
+  const match: RegExpMatchArray | null = cleaned.match(
+    /^(\d{3})(\d{3})(\d{4})$/,
+  );
+
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+
+  return phone;
+};
+
 export default function LocationDetailInfo({
   location,
 }: {
@@ -97,9 +110,9 @@ export default function LocationDetailInfo({
                         href={`tel:${phone.number}${phone.extension ? `;ext=${phone.extension}` : ""}`}
                         className="text-blue hover:no-underline underline"
                       >
-                        {phone.number}{" "}
+                        <span>{formatPhoneNumber(phone.number)}</span>{" "}
                         <span>
-                          {phone.extension ? `ext. ${phone.extension}` : ""}
+                          {phone.extension ? `x${phone.extension}` : ""}
                         </span>
                       </a>
                       <span className="text-neutral-700">
