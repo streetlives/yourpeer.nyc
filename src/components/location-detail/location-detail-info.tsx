@@ -114,7 +114,7 @@ export default function LocationDetailInfo({
                         <span>
                           {phone.extension ? `x${phone.extension}` : ""}
                         </span>
-                      </a>
+                      </a>{" "}
                       <span className="text-neutral-700">
                         {phone.type ? `(${phone.type})` : ""}
                       </span>
