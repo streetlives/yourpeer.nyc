@@ -110,9 +110,9 @@ export default function LocationDetailInfo({
                         href={`tel:${phone.number}${phone.extension ? `;ext=${phone.extension}` : ""}`}
                         className="text-blue hover:no-underline underline"
                       >
-                        <span>{formatPhoneNumber(phone.number)}</span>{" "}
+                        <span>{formatPhoneNumber(phone.number)}</span>
                         <span>
-                          {phone.extension ? `x${phone.extension}` : ""}
+                          {phone.extension ? ` x${phone.extension}` : ""}
                         </span>
                       </a>{" "}
                       <span className="text-neutral-700">
