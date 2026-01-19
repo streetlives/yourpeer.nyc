@@ -36,13 +36,11 @@ import {
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   SHELTER_PARAM_YOUTH_VALUE,
-  SORT_BY_QUERY_PARAM,
   SubCategory,
 } from "./common";
 import {
   getUrlWithNewCategory,
   getUrlWithNewCategoryAndSubcategory,
-  getUrlWithNewFilterParameter,
   getUrlWithoutFilterParameter,
   getUrlWithSubCategoryAddedOrRemoved,
 } from "./navigation";
@@ -327,10 +325,10 @@ export default function FiltersHeader({
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
-            href={getUrlWithNewFilterParameter(
+            href={getUrlWithSubCategoryAddedOrRemoved(
               pathname,
-              searchParams,
-              SORT_BY_QUERY_PARAM,
+              normalizedSearchParams,
+              null,
             )}
           >
             <img
@@ -359,10 +357,10 @@ export default function FiltersHeader({
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
-            href={getUrlWithNewFilterParameter(
+            href={getUrlWithoutFilterParameter(
               pathname,
-              searchParams,
-              SORT_BY_QUERY_PARAM,
+              normalizedSearchParams,
+              REQUIREMENT_PARAM,
             )}
           >
             <svg

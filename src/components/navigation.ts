@@ -362,6 +362,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
 
   // always delete the current page
   currentUrlSearchParams.delete(PAGE_PARAM);
+  currentUrlSearchParams.delete(AMENITIES_PARAM);
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
