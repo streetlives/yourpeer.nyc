@@ -106,9 +106,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     query_url += `&locationFieldsOnly=true`;
   }
 
-  console.log("ageMin", ageMin);
-  console.log("ageMax", ageMax);
-
   if (age) {
     query_url += `&age=${age}`;
   } else if (ageMin || ageMax) {
