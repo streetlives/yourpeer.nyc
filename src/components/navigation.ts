@@ -370,6 +370,41 @@ export function getUrlWithSubCategoryAddedOrRemoved(
   return `${newPath}${query}`;
 }
 
+export const getFirstPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | null,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  params.delete(PAGE_PARAM); // first page should not have a `page` param
+  return buildHref(pathname, params);
+};
+
+export const getLastPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | null,
+  numberOfPages: number,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  if (numberOfPages > 0) {
+    // navigation.getUrlToNextOrPreviousPage expects page param to be 1-based
+    params.set(PAGE_PARAM, (numberOfPages + 1).toString());
+  } else {
+    params.delete(PAGE_PARAM);
+  }
+  return buildHref(pathname, params);
+};
+
 export function getUrlToNextOrPreviousPage(
   pathname: string | null,
   searchParams:
