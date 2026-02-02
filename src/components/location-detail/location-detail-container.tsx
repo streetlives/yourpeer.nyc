@@ -10,6 +10,8 @@ interface Props {
   onSticky: (sticky: boolean) => void;
 }
 
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
+
 export default function LocationDetailContainer({
   children,
   onSticky,
@@ -57,9 +59,11 @@ export default function LocationDetailContainer({
       ref={containerRef}
       onScroll={handleScroll}
     >
-      <div className="md:hidden">
-        <DonationBanner />
-      </div>
+      {SHOW_DONATION_BANNER && (
+        <div className="md:hidden">
+          <DonationBanner />
+        </div>
+      )}
       <div>{children}</div>
     </div>
   );
