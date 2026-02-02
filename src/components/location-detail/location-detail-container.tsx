@@ -1,7 +1,6 @@
 "use client";
 
 import React, { PropsWithChildren, useRef } from "react";
-import DonationBanner from "../donation-banner";
 
 type section = "info" | "reviews" | "services";
 
@@ -9,8 +8,6 @@ interface Props {
   onChangeSection: (section: section) => void;
   onSticky: (sticky: boolean) => void;
 }
-
-const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
 
 export default function LocationDetailContainer({
   children,
@@ -59,12 +56,7 @@ export default function LocationDetailContainer({
       ref={containerRef}
       onScroll={handleScroll}
     >
-      {SHOW_DONATION_BANNER && (
-        <div className="md:hidden">
-          <DonationBanner />
-        </div>
-      )}
-      <div>{children}</div>
+      {children}
     </div>
   );
 }
