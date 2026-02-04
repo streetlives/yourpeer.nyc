@@ -13,6 +13,7 @@ import {
   CompanyRoute,
   CONTACT_US_ROUTE,
   DONATE_ROUTE,
+  INTERNAL_COMMENT_GUIDELINES_ROUTE,
   LOGIN_ROUTE,
   PRIVACY_POLICY_ROUTE,
   STATEMENT_ROUTE,
@@ -27,6 +28,7 @@ import { notFound } from "next/navigation";
 import { LoginPage } from "./login";
 import { Terms } from "./terms";
 import { CommentGuidelines } from "./comment-guidelines";
+import InternalCommentGuidelines from "./InternalCommentGuidelines";
 
 export default function StaticPage(props: {
   params: Promise<{ route: string }>;
@@ -53,6 +55,8 @@ export default function StaticPage(props: {
       return <Terms />;
     case COMMENT_GUIDELINES_ROUTE:
       return <CommentGuidelines />;
+    case INTERNAL_COMMENT_GUIDELINES_ROUTE:
+      return <InternalCommentGuidelines />;
     default:
       return notFound();
   }
