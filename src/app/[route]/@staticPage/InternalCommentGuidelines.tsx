@@ -159,19 +159,16 @@ export default function InternalCommentGuidelines() {
                   </span>
                 </th>
                 <th>Is the majority of the content able to be understood?</th>
-                <th>Confirm</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>YES</td>
                 <td>Move to STEP 2</td>
-                <td></td>
               </tr>
               <tr>
                 <td>NO</td>
                 <td>Unpublish</td>
-                <td></td>
               </tr>
             </tbody>
           </table>
@@ -206,19 +203,16 @@ export default function InternalCommentGuidelines() {
                   Does the comment contain information relevant to the location
                   it is made under?
                 </th>
-                <th>Confirm</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>YES</td>
                 <td>Move to STEP 3</td>
-                <td></td>
               </tr>
               <tr>
                 <td>NO</td>
                 <td>Unpublish</td>
-                <td></td>
               </tr>
             </tbody>
           </table>
@@ -281,7 +275,6 @@ export default function InternalCommentGuidelines() {
                 </th>
                 <th>YES</th>
                 <th>NO</th>
-                <th>CONFIRM</th>
               </tr>
             </thead>
             <tbody>
@@ -292,19 +285,16 @@ export default function InternalCommentGuidelines() {
                 </td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>A street address not relevant to the location</td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>Any offer of services, products or work</td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>
@@ -312,7 +302,6 @@ export default function InternalCommentGuidelines() {
                 </td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>
@@ -321,13 +310,11 @@ export default function InternalCommentGuidelines() {
                 </td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>A credible threat (see credibility assessment)</td>
                 <td>Unpublish &amp; ESCALATE</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>
@@ -336,13 +323,11 @@ export default function InternalCommentGuidelines() {
                 </td>
                 <td>Unpublish</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
               <tr>
                 <td>A link that goes to a site containing a credible threat</td>
                 <td>Unpublish &amp; ESCALATE</td>
                 <td>Moderation complete</td>
-                <td></td>
               </tr>
             </tbody>
           </table>
