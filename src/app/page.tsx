@@ -74,7 +74,6 @@ export default async function HomePage() {
           alt="Hero background"
           fill
           priority
-          fetchPriority="high"
           quality={60}
           sizes="100vw"
           className="object-cover"

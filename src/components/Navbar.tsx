@@ -10,7 +10,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
-import "@aws-amplify/ui-react/styles.css";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
 import DonationBanner from "./donation-banner";
 
