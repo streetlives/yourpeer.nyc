@@ -18,7 +18,7 @@ const translations: Record<string, string> = {
   "YourPeer offers hope": "YourPeer дает мне надежду.",
   "Usually if I need something, I ask. But this is faster, easier, better.":
     "Обычно, если мне что-то нужно, я спрашиваю у знакомых. Но это быстрее, проще, лучше.",
-  "I know this information is good. It’s from people like me.":
+  "I know this information is good. It's from people like me.":
     "Я знаю, что это качественный ресурс. Публицисты, работающие на YourPeer, — такие же люди, как и я.",
   "Food service information provided with the help of Hunter College NYC Food Policy Center.":
     "Информация о службах общественного питания предоставляется благодаря центру продовольствия Hunter колледжа города Нью-Йорка.",
