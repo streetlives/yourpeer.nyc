@@ -41,7 +41,7 @@ export default function Navbar({ background = true }: { background: boolean }) {
     <>
       <OffCanvasMenu open={open} onClose={() => setOpen(false)} />
       <header
-        className={`fixed top-0 inset-x-0 z-10 transition-colors ${
+        className={`fixed top-0 inset-x-0 z-20 transition-colors ${
           background || isSticky ? "bg-amber-300" : ""
         }`}
         id="header"

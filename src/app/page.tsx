@@ -10,6 +10,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -67,11 +68,19 @@ export default async function HomePage() {
       <GTranslateWrapper />
       <Navbar background={false} />
 
-      <div
-        className="w-full flex flex-col bg-center pt-16 bg-cover bg-no-repeat bg-amber-300"
-        style={{ backgroundImage: "url(/img/home-banner.png)" }}
-      >
-        <div className="pb-12 pt-28 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
+      <div className="relative w-full flex flex-col bg-center pt-16 overflow-hidden bg-cover bg-no-repeat bg-amber-300">
+        <Image
+          src={"/img/home-banner.avif"}
+          alt="Hero background"
+          fill
+          priority
+          fetchPriority="high"
+          quality={60}
+          sizes="100vw"
+          className="object-cover"
+        />
+
+        <div className="pb-12 relative z-10 pt-28 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
           <h1
             className="customTranslation text-grey-900 font-extrabold text-3xl md:text-5xl text-center lg:leading-tight"
             data-text="Free support services validated by your peers"
@@ -92,7 +101,7 @@ export default async function HomePage() {
       </div>
 
       <section
-        className="max-w-5xl mx-auto w-full px-4 lg:-mt-8 -mt-4 mb-8 "
+        className="max-w-5xl mx-auto w-full px-4 lg:-mt-8 -mt-4 mb-8 relative z-10"
         id="servicesList"
       >
         <ul
