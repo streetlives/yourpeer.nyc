@@ -13,6 +13,7 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import QueryClientProvider from "@/app/QueryClientProvider";
 import GTProdGuardScript from "@/components/gt-prod-guard-script";
+import { inter } from "./fonts";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -30,17 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com"></link>
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
-          rel="stylesheet"
         />
         <GTProdGuardScript />
       </head>
