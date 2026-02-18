@@ -10,7 +10,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import OffCanvasMenu from "./OffCanvasMenu";
 import { GTranslateSelect } from "./gtranslate-select";
-import "@aws-amplify/ui-react/styles.css";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
 import DonationBanner from "./donation-banner";
 
@@ -41,7 +40,7 @@ export default function Navbar({ background = true }: { background: boolean }) {
     <>
       <OffCanvasMenu open={open} onClose={() => setOpen(false)} />
       <header
-        className={`fixed top-0 inset-x-0 z-10 transition-colors ${
+        className={`fixed top-0 inset-x-0 z-20 transition-colors ${
           background || isSticky ? "bg-amber-300" : ""
         }`}
         id="header"
