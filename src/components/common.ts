@@ -14,10 +14,10 @@ export const CATEGORIES = [
   "clothing",
   "personal-care",
   "health-care",
-  "other",
-  "legal-services",
   "mental-health",
+  "legal-services",
   "employment",
+  "other",
 ] as const;
 
 // TODO: other pages
@@ -131,8 +131,10 @@ export const OPEN_PARAM = "open";
 export const SHELTER_PARAM = "shelter";
 export const SHELTER_PARAM_SINGLE_VALUE = "adult";
 export const SHELTER_PARAM_FAMILY_VALUE = "families";
+export const SHELTER_PARAM_YOUTH_VALUE = "youth";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
+  | typeof SHELTER_PARAM_YOUTH_VALUE
   | typeof SHELTER_PARAM_FAMILY_VALUE;
 
 export const FOOD_PARAM = "food";
@@ -189,17 +191,20 @@ export const AMENITIES_PARAM_LAUNDRY_VALUE = "laundry-services";
 export const AMENITIES_PARAM_RESTROOM_VALUE = "restrooms";
 export const AMENITIES_PARAM_SHOWER_VALUE = "showers";
 export const AMENITIES_PARAM_TOILETRIES_VALUE = "toiletries";
+export const AMENITIES_PARAM_HAIRCUTS_VALUE = "haircuts-barbers";
 export type PersonalCareValue =
   | typeof AMENITIES_PARAM_LAUNDRY_VALUE
   | typeof AMENITIES_PARAM_RESTROOM_VALUE
   | typeof AMENITIES_PARAM_SHOWER_VALUE
-  | typeof AMENITIES_PARAM_TOILETRIES_VALUE;
+  | typeof AMENITIES_PARAM_TOILETRIES_VALUE
+  | typeof AMENITIES_PARAM_HAIRCUTS_VALUE;
 
 export const AMENITIES_PARAM_SUBCATEGORY_AND_CANONICAL_ORDERING = [
   AMENITIES_PARAM_LAUNDRY_VALUE,
   AMENITIES_PARAM_RESTROOM_VALUE,
   AMENITIES_PARAM_SHOWER_VALUE,
   AMENITIES_PARAM_TOILETRIES_VALUE,
+  AMENITIES_PARAM_HAIRCUTS_VALUE,
 ] as const;
 
 export type AmenitiesSubCategory =
@@ -265,6 +270,7 @@ export function getParsedSubCategory(
     category === CATEGORY_TO_ROUTE_MAP["shelters-housing"] &&
     (!subCategory ||
       subCategory === SHELTER_PARAM_FAMILY_VALUE ||
+      subCategory === SHELTER_PARAM_YOUTH_VALUE ||
       subCategory === SHELTER_PARAM_SINGLE_VALUE)
   ) {
     return subCategory as ShelterValues;
@@ -295,6 +301,8 @@ export const URL_PARAM_NAMES = [
   SHELTER_PARAM,
   FOOD_PARAM,
   CLOTHING_PARAM,
+  AMENITIES_PARAM,
+  REQUIREMENT_PARAM,
   SORT_BY_QUERY_PARAM,
 ] as const;
 
@@ -330,6 +338,7 @@ export interface ParsedAmenities {
   [AMENITIES_PARAM_RESTROOM_VALUE]: boolean;
   [AMENITIES_PARAM_SHOWER_VALUE]: boolean;
   [AMENITIES_PARAM_TOILETRIES_VALUE]: boolean;
+  [AMENITIES_PARAM_HAIRCUTS_VALUE]: boolean;
 }
 
 type CategoryAndSubCategory = [Category, SubCategory | null];
@@ -339,7 +348,7 @@ export function parsePathnameToCategoryAndSubCategory(
 ): CategoryAndSubCategory {
   const pathComponents = pathname.split("/");
   const [_, firstPathComponent, secondPathComponent] = pathComponents;
-  assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
+  // assert(firstPathComponent in ROUTE_TO_CATEGORY_MAP);
   const subCategory = getParsedSubCategory({
     route: firstPathComponent,
     locationSlugOrPersonalCareSubCategory: secondPathComponent,
@@ -500,6 +509,9 @@ export function parseRequest({
       ),
       [AMENITIES_PARAM_TOILETRIES_VALUE]: parsedAmenities.includes(
         AMENITIES_PARAM_TOILETRIES_VALUE,
+      ),
+      [AMENITIES_PARAM_HAIRCUTS_VALUE]: parsedAmenities.includes(
+        AMENITIES_PARAM_HAIRCUTS_VALUE,
       ),
     },
     [PAGE_PARAM]: parsePageParam(searchParams[PAGE_PARAM]),
@@ -757,11 +769,13 @@ const TOILETRIES_TAXONOMY = "Toiletries";
 const SHOWER_TAXONOMY = "Shower";
 const LAUNDRY_TAXONOMY = "Laundry";
 const RESTROOM_TAXONOMY = "Restrooms";
+const HAIRCUTS_TAXONOMY = "Haircut";
 export const TAXONOMY_SUBCATEGORIES = [
   TOILETRIES_TAXONOMY,
   SHOWER_TAXONOMY,
   LAUNDRY_TAXONOMY,
   RESTROOM_TAXONOMY,
+  HAIRCUTS_TAXONOMY,
 ] as const;
 
 export type TaxonomyCategory = (typeof TAXONOMY_CATEGORIES)[number];
@@ -794,6 +808,7 @@ export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
   [AMENITIES_PARAM_RESTROOM_VALUE]: RESTROOM_TAXONOMY,
   [AMENITIES_PARAM_SHOWER_VALUE]: SHOWER_TAXONOMY,
   [AMENITIES_PARAM_TOILETRIES_VALUE]: TOILETRIES_TAXONOMY,
+  [AMENITIES_PARAM_HAIRCUTS_VALUE]: HAIRCUTS_TAXONOMY,
 };
 
 export interface AgeEligibility {
@@ -825,6 +840,12 @@ export interface YourPeerLegacyServiceDataWrapper {
   services: YourPeerLegacyServiceData[];
 }
 
+export interface Phone {
+  number: string;
+  extension: string | null;
+  type: string | null;
+}
+
 export interface YourPeerLegacyLocationData {
   id: string;
   location_name: string | null;
@@ -844,7 +865,7 @@ export interface YourPeerLegacyLocationData {
   last_updated: string;
   last_updated_date: Date;
   name: string | null;
-  phone: string | null;
+  phones: null | Phone[];
   url: string | null;
   streetview_url: string | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;

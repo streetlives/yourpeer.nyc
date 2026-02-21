@@ -1,6 +1,7 @@
 "use client";
 
 import React, { PropsWithChildren, useRef } from "react";
+import DonationBanner from "../donation-banner";
 
 type section = "info" | "reviews" | "services";
 
@@ -56,7 +57,10 @@ export default function LocationDetailContainer({
       ref={containerRef}
       onScroll={handleScroll}
     >
-      {children}
+      <div className="md:hidden">
+        <DonationBanner />
+      </div>
+      <div>{children}</div>
     </div>
   );
 }

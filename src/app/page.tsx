@@ -10,6 +10,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -67,11 +68,19 @@ export default async function HomePage() {
       <GTranslateWrapper />
       <Navbar background={false} />
 
-      <div
-        className="w-full flex flex-col bg-center pt-16 bg-cover bg-no-repeat bg-amber-300"
-        style={{ backgroundImage: "url(/img/home-banner.png)" }}
-      >
-        <div className="pt-8 pb-12 sm:pt-20 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
+      <div className="relative w-full flex flex-col bg-center pt-16 overflow-hidden bg-cover bg-no-repeat bg-amber-300">
+        <Image
+          src={"/img/home-banner.avif"}
+          alt="Hero background"
+          fill
+          priority
+          fetchPriority="high"
+          quality={60}
+          sizes="100vw"
+          className="object-cover"
+        />
+
+        <div className="pb-12 relative z-10 pt-28 lg:pt-40 sm:pb-36 px-8 sm:px-12 flex flex-col justify-center items-center md:flex-1 max-w-2xl mx-auto">
           <h1
             className="customTranslation text-grey-900 font-extrabold text-3xl md:text-5xl text-center lg:leading-tight"
             data-text="Free support services validated by your peers"
@@ -92,7 +101,7 @@ export default async function HomePage() {
       </div>
 
       <section
-        className="max-w-5xl mx-auto w-full px-4 lg:-mt-8 -mt-4 mb-8 "
+        className="max-w-5xl mx-auto w-full px-4 lg:-mt-8 -mt-4 mb-8 relative z-10"
         id="servicesList"
       >
         <ul
@@ -105,12 +114,12 @@ export default async function HomePage() {
                 href={s.href}
                 className="flex h-24 sm:h-28 items-center justify-center flex-col px-5 py-4 lg:py-5 rounded sm:px-8 bg-white hover:bg-gray-100 transition shadow-service w-full"
               >
-                <img
+                <Image
                   src={s.icon}
                   width="37"
                   height="36"
                   className="object-contain flex-shrink-0"
-                  alt=""
+                  alt={s.name + " icon"}
                 />
                 <div className="text-[13px] text-dark mt-2 font-semibold text-center">
                   <TranslatableText text={s.name} />
@@ -129,10 +138,12 @@ export default async function HomePage() {
           <li className="lg:flex-1">
             <figure className="px-6">
               <div className="flex items-center justify-center">
-                <img
-                  src="/img/avatar-n-1.jpg"
+                <Image
+                  src="/img/avatar-n-1.avif"
+                  width="80"
+                  height="80"
                   className="w-20 h-20 rounded-full object-cover object-center border-4 border-pink-200"
-                  alt=""
+                  alt="Avatar of Timantti"
                 />
               </div>
               <blockquote className="mt-6 mb-3">
@@ -152,10 +163,12 @@ export default async function HomePage() {
           <li className="lg:flex-1">
             <figure className="px-6">
               <div className="flex items-center justify-center">
-                <img
-                  src="/img/avatar-3.png"
+                <Image
+                  src="/img/avatar-3.avif"
+                  width="80"
+                  height="80"
                   className="w-20 h-20 rounded-full object-cover object-center border-4 border-[#B3E5FC]"
-                  alt=""
+                  alt="Avatar of Kenia"
                 />
               </div>
               <blockquote className="mt-6 mb-3">
@@ -175,15 +188,17 @@ export default async function HomePage() {
           <li className="lg:flex-1">
             <figure className="px-6">
               <div className="flex items-center justify-center">
-                <img
-                  src="/img/avatar-1.jpg"
+                <Image
+                  src="/img/avatar-1.avif"
+                  width="80"
+                  height="80"
                   className="w-20 h-20 rounded-full object-cover object-center border-4 border-[#A5D6A7]"
-                  alt=""
+                  alt="Avatar of Jeffrey"
                 />
               </div>
               <blockquote className="mt-6 mb-3">
                 <p className="text-gray-900 font-semibold text-xl text-center">
-                  <TranslatableText text="I know this information is good. It’s from people like me." />
+                  <TranslatableText text="I know this information is good. It's from people like me." />
                 </p>
               </blockquote>
 
@@ -205,135 +220,173 @@ export default async function HomePage() {
           </h2>
           <div className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 justify-center place-content-center items-center gap-x-3">
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 flex-shrink-0"
-                src="/img/partners-logo/logo-1-updated.png"
+                src="/img/partners/logo-1-updated.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-2.png"
+                src="/img/partners/logo-new-2.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-3.png"
+                src="/img/partners/logo-new-3.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0"
-                src="/img/partners-logo/logo-new-4.png"
+                src="/img/partners/logo-new-4.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-5.png"
+                src="/img/partners/logo-5.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-6.png"
+                src="/img/partners/logo-6.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-7.png"
+                src="/img/partners/logo-new-7.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-10.png"
+                src="/img/partners/logo-10.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-8.png"
+                src="/img/partners/logo-new-8.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-9.png"
+                src="/img/partners/logo-new-9.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-10.png"
+                src="/img/partners/logo-new-10.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-11.png"
+                src="/img/partners/logo-new-11.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-11.png"
+                src="/img/partners/logo-11.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-9.png"
+                src="/img/partners/logo-9.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-3.png"
+                src="/img/partners/logo-3.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0"
-                src="/img/partners-logo/logo-new-12.png"
+                src="/img/partners/logo-new-12.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-13.png"
+                src="/img/partners/logo-new-13.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-20 sm:w-24 h-20 sm:h-24 flex-shrink-0"
-                src="/img/partners-logo/logo-new-14.png"
+                src="/img/partners/logo-new-14.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-8.png"
+                src="/img/partners/logo-8.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
@@ -342,143 +395,132 @@ export default async function HomePage() {
               target="_blank"
               className="flex items-center justify-center"
             >
-              <img
+              <Image
                 className="object-cover object-center w-20 sm:w-24 flex-shrink-0"
-                src="/img/partners-logo/logo-21.png"
+                src="/img/partners/logo-21.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </a>
 
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-4.png"
+                src="/img/partners/logo-4.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-20.png"
+                src="/img/partners/logo-20.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-15.png"
+                src="/img/partners/logo-new-15.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-18.png"
+                src="/img/partners/logo-18.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-12.png"
+                src="/img/partners/logo-12.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-13.png"
+                src="/img/partners/logo-13.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-17.png"
+                src="/img/partners/logo-17.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-16.png"
+                src="/img/partners/logo-16.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-16.png"
+                src="/img/partners/logo-new-16.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-17.png"
+                src="/img/partners/logo-new-17.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-18.png"
+                src="/img/partners/logo-new-18.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-19.png"
+                src="/img/partners/logo-new-19.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
             <div className="flex items-center justify-center">
-              <img
+              <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/logo-new-20.png"
+                src="/img/partners/logo-new-20.avif"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
-
-            {/* <img
-              className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-              src="/img/partners-logo/logo-2.png"
-              alt="Logo"
-            />
-
-
-
-
-            <img
-              className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-              src="/img/partners-logo/logo-7.png"
-              alt="Logo"
-            />
-
-
-
-
-
-
-            <img
-              className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-              src="/img/partners-logo/logo-14.png"
-              alt="Logo"
-            />
-            <img
-              className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-              src="/img/partners-logo/logo-15.png"
-              alt="Logo"
-            />
-
-
-
-            <img
-              className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-              src="/img/partners-logo/logo-19.png"
-              alt="Logo"
-            /> */}
           </div>
 
           <p className="text-sm text-gray-800 text-center mb-6 px-5 mt-8 md:mt-16">
@@ -500,9 +542,11 @@ export default async function HomePage() {
       <section className="py-12 bg-neutral-50">
         <div className="px-5 max-w-3xl mx-auto">
           <div className="flex flex-col items-center justify-center">
-            <img
+            <Image
               src="/img/icons/unity-icon.svg"
               className="w-28 mx-auto object-contain mb-10"
+              width={112}
+              height={112}
               alt=""
             />
             <h2 className="text-3xl text-dark mb-8 text-center font-bold">

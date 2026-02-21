@@ -96,6 +96,9 @@ export default function LocationDetailComponent({
     servicesNames.push(...names);
   });
 
+  console.log("Location Detail Component rendered with location:");
+  console.log(location);
+
   return (
     <LocationDetailContainer
       onChangeSection={(section) => setActiveSection(section)}
