@@ -1,4 +1,7 @@
 "use client";
+
+import Link from "next/link";
+
 export default function InternalCommentGuidelines() {
   return (
     <section className="bg-white pt-28 lg:pt-32 lg:py-20">
@@ -132,10 +135,10 @@ export default function InternalCommentGuidelines() {
                 If the comment is in a language not spoken by the moderator
                 apply
               </span>
-              <a href="https://translate.google.com" target="_blank">
+              <Link href="https://translate.google.com" target="_blank">
                 {" "}
                 this translation engine
-              </a>
+              </Link>
               <span>&nbsp;before making a decision (link omitted here).</span>
             </li>
           </ul>
@@ -151,10 +154,10 @@ export default function InternalCommentGuidelines() {
                       (If the comment is in a language not spoken by the
                       moderator apply&nbsp;
                     </span>
-                    <a href="https://translate.google.com" target="_blank">
+                    <Link href="https://translate.google.com" target="_blank">
                       {" "}
                       this translation engine
-                    </a>
+                    </Link>
                     <span>&nbsp;before making a decision)</span>
                   </span>
                 </th>
@@ -406,12 +409,12 @@ export default function InternalCommentGuidelines() {
                   from any other type of insult or hate speech that would be
                   unpublished. Examples of cyberbullying tactics are&nbsp;
                 </span>
-                <a
+                <Link
                   target="_blank"
                   href="https://www.ipredator.co/cyberbullying-examples/"
                 >
                   here
-                </a>
+                </Link>
               </span>
             </li>
             <li>
@@ -596,12 +599,12 @@ export default function InternalCommentGuidelines() {
               Further Abuse Standards to apply, if a moderation decision is
               unclear, are&nbsp;
             </span>
-            <a
+            <Link
               href="https://docs.google.com/document/d/13LMHMv14ny3Z0TDnmthC1lGIQIk7xsiPEIAv5HFmnYU/edit?tab=t.0#heading=h.sf1zhftnnsxw"
               target="_blank"
             >
               here
-            </a>
+            </Link>
             <span>&nbsp;(access on request).</span>
           </p>
 
@@ -639,9 +642,9 @@ export default function InternalCommentGuidelines() {
           <p>
             <em>
               <span>YourPeer is a platform by</span>{" "}
-              <a href="https://www.streetlives.nyc/" target="_blank">
+              <Link href="https://www.streetlives.nyc/" target="_blank">
                 Streetlives, Inc.
-              </a>{" "}
+              </Link>{" "}
               <span>– a New York City-based nonprofit organization.</span>
             </em>
           </p>
