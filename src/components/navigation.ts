@@ -372,7 +372,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
 
 export const getFirstPageHref = (
   pathname: string | null,
-  searchParams: URLSearchParams | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
 ): string | undefined => {
   const buildHref = (pathname: string | null, params: URLSearchParams) =>
     pathname
@@ -386,7 +386,7 @@ export const getFirstPageHref = (
 
 export const getLastPageHref = (
   pathname: string | null,
-  searchParams: URLSearchParams | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
   numberOfPages: number,
 ): string | undefined => {
   const buildHref = (pathname: string | null, params: URLSearchParams) =>
