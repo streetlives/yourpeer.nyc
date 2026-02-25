@@ -7,16 +7,15 @@ import {
   YourPeerLegacyLocationData,
   YourPeerLegacyServiceDataWrapper,
 } from "@/components/common";
-import { usePreviousRoute } from "@/components/use-previous-route";
+import { getIconPath } from "@/components/location-detail-component";
+import Service from "@/components/service-component";
+import { TranslatableText } from "@/components/translatable-text";
 import { usePreviousParamsOnClient } from "@/components/use-previous-params-client";
 import {
   CATEGORIES,
   CATEGORY_DESCRIPTION_MAP,
   getServicesWrapper,
 } from "../common";
-import { TranslatableText } from "@/components/translatable-text";
-import Service from "@/components/service-component";
-import { getIconPath } from "@/components/location-detail-component";
 
 const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
   "health-care": "health-icon",
@@ -77,7 +76,6 @@ export default function LocationServices({
   const previousParams = usePreviousParamsOnClient();
   const previousCategory =
     ROUTE_TO_CATEGORY_MAP[previousParams?.params.route as string];
-  const previousRoute = usePreviousRoute();
   const previousSubcategory =
     previousParams?.params.locationSlugOrPersonalCareSubCategory;
 
@@ -88,20 +86,24 @@ export default function LocationServices({
       ? (previousSubcategory as Category)
       : previousCategory;
 
+  const categories = previousCategoryAndSubcategoryAsCategory
+    ? [previousCategoryAndSubcategoryAsCategory].concat(
+        CATEGORIES.filter(
+          (category) => category !== previousCategoryAndSubcategoryAsCategory,
+        ),
+      )
+    : CATEGORIES;
+
+  const servicesLength = categories.filter(
+    (s) => getServicesWrapper(s, location)?.services.length,
+  ).length;
+
   return !location.closed ? (
     <div
       id="services"
       className="px-4 py-5 bg-neutral-50 flex flex-col gap-y-4"
     >
-      {(previousCategoryAndSubcategoryAsCategory
-        ? [previousCategoryAndSubcategoryAsCategory].concat(
-            CATEGORIES.filter(
-              (category) =>
-                category !== previousCategoryAndSubcategoryAsCategory,
-            ),
-          )
-        : CATEGORIES
-      ).map((serviceCategory) => {
+      {categories.map((serviceCategory) => {
         const servicesWrapper = getServicesWrapper(serviceCategory, location);
         return servicesWrapper?.services.length ? (
           <LocationService
@@ -111,7 +113,8 @@ export default function LocationServices({
             name={CATEGORY_DESCRIPTION_MAP[serviceCategory]}
             icon={CATEGORY_ICON_SRC_MAP[serviceCategory]}
             startExpanded={
-              serviceCategory === previousCategoryAndSubcategoryAsCategory
+              serviceCategory === previousCategoryAndSubcategoryAsCategory ||
+              servicesLength === 1
             }
           />
         ) : undefined;
