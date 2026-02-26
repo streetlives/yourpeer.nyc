@@ -173,7 +173,7 @@ export default async function HomePage() {
               </div>
               <blockquote className="mt-6 mb-3">
                 <p className="text-gray-900 font-semibold text-xl text-center">
-                  <TranslatableText text="Usually if I need something, I ask. But this is faster, easier, better." />
+                  <TranslatableText text="Usually, if I need something, I ask. But this is faster, easier, better." />
                 </p>
               </blockquote>
 

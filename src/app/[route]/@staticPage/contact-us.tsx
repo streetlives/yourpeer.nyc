@@ -28,7 +28,7 @@ export function ContactUsPage() {
             <span className="notranslate">.</span>
           </p>
           <p className="text-dark text-center mb-6">
-            <TranslatableText text="If are an organization or individual interested in working with us please email us at" />{" "}
+            <TranslatableText text="If you are an organization or individual interested in working with us, please email us at" />{" "}
             <a
               href="mailto:yourpeerpartner@streetlives.nyc"
               className="link notranslate"
