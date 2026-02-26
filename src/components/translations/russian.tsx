@@ -16,7 +16,7 @@ const translations: Record<string, string> = {
   Other: "Другие услуги",
   "Other Services": "Другие услуги",
   "YourPeer offers hope": "YourPeer дает мне надежду.",
-  "Usually if I need something, I ask. But this is faster, easier, better.":
+  "Usually, if I need something, I ask. But this is faster, easier, better.":
     "Обычно, если мне что-то нужно, я спрашиваю у знакомых. Но это быстрее, проще, лучше.",
   "I know this information is good. It's from people like me.":
     "Я знаю, что это качественный ресурс. Публицисты, работающие на YourPeer, — такие же люди, как и я.",
@@ -41,10 +41,10 @@ const translations: Record<string, string> = {
   "All locations": "Все филиалы",
   Social: "Соцсети",
   "Quick Exit": "Быстрый выход",
-  "Thank you for your interest in supporting us. We accept donations through our page on Open Collective.":
+  "Thank you for your interest in supporting us. We accept donations through our Open Collective page.":
     "Благодарим Вас за интерес к нашей работе. Мы принимаем пожертвования через нашу страницу на Open Collective.",
-  "Each $30 covers an hour's stipend for unhoused people or people with lived expertise to participate in Streetlives research or product testing.":
-    "Каждые 30 долларов могут пойти на почасовую стипендию для людей, которые были бездомными или испытывают жилищные проблемы в настоящее время, за их участие в исследовании Streetlives или тестировании нашего продукта.",
+  "Each $50 covers an hour's stipend for unhoused people or those with lived expertise to participate in Streetlives' research or product testing.":
+    "Каждые 50 долларов могут пойти на почасовую стипендию для людей, которые были бездомными или испытывают жилищные проблемы в настоящее время, за их участие в исследовании Streetlives или тестировании нашего продукта.",
   "Donate Now": "Пожертвуйте сейчас",
   "Thank you for your interest in YourPeer.":
     "Благодарим Вас за интерес к YourPeer.",
@@ -69,7 +69,7 @@ const translations: Record<string, string> = {
     "предпочитают обращение в нейтральном роде, или во множественном числе",
   "(she/her)": "предпочитает обращение в женском роде",
   "(he/him)": "предпочитает обращение в мужском роде",
-  "I am passionate about helping others and participate in NYC DYCD’s plans to eradicate homelessness.":
+  "I am passionate about helping others and participating in NYC DYCD’s plans to eradicate homelessness.":
     "Я очень хочу помогать другим и участвую в планах Департамента Молодежи Нью-Йорка по искоренению бездомности",
   "Because of my previous work experience, I’m knowledgeable about health-related services.":
     "Благодаря моему опыту работы, я хорошо осведомлена об услугах, связанных со здравоохранением",
