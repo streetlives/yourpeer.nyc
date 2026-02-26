@@ -13,7 +13,6 @@ import {
 import { notFound } from "next/navigation";
 import { SidePanelComponent } from "../../../components/side-panel-component";
 import { getSidePanelComponentData } from "@/components/get-side-panel-component-data";
-import { getCookies } from "next-client-cookies/server";
 import { redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet } from "@/components/navigation";
 import { cookies } from "next/headers";
 
@@ -36,7 +35,7 @@ export default async function SidePanelPage(props: {
       sidePanelComponentData={await getSidePanelComponentData({
         searchParams,
         params,
-        cookies: getCookies(),
+        cookies: await cookies(),
       })}
     />
   ) : (

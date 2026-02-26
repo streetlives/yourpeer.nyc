@@ -1,8 +1,9 @@
-import { Cookies } from "next-client-cookies";
 import {
   Category,
   REQUIREMENT_PARAM,
   RouteParams,
+  SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_YOUTH_VALUE,
   SORT_BY_QUERY_PARAM,
   SearchParams,
   SubCategory,
@@ -18,6 +19,7 @@ import {
   getTaxonomies,
   map_gogetta_to_yourpeer,
 } from "./streetlives-api-service";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 export interface SidePanelComponentData {
   params: RouteParams | SubRouteParams;
@@ -36,23 +38,29 @@ export async function getSidePanelComponentData({
 }: {
   searchParams: SearchParams;
   params: SubRouteParams;
-  cookies: Cookies;
+  cookies: ReadonlyRequestCookies;
 }): Promise<SidePanelComponentData> {
-  console.log(params);
-  console.log(searchParams);
   const category = parseCategoryFromRoute(params.route);
   const subCategory = getParsedSubCategory(params);
   const parsedSearchParams = parseRequest({ params, searchParams, cookies });
-  console.log(parsedSearchParams);
   const taxonomiesResults = await getTaxonomies(category, parsedSearchParams);
-  console.log("taxonomyresults", taxonomiesResults);
+  const locationParams = {
+    ...parsedSearchParams,
+    ...parsedSearchParams[REQUIREMENT_PARAM],
+    ...taxonomiesResults,
+    sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
+    ...(subCategory === SHELTER_PARAM_YOUTH_VALUE && {
+      ageMin: 16,
+      ageMax: 24,
+    }),
+    ...(subCategory === SHELTER_PARAM_SINGLE_VALUE && {
+      ageMin: 18,
+      ageMax: 99,
+    }),
+  };
+
   const { locations, numberOfPages, resultCount } =
-    await await getFullLocationData({
-      ...parsedSearchParams,
-      ...parsedSearchParams[REQUIREMENT_PARAM],
-      ...taxonomiesResults,
-      sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
-    });
+    await getFullLocationData(locationParams);
 
   const yourPeerLegacyLocationData = locations.map((location) =>
     map_gogetta_to_yourpeer(location, false),
