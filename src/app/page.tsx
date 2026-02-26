@@ -507,6 +507,8 @@ export default async function HomePage() {
               <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
                 src="/img/partners-logo/covenant-house.png"
+                width={96}
+                height={144}
                 alt="Logo"
               />
             </div>
