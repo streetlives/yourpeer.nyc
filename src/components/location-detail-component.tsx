@@ -33,6 +33,7 @@ import { EditIcon } from "@/components/icons/edit-icon";
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { useReply } from "@/context/ReplyContext";
+import DonationBanner from "./donation-banner";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -41,6 +42,7 @@ export function getIconPath(iconName: string): string {
 }
 
 const DISABLE_FEEDBACK = !!process.env.NEXT_PUBLIC_DISABLE_FEEDBACK;
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
 
 export default function LocationDetailComponent({
   location,
@@ -106,6 +108,12 @@ export default function LocationDetailComponent({
       onChangeSection={(section) => setActiveSection(section)}
       onSticky={(sticky) => setStickyTitle(sticky)}
     >
+      {SHOW_DONATION_BANNER && (
+        <div className="md:hidden">
+          <DonationBanner />
+        </div>
+      )}
+
       <LocationDetailHeader
         onGoBack={goBack}
         title={headerTitle}
