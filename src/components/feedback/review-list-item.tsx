@@ -60,6 +60,10 @@ export default function ReviewListItem({
 
   useEffect(() => {
     replyContext.setIsReplying(isReplying);
+
+    return () => {
+      replyContext.setIsReplying(false);
+    };
   }, [isReplying]);
 
   const { mutate: mutateHideComment, isPending } = useMutation({
