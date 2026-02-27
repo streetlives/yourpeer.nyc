@@ -16,10 +16,12 @@ import {
   LocationsNavbarResourceRoutes,
 } from "../../components/locations-navbar";
 import { notFound } from "next/navigation";
-import { SearchProvider } from "@/components/search-context";
 import { MainComponent } from "@/components/main-component";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { GeoCoordinatesProvider } from "@/components/geo-context";
+import GTProdGuardScript from "@/components/gt-prod-guard-script";
+
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
 
 export default async function LocationsLayout(props: {
   mapContainer: React.ReactNode;
@@ -35,31 +37,32 @@ export default async function LocationsLayout(props: {
 
   return (
     <>
+      <GTProdGuardScript />
       <GTranslateWrapper />
       <span>
         {RESOURCE_ROUTES.includes(route) ? (
           <>
             <div className="h-[100vh] w-full">
-              <SearchProvider>
-                <GeoCoordinatesProvider>
-                  <MapListToggleButton />
-                  <div className="flex flex-col w-full h-full">
-                    <div>
-                      <LocationsNavbarResourceRoutes />
-                    </div>
-                    <MainComponent
-                      mapContainer={mapContainer}
-                      sidePanel={sidePanel}
-                    />
+              <GeoCoordinatesProvider>
+                <MapListToggleButton />
+                <div className="flex flex-col w-full h-full">
+                  <div>
+                    <LocationsNavbarResourceRoutes />
                   </div>
-                </GeoCoordinatesProvider>
-              </SearchProvider>
+                  <MainComponent
+                    mapContainer={mapContainer}
+                    sidePanel={sidePanel}
+                  />
+                </div>
+              </GeoCoordinatesProvider>
             </div>
           </>
         ) : COMPANY_ROUTES.includes(route as CompanyRoute) ? (
           <>
             <LocationsNavbarCompanyRoutes />
-            {staticPage}
+            <div className={`${SHOW_DONATION_BANNER ? "pt-14 lg:pt-16" : ""}`}>
+              {staticPage}
+            </div>
             <Footer />
           </>
         ) : (

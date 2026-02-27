@@ -11,6 +11,7 @@ import {
   AmenitiesSubCategory,
   Category,
   CATEGORY_TO_ROUTE_MAP,
+  CLOTHING_PARAM,
   ClothingValues,
   FoodValues,
   getParsedAmenities,
@@ -51,6 +52,12 @@ function removeExtraneousSearchParams(
     const params = parsePathnameToSubRouteParams(pathname);
     if (params.route !== PERSONAL_CARE_CATEGORY) {
       currentUrlSearchParams.delete(PERSONAL_CARE_CATEGORY);
+    }
+    if (
+      params.route !== PERSONAL_CARE_CATEGORY &&
+      params.route !== CLOTHING_PARAM
+    ) {
+      currentUrlSearchParams.delete(REQUIREMENT_PARAM);
     }
   }
   // when search is set, SORT_BY_QUERY_PARAM  should get unset
@@ -143,9 +150,9 @@ export function getUrlWithNewFilterParameter(
   // always delete the current page
   // FIXME: should we just call removeExtraneousSearchParams instead of duplicating the logic here?
   currentUrlSearchParams.delete(PAGE_PARAM);
-  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
-    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
-  }
+  // if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+  //   currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
+  // }
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
@@ -355,6 +362,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
 
   // always delete the current page
   currentUrlSearchParams.delete(PAGE_PARAM);
+  currentUrlSearchParams.delete(AMENITIES_PARAM);
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 

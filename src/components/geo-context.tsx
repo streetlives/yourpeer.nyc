@@ -150,7 +150,6 @@ export const GeoCoordinatesProvider: React.FC<{
         }
       },
       (error) => {
-        console.log("unable to get user position", error);
         if (errBack) {
           errBack(error);
         }

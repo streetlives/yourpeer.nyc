@@ -34,6 +34,7 @@ import {
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_YOUTH_VALUE,
   SimplifiedLocationData,
   Taxonomy,
   TaxonomyCategory,
@@ -70,6 +71,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search = undefined,
   location_fields_only,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy = null,
   latitude,
@@ -86,6 +89,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search?: string | null;
   location_fields_only?: boolean;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -100,9 +105,13 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (location_fields_only) {
     query_url += `&locationFieldsOnly=true`;
   }
+
   if (age) {
     query_url += `&age=${age}`;
+  } else if (ageMin || ageMax) {
+    query_url += `&ageMin=${ageMin}&ageMax=${ageMax}`;
   }
+
   if (taxonomies && taxonomies.length) {
     query_url += `&taxonomyId=${taxonomies.join(",")}`;
   }
@@ -136,7 +145,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     query_url += `&openAt=${new Date().toISOString()}`;
   }
 
-  if (sortBy) {
+  if (sortBy && !search) {
     query_url += `&sortBy=${sortBy}`;
 
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
@@ -149,8 +158,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
       query_url += `&latitude=${latitude}&longitude=${longitude}`;
     }
   }
-
-  console.log(query_url);
 
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
@@ -197,6 +204,8 @@ export async function getSimplifiedLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMin = undefined,
+  ageMax = undefined,
   shelter = undefined,
 }: {
   page?: number;
@@ -209,6 +218,8 @@ export async function getSimplifiedLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
 }): Promise<SimplifiedLocationData[]> {
@@ -222,6 +233,8 @@ export async function getSimplifiedLocationData({
       open,
       search,
       age,
+      ageMin,
+      ageMax,
       shelter,
       location_fields_only: true,
     });
@@ -239,6 +252,8 @@ export async function getFullLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy,
   latitude,
@@ -254,6 +269,8 @@ export async function getFullLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -271,6 +288,8 @@ export async function getFullLocationData({
     search,
     sortBy,
     age,
+    ageMax,
+    ageMin,
     shelter,
     location_fields_only: false,
     latitude,
@@ -307,11 +326,7 @@ function filter_services_by_name(
         taxonomy.parent_name,
       ]).filter((t) => t !== null),
     );
-    if (category_name == "health-care") {
-      taxonomiesForService = new Set(
-        service.Taxonomies.map((taxonomy) => taxonomy.name),
-      );
-    }
+
     if (
       !category_name ||
       taxonomiesForService.has(CATEGORY_TO_TAXONOMY_NAME_MAP[category_name])
@@ -329,7 +344,14 @@ function filter_services_by_name(
           }
         }
       }
-      if (service["Taxonomies"].length !== 0) {
+
+      if (
+        !(
+          category_name === "health-care" &&
+          taxonomiesForService.has("Mental Health")
+        ) &&
+        service["Taxonomies"].length !== 0
+      ) {
         services.push({
           id: service.id,
           name: service["name"],
@@ -440,7 +462,11 @@ export function map_gogetta_to_yourpeer(
     last_updated: moment(updated_at).fromNow(),
     last_updated_date: updated_at,
     name: org_name,
-    phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
+    phones: d["Phones"].map((phone) => ({
+      number: phone["number"],
+      extension: phone["extension"],
+      type: phone["type"],
+    })),
     url: d["Organization"]["url"],
     streetview_url: d["streetview_url"],
     partners: d["Organization"]["partners"],
@@ -548,15 +574,6 @@ export async function getTaxonomies(
 
   const selectedAmenityTaxonomies = selectedAmenities.map(
     (amenity) => AMENITY_TO_TAXONOMY_NAME_MAP[amenity],
-  );
-
-  console.log(
-    "taxonomyResponse",
-    taxonomyResponse.map((r) => r.name),
-    "selectedAmenities",
-    selectedAmenities,
-    "selectedAmenityTaxonomies",
-    selectedAmenityTaxonomies,
   );
 
   // FIXME: currently it's only two layers deep. Technically, taxonomy can be arbitrary depth, and we should handle that case
@@ -723,6 +740,11 @@ export async function getTaxonomies(
                 ),
           );
           break;
+        case SHELTER_PARAM_YOUTH_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName ? [r as Taxonomy] : [],
+          );
+          break;
         case SHELTER_PARAM_SINGLE_VALUE:
           taxonomies = taxonomyResponse.flatMap((r) =>
             !r.children
@@ -736,10 +758,7 @@ export async function getTaxonomies(
           break;
       }
   }
-  console.log(
-    "taxonomies",
-    taxonomies.map((t) => t.id),
-  );
+
   return {
     taxonomies: taxonomies.map((t) => t.id),
     taxonomySpecificAttributes,

@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { TranslatableText } from "@/components/translatable-text";
+import Image from "next/image";
 
 export function AboutUsPage() {
   return (
@@ -75,10 +76,12 @@ export function AboutUsPage() {
             <SwiperSlide className="swiper-slide w-full">
               <div className="px-6">
                 <div className="flex items-center justify-center mb-6">
-                  <img
-                    src="/img/partners/one.png"
+                  <Image
+                    src="/img/partners/one.avif"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover object-center overflow-hidden  border-4 border-primary"
-                    alt=""
+                    alt="One's profile picture"
                   />
                 </div>
                 <h3
@@ -89,7 +92,7 @@ export function AboutUsPage() {
                   <TranslatableText text="(they/them)" />
                 </h3>
                 <div className="text-base text-gray-800 text-center">
-                  <TranslatableText text="I am passionate about helping others and participate in NYC DYCD’s plans to eradicate homelessness." />
+                  <TranslatableText text="I am passionate about helping others and participating in NYC DYCD’s plans to eradicate homelessness." />
                 </div>
               </div>
             </SwiperSlide>
@@ -97,10 +100,12 @@ export function AboutUsPage() {
             <SwiperSlide className="swiper-slide w-full">
               <div className="px-6">
                 <div className="flex items-center justify-center mb-6">
-                  <img
-                    src="/img/partners/kiesha.jpg"
+                  <Image
+                    src="/img/partners/kiesha.avif"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
-                    alt=""
+                    alt="Kiesha's profile picture"
                   />
                 </div>
                 <h3
@@ -118,10 +123,12 @@ export function AboutUsPage() {
             <SwiperSlide className="swiper-slide w-full">
               <div className="px-6">
                 <div className="flex items-center justify-center mb-6">
-                  <img
-                    src="/img/gavallan.png"
+                  <Image
+                    src="/img/partners/gavallan.avif"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
-                    alt=""
+                    alt="Gavilán's profile picture"
                   />
                 </div>
                 <h3
@@ -139,10 +146,12 @@ export function AboutUsPage() {
             <SwiperSlide className="swiper-slide w-full">
               <div className="px-6">
                 <div className="flex items-center justify-center mb-6">
-                  <img
-                    src="/img/partners/anthony.png"
+                  <Image
+                    src="/img/partners/anthony.avif"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
-                    alt=""
+                    alt="Anthony's profile picture"
                   />
                 </div>
                 <h3 className="text-gray-900 font-medium text-lg mb-2 text-center">
@@ -157,10 +166,12 @@ export function AboutUsPage() {
             <SwiperSlide className="swiper-slide w-full">
               <div className="px-6">
                 <div className="flex items-center justify-center mb-6">
-                  <img
-                    src="/img/liz.jpg"
+                  <Image
+                    src="/img/partners/liz.avif"
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover object-center overflow-hidden border-4 border-primary"
-                    alt=""
+                    alt="Liz's profile picture"
                   />
                 </div>
                 <h3 className="text-gray-900 font-medium text-lg mb-2 text-center">

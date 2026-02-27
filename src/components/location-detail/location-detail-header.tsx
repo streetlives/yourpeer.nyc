@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { Transition } from "@headlessui/react";
 import { SignInNavbarLink } from "@/components/sign-in-navbar-link";
+import { motion } from "framer-motion";
 
 interface Props {
   onGoBack: () => void;
@@ -24,14 +24,16 @@ export default function LocationDetailHeader({
         <ArrowLeftIcon className="size-6" />
       </button>
 
-      <Transition show={isSticky}>
-        <h1
-          className="text-dark text-lg sm:text-xl flex-1 font-medium truncate details-scroll-header transition duration-300 ease-in data-[closed]:opacity-0"
+      {isSticky && (
+        <motion.h1
+          className="text-dark text-lg sm:text-xl flex-1 font-medium truncate details-scroll-header"
+          animate={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
           translate="no"
         >
           {title}
-        </h1>
-      </Transition>
+        </motion.h1>
+      )}
 
       <span className="md:hidden">
         <SignInNavbarLink />
