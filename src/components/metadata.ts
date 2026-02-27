@@ -18,7 +18,10 @@ import {
   DONATE_ROUTE,
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
+  HEALTH_PARAM_MENTAL_HEALTH,
   LOCATION_ROUTE,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
   PAGE_PARAM,
   PRIVACY_POLICY_ROUTE,
   RouteParams,
@@ -30,24 +33,26 @@ import {
 import { fetchLocationsDetailData } from "./streetlives-api-service";
 
 type Props = {
-  params: RouteParams | SubRouteParams;
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: RouteParams | SubRouteParams | Promise<RouteParams | SubRouteParams>;
+  searchParams:
+    | { [key: string]: string | string[] | undefined }
+    | Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 function attachSuffix(s: string): string {
   return `${s} | YourPeer`;
 }
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const paramsMaybe = (props as any).params;
+  const searchParamsMaybe = (props as any).searchParams;
+  const [params, searchParams] = await Promise.all([
+    paramsMaybe,
+    searchParamsMaybe,
+  ]);
+
   let title, description;
   let subRouteParams = params as SubRouteParams;
-  console.log(
-    "subRouteParams.locationSlugOrPersonalCareSubCategory",
-    subRouteParams.locationSlugOrPersonalCareSubCategory,
-  );
   switch (params.route) {
     case LOCATION_ROUTE:
       if ((params as SubRouteParams).locationSlugOrPersonalCareSubCategory) {
@@ -71,18 +76,49 @@ export async function generateMetadata({
       }
       break;
     case CATEGORY_TO_ROUTE_MAP["health-care"]:
-      title = attachSuffix(
-        "Free Healthcare Centers & Clinics For Unhoused People in NYC",
-      );
-      description =
-        "Find healthcare services, centers, and clinics for unhoused (homeless) people in NYC. Use YourPeer’s support network to prioritize your health and well-being.";
+      switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
+        case null:
+        case undefined:
+          title = attachSuffix(
+            "Free Healthcare Centers & Clinics For Unhoused People in NYC",
+          );
+          description =
+            "Find healthcare services, centers, and clinics for unhoused (homeless) people in NYC. Use YourPeer’s support network to prioritize your health and well-being.";
+          break;
+        case HEALTH_PARAM_MENTAL_HEALTH:
+          title = attachSuffix(
+            "Mental Health Services for the Unhoused in NYC",
+          );
+          description =
+            "Discover free and low-cost mental health services in NYC for unhoused people, offering compassionate care and support.";
+          break;
+      }
       break;
     case CATEGORY_TO_ROUTE_MAP["other"]:
-      title = attachSuffix(
-        "Other Resources & Services For Unhoused People In NYC",
-      );
-      description =
-        "Discover information about all resources and services offered by locations hosted on YourPeer in NYC. ";
+      switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
+        case null:
+        case undefined:
+          title = attachSuffix(
+            "Other Resources & Services For Unhoused People In NYC",
+          );
+          description =
+            "Discover information about all resources and services offered by locations hosted on YourPeer in NYC. ";
+          break;
+        case OTHER_PARAM_LEGAL_VALUE:
+          title = attachSuffix(
+            "Free Legal Services & Aid for Unhoused People in NYC",
+          );
+          description =
+            "Free legal services for unhoused individuals, including help with housing, evictions, immigration, and other aid throughout NYC.";
+          break;
+        case OTHER_PARAM_EMPLOYMENT_VALUE:
+          title = attachSuffix(
+            "Employment & Job Training Programs for Unhoused People NYC",
+          );
+          description =
+            "Find employment programs, job training, and other resources to help you secure work that supports your well-being.";
+          break;
+      }
       break;
     case CATEGORY_TO_ROUTE_MAP["shelters-housing"]:
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {
@@ -127,6 +163,25 @@ export async function generateMetadata({
             "Find soup kitchens and warm meals with YourPeer. Access nourishing meals and connect with caring communities through our comprehensive network of resources.";
           break;
       }
+      break;
+    case CATEGORY_TO_ROUTE_MAP["legal-services"]:
+      title = attachSuffix(
+        "Free Legal Services & Aid for Unhoused People in NYC",
+      );
+      description =
+        "Free legal services for unhoused individuals, including help with housing, evictions, immigration, and other aid throughout NYC. ";
+      break;
+    case CATEGORY_TO_ROUTE_MAP["mental-health"]:
+      title = attachSuffix("Mental Health Services for the Unhoused in NYC");
+      description =
+        "Discover free and low-cost mental health services in NYC for unhoused people, offering compassionate care and support.";
+      break;
+    case CATEGORY_TO_ROUTE_MAP["employment"]:
+      title = attachSuffix(
+        "Employment & Job Training Programs for Unhoused People NYC",
+      );
+      description =
+        "Find employment programs, job training, and other resources to help you secure work that supports your well-being.";
       break;
     case CATEGORY_TO_ROUTE_MAP["clothing"]:
       switch (subRouteParams.locationSlugOrPersonalCareSubCategory) {

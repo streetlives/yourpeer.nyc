@@ -11,10 +11,13 @@ import {
   getServicesWrapper,
   YourPeerLegacyLocationData,
 } from "./common";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { TranslatableText } from "./translatable-text";
 import axios from "axios";
 import { toast } from "sonner";
+import { isEmailOrPhone } from "@/lib/utils";
+import Spinner from "./spinner";
+import { Button } from "./ui/button";
 
 export function ReportIssueForm({
   location,
@@ -24,6 +27,8 @@ export function ReportIssueForm({
   hideReportIssueForm: () => void;
 }) {
   const [isShowingSuccessForm, setIsShowingSuccessForm] = useState(false);
+  const [contactInfo, setContactInfo] = useState("");
+  const [isLoading, startTransition] = useTransition();
 
   async function submitReport(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,14 +56,24 @@ export function ReportIssueForm({
       return;
     }
 
-    try {
-      const res = axios.post("/api/report", { text: issues });
-      setIsShowingSuccessForm(true);
-    } catch (e) {
-      console.error(e);
-      alert("Error creating report");
-      hideReportIssueForm();
+    if (contactInfo.trim()) {
+      if (!isEmailOrPhone(contactInfo)) {
+        toast("Please enter a valid email or phone number.");
+        return;
+      }
+      issues += `\nContact info: ${contactInfo}`;
     }
+
+    startTransition(async () => {
+      try {
+        await axios.post("/api/report", { text: issues });
+        setIsShowingSuccessForm(true);
+      } catch (e) {
+        console.error(e);
+        alert("Error creating report");
+        hideReportIssueForm();
+      }
+    });
   }
 
   return (
@@ -147,24 +162,54 @@ export function ReportIssueForm({
                 htmlFor="reportContent"
                 className="text-base text-dark font-medium"
               >
-                <TranslatableText text="Please describe the issue below (Please don't enter any private information)" />
+                <TranslatableText text="Please describe the issue below" />
+                <br />
+                <span className="text-sm text-gray-500 font-normal">
+                  Please don&apos;t enter private information
+                </span>
               </label>
               <div className="mt-4">
                 <textarea
                   id="reportContent"
-                  className="w-full focus:ring-primary resize-none border-neutral-500 rounded"
+                  className="w-full focus:ring-primary text-sm resize-none border-neutral-500 rounded"
                   rows={6}
-                  placeholder="..."
+                  placeholder="Describe the issue here"
                 ></textarea>
               </div>
             </div>
+
+            <div id="StepThree" className="mt-8">
+              <label
+                htmlFor="reportContactInfo"
+                className="text-base text-dark font-medium"
+              >
+                <span>How can we reach you?</span>
+                <br />
+                <span className="text-sm text-gray-500 font-normal">
+                  we&apos;ll only use your contact info to follow up about this
+                  issue, nothing else.
+                </span>
+              </label>
+              <div className="mt-4">
+                <input
+                  id="reportContactInfo"
+                  value={contactInfo}
+                  onChange={(e) => setContactInfo(e.target.value)}
+                  className="w-full focus:ring-primary text-sm resize-none border-neutral-500 rounded placeholder:text-neutral-500"
+                  placeholder="Your email or phone number"
+                />
+              </div>
+            </div>
+
             <div className="py-5">
-              <input
-                className="primary-button mt-5 w-full block"
+              <Button
+                className="mt-5 w-full rounded-md"
+                disabled={isLoading}
                 id="reportActionButton"
                 type="submit"
-                value="Send"
-              ></input>
+              >
+                <span>Send</span> {isLoading && <Spinner />}
+              </Button>
             </div>
           </div>
         </div>

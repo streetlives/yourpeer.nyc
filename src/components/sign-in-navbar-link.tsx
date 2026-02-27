@@ -3,7 +3,6 @@
 import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify/amplify_outputs.json";
-import "@aws-amplify/ui-react/styles.css";
 import { UserCircle } from "lucide-react";
 import QuickExit from "@/components/quick-exit";
 import {

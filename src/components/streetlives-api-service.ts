@@ -21,14 +21,20 @@ import {
   FOOD_PARAM_PANTRY_VALUE,
   FOOD_PARAM_SOUP_KITCHEN_VALUE,
   FullLocationData,
+  HEALTH_PARAM,
+  HEALTH_PARAM_MENTAL_HEALTH,
   LocationDetailData,
   NEARBY_SORT_BY_VALUE,
+  OTHER_PARAM,
+  OTHER_PARAM_EMPLOYMENT_VALUE,
+  OTHER_PARAM_LEGAL_VALUE,
   Reply,
   ScheduleData,
   setIntersection,
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_YOUTH_VALUE,
   SimplifiedLocationData,
   Taxonomy,
   TaxonomyCategory,
@@ -42,6 +48,7 @@ import {
 import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
+import { permanentRedirect } from "next/navigation";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -64,6 +71,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search = undefined,
   location_fields_only,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy = null,
   latitude,
@@ -80,6 +89,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   search?: string | null;
   location_fields_only?: boolean;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -94,9 +105,13 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   if (location_fields_only) {
     query_url += `&locationFieldsOnly=true`;
   }
+
   if (age) {
     query_url += `&age=${age}`;
+  } else if (ageMin || ageMax) {
+    query_url += `&ageMin=${ageMin}&ageMax=${ageMax}`;
   }
+
   if (taxonomies && taxonomies.length) {
     query_url += `&taxonomyId=${taxonomies.join(",")}`;
   }
@@ -130,7 +145,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
     query_url += `&openAt=${new Date().toISOString()}`;
   }
 
-  if (sortBy) {
+  if (sortBy && !search) {
     query_url += `&sortBy=${sortBy}`;
 
     if (sortBy === NEARBY_SORT_BY_VALUE && !(latitude && longitude)) {
@@ -143,8 +158,6 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
       query_url += `&latitude=${latitude}&longitude=${longitude}`;
     }
   }
-
-  console.log(query_url);
 
   const gogetta_response = await fetch(query_url);
   if (gogetta_response.status !== 200) {
@@ -191,6 +204,8 @@ export async function getSimplifiedLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMin = undefined,
+  ageMax = undefined,
   shelter = undefined,
 }: {
   page?: number;
@@ -203,6 +218,8 @@ export async function getSimplifiedLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
 }): Promise<SimplifiedLocationData[]> {
@@ -216,6 +233,8 @@ export async function getSimplifiedLocationData({
       open,
       search,
       age,
+      ageMin,
+      ageMax,
       shelter,
       location_fields_only: true,
     });
@@ -233,6 +252,8 @@ export async function getFullLocationData({
   open = false,
   search = undefined,
   age = undefined,
+  ageMax = undefined,
+  ageMin = undefined,
   shelter = undefined,
   sortBy,
   latitude,
@@ -248,6 +269,8 @@ export async function getFullLocationData({
   open?: boolean | null;
   search?: string | null;
   age?: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   shelter?: string | null;
   sortBy?: string | null;
   latitude?: number | null;
@@ -265,6 +288,8 @@ export async function getFullLocationData({
     search,
     sortBy,
     age,
+    ageMax,
+    ageMin,
     shelter,
     location_fields_only: false,
     latitude,
@@ -295,12 +320,13 @@ function filter_services_by_name(
   const services: YourPeerLegacyServiceData[] = [];
   for (let service of d.Services) {
     let age_eligibilities = null;
-    const taxonomiesForService = new Set(
+    let taxonomiesForService = new Set(
       service.Taxonomies.flatMap((taxonomy) => [
         taxonomy.name,
         taxonomy.parent_name,
       ]).filter((t) => t !== null),
     );
+
     if (
       !category_name ||
       taxonomiesForService.has(CATEGORY_TO_TAXONOMY_NAME_MAP[category_name])
@@ -309,13 +335,23 @@ function filter_services_by_name(
         age_eligibilities = [];
         for (let elig of service.Eligibilities) {
           if (elig.EligibilityParameter.name === "age") {
+            if (!elig.eligible_values.length) {
+              continue;
+            }
             for (let elig_value of elig.eligible_values) {
               age_eligibilities.push(elig_value);
             }
           }
         }
       }
-      if (service["Taxonomies"].length !== 0) {
+
+      if (
+        !(
+          category_name === "health-care" &&
+          taxonomiesForService.has("Mental Health")
+        ) &&
+        service["Taxonomies"].length !== 0
+      ) {
         services.push({
           id: service.id,
           name: service["name"],
@@ -378,6 +414,7 @@ function filter_services_by_name(
       }
     }
   }
+
   return { services };
 }
 
@@ -385,6 +422,7 @@ export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
 ): YourPeerLegacyLocationData {
+  // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
   let address,
     street,
@@ -424,8 +462,13 @@ export function map_gogetta_to_yourpeer(
     last_updated: moment(updated_at).fromNow(),
     last_updated_date: updated_at,
     name: org_name,
-    phone: d["Phones"] && d["Phones"][0] && d["Phones"][0]["number"],
+    phones: d["Phones"].map((phone) => ({
+      number: phone["number"],
+      extension: phone["extension"],
+      type: phone["type"],
+    })),
     url: d["Organization"]["url"],
+    streetview_url: d["streetview_url"],
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,
@@ -448,6 +491,23 @@ export function map_gogetta_to_yourpeer(
       is_location_detail,
       "health-care",
     ),
+    legal_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "legal-services",
+    ),
+
+    mental_health_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "mental-health",
+    ),
+
+    employment_services: filter_services_by_name(
+      d,
+      is_location_detail,
+      "employment",
+    ),
     other_services: {
       services: filter_services_by_name(
         d,
@@ -467,6 +527,10 @@ export function map_gogetta_to_yourpeer(
               "Food",
               "Clothing",
               "Personal Care",
+              "Mental Health",
+              "Legal Services",
+              "Employment",
+              "Advocates / Legal Aid",
             ]),
           ),
         ).length;
@@ -510,15 +574,6 @@ export async function getTaxonomies(
 
   const selectedAmenityTaxonomies = selectedAmenities.map(
     (amenity) => AMENITY_TO_TAXONOMY_NAME_MAP[amenity],
-  );
-
-  console.log(
-    "taxonomyResponse",
-    taxonomyResponse.map((r) => r.name),
-    "selectedAmenities",
-    selectedAmenities,
-    "selectedAmenityTaxonomies",
-    selectedAmenityTaxonomies,
   );
 
   // FIXME: currently it's only two layers deep. Technically, taxonomy can be arbitrary depth, and we should handle that case
@@ -585,15 +640,50 @@ export async function getTaxonomies(
           ? [r as Taxonomy].concat(r.children ? r.children : [])
           : [],
       );
+      switch (parsedSearchParams[HEALTH_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case HEALTH_PARAM_MENTAL_HEALTH:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Mental Health"),
+          );
+          break;
+      }
       break;
     case "other":
       //query = TAXONOMIES_BASE_SQL + " and (t.name = 'Other service' or t.parent_name = 'Other service')"
-      taxonomies = taxonomyResponse.flatMap((r) =>
-        r.name === parentTaxonomyName
-          ? [r as Taxonomy].concat(r.children ? r.children : [])
-          : [],
-      );
+      switch (parsedSearchParams[OTHER_PARAM]) {
+        case null:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName
+              ? [r as Taxonomy].concat(r.children ? r.children : [])
+              : [],
+          );
+          break;
+        case OTHER_PARAM_LEGAL_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Legal Services"),
+          );
+          break;
+        case OTHER_PARAM_EMPLOYMENT_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter((t) => t.name === "Employment"),
+          );
+          break;
+      }
       break;
+
     case "personal-care":
       // TODO: do this after we finish the other filters
 
@@ -650,6 +740,11 @@ export async function getTaxonomies(
                 ),
           );
           break;
+        case SHELTER_PARAM_YOUTH_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            r.name === parentTaxonomyName ? [r as Taxonomy] : [],
+          );
+          break;
         case SHELTER_PARAM_SINGLE_VALUE:
           taxonomies = taxonomyResponse.flatMap((r) =>
             !r.children
@@ -663,10 +758,7 @@ export async function getTaxonomies(
           break;
       }
   }
-  console.log(
-    "taxonomies",
-    taxonomies.map((t) => t.id),
-  );
+
   return {
     taxonomies: taxonomies.map((t) => t.id),
     taxonomySpecificAttributes,
@@ -685,6 +777,14 @@ export async function fetchLocationsDetailData(
   const query_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations-by-slug/${slug}`;
   const response = await fetch(query_url);
   if (response.status !== 200) {
+    const redirect_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/location-slug-redirects/${slug}`;
+    const redirect_res = await fetch(redirect_url);
+    const redirect_data = await redirect_res.json();
+
+    if (redirect_res.status && redirect_data.slug) {
+      permanentRedirect(`/locations/${redirect_data.slug}`);
+    }
+
     if (response.status === 404) {
       throw new Error404Response();
     }

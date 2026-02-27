@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type JSX } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,
@@ -60,13 +60,18 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  //console.log('isExpanded', isExpanded)
-  const hasSomethingToShow = !!(
-    service.description ||
-    service.info.length ||
-    service.docs?.length ||
-    Object.keys(service.schedule).length
-  );
+  // if service is closed, check that service.info is non-empty
+  // otherwise, check that description, info are non-empty
+  // or that there are some docs required
+  // or that there is a schedule
+  const hasSomethingToShow = service.closed
+    ? !!service.info.length
+    : !!(
+        service.description ||
+        service.info.length ||
+        service.docs?.filter((doc) => doc.trim() !== "None").length ||
+        Object.keys(service.schedule).length
+      );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
@@ -111,7 +116,7 @@ export default function Service({
       s =
         targetLanguage === "ru"
           ? `Для доступа, Вам должно быть не более, чем ${ageReq["age_max"]}`
-          : `'Under ${ageReq["age_max"]}'`;
+          : `under ${ageReq["age_max"]}`;
     }
 
     return s;
@@ -338,9 +343,9 @@ export default function Service({
                       ))}
                       <li className="flex items-start space-x-2">
                         {service.membership ||
-                        service.eligibility?.length ||
-                        service.docs?.length ||
-                        service.age?.length ? (
+                        service.eligibility?.some(Boolean) ||
+                        service.docs?.some(Boolean) ||
+                        service.age?.some(Boolean) ? (
                           <span className="text-danger">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -376,8 +381,9 @@ export default function Service({
                             {service.docs
                               ? service.docs.map((req) => (
                                   <p key={req} className="text-dark text-sm">
-                                    {req === null || req === "None"
-                                      ? "No proofs required"
+                                    {req === null ||
+                                    req === "No documents required"
+                                      ? "No documents required"
                                       : `Requires ${req}`}
                                   </p>
                                 ))
@@ -399,7 +405,7 @@ export default function Service({
                               <p className="text-dark text-sm">
                                 Age requirements:
                               </p>
-                              <ul className="flex flex-col space-y-3">
+                              <ul className="flex flex-col">
                                 {service.age.map((ageReq) => (
                                   <li
                                     key={JSON.stringify(ageReq)}
@@ -417,10 +423,7 @@ export default function Service({
                                         lang={targetLanguage || undefined}
                                       >
                                         {renderAgeEligibility(ageReq)}
-                                      </span>{" "}
-                                      {ageReq["population_served"] ? (
-                                        <span>{`(${ageReq["population_served"]})`}</span>
-                                      ) : undefined}
+                                      </span>
                                     </p>
                                   </li>
                                 ))}

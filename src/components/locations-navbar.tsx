@@ -11,6 +11,10 @@ import SearchForm from "./search-form";
 import { useState } from "react";
 import { GTranslateSelect } from "./gtranslate-select";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
+import Link from "next/link";
+import DonationBanner from "./donation-banner";
+
+const SHOW_DONATION_BANNER = process.env.NEXT_PUBLIC_DONATION_BANNER === "true";
 
 export const LocationsNavbarResourceRoutes = () => {
   const [open, setOpen] = useState(false);
@@ -18,6 +22,7 @@ export const LocationsNavbarResourceRoutes = () => {
     <>
       <OffCanvasMenu open={open} onClose={() => setOpen(false)} />
       <div className="bg-white relative z-50 shadow w-full flex flex-col">
+        {SHOW_DONATION_BANNER && <DonationBanner />}
         <nav className="flex space-x-3 items-center justify-between px-5 py-2 md:py-3">
           <div className="flex items-center">
             <button
@@ -38,14 +43,14 @@ export const LocationsNavbarResourceRoutes = () => {
                 />
               </svg>
             </button>
-            <a
+            <Link
               href="/"
               translate="no"
               className="text-sm ml-3 leading-3 hidden sm:inline-block"
             >
               <span className="text-black font-extrabold">YourPeer</span>
               <span>NYC</span>
-            </a>
+            </Link>
           </div>
           <div id="search_container" className="flex-grow md:flex-none">
             <div className="flex items-center relative rounded py-1 px-2 sm:px-3 md:p-3 border border-gray-300 w-full sm:w-64 md:w-96">
@@ -83,6 +88,7 @@ export const LocationsNavbarCompanyRoutes = () => {
     <>
       <OffCanvasMenu open={open} onClose={() => setOpen(false)} />
       <header className="fixed top-0 inset-x-0 z-10 bg-amber-300" id="header">
+        {SHOW_DONATION_BANNER && <DonationBanner />}
         <nav className="flex items-center justify-between px-5 py-5 h-16 max-w-5xl mx-auto w-full">
           <div className="flex items-center space-x-3">
             <button
@@ -103,10 +109,10 @@ export const LocationsNavbarCompanyRoutes = () => {
                 />
               </svg>
             </button>
-            <a href="/" translate="no" className="text-[15px]">
+            <Link href="/" translate="no" className="text-[15px]">
               <span className="text-black font-extrabold ">YourPeer</span>
               <span>NYC</span>
-            </a>
+            </Link>
           </div>
           <div className="flex items-center space-x-2">
             <GTranslateSelect />

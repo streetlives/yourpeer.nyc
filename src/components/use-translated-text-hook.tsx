@@ -17,7 +17,7 @@ export function useGTranslateCookie(): string | null {
 export function useTranslatedText({
   text,
   id,
-  expectTranslation = true,
+  expectTranslation = false,
 }: {
   text: string;
   id?: string;

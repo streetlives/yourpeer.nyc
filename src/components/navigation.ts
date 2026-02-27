@@ -11,6 +11,7 @@ import {
   AmenitiesSubCategory,
   Category,
   CATEGORY_TO_ROUTE_MAP,
+  CLOTHING_PARAM,
   ClothingValues,
   FoodValues,
   getParsedAmenities,
@@ -19,6 +20,7 @@ import {
   LOCATION_ROUTE,
   LONGITUDE_COOKIE_NAME,
   NEARBY_SORT_BY_VALUE,
+  OtherValues,
   PAGE_PARAM,
   parsePageParam,
   parsePathnameToCategoryAndSubCategory,
@@ -32,6 +34,7 @@ import {
   SearchParams,
   ShelterValues,
   SORT_BY_QUERY_PARAM,
+  SubCategory,
   SubRouteParams,
   UrlParamName,
 } from "./common";
@@ -49,6 +52,12 @@ function removeExtraneousSearchParams(
     const params = parsePathnameToSubRouteParams(pathname);
     if (params.route !== PERSONAL_CARE_CATEGORY) {
       currentUrlSearchParams.delete(PERSONAL_CARE_CATEGORY);
+    }
+    if (
+      params.route !== PERSONAL_CARE_CATEGORY &&
+      params.route !== CLOTHING_PARAM
+    ) {
+      currentUrlSearchParams.delete(REQUIREMENT_PARAM);
     }
   }
   // when search is set, SORT_BY_QUERY_PARAM  should get unset
@@ -75,6 +84,26 @@ export function getUrlWithNewCategory(
   const newSearchParamsStr = currentUrlSearchParams.toString();
   const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
   return `/${newCategory ? CATEGORY_TO_ROUTE_MAP[newCategory] : LOCATION_ROUTE}${query}`;
+}
+
+export function getUrlWithNewCategoryAndSubcategory(
+  newCategory: Category,
+  subCategory: SubCategory | null,
+  searchParams:
+    | ReadonlyURLSearchParams
+    | SearchParams
+    | Map<string, string>
+    | undefined
+    | null,
+): string {
+  const searchParamsList: string[][] = getSearchParamsList(searchParams);
+  const currentUrlSearchParams = new URLSearchParams(searchParamsList);
+
+  // always delete the current page
+  removeExtraneousSearchParams(newCategory, currentUrlSearchParams);
+  const newSearchParamsStr = currentUrlSearchParams.toString();
+  const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
+  return `/${newCategory ? CATEGORY_TO_ROUTE_MAP[newCategory] + "/" + subCategory : LOCATION_ROUTE}${query}`;
 }
 
 function getSearchParamsList(
@@ -121,9 +150,9 @@ export function getUrlWithNewFilterParameter(
   // always delete the current page
   // FIXME: should we just call removeExtraneousSearchParams instead of duplicating the logic here?
   currentUrlSearchParams.delete(PAGE_PARAM);
-  if (currentUrlSearchParams.has(SEARCH_PARAM)) {
-    currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
-  }
+  // if (currentUrlSearchParams.has(SEARCH_PARAM)) {
+  //   currentUrlSearchParams.delete(SORT_BY_QUERY_PARAM);
+  // }
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
@@ -310,6 +339,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
     | FoodValues
     | ClothingValues
     | ShelterValues
+    | OtherValues
     | null,
 ): string {
   if (!pathname) {
@@ -332,12 +362,48 @@ export function getUrlWithSubCategoryAddedOrRemoved(
 
   // always delete the current page
   currentUrlSearchParams.delete(PAGE_PARAM);
+  currentUrlSearchParams.delete(AMENITIES_PARAM);
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
   const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
   return `${newPath}${query}`;
 }
+
+export const getFirstPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  params.delete(PAGE_PARAM); // first page should not have a `page` param
+  return buildHref(pathname, params);
+};
+
+export const getLastPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
+  numberOfPages: number,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  if (numberOfPages > 0) {
+    // navigation.getUrlToNextOrPreviousPage expects page param to be 1-based
+    params.set(PAGE_PARAM, (numberOfPages + 1).toString());
+  } else {
+    params.delete(PAGE_PARAM);
+  }
+  return buildHref(pathname, params);
+};
 
 export function getUrlToNextOrPreviousPage(
   pathname: string | null,

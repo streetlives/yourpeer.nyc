@@ -7,8 +7,18 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { getUrlToNextOrPreviousPage } from "./navigation";
+import {
+  getFirstPageHref,
+  getLastPageHref,
+  getUrlToNextOrPreviousPage,
+} from "./navigation";
 import { TranslatableText } from "./translatable-text";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 export function LocationsContainerPager({
   resultCount,
@@ -27,63 +37,69 @@ export function LocationsContainerPager({
   return (
     <div className="p-6 border-t border-neutral-100 mb-14 md:mb-0">
       <div className="flex items-center justify-between">
-        <a
-          className={`text-dark inline-flex space-x-1 disabled:text-muted ${
-            !hasPreviousPage ? "text-muted cursor-not-allowed" : ""
-          }`}
-          href={
-            hasPreviousPage
-              ? getUrlToNextOrPreviousPage(pathname, searchParams, false)
-              : undefined
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-6 h-6"
+        <div className="flex items-center space-x-4">
+          <a
+            className={`text-dark inline-flex space-x-1 disabled:text-muted ${
+              !hasPreviousPage ? "text-muted cursor-not-allowed" : ""
+            }`}
+            href={
+              hasPreviousPage
+                ? getFirstPageHref(pathname, searchParams)
+                : undefined
+            }
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
-          </svg>
-          <TranslatableText text="Previous" />
-        </a>
-        <div className="text-dark font-medium">
+            <ChevronsLeft className="w-6 h-6" />
+          </a>
+
+          <a
+            className={`text-dark inline-flex space-x-1 disabled:text-muted ${
+              !hasPreviousPage ? "text-muted cursor-not-allowed" : ""
+            }`}
+            href={
+              hasPreviousPage
+                ? getUrlToNextOrPreviousPage(pathname, searchParams, false)
+                : undefined
+            }
+          >
+            <ChevronLeft className="w-6 h-6" />
+            <TranslatableText text="Previous" />
+          </a>
+        </div>
+
+        <div translate="no" className="text-dark font-medium">
           <span> {currentPage + 1} </span>
           <span>&nbsp;of&nbsp;</span>
           <span>{numberOfPages + 1}</span>
         </div>
-        <a
-          className={`inline-flex space-x-1 disabled:text-muted ${
-            hasNextPage ? "text-dark" : "text-muted cursor-not-allowed"
-          }`}
-          href={
-            hasNextPage
-              ? getUrlToNextOrPreviousPage(pathname, searchParams, true)
-              : undefined
-          }
-        >
-          <TranslatableText text="Next" />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="w-6 h-6"
+
+        <div className="flex items-center space-x-4">
+          <a
+            className={`inline-flex space-x-1 disabled:text-muted ${
+              hasNextPage ? "text-dark" : "text-muted cursor-not-allowed"
+            }`}
+            href={
+              hasNextPage
+                ? getUrlToNextOrPreviousPage(pathname, searchParams, true)
+                : undefined
+            }
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-            />
-          </svg>
-        </a>
+            <TranslatableText text="Next" />
+            <ChevronRight className="w-6 h-6" />
+          </a>
+
+          <a
+            className={`inline-flex space-x-1 disabled:text-muted ${
+              hasNextPage ? "text-dark" : "text-muted cursor-not-allowed"
+            }`}
+            href={
+              hasNextPage
+                ? getLastPageHref(pathname, searchParams, numberOfPages)
+                : undefined
+            }
+          >
+            <ChevronsRight className="w-6 h-6" />
+          </a>
+        </div>
       </div>
     </div>
   );

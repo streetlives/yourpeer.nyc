@@ -6,14 +6,11 @@
 
 "use client";
 
-import { useContext } from "react";
-import { SearchContext, SearchContextType } from "./search-context";
 import { TranslatableText } from "./translatable-text";
+import { useViewStore } from "@/lib/store";
 
 export default function MapListToggleButton() {
-  const { showMapViewOnMobile, setShowMapViewOnMobile } = useContext(
-    SearchContext,
-  ) as SearchContextType;
+  const { showMapViewOnMobile, setShowMapViewOnMobile } = useViewStore();
 
   function setMapIsVisible(mapIsVisible: boolean): void {
     setShowMapViewOnMobile(mapIsVisible);
