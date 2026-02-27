@@ -240,6 +240,7 @@ export default function LocationDetailComponent({
                     <div>
                       <button
                         onClick={() => setIsShowingReviewForm(true)}
+                        disabled={isReplying}
                         className=" flex items-center disabled:opacity-65 disabled:cursor-not-allowed justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
                       >
                         <PlusCircleIcon className="w-5 h-5 text-white" />
