@@ -59,12 +59,15 @@ export default function ReviewListItem({
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    replyContext.setIsReplying(isReplying);
+    if (!isReplying) {
+      return;
+    }
+    replyContext.setIsReplying(true);
 
     return () => {
       replyContext.setIsReplying(false);
     };
-  }, [isReplying]);
+  }, [isReplying, replyContext]);
 
   const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),

@@ -149,7 +149,7 @@ export default function LocationDetailComponent({
             orgName={location.name || "Unknown provider"}
           />
 
-          <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
+          <div className="absolute bottom-0 w-full bg-white px-5 py-2">
             <button
               onClick={() => {
                 setIsShowingReviewDetails(false);
