@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import Spinner from "@/components/spinner";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import { clsx } from "clsx";
 import { Comment, Reply } from "@/components/common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useScrollContainer } from "@/context/ScrollContext";
 
 type Inputs = {
   content: string;
@@ -35,6 +36,8 @@ export default function ReplyForm({
     formState: { errors },
   } = useForm<Inputs>();
   const queryClient = useQueryClient();
+  const formRef = useRef<HTMLFormElement>(null);
+  const containerRef = useScrollContainer();
 
   const { isPending, mutate, isSuccess } = useMutation({
     mutationFn: ({ content }: { content: string }) =>
@@ -57,6 +60,23 @@ export default function ReplyForm({
       toast.error(error.message);
     },
   });
+
+  const scrollWithOffset = (offset = 100) => {
+    const container = containerRef?.current;
+    const item = formRef.current;
+    if (!container || !item) return;
+
+    const containerTop = container.getBoundingClientRect().top;
+    const itemTop = item.getBoundingClientRect().top;
+    const scrollPosition =
+      container.scrollTop + (itemTop - containerTop) - offset;
+
+    container.scrollTo({ top: scrollPosition, behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollWithOffset(100);
+  }, []);
 
   return isSuccess ? (
     <>
@@ -84,6 +104,7 @@ export default function ReplyForm({
   ) : (
     <form
       className="bg-white mt-2 py-5 px-4"
+      ref={formRef}
       onSubmit={handleSubmit(({ content }) => mutate({ content }))}
     >
       <div className="space-y-4">
