@@ -37,7 +37,7 @@ const translations: Record<string, string> = {
   Privacy: "Конфиденциальность",
   Donate: "Благотворительность",
   Resources: "Категории",
-  "Our Partners": "Наши партнеры",
+  "Our Partners and Collaborators": "Наши партнеры",
   "All locations": "Все филиалы",
   Social: "Соцсети",
   "Quick Exit": "Быстрый выход",
