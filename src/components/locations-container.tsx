@@ -28,6 +28,7 @@ import { SortDropdown } from "./sort-dropdown";
 import { TranslatableText } from "./translatable-text";
 import { useGTranslateCookie } from "./use-translated-text-hook";
 import React from "react";
+import { useFilters } from "@/lib/store";
 
 function NoLocationsFound({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -120,6 +121,7 @@ export default function LocationsContainer({
   currentPage: number;
 }) {
   const gTranslateCookie = useGTranslateCookie();
+  const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
 
   const classnames = classNames([
     "md:flex",
@@ -292,6 +294,7 @@ export default function LocationsContainer({
                   <div className="mt-3">
                     <Link
                       href={location.slug}
+                      onClick={() => setDetailPanelLoading(true)}
                       className="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
                     >
                       <span>More Details</span>

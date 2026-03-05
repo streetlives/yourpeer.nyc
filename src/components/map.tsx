@@ -134,6 +134,7 @@ function MapWrapper({
   const [lastImportantZoom, setLastImportantZoom] = useState<number>();
   const googleMap = useMap();
   const closFilters = useFilters((state) => state.close);
+  const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
 
   function getUserPositionOrCentralPark(): Position {
     if (!userPosition) return centralPark;
@@ -174,6 +175,7 @@ function MapWrapper({
     closFilters();
 
     if (!isMobile()) {
+      setDetailPanelLoading(true);
       router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);
     } else if (setLocationSlugClickedOnMobile) {
       setLocationSlugClickedOnMobile(locationStub.slug);

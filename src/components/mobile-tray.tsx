@@ -11,6 +11,7 @@ import {
   map_gogetta_to_yourpeer,
 } from "./streetlives-api-service";
 import { useEffect, useState } from "react";
+import { useFilters } from "@/lib/store";
 import { ServicesList } from "./locations-container";
 
 export function MobileTray({
@@ -24,6 +25,7 @@ export function MobileTray({
 }) {
   const [location, setLocation] = useState<YourPeerLegacyLocationData>();
   const [isLoading, setLoading] = useState<boolean>(true);
+  const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
   useEffect(() => {
     setLoading(true);
     fetchLocationsDetailData(locationSlugClickedOnMobile).then((data) => {
@@ -135,6 +137,7 @@ export function MobileTray({
           <div className="mt-3">
             <Link
               href={location.slug}
+              onClick={() => setDetailPanelLoading(true)}
               className="flex items-center space-x-2 text-sm text-info hover:text-blue-600 transition"
             >
               <span>More Details</span>

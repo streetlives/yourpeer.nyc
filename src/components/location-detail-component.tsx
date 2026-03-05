@@ -13,7 +13,7 @@ import {
   LOCATION_ROUTE,
   YourPeerLegacyLocationData,
 } from "./common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import ReviewForm from "./feedback/review-form";
 import ReviewList from "@/components/feedback/review-list";
@@ -33,6 +33,7 @@ import { EditIcon } from "@/components/icons/edit-icon";
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
 import DonationBanner from "./donation-banner";
+import { useFilters } from "@/lib/store";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -62,6 +63,11 @@ export default function LocationDetailComponent({
   >("info");
   const router = useRouter();
   const previousRoute = usePreviousRoute();
+  const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
+
+  useEffect(() => {
+    setDetailPanelLoading(false);
+  }, [setDetailPanelLoading]);
 
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
