@@ -441,3 +441,21 @@ font {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .details-screen-enter {
+    animation: details-screen-slide-in 220ms ease-out;
+  }
+}
+
+@keyframes details-screen-slide-in {
+  from {
+    transform: translateX(48px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
