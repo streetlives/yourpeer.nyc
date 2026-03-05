@@ -180,8 +180,10 @@ function MapWrapper({
     setActiveLocationSlug(locationStub.slug);
 
     if (!isMobile()) {
+      const destinationUrl = `/${LOCATION_ROUTE}/${locationStub.slug}`;
       setDetailPanelLoading(true);
-      router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);
+      window.history.pushState(null, "", destinationUrl);
+      router.push(destinationUrl);
     } else if (setLocationSlugClickedOnMobile) {
       setLocationSlugClickedOnMobile(locationStub.slug);
       setLastImportantCenter(mapCenter);

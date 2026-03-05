@@ -88,10 +88,13 @@ export default function LocationDetailComponent({
       return;
     }
 
+    const backRoute = previousRoute ? previousRoute : `/${LOCATION_ROUTE}`;
+
     setIsClosing(true);
     setDetailPanelLoading(false);
     setLoading(true);
-    router.push(previousRoute ? previousRoute : `/${LOCATION_ROUTE}`);
+    window.history.pushState(null, "", backRoute);
+    router.push(backRoute);
   };
 
 
