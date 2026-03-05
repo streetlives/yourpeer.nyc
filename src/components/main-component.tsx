@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { LOCATION_ROUTE } from "./common";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import classNames from "classnames";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { MapLoadingAnimation } from "./map-loading-animation";
@@ -28,13 +28,6 @@ export function MainComponent({
     (state) => state.showMapViewOnMobile,
   );
   const isDetailPanelLoading = useFilters((state) => state.isDetailPanelLoading);
-  const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
-
-  useEffect(() => {
-    if (!isLocationDetailPage) {
-      setDetailPanelLoading(false);
-    }
-  }, [isLocationDetailPage, setDetailPanelLoading]);
 
   const showMapView = showMapViewOnMobile && !isLocationDetailPage;
 

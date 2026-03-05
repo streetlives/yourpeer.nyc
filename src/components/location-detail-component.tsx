@@ -34,6 +34,7 @@ import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
 import DonationBanner from "./donation-banner";
 import { useFilters } from "@/lib/store";
+import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -58,12 +59,14 @@ export default function LocationDetailComponent({
   const [isShowingReportIssueForm, setIsShowingReportIssueForm] =
     useState(false);
   const [stickyTitle, setStickyTitle] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
   const router = useRouter();
   const previousRoute = usePreviousRoute();
   const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
+  const setLoading = useFilters((state) => state.setLoading);
 
   useEffect(() => {
     setDetailPanelLoading(false);
@@ -85,8 +88,20 @@ export default function LocationDetailComponent({
       return;
     }
 
+    setIsClosing(true);
+    setDetailPanelLoading(false);
+    setLoading(true);
     router.push(previousRoute ? previousRoute : `/${LOCATION_ROUTE}`);
   };
+
+
+  if (isClosing) {
+    return (
+      <div className="w-full h-full bg-white">
+        <SidebarLoadingAnimation />
+      </div>
+    );
+  }
 
   const headerTitle = isShowingReviewDetails
     ? "Reviews"
