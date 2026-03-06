@@ -1,14 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function LocationDetailLoadingSkeleton({
-  className,
-}: {
-  className?: string;
-}) {
+export function LocationDetailLoadingSkeletonContent() {
   return (
-    <div
-      className={`details-screen bg-white md:flex z-50 md:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col ${className || ""}`.trim()}
-    >
+    <>
       <div className="h-14 border-b border-neutral-200 px-4 flex items-center gap-4">
         <Skeleton className="h-6 w-6 rounded-full" />
         <Skeleton className="h-5 w-40 rounded-full" />
@@ -27,6 +21,20 @@ export default function LocationDetailLoadingSkeleton({
         <Skeleton className="h-4 w-10/12 rounded-full" />
         <Skeleton className="h-10 w-full rounded-full mt-4" />
       </div>
+    </>
+  );
+}
+
+export default function LocationDetailLoadingSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <div
+      className={`details-screen bg-white md:flex z-50 md:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col ${className || ""}`.trim()}
+    >
+      <LocationDetailLoadingSkeletonContent />
     </div>
   );
 }

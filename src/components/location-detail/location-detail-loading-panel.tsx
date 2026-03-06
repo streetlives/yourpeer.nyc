@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import LocationDetailLoadingSkeleton from "./location-detail-loading-skeleton";
+import { LocationDetailLoadingSkeletonContent } from "./location-detail-loading-skeleton";
 
 export default function LocationDetailLoadingPanel() {
   const shouldReduceMotion = useReducedMotion();
@@ -25,8 +25,9 @@ export default function LocationDetailLoadingPanel() {
             }
       }
       transition={{ duration: 0.22, ease: "easeOut" }}
+      className="details-screen bg-white md:flex z-50 md:z-0 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col"
     >
-      <LocationDetailLoadingSkeleton />
+      <LocationDetailLoadingSkeletonContent />
     </motion.div>
   );
 }
