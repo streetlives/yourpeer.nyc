@@ -11,12 +11,14 @@ import {
 } from "@/components/navigation";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import {
   getParsedSubCategory,
   SearchParams,
   SubRouteParams,
 } from "../../../../components/common";
 import LocationDetailComponent from "../../../../components/location-detail-component";
+import LocationDetailLoadingPanel from "@/components/location-detail/location-detail-loading-panel";
 import { SidePanelComponent } from "../../../../components/side-panel-component";
 import {
   Error404Response,
@@ -26,6 +28,19 @@ import {
 } from "../../../../components/streetlives-api-service";
 
 export { generateMetadata } from "../../../../components/metadata";
+
+async function LocationDetailContent({ slug }: { slug: string }) {
+  const location = map_gogetta_to_yourpeer(
+    await fetchLocationsDetailData(slug),
+    true,
+  );
+  const comments = await fetchComments(location.id);
+
+  return (
+    <LocationDetailComponent location={location} slug={slug} comments={comments} />
+  );
+}
+
 
 export default async function LocationDetail(props: {
   params: Promise<SubRouteParams>;
@@ -54,20 +69,12 @@ export default async function LocationDetail(props: {
         />
       );
     } else {
-      const location = map_gogetta_to_yourpeer(
-        await fetchLocationsDetailData(
-          params.locationSlugOrPersonalCareSubCategory,
-        ),
-        true,
-      );
-      const comments = await fetchComments(location.id);
-
       return (
-        <LocationDetailComponent
-          location={location}
-          slug={params.locationSlugOrPersonalCareSubCategory}
-          comments={comments}
-        />
+        <Suspense fallback={<LocationDetailLoadingPanel />}>
+          <LocationDetailContent
+            slug={params.locationSlugOrPersonalCareSubCategory}
+          />
+        </Suspense>
       );
     }
   } catch (e) {
