@@ -12,7 +12,7 @@ import {
 } from "./streetlives-api-service";
 import { type MouseEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useFilters } from "@/lib/store";
+import { useFilters, useViewStore } from "@/lib/store";
 import { ServicesList } from "./locations-container";
 
 export function MobileTray({
@@ -28,6 +28,9 @@ export function MobileTray({
   const [isLoading, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const setDetailPanelLoading = useFilters((state) => state.setDetailPanelLoading);
+  const setShowMapViewOnMobile = useViewStore(
+    (state) => state.setShowMapViewOnMobile,
+  );
 
   function handleLocationDetailNavigation(
     e: MouseEvent<HTMLAnchorElement>,
@@ -35,6 +38,7 @@ export function MobileTray({
   ): void {
     e.preventDefault();
     setDetailPanelLoading(true);
+    setShowMapViewOnMobile(false);
     window.history.pushState(null, "", slug);
     router.push(slug);
   }
