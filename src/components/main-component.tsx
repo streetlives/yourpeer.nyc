@@ -47,7 +47,17 @@ export function MainComponent({
         id="left_panel"
       >
         <FiltersPopup />
-        <Suspense fallback={<SidebarLoadingAnimation />}>{sidePanel}</Suspense>
+        <Suspense
+          fallback={
+            isLocationDetailPage ? (
+              <LocationDetailLoadingPanel />
+            ) : (
+              <SidebarLoadingAnimation />
+            )
+          }
+        >
+          {sidePanel}
+        </Suspense>
         {isDetailPanelLoading ? <LocationDetailLoadingPanel /> : undefined}
       </div>
       <div
