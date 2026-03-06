@@ -39,7 +39,7 @@ function isMobile(): boolean {
   return window.innerWidth <= 768;
 }
 
-const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 5;
+const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 20;
 
 const GOOGLE_MAPS_API_KEY = (
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string

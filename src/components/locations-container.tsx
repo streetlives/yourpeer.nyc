@@ -15,6 +15,7 @@ import {
   CATEGORY_ICON_SRC_MAP,
   getIconPath,
   getServicesWrapper,
+  SEARCH_PARAM,
   SearchParams,
   SubCategory,
   YourPeerLegacyLocationData,
@@ -156,6 +157,9 @@ export default function LocationsContainer({
     category: Category,
     subCategory?: SubCategory | null,
   ): string {
+    if (searchParams[SEARCH_PARAM]) {
+      return `${resultCount} results for "${searchParams[SEARCH_PARAM]}"`;
+    }
     switch (category) {
       case "shelters-housing":
         return "All Shelter & Housing locations";
