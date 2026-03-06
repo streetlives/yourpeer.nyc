@@ -45,7 +45,6 @@ export function SidePanelComponent({
   useEffect(() => {
     updateResultsCount(resultCount);
     setLoading(false);
-    setDetailPanelLoading(false);
     cookies.set(
       LAST_SET_PARAMS_COOKIE_NAME,
       JSON.stringify({

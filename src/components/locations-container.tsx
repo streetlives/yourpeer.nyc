@@ -26,10 +26,9 @@ import classNames from "classnames";
 import { getUrlWithNewCategory } from "./navigation";
 import { SortDropdown } from "./sort-dropdown";
 import { TranslatableText } from "./translatable-text";
-import { useGTranslateCookie } from "./use-translated-text-hook";
-import React, { type MouseEvent } from "react";
+import React, { useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useFilters } from "@/lib/store";
+import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
 
 function NoLocationsFound({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -121,19 +120,15 @@ export default function LocationsContainer({
   numberOfPages: number;
   currentPage: number;
 }) {
-  const gTranslateCookie = useGTranslateCookie();
-
+  const [isDetailPageOpening, setIsDetailPageOpening] = useState(false);
   const router = useRouter();
-  const setDetailPanelLoading = useFilters(
-    (state) => state.setDetailPanelLoading,
-  );
 
   function handleLocationDetailNavigation(
     e: MouseEvent<HTMLAnchorElement>,
     slug: string,
   ) {
     e.preventDefault();
-    setDetailPanelLoading(true);
+    setIsDetailPageOpening(true);
     window.history.pushState(null, "", slug);
     router.push(slug);
   }
@@ -152,6 +147,14 @@ export default function LocationsContainer({
     "md:scrollbar-track-gray-100",
     "block",
   ]);
+
+  if (isDetailPageOpening) {
+    return (
+      <div className="w-full h-full bg-white">
+        <LocationDetailLoadingPanel />
+      </div>
+    );
+  }
 
   function getCategoryHeaderText(
     category: Category,
@@ -191,7 +194,6 @@ export default function LocationsContainer({
         return "All service locations";
     }
   }
-
   return (
     <div className={classnames} id="locations_container">
       <div className="flex-1 flex flex-col">

@@ -1,14 +1,12 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { LOCATION_ROUTE } from "./common";
-import { Suspense } from "react";
+import { useViewStore } from "@/lib/store";
 import classNames from "classnames";
-import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
-import { MapLoadingAnimation } from "./map-loading-animation";
+import { usePathname } from "next/navigation";
+import { Suspense } from "react";
+import { LOCATION_ROUTE } from "./common";
 import FiltersPopup from "./filters-popup";
-import { useFilters, useViewStore } from "@/lib/store";
-import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
+import { MapLoadingAnimation } from "./map-loading-animation";
 
 export function MainComponent({
   mapContainer,
@@ -26,9 +24,6 @@ export function MainComponent({
 
   const showMapViewOnMobile = useViewStore(
     (state) => state.showMapViewOnMobile,
-  );
-  const isDetailPanelLoading = useFilters(
-    (state) => state.isDetailPanelLoading,
   );
 
   const showMapView = showMapViewOnMobile && !isLocationDetailPage;
@@ -49,18 +44,7 @@ export function MainComponent({
         id="left_panel"
       >
         <FiltersPopup />
-        <Suspense
-          fallback={
-            isLocationDetailPage ? (
-              <LocationDetailLoadingPanel />
-            ) : (
-              <SidebarLoadingAnimation />
-            )
-          }
-        >
-          {sidePanel}
-        </Suspense>
-        {isDetailPanelLoading ? <LocationDetailLoadingPanel /> : undefined}
+        {sidePanel}
       </div>
       <div
         id="map_container"
