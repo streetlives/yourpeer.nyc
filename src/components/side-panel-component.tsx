@@ -38,10 +38,14 @@ export function SidePanelComponent({
   const updateResultsCount = useFilters((state) => state.updateResultCount);
   const setLoading = useFilters((state) => state.setLoading);
   const isLoading = useFilters((state) => state.isLoading);
+  const setDetailPanelLoading = useFilters(
+    (state) => state.setDetailPanelLoading,
+  );
 
   useEffect(() => {
     updateResultsCount(resultCount);
     setLoading(false);
+    setDetailPanelLoading(false);
     cookies.set(
       LAST_SET_PARAMS_COOKIE_NAME,
       JSON.stringify({

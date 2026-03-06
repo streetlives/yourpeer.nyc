@@ -9,6 +9,8 @@ interface FiltersStore {
   close: () => void;
   isLoading: boolean;
   setLoading: (value: boolean) => void;
+  isDetailPanelLoading: boolean;
+  setDetailPanelLoading: (value: boolean) => void;
 }
 
 export const useFilters = create<FiltersStore>((set) => ({
@@ -19,6 +21,8 @@ export const useFilters = create<FiltersStore>((set) => ({
   close: () => set({ isOpen: false }),
   updateResultCount: (count: number) => set({ resultsCount: count }),
   setLoading: (value) => set({ isLoading: value }),
+  isDetailPanelLoading: false,
+  setDetailPanelLoading: (value) => set({ isDetailPanelLoading: value }),
 }));
 
 interface ViewStore {

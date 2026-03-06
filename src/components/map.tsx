@@ -132,8 +132,14 @@ function MapWrapper({
   );
   const [lastImportantCenter, setLastImportantCenter] = useState<Position>();
   const [lastImportantZoom, setLastImportantZoom] = useState<number>();
+  const [activeLocationSlug, setActiveLocationSlug] = useState<
+    string | undefined
+  >(locationSlugClickedOnMobile || normalizedLocationDetailStub?.slug);
   const googleMap = useMap();
   const closFilters = useFilters((state) => state.close);
+  const setDetailPanelLoading = useFilters(
+    (state) => state.setDetailPanelLoading,
+  );
 
   function getUserPositionOrCentralPark(): Position {
     if (!userPosition) return centralPark;
@@ -173,8 +179,14 @@ function MapWrapper({
     const pageWidth = document.documentElement.scrollWidth;
     closFilters();
 
+    setActiveLocationSlug(locationStub.slug);
+
     if (!isMobile()) {
       router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);
+      const destinationUrl = `/${LOCATION_ROUTE}/${locationStub.slug}`;
+      setDetailPanelLoading(true);
+      window.history.pushState(null, "", destinationUrl);
+      router.push(destinationUrl);
     } else if (setLocationSlugClickedOnMobile) {
       setLocationSlugClickedOnMobile(locationStub.slug);
       setLastImportantCenter(mapCenter);
@@ -253,6 +265,20 @@ function MapWrapper({
     });
   }, []);
 
+  useEffect(() => {
+    if (locationSlugClickedOnMobile) {
+      setActiveLocationSlug(locationSlugClickedOnMobile);
+      return;
+    }
+
+    if (normalizedLocationDetailStub?.slug) {
+      setActiveLocationSlug(normalizedLocationDetailStub.slug);
+      return;
+    }
+
+    setActiveLocationSlug(undefined);
+  }, [locationSlugClickedOnMobile, normalizedLocationDetailStub?.slug]);
+
   // when we get new locationStubs AND the user's location is set,
   // then pan/zoom the map to contain 25 locations
   // FIXME: do we want to set a maximum distance?
@@ -321,9 +347,7 @@ function MapWrapper({
                 <LocationStubMarker
                   locationStub={locationStub}
                   key={locationStub.id}
-                  locationSlugClickedOnMobile={
-                    normalizedLocationDetailStub?.slug
-                  }
+                  activeLocationSlug={activeLocationSlug}
                   handleClickOnLocationStubMarker={
                     handleClickOnLocationStubMarker
                   }

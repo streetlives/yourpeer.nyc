@@ -1,20 +1,18 @@
 import { Marker } from "@vis.gl/react-google-maps";
 import { SimplifiedLocationData } from "./common";
-import { useRouter } from "next/navigation";
 import { activeMarkerIcon } from "./map-common";
 
 export default function LocationStubMarker({
   locationStub,
-  locationSlugClickedOnMobile,
+  activeLocationSlug,
   handleClickOnLocationStubMarker,
 }: {
   locationStub: SimplifiedLocationData;
-  locationSlugClickedOnMobile?: string;
+  activeLocationSlug?: string;
   handleClickOnLocationStubMarker?: (
     locationStub: SimplifiedLocationData,
   ) => void;
 }) {
-  const router = useRouter();
   return (
     <Marker
       position={{
@@ -33,10 +31,10 @@ export default function LocationStubMarker({
               url: "/img/icons/closed-pin.png",
               scaledSize: new window.google.maps.Size(25, 32),
             }
-          : locationSlugClickedOnMobile === locationStub.slug
+          : activeLocationSlug === locationStub.slug
             ? activeMarkerIcon
             : {
-                url: "/img/icons/pin.png",
+                url: "/img/icons/pin.avif",
                 scaledSize: new window.google.maps.Size(25, 32),
               }
       }
