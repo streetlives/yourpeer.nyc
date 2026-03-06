@@ -9,6 +9,7 @@ import { MapLoadingAnimation } from "./map-loading-animation";
 import FiltersPopup from "./filters-popup";
 import { useFilters, useViewStore } from "@/lib/store";
 import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
+import LocationDetailLoadingSkeleton from "./location-detail/location-detail-loading-skeleton";
 
 export function MainComponent({
   mapContainer,
@@ -50,7 +51,7 @@ export function MainComponent({
         <Suspense
           fallback={
             isLocationDetailPage ? (
-              <LocationDetailLoadingPanel />
+              <LocationDetailLoadingSkeleton />
             ) : (
               <SidebarLoadingAnimation />
             )

@@ -1,5 +1,5 @@
-import LocationDetailLoadingPanel from "@/components/location-detail/location-detail-loading-panel";
+import LocationDetailLoadingSkeleton from "@/components/location-detail/location-detail-loading-skeleton";
 
 export default function Loading() {
-  return <LocationDetailLoadingPanel />;
+  return <LocationDetailLoadingSkeleton />;
 }

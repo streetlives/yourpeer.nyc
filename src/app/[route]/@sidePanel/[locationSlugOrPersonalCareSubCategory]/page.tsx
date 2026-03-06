@@ -18,7 +18,7 @@ import {
   SubRouteParams,
 } from "../../../../components/common";
 import LocationDetailComponent from "../../../../components/location-detail-component";
-import LocationDetailLoadingPanel from "@/components/location-detail/location-detail-loading-panel";
+import LocationDetailLoadingSkeleton from "@/components/location-detail/location-detail-loading-skeleton";
 import { SidePanelComponent } from "../../../../components/side-panel-component";
 import {
   Error404Response,
@@ -70,7 +70,7 @@ export default async function LocationDetail(props: {
       );
     } else {
       return (
-        <Suspense fallback={<LocationDetailLoadingPanel />}>
+        <Suspense fallback={<LocationDetailLoadingSkeleton />}>
           <LocationDetailContent
             slug={params.locationSlugOrPersonalCareSubCategory}
           />
