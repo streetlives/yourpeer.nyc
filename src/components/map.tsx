@@ -270,7 +270,10 @@ function MapWrapper({
 
     if (normalizedLocationDetailStub?.slug) {
       setActiveLocationSlug(normalizedLocationDetailStub.slug);
+      return;
     }
+
+    setActiveLocationSlug(undefined);
   }, [locationSlugClickedOnMobile, normalizedLocationDetailStub?.slug]);
 
   // when we get new locationStubs AND the user's location is set,
