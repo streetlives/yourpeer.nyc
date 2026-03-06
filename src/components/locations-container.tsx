@@ -29,6 +29,7 @@ import { TranslatableText } from "./translatable-text";
 import React, { useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
+import { useFilters } from "@/lib/store";
 
 function NoLocationsFound({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -121,6 +122,9 @@ export default function LocationsContainer({
   currentPage: number;
 }) {
   const [isDetailPageOpening, setIsDetailPageOpening] = useState(false);
+  const setDetailPanelLoading = useFilters(
+    (state) => state.setDetailPanelLoading,
+  );
   const router = useRouter();
 
   function handleLocationDetailNavigation(
@@ -128,6 +132,7 @@ export default function LocationsContainer({
     slug: string,
   ) {
     e.preventDefault();
+    setDetailPanelLoading(true);
     setIsDetailPageOpening(true);
     window.history.pushState(null, "", slug);
     router.push(slug);

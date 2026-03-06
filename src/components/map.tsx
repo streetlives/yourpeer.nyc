@@ -184,6 +184,7 @@ function MapWrapper({
     if (!isMobile()) {
       router.push(`/${LOCATION_ROUTE}/${locationStub.slug}`);
       const destinationUrl = `/${LOCATION_ROUTE}/${locationStub.slug}`;
+      console.log("clicked");
       setDetailPanelLoading(true);
       window.history.pushState(null, "", destinationUrl);
       router.push(destinationUrl);

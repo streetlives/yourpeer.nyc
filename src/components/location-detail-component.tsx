@@ -32,7 +32,7 @@ import {
 } from "./common";
 import DonationBanner from "./donation-banner";
 import ReviewForm from "./feedback/review-form";
-import LocationDetailLoadingSkeleton from "./location-detail/location-detail-loading-skeleton";
+import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
 import { ReportIssueForm } from "./report-issue";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { usePreviousRoute } from "./use-previous-route";
@@ -110,7 +110,7 @@ export default function LocationDetailComponent({
   if (isDetailPanelLoading) {
     return (
       <div className="w-full h-full bg-white">
-        <LocationDetailLoadingSkeleton />
+        <LocationDetailLoadingPanel />
       </div>
     );
   }
