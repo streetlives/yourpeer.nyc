@@ -3,8 +3,13 @@
 import { datadogRum } from "@datadog/browser-rum";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import {
+  isRumAlreadyInitialized,
+  markRumAsInitialized,
+  normalizePathnameForViewName,
+  sanitizeStringValue,
+} from "@/components/datadog-rum-utils";
 
-const RUM_WINDOW_GUARD_KEY = "__yourPeerRumInitialized__";
 const DATADOG_APPLICATION_ID =
   process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID ?? "";
 const DATADOG_CLIENT_TOKEN = process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN ?? "";
@@ -26,12 +31,6 @@ const DATADOG_SESSION_REPLAY_ENABLED =
 const DATADOG_TRACING_ORIGINS =
   process.env.NEXT_PUBLIC_DATADOG_TRACING_ORIGINS ?? "";
 
-const NUMERIC_SEGMENT_PATTERN = /^\d+$/;
-const UUID_SEGMENT_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const LONG_TOKEN_SEGMENT_PATTERN = /^[a-z0-9_-]{24,}$/i;
-const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-
 const buildTracingOrigins = () => {
   const configuredOrigins = DATADOG_TRACING_ORIGINS.split(",")
     .map((origin) => origin.trim())
@@ -43,42 +42,6 @@ const buildTracingOrigins = () => {
   return Array.from(origins);
 };
 
-const normalizePathnameForViewName = (pathname: string) => {
-  const normalizedSegments = pathname
-    .split("/")
-    .filter(Boolean)
-    .map((segment) => {
-      if (
-        NUMERIC_SEGMENT_PATTERN.test(segment) ||
-        UUID_SEGMENT_PATTERN.test(segment) ||
-        LONG_TOKEN_SEGMENT_PATTERN.test(segment)
-      ) {
-        return ":id";
-      }
-
-      return segment;
-    });
-
-  if (normalizedSegments.length === 0) {
-    return "route:/";
-  }
-
-  if (normalizedSegments.length > 4) {
-    return `route:/${normalizedSegments.slice(0, 4).join("/")}/*`;
-  }
-
-  return `route:/${normalizedSegments.join("/")}`;
-};
-
-const stripQueryAndHash = (value: string) => {
-  const [pathWithoutQuery] = value.split("?");
-  return pathWithoutQuery.split("#")[0] ?? pathWithoutQuery;
-};
-
-const sanitizeStringValue = (value: string) => {
-  return stripQueryAndHash(value).replace(EMAIL_PATTERN, "[redacted-email]");
-};
-
 const hasDatadogConfiguration =
   DATADOG_APPLICATION_ID.length > 0 && DATADOG_CLIENT_TOKEN.length > 0;
 
@@ -86,15 +49,7 @@ export default function DatadogRumInit() {
   const pathname = usePathname() ?? "/";
 
   useEffect(() => {
-    if (!hasDatadogConfiguration) {
-      return;
-    }
-
-    if (
-      (window as Window & { [RUM_WINDOW_GUARD_KEY]?: boolean })[
-        RUM_WINDOW_GUARD_KEY
-      ]
-    ) {
+    if (!hasDatadogConfiguration || isRumAlreadyInitialized(window)) {
       return;
     }
 
@@ -145,9 +100,7 @@ export default function DatadogRumInit() {
       },
     });
 
-    (window as Window & { [RUM_WINDOW_GUARD_KEY]?: boolean })[
-      RUM_WINDOW_GUARD_KEY
-    ] = true;
+    markRumAsInitialized(window);
   }, []);
 
   useEffect(() => {
@@ -160,7 +113,6 @@ export default function DatadogRumInit() {
       service: DATADOG_SERVICE,
       context: {
         app_name: DATADOG_APP_NAME,
-        raw_pathname: pathname,
       },
     });
   }, [pathname]);
