@@ -11,7 +11,8 @@
     "format": "prettier . --write",
     "check-format": "prettier --check .",
     "all-checks": "npm run check-format && npm run check-types && npm run lint",
-    "check-translations": "tsx scripts/check-translations.ts"
+    "check-translations": "tsx scripts/check-translations.ts",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\""
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
@@ -32,6 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "dd-trace": "^5.88.0",
     "delay": "^6.0.0",
     "eslint-plugin-unused-imports": "^3.2.0",
     "framer-motion": "^12.23.24",
@@ -62,6 +64,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.13",
+    "@types/msgpack-lite": "^0.1.12",
     "@types/node": "^20",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
@@ -73,6 +76,7 @@
     "esbuild": "^0.24.0",
     "eslint": "^8",
     "eslint-config-next": "15.5.3",
+    "msgpack-lite": "^0.1.26",
     "postcss": "^8",
     "prettier": "^3.3.2",
     "tailwind-scrollbar": "^3.1.0",
@@ -87,6 +91,7 @@
   ],
   "overrides": {
     "@types/react": "19.1.13",
-    "@types/react-dom": "19.1.9"
+    "@types/react-dom": "19.1.9",
+    "js-yaml": "^4.1.1"
   }
 }
