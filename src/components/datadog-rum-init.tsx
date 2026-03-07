@@ -2,7 +2,7 @@
 
 import { datadogRum } from "@datadog/browser-rum";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   initializeRum,
   startRumView,
@@ -102,7 +102,7 @@ export function DatadogRumInitComponent({
   pathname: string;
 }) {
   const [hasConsent, setHasConsent] = useState(false);
-  const runtimeDeps = deps ?? createDeps();
+  const runtimeDeps = useMemo(() => deps ?? createDeps(), [deps]);
 
   useEffect(() => {
     setHasConsent(runtimeDeps.getConsentStatus());
