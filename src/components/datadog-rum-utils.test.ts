@@ -15,26 +15,33 @@ test("normalizePathnameForViewName normalizes numeric and tokenized segments", (
   assert.equal(normalizePathnameForViewName("/"), "route:/");
   assert.equal(
     normalizePathnameForViewName("/locations/123"),
-    "route:/locations/:id",
+    "route:/:slug/:id",
   );
   assert.equal(
     normalizePathnameForViewName(
       "/users/550e8400-e29b-41d4-a716-446655440000/profile",
     ),
-    "route:/users/:id/profile",
+    "route:/:slug/:id/:slug",
   );
   assert.equal(
     normalizePathnameForViewName(
       "/auth/abcdefghijklmnopqrstuvwxyz1234567890/callback",
     ),
-    "route:/auth/:id/callback",
+    "route:/:slug/:id/:slug",
+  );
+});
+
+test("normalizePathnameForViewName keeps approved static segments", () => {
+  assert.equal(
+    normalizePathnameForViewName("/about-us/privacy"),
+    "route:/about-us/privacy",
   );
 });
 
 test("normalizePathnameForViewName caps deeply nested paths", () => {
   assert.equal(
     normalizePathnameForViewName("/a/b/c/d/e/f"),
-    "route:/a/b/c/d/*",
+    "route:/:slug/:slug/:slug/:slug/*",
   );
 });
 

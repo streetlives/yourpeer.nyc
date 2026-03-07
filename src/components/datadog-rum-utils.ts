@@ -3,6 +3,16 @@ const UUID_SEGMENT_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const LONG_TOKEN_SEGMENT_PATTERN = /^[a-z0-9_-]{24,}$/i;
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const SAFE_VIEW_SEGMENTS = new Set([
+  "about-us",
+  "comment-guidelines",
+  "contact-us",
+  "donate",
+  "login",
+  "privacy",
+  "statement",
+  "terms",
+]);
 export const RUM_WINDOW_GUARD_KEY = "__yourPeerRumInitialized__";
 
 export type RumGuardWindow = Window & {
@@ -59,7 +69,11 @@ export const normalizePathnameForViewName = (pathname: string) => {
         return ":id";
       }
 
-      return segment;
+      if (SAFE_VIEW_SEGMENTS.has(segment)) {
+        return segment;
+      }
+
+      return ":slug";
     });
 
   if (normalizedSegments.length === 0) {
