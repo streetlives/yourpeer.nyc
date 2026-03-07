@@ -24,6 +24,7 @@ import {
   GoogleReCaptchaProvider,
 } from "react-google-recaptcha-v3";
 import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
+import { toast } from "sonner";
 
 const NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY;
@@ -133,6 +134,8 @@ export function ReviewForm({
           onSubmit={handleSubmit(() => {
             if (token) {
               setIsConfirm(true);
+            } else {
+              toast.error("Invalid reCAPTCHA token. Please try again.");
             }
           })}
           className="bg-white h-full flex flex-col relative pt-2 overflow-y-hidden"

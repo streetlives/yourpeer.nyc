@@ -11,6 +11,7 @@ import {
   AmenitiesSubCategory,
   Category,
   CATEGORY_TO_ROUTE_MAP,
+  CLOTHING_PARAM,
   ClothingValues,
   FoodValues,
   getParsedAmenities,
@@ -51,6 +52,12 @@ function removeExtraneousSearchParams(
     const params = parsePathnameToSubRouteParams(pathname);
     if (params.route !== PERSONAL_CARE_CATEGORY) {
       currentUrlSearchParams.delete(PERSONAL_CARE_CATEGORY);
+    }
+    if (
+      params.route !== PERSONAL_CARE_CATEGORY &&
+      params.route !== CLOTHING_PARAM
+    ) {
+      currentUrlSearchParams.delete(REQUIREMENT_PARAM);
     }
   }
   // when search is set, SORT_BY_QUERY_PARAM  should get unset
@@ -355,12 +362,48 @@ export function getUrlWithSubCategoryAddedOrRemoved(
 
   // always delete the current page
   currentUrlSearchParams.delete(PAGE_PARAM);
+  currentUrlSearchParams.delete(AMENITIES_PARAM);
 
   const newSearchParamsStr = currentUrlSearchParams.toString();
 
   const query = newSearchParamsStr ? `?${newSearchParamsStr}` : "";
   return `${newPath}${query}`;
 }
+
+export const getFirstPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  params.delete(PAGE_PARAM); // first page should not have a `page` param
+  return buildHref(pathname, params);
+};
+
+export const getLastPageHref = (
+  pathname: string | null,
+  searchParams: URLSearchParams | ReadonlyURLSearchParams | null,
+  numberOfPages: number,
+): string | undefined => {
+  const buildHref = (pathname: string | null, params: URLSearchParams) =>
+    pathname
+      ? `${pathname}${params.toString() ? `?${params.toString()}` : ""}`
+      : undefined;
+
+  const entries = searchParams ? Array.from(searchParams.entries()) : [];
+  const params = new URLSearchParams(entries);
+  if (numberOfPages > 0) {
+    // navigation.getUrlToNextOrPreviousPage expects page param to be 1-based
+    params.set(PAGE_PARAM, (numberOfPages + 1).toString());
+  } else {
+    params.delete(PAGE_PARAM);
+  }
+  return buildHref(pathname, params);
+};
 
 export function getUrlToNextOrPreviousPage(
   pathname: string | null,

@@ -1,4 +1,7 @@
 "use client";
+
+import Link from "next/link";
+
 export function CommentGuidelines() {
   return (
     <section className="bg-white pt-28 lg:pt-32 lg:py-20">
@@ -115,12 +118,7 @@ export function CommentGuidelines() {
 
           <p>
             <span>For extended moderation guidelines,</span>{" "}
-            <a
-              href="https://docs.google.com/document/d/e/2PACX-1vRrsuboHbquBRNnbB9lpdfLIoi-Yv6ift_1dp745Vra1SAmxdOUUoh-X8KOLdqf6mu5dRtkSpqQjRcN/pub"
-              target="_blank"
-            >
-              see here
-            </a>
+            <Link href="/internal-comment-guidelines">see here</Link>
           </p>
         </div>
       </div>

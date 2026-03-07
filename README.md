@@ -1,10 +1,10 @@
 <p align="center">
-  <a href="https://yourpeer.nyc"><img alt="YourPeer Logo" src="https://streetlives-v2-dev-static.s3.amazonaws.com/fabicon.png" /></a>
+  <a href="https://yourpeer.nyc"><img alt="YourPeer Logo" src="./public/img/fabicon.png" /></a>
 </p>
 
 This repository contains the source code to [YourPeer.nyc](https://yourpeer.nyc)
 
-YourPeer.nyc allows users to search through 2500+ free support services across NYC.
+YourPeer.nyc allows users to search through 2600+ free support services across NYC.
 
 YourPeer.nyc is developed by [Streetlives](https://www.streetlives.nyc/), a US nonprofit based in New York City.
 

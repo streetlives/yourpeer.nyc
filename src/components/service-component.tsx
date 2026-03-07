@@ -51,8 +51,6 @@ export default function Service({
   const params = useParams();
   const [hasScrolled, setHasScrolled] = useState(false);
 
-  console.log({ service });
-
   const { gTranslateCookie } = useContext(
     LanguageTranslationContext,
   ) as LanguageTranslationContextType;
@@ -62,12 +60,18 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
-  const hasSomethingToShow = !!(
-    service.description ||
-    service.info.length ||
-    service.docs?.length ||
-    Object.keys(service.schedule).length
-  );
+  // if service is closed, check that service.info is non-empty
+  // otherwise, check that description, info are non-empty
+  // or that there are some docs required
+  // or that there is a schedule
+  const hasSomethingToShow = service.closed
+    ? !!service.info.length
+    : !!(
+        service.description ||
+        service.info.length ||
+        service.docs?.filter((doc) => doc.trim() !== "None").length ||
+        Object.keys(service.schedule).length
+      );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
     window["gtag"]("event", "location_detail_service_header_click", {
@@ -377,8 +381,9 @@ export default function Service({
                             {service.docs
                               ? service.docs.map((req) => (
                                   <p key={req} className="text-dark text-sm">
-                                    {req === null || req === "None"
-                                      ? "No proofs required"
+                                    {req === null ||
+                                    req === "No documents required"
+                                      ? "No documents required"
                                       : `Requires ${req}`}
                                   </p>
                                 ))
@@ -400,7 +405,7 @@ export default function Service({
                               <p className="text-dark text-sm">
                                 Age requirements:
                               </p>
-                              <ul className="flex flex-col space-y-3">
+                              <ul className="flex flex-col">
                                 {service.age.map((ageReq) => (
                                   <li
                                     key={JSON.stringify(ageReq)}
@@ -418,10 +423,7 @@ export default function Service({
                                         lang={targetLanguage || undefined}
                                       >
                                         {renderAgeEligibility(ageReq)}
-                                      </span>{" "}
-                                      {ageReq["population_served"] ? (
-                                        <span>{`(${ageReq["population_served"]})`}</span>
-                                      ) : undefined}
+                                      </span>
                                     </p>
                                   </li>
                                 ))}
