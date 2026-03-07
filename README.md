@@ -19,15 +19,19 @@ NEXT_PUBLIC_GO_GETTA_PROD_URL=https://w6pkliozjh.execute-api.us-east-1.amazonaws
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert a google maps API key here or contact us to get a development key>
 
 # Datadog APM (optional)
+YOURPEER_ENABLE_DATADOG_APM=true
 DD_TRACE_ENABLED=true
 DD_SERVICE=yourpeer-nyc-nextjs
 DD_ENV=development
 DD_VERSION=0.1.0
 ```
 
+Tracing activates only when `YOURPEER_ENABLE_DATADOG_APM=true` (app-level opt-in) and
+`DD_TRACE_ENABLED` is not set to `false`.
+
 To report traces to Datadog, run the Datadog Agent and provide `DD_AGENT_HOST` and/or
-`DD_TRACE_AGENT_URL` based on your environment. See Datadog Node.js tracing docs for
-agent connectivity options.
+`DD_TRACE_AGENT_URL` based on your environment. Datadog request URLs are sanitized to
+remove query strings and query tags are redacted before export.
 
 Then run:
 
