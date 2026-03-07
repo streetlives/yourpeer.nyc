@@ -49,6 +49,16 @@ const getHasDatadogConfiguration = () => {
   );
 };
 
+const getWindowOrNull = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window;
+};
+
+const NOOP_INTERVAL_ID = 0;
+
 export type DatadogRumInitDeps = {
   clearIntervalFn: typeof window.clearInterval;
   getConsentStatus: () => boolean;
@@ -86,12 +96,32 @@ const getConsentStatus = () => {
 };
 
 const createDeps = (): DatadogRumInitDeps => ({
-  clearIntervalFn: window.clearInterval,
+  clearIntervalFn: (intervalId) => {
+    const windowObject = getWindowOrNull();
+
+    if (!windowObject) {
+      return;
+    }
+
+    windowObject.clearInterval(intervalId);
+  },
   getConsentStatus,
   initializeRumFn: initializeRum,
-  isRumAlreadyInitializedFn: isRumAlreadyInitialized,
-  markRumAsInitializedFn: markRumAsInitialized,
-  setIntervalFn: window.setInterval,
+  isRumAlreadyInitializedFn: (windowObject) => {
+    return isRumAlreadyInitialized(windowObject);
+  },
+  markRumAsInitializedFn: (windowObject) => {
+    markRumAsInitialized(windowObject);
+  },
+  setIntervalFn: ((handler: TimerHandler, timeout?: number, ...args: any[]) => {
+    const windowObject = getWindowOrNull();
+
+    if (!windowObject) {
+      return NOOP_INTERVAL_ID;
+    }
+
+    return windowObject.setInterval(handler, timeout, ...args);
+  }) as typeof window.setInterval,
   startRumViewFn: startRumView,
   syncTrackingConsentFn: syncTrackingConsent,
 });
@@ -125,6 +155,12 @@ export function DatadogRumInitComponent({
   }, [deps, hasDatadogConfiguration, runtimeDeps]);
 
   useEffect(() => {
+    const windowObject = getWindowOrNull();
+
+    if (!windowObject) {
+      return;
+    }
+
     runtimeDeps.syncTrackingConsentFn({
       datadogRum,
       hasConsent,
@@ -141,7 +177,7 @@ export function DatadogRumInitComponent({
       env: DATADOG_ENV,
       hasConsent,
       hasDatadogConfiguration,
-      isAlreadyInitialized: runtimeDeps.isRumAlreadyInitializedFn(window),
+      isAlreadyInitialized: runtimeDeps.isRumAlreadyInitializedFn(windowObject),
       service: DATADOG_SERVICE,
       sessionReplaySampleRate: DATADOG_SESSION_REPLAY_ENABLED
         ? Number.isFinite(DATADOG_SESSION_REPLAY_SAMPLE_RATE)
@@ -160,7 +196,7 @@ export function DatadogRumInitComponent({
     });
 
     if (didInitialize) {
-      runtimeDeps.markRumAsInitializedFn(window);
+      runtimeDeps.markRumAsInitializedFn(windowObject);
     }
   }, [hasConsent, hasDatadogConfiguration, runtimeDeps]);
 
