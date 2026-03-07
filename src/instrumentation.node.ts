@@ -1,25 +1,6 @@
+import { redactRequestSpanData, type SpanTagWriter } from './instrumentation.redaction';
+
 const tracer = require('dd-trace');
-
-function sanitizeUrl(url?: string) {
-  if (!url) {
-    return undefined;
-  }
-
-  const [path] = url.split('?');
-
-  return path;
-}
-
-function redactRequestSpanData(span: { setTag: (key: string, value: string) => void }, requestUrl?: string) {
-  const sanitizedUrl = sanitizeUrl(requestUrl);
-
-  if (!sanitizedUrl) {
-    return;
-  }
-
-  span.setTag('http.url', sanitizedUrl);
-  span.setTag('http.query.string', 'redacted');
-}
 
 tracer.init({
   logInjection: true,
@@ -29,7 +10,7 @@ tracer.init({
 tracer.use('http', {
   headers: [],
   hooks: {
-    request: (span: { setTag: (key: string, value: string) => void }, req: { url?: string }) => {
+    request: (span: SpanTagWriter, req: { url?: string }) => {
       redactRequestSpanData(span, req?.url);
     },
   },
@@ -38,7 +19,7 @@ tracer.use('http', {
 tracer.use('next', {
   headers: [],
   hooks: {
-    request: (span: { setTag: (key: string, value: string) => void }, req: { url?: string }) => {
+    request: (span: SpanTagWriter, req: { url?: string }) => {
       redactRequestSpanData(span, req?.url);
     },
   },
