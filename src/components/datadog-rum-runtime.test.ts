@@ -1,12 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { initializeRum, startRumView } from "@/components/datadog-rum-runtime";
+import {
+  initializeRum,
+  startRumView,
+  syncTrackingConsent,
+} from "@/components/datadog-rum-runtime";
 
 const buildRumMock = () => {
   let initConfiguration: Record<string, unknown> | undefined;
 
   const initCalls: Record<string, unknown>[] = [];
   const startViewCalls: Array<Record<string, unknown>> = [];
+  const trackingConsentCalls: Array<"granted" | "not-granted"> = [];
 
   return {
     getInitConfiguration: () => initConfiguration,
@@ -15,10 +20,14 @@ const buildRumMock = () => {
       initConfiguration = configuration;
     },
     initCalls,
+    setTrackingConsent: (consent: "granted" | "not-granted") => {
+      trackingConsentCalls.push(consent);
+    },
     startView: (view: Record<string, unknown>) => {
       startViewCalls.push(view);
     },
     startViewCalls,
+    trackingConsentCalls,
   };
 };
 
@@ -48,6 +57,30 @@ const createInitOptions = (
   trackViewsManually: true,
   version: "v1",
   ...overrides,
+});
+
+test("syncTrackingConsent reflects consent changes", () => {
+  const datadogRum = buildRumMock();
+
+  assert.equal(
+    syncTrackingConsent({
+      datadogRum,
+      hasConsent: true,
+      hasDatadogConfiguration: true,
+    }),
+    true,
+  );
+
+  assert.equal(
+    syncTrackingConsent({
+      datadogRum,
+      hasConsent: false,
+      hasDatadogConfiguration: true,
+    }),
+    true,
+  );
+
+  assert.deepEqual(datadogRum.trackingConsentCalls, ["granted", "not-granted"]);
 });
 
 test("initializeRum does not initialize when consent is missing", () => {

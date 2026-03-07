@@ -3,6 +3,7 @@ import { sanitizeRumEvent } from "@/components/datadog-rum-utils";
 type DatadogRumLike = {
   getInitConfiguration: () => unknown;
   init: (configuration: any) => void;
+  setTrackingConsent: (consent: "granted" | "not-granted") => void;
   startView: (view: {
     context: Record<string, string>;
     name: string;
@@ -30,6 +31,23 @@ type InitializeRumOptions = {
   trackUserInteractions: boolean;
   trackViewsManually: boolean;
   version: string;
+};
+
+export const syncTrackingConsent = ({
+  datadogRum,
+  hasConsent,
+  hasDatadogConfiguration,
+}: {
+  datadogRum: DatadogRumLike;
+  hasConsent: boolean;
+  hasDatadogConfiguration: boolean;
+}) => {
+  if (!hasDatadogConfiguration) {
+    return false;
+  }
+
+  datadogRum.setTrackingConsent(hasConsent ? "granted" : "not-granted");
+  return true;
 };
 
 export const initializeRum = ({

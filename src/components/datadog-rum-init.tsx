@@ -2,8 +2,12 @@
 
 import { datadogRum } from "@datadog/browser-rum";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { initializeRum, startRumView } from "@/components/datadog-rum-runtime";
+import { useEffect, useState } from "react";
+import {
+  initializeRum,
+  startRumView,
+  syncTrackingConsent,
+} from "@/components/datadog-rum-runtime";
 import {
   hasDatadogConsent,
   isRumAlreadyInitialized,
@@ -36,6 +40,7 @@ const DATADOG_REQUIRE_CONSENT =
   process.env.NEXT_PUBLIC_DATADOG_REQUIRE_CONSENT !== "false";
 const DATADOG_CONSENT_COOKIE_NAME =
   process.env.NEXT_PUBLIC_DATADOG_CONSENT_COOKIE_NAME ?? "analytics_consent";
+const CONSENT_REFRESH_INTERVAL_MS = 1000;
 
 const buildTracingOrigins = () => {
   const configuredOrigins = DATADOG_TRACING_ORIGINS.split(",")
@@ -66,9 +71,27 @@ const getConsentStatus = () => {
 
 export default function DatadogRumInit() {
   const pathname = usePathname() ?? "/";
+  const [hasConsent, setHasConsent] = useState(false);
 
   useEffect(() => {
-    const hasConsent = getConsentStatus();
+    setHasConsent(getConsentStatus());
+
+    const interval = window.setInterval(() => {
+      setHasConsent(getConsentStatus());
+    }, CONSENT_REFRESH_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    syncTrackingConsent({
+      datadogRum,
+      hasConsent,
+      hasDatadogConfiguration,
+    });
+
     const didInitialize = initializeRum({
       allowedTracingUrls: buildTracingOrigins(),
       appName: DATADOG_APP_NAME,
@@ -100,11 +123,9 @@ export default function DatadogRumInit() {
     if (didInitialize) {
       markRumAsInitialized(window);
     }
-  }, [pathname]);
+  }, [hasConsent]);
 
   useEffect(() => {
-    const hasConsent = getConsentStatus();
-
     startRumView({
       appName: DATADOG_APP_NAME,
       datadogRum,
@@ -113,7 +134,7 @@ export default function DatadogRumInit() {
       normalizedViewName: normalizePathnameForViewName(pathname),
       service: DATADOG_SERVICE,
     });
-  }, [pathname]);
+  }, [hasConsent, pathname]);
 
   return null;
 }
