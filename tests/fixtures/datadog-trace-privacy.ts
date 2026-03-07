@@ -1,8 +1,8 @@
-import http from 'node:http';
-import zlib from 'node:zlib';
-import msgpack from 'msgpack-lite';
+import http from "node:http";
+import zlib from "node:zlib";
+import msgpack from "msgpack-lite";
 
-const QUERY_MARKER = 'pii_marker_12345';
+const QUERY_MARKER = "pii_marker_12345";
 const QUERY_STRING = `token=${QUERY_MARKER}&email=${QUERY_MARKER}@example.com`;
 
 type SpanRecord = {
@@ -12,11 +12,11 @@ type SpanRecord = {
 };
 
 function decodePayload(body: Buffer, contentEncoding: string | undefined) {
-  if (contentEncoding === 'gzip') {
+  if (contentEncoding === "gzip") {
     return zlib.gunzipSync(body as unknown as Uint8Array) as unknown as Buffer;
   }
 
-  if (contentEncoding === 'deflate') {
+  if (contentEncoding === "deflate") {
     return zlib.inflateSync(body as unknown as Uint8Array) as unknown as Buffer;
   }
 
@@ -28,11 +28,15 @@ function containsQueryString(value: string | undefined) {
     return false;
   }
 
-  return value.includes('?') || value.includes(QUERY_MARKER) || value.includes(QUERY_STRING);
+  return (
+    value.includes("?") ||
+    value.includes(QUERY_MARKER) ||
+    value.includes(QUERY_STRING)
+  );
 }
 
 function findQueryLeak(value: unknown): string | undefined {
-  if (typeof value === 'string' && containsQueryString(value)) {
+  if (typeof value === "string" && containsQueryString(value)) {
     return value;
   }
 
@@ -46,7 +50,7 @@ function findQueryLeak(value: unknown): string | undefined {
     return undefined;
   }
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     for (const nested of Object.values(value)) {
       const leak = findQueryLeak(nested);
       if (leak) {
@@ -64,15 +68,18 @@ async function run() {
   const agentServer = http.createServer((req, res) => {
     const chunks: Uint8Array[] = [];
 
-    req.on('data', (chunk) => chunks.push(chunk as Uint8Array));
-    req.on('end', () => {
-      if (req.url?.startsWith('/v0.')) {
+    req.on("data", (chunk) => chunks.push(chunk as Uint8Array));
+    req.on("end", () => {
+      if (req.url?.startsWith("/v0.")) {
         payloads.push({
           url: req.url,
-          body: decodePayload(Buffer.concat(chunks), req.headers['content-encoding']),
+          body: decodePayload(
+            Buffer.concat(chunks),
+            req.headers["content-encoding"],
+          ),
         });
       }
-      res.end('{}');
+      res.end("{}");
     });
   });
 
@@ -82,48 +89,62 @@ async function run() {
   });
 
   try {
-    await new Promise<void>((resolve) => agentServer.listen(0, '127.0.0.1', () => resolve()));
+    await new Promise<void>((resolve) =>
+      agentServer.listen(0, "127.0.0.1", () => resolve()),
+    );
     const agentAddr = agentServer.address();
-    if (!agentAddr || typeof agentAddr === 'string') {
-      throw new Error('Agent server address unavailable');
+    if (!agentAddr || typeof agentAddr === "string") {
+      throw new Error("Agent server address unavailable");
     }
 
     process.env.DD_TRACE_AGENT_URL = `http://127.0.0.1:${agentAddr.port}`;
-    process.env.DD_TRACE_ENABLED = 'true';
-    process.env.DD_SERVICE = 'instrumentation-privacy-test';
-    process.env.DD_ENV = 'test';
+    process.env.DD_TRACE_ENABLED = "true";
+    process.env.DD_SERVICE = "instrumentation-privacy-test";
+    process.env.DD_ENV = "test";
 
-    await import('../../src/instrumentation.node');
+    await import("../../src/instrumentation.node");
 
-    await new Promise<void>((resolve) => appServer.listen(0, '127.0.0.1', () => resolve()));
+    await new Promise<void>((resolve) =>
+      appServer.listen(0, "127.0.0.1", () => resolve()),
+    );
     const appAddr = appServer.address();
-    if (!appAddr || typeof appAddr === 'string') {
-      throw new Error('App server address unavailable');
+    if (!appAddr || typeof appAddr === "string") {
+      throw new Error("App server address unavailable");
     }
 
     await new Promise<void>((resolve, reject) => {
-      const req = http.get(`http://127.0.0.1:${appAddr.port}/trace-test?${QUERY_STRING}`, (res) => {
-        res.resume();
-        res.on('end', resolve);
-      });
-      req.on('error', reject);
+      const req = http.get(
+        `http://127.0.0.1:${appAddr.port}/trace-test?${QUERY_STRING}`,
+        (res) => {
+          res.resume();
+          res.on("end", resolve);
+        },
+      );
+      req.on("error", reject);
     });
 
-
-    const tracer = require('dd-trace');
+    const tracer = require("dd-trace");
     tracer?._tracer?._exporter?.flush?.();
 
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
-    const tracePayloads = payloads.filter((entry) => entry.url.includes('/traces'));
+    const tracePayloads = payloads.filter((entry) =>
+      entry.url.includes("/traces"),
+    );
     if (tracePayloads.length === 0) {
-      throw new Error('No Datadog /traces payload received by mock agent');
+      throw new Error("No Datadog /traces payload received by mock agent");
     }
 
-    const decodedTraces = tracePayloads.map((entry) => msgpack.decode(entry.body));
-    const deepLeak = decodedTraces.map((trace) => findQueryLeak(trace)).find(Boolean);
+    const decodedTraces = tracePayloads.map((entry) =>
+      msgpack.decode(entry.body),
+    );
+    const deepLeak = decodedTraces
+      .map((trace) => findQueryLeak(trace))
+      .find(Boolean);
     if (deepLeak) {
-      throw new Error(`Trace payload contains leaked query data in field value: ${deepLeak}`);
+      throw new Error(
+        `Trace payload contains leaked query data in field value: ${deepLeak}`,
+      );
     }
 
     const spans = decodedTraces
@@ -131,20 +152,28 @@ async function run() {
       .flatMap((chunk) => (Array.isArray(chunk) ? chunk : [])) as SpanRecord[];
 
     if (spans.length === 0) {
-      throw new Error('No spans decoded from Datadog traces payload');
+      throw new Error("No spans decoded from Datadog traces payload");
     }
 
     for (const span of spans) {
-      if (containsQueryString(span.name) || containsQueryString(span.resource)) {
-        throw new Error('Span name/resource contains query-string data');
+      if (
+        containsQueryString(span.name) ||
+        containsQueryString(span.resource)
+      ) {
+        throw new Error("Span name/resource contains query-string data");
       }
 
-      if (containsQueryString(span.meta?.['http.url'])) {
-        throw new Error('http.url tag contains query-string data');
+      if (containsQueryString(span.meta?.["http.url"])) {
+        throw new Error("http.url tag contains query-string data");
       }
 
-      if (span.meta?.['http.query.string'] && span.meta['http.query.string'] !== 'redacted') {
-        throw new Error(`http.query.string is not redacted: ${span.meta['http.query.string']}`);
+      if (
+        span.meta?.["http.query.string"] &&
+        span.meta["http.query.string"] !== "redacted"
+      ) {
+        throw new Error(
+          `http.query.string is not redacted: ${span.meta["http.query.string"]}`,
+        );
       }
     }
   } finally {

@@ -7,18 +7,21 @@ export function sanitizeUrl(url?: string) {
     return undefined;
   }
 
-  const [path] = url.split('?');
+  const [path] = url.split("?");
 
   return path;
 }
 
-export function redactRequestSpanData(span: SpanTagWriter, requestUrl?: string) {
+export function redactRequestSpanData(
+  span: SpanTagWriter,
+  requestUrl?: string,
+) {
   const sanitizedUrl = sanitizeUrl(requestUrl);
 
   if (!sanitizedUrl) {
     return;
   }
 
-  span.setTag('http.url', sanitizedUrl);
-  span.setTag('http.query.string', 'redacted');
+  span.setTag("http.url", sanitizedUrl);
+  span.setTag("http.query.string", "redacted");
 }

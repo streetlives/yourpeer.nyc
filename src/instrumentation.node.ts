@@ -1,13 +1,16 @@
-import { redactRequestSpanData, type SpanTagWriter } from './instrumentation.redaction';
+import {
+  redactRequestSpanData,
+  type SpanTagWriter,
+} from "./instrumentation.redaction";
 
-const tracer = require('dd-trace');
+const tracer = require("dd-trace");
 
 tracer.init({
   logInjection: true,
   runtimeMetrics: true,
 });
 
-tracer.use('http', {
+tracer.use("http", {
   headers: [],
   hooks: {
     request: (span: SpanTagWriter, req: { url?: string }) => {
@@ -16,7 +19,7 @@ tracer.use('http', {
   },
 });
 
-tracer.use('next', {
+tracer.use("next", {
   headers: [],
   hooks: {
     request: (span: SpanTagWriter, req: { url?: string }) => {

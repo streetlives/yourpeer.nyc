@@ -1,35 +1,47 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import path from 'node:path';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import path from "node:path";
 
-import { isDatadogTracingEnabled, register } from '../src/instrumentation';
-import { redactRequestSpanData, sanitizeUrl } from '../src/instrumentation.redaction';
+import { isDatadogTracingEnabled, register } from "../src/instrumentation";
+import {
+  redactRequestSpanData,
+  sanitizeUrl,
+} from "../src/instrumentation.redaction";
 
-test('isDatadogTracingEnabled requires app-level opt-in', () => {
-  assert.equal(isDatadogTracingEnabled({ YOURPEER_ENABLE_DATADOG_APM: 'true' }), true);
+test("isDatadogTracingEnabled requires app-level opt-in", () => {
   assert.equal(
-    isDatadogTracingEnabled({ YOURPEER_ENABLE_DATADOG_APM: 'false', DD_TRACE_ENABLED: 'true' }),
+    isDatadogTracingEnabled({ YOURPEER_ENABLE_DATADOG_APM: "true" }),
+    true,
+  );
+  assert.equal(
+    isDatadogTracingEnabled({
+      YOURPEER_ENABLE_DATADOG_APM: "false",
+      DD_TRACE_ENABLED: "true",
+    }),
     false,
   );
-  assert.equal(isDatadogTracingEnabled({ DD_TRACE_ENABLED: 'true' }), false);
+  assert.equal(isDatadogTracingEnabled({ DD_TRACE_ENABLED: "true" }), false);
 });
 
-test('isDatadogTracingEnabled honors DD_TRACE_ENABLED=false as hard disable', () => {
+test("isDatadogTracingEnabled honors DD_TRACE_ENABLED=false as hard disable", () => {
   assert.equal(
-    isDatadogTracingEnabled({ YOURPEER_ENABLE_DATADOG_APM: 'true', DD_TRACE_ENABLED: 'false' }),
+    isDatadogTracingEnabled({
+      YOURPEER_ENABLE_DATADOG_APM: "true",
+      DD_TRACE_ENABLED: "false",
+    }),
     false,
   );
 });
 
-test('register loads instrumentation in node runtime when feature flag is enabled', async () => {
+test("register loads instrumentation in node runtime when feature flag is enabled", async () => {
   const previousRuntime = process.env.NEXT_RUNTIME;
   const previousFlag = process.env.YOURPEER_ENABLE_DATADOG_APM;
   const previousDdTraceEnabled = process.env.DD_TRACE_ENABLED;
 
   try {
-    process.env.NEXT_RUNTIME = 'nodejs';
-    process.env.YOURPEER_ENABLE_DATADOG_APM = 'true';
+    process.env.NEXT_RUNTIME = "nodejs";
+    process.env.YOURPEER_ENABLE_DATADOG_APM = "true";
     delete process.env.DD_TRACE_ENABLED;
 
     const registered = await register();
@@ -41,13 +53,13 @@ test('register loads instrumentation in node runtime when feature flag is enable
   }
 });
 
-test('register is a safe no-op outside node runtime', async () => {
+test("register is a safe no-op outside node runtime", async () => {
   const previousRuntime = process.env.NEXT_RUNTIME;
   const previousFlag = process.env.YOURPEER_ENABLE_DATADOG_APM;
 
   try {
-    process.env.NEXT_RUNTIME = 'edge';
-    process.env.YOURPEER_ENABLE_DATADOG_APM = 'true';
+    process.env.NEXT_RUNTIME = "edge";
+    process.env.YOURPEER_ENABLE_DATADOG_APM = "true";
 
     const registered = await register();
     assert.equal(registered, false);
@@ -57,13 +69,13 @@ test('register is a safe no-op outside node runtime', async () => {
   }
 });
 
-test('register is a safe no-op when app-level flag is not enabled', async () => {
+test("register is a safe no-op when app-level flag is not enabled", async () => {
   const previousRuntime = process.env.NEXT_RUNTIME;
   const previousFlag = process.env.YOURPEER_ENABLE_DATADOG_APM;
 
   try {
-    process.env.NEXT_RUNTIME = 'nodejs';
-    process.env.YOURPEER_ENABLE_DATADOG_APM = 'false';
+    process.env.NEXT_RUNTIME = "nodejs";
+    process.env.YOURPEER_ENABLE_DATADOG_APM = "false";
 
     const registered = await register();
     assert.equal(registered, false);
@@ -73,13 +85,13 @@ test('register is a safe no-op when app-level flag is not enabled', async () => 
   }
 });
 
-test('sanitizeUrl removes query strings', () => {
-  assert.equal(sanitizeUrl('/search?query=nyc&zip=10001'), '/search');
-  assert.equal(sanitizeUrl('/health'), '/health');
+test("sanitizeUrl removes query strings", () => {
+  assert.equal(sanitizeUrl("/search?query=nyc&zip=10001"), "/search");
+  assert.equal(sanitizeUrl("/health"), "/health");
   assert.equal(sanitizeUrl(undefined), undefined);
 });
 
-test('redactRequestSpanData writes sanitized URL and redacted query tag', () => {
+test("redactRequestSpanData writes sanitized URL and redacted query tag", () => {
   const tags: Record<string, string> = {};
   const span = {
     setTag: (key: string, value: string) => {
@@ -87,13 +99,13 @@ test('redactRequestSpanData writes sanitized URL and redacted query tag', () => 
     },
   };
 
-  redactRequestSpanData(span, '/search?query=sensitive&token=abc');
+  redactRequestSpanData(span, "/search?query=sensitive&token=abc");
 
-  assert.equal(tags['http.url'], '/search');
-  assert.equal(tags['http.query.string'], 'redacted');
+  assert.equal(tags["http.url"], "/search");
+  assert.equal(tags["http.query.string"], "redacted");
 });
 
-test('redactRequestSpanData is a no-op when URL is missing', () => {
+test("redactRequestSpanData is a no-op when URL is missing", () => {
   const tags: Record<string, string> = {};
   const span = {
     setTag: (key: string, value: string) => {
@@ -106,26 +118,29 @@ test('redactRequestSpanData is a no-op when URL is missing', () => {
   assert.deepEqual(tags, {});
 });
 
-test('dd-trace emitted payloads do not retain query-string values', async () => {
-  const fixturePath = path.join(process.cwd(), 'tests/fixtures/datadog-trace-privacy.ts');
+test("dd-trace emitted payloads do not retain query-string values", async () => {
+  const fixturePath = path.join(
+    process.cwd(),
+    "tests/fixtures/datadog-trace-privacy.ts",
+  );
 
   const exitCode = await new Promise<number>((resolve, reject) => {
-    const child = spawn(process.execPath, ['--import', 'tsx', fixturePath], {
+    const child = spawn(process.execPath, ["--import", "tsx", fixturePath], {
       cwd: process.cwd(),
       env: {
         ...process.env,
       },
-      stdio: 'pipe',
+      stdio: "pipe",
     });
 
-    let stderr = '';
+    let stderr = "";
 
-    child.stderr.on('data', (chunk) => {
+    child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
     });
 
-    child.on('error', reject);
-    child.on('close', (code) => {
+    child.on("error", reject);
+    child.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(stderr || `fixture exited with code ${code}`));
         return;
