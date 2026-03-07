@@ -35,17 +35,19 @@ const DATADOG_SESSION_REPLAY_ENABLED =
   process.env.NEXT_PUBLIC_DATADOG_SESSION_REPLAY_ENABLED === "true";
 const DATADOG_TRACING_ORIGINS =
   process.env.NEXT_PUBLIC_DATADOG_TRACING_ORIGINS ?? "";
-const DATADOG_ENABLED = process.env.NEXT_PUBLIC_DATADOG_ENABLED === "true";
 const DATADOG_REQUIRE_CONSENT =
   process.env.NEXT_PUBLIC_DATADOG_REQUIRE_CONSENT !== "false";
 const DATADOG_CONSENT_COOKIE_NAME =
   process.env.NEXT_PUBLIC_DATADOG_CONSENT_COOKIE_NAME ?? "analytics_consent";
 const CONSENT_REFRESH_INTERVAL_MS = 1000;
 
-const hasDatadogConfiguration =
-  DATADOG_ENABLED &&
-  DATADOG_APPLICATION_ID.length > 0 &&
-  DATADOG_CLIENT_TOKEN.length > 0;
+const getHasDatadogConfiguration = () => {
+  return (
+    process.env.NEXT_PUBLIC_DATADOG_ENABLED === "true" &&
+    DATADOG_APPLICATION_ID.length > 0 &&
+    DATADOG_CLIENT_TOKEN.length > 0
+  );
+};
 
 export type DatadogRumInitDeps = {
   clearIntervalFn: typeof window.clearInterval;
@@ -103,8 +105,14 @@ export function DatadogRumInitComponent({
 }) {
   const [hasConsent, setHasConsent] = useState(false);
   const runtimeDeps = useMemo(() => deps ?? createDeps(), [deps]);
+  const hasDatadogConfiguration = getHasDatadogConfiguration();
 
   useEffect(() => {
+    if (!hasDatadogConfiguration && !deps) {
+      setHasConsent(false);
+      return;
+    }
+
     setHasConsent(runtimeDeps.getConsentStatus());
 
     const interval = runtimeDeps.setIntervalFn(() => {
@@ -114,7 +122,7 @@ export function DatadogRumInitComponent({
     return () => {
       runtimeDeps.clearIntervalFn(interval);
     };
-  }, [runtimeDeps]);
+  }, [deps, hasDatadogConfiguration, runtimeDeps]);
 
   useEffect(() => {
     runtimeDeps.syncTrackingConsentFn({
@@ -154,7 +162,7 @@ export function DatadogRumInitComponent({
     if (didInitialize) {
       runtimeDeps.markRumAsInitializedFn(window);
     }
-  }, [hasConsent, runtimeDeps]);
+  }, [hasConsent, hasDatadogConfiguration, runtimeDeps]);
 
   useEffect(() => {
     runtimeDeps.startRumViewFn({
@@ -165,7 +173,7 @@ export function DatadogRumInitComponent({
       normalizedViewName: normalizePathnameForViewName(pathname),
       service: DATADOG_SERVICE,
     });
-  }, [hasConsent, pathname, runtimeDeps]);
+  }, [hasConsent, hasDatadogConfiguration, pathname, runtimeDeps]);
 
   return null;
 }

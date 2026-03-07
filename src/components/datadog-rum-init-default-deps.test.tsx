@@ -76,3 +76,44 @@ test("DatadogRumInitComponent default deps do not duplicate startView on rerende
 
   renderer.unmount();
 });
+
+test("DatadogRumInitComponent does not start consent polling when RUM is disabled", async () => {
+  process.env.NEXT_PUBLIC_DATADOG_ENABLED = "false";
+  process.env.NEXT_PUBLIC_DATADOG_APPLICATION_ID = "";
+  process.env.NEXT_PUBLIC_DATADOG_CLIENT_TOKEN = "";
+
+  let intervalCallCount = 0;
+
+  const mockWindow = {
+    clearInterval: () => undefined,
+    document: {
+      cookie: "analytics_consent=granted",
+    },
+    location: { origin: "https://yourpeer.nyc" },
+    setInterval: () => {
+      intervalCallCount += 1;
+      return 1;
+    },
+  } as unknown as Window;
+
+  (globalThis as { window?: Window }).window = mockWindow;
+
+  const moduleUrl = new URL(
+    `./datadog-rum-init.tsx?disabled-polling=${Date.now()}`,
+    import.meta.url,
+  );
+
+  const initModule = (await import(moduleUrl.href)) as {
+    DatadogRumInitComponent: React.ComponentType<{ pathname: string }>;
+  };
+
+  const renderer = create(
+    <initModule.DatadogRumInitComponent pathname="/about-us" />,
+  );
+
+  await flushEffects();
+
+  assert.equal(intervalCallCount, 0);
+
+  renderer.unmount();
+});
