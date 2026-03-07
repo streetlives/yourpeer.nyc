@@ -3,8 +3,6 @@ const UUID_SEGMENT_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const LONG_TOKEN_SEGMENT_PATTERN = /^[a-z0-9_-]{24,}$/i;
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
-const MAX_SANITIZE_DEPTH = 6;
-
 export const RUM_WINDOW_GUARD_KEY = "__yourPeerRumInitialized__";
 
 export type RumGuardWindow = Window & {
@@ -17,13 +15,8 @@ const isObjectLike = (value: unknown): value is Record<string, unknown> => {
 
 const sanitizeUnknown = (
   value: unknown,
-  depth = 0,
   seen = new WeakSet<object>(),
 ): unknown => {
-  if (depth > MAX_SANITIZE_DEPTH) {
-    return value;
-  }
-
   if (typeof value === "string") {
     return sanitizeStringValue(value);
   }
@@ -40,14 +33,14 @@ const sanitizeUnknown = (
 
   if (Array.isArray(value)) {
     for (let index = 0; index < value.length; index += 1) {
-      value[index] = sanitizeUnknown(value[index], depth + 1, seen);
+      value[index] = sanitizeUnknown(value[index], seen);
     }
 
     return value;
   }
 
   for (const [key, nestedValue] of Object.entries(value)) {
-    value[key] = sanitizeUnknown(nestedValue, depth + 1, seen);
+    value[key] = sanitizeUnknown(nestedValue, seen);
   }
 
   return value;
@@ -103,9 +96,13 @@ export const parseCookieValue = (windowObject: Window, cookieName: string) => {
       continue;
     }
 
-    return decodeURIComponent(
-      cookie.slice(cookieName.length + 1),
-    ).toLowerCase();
+    const encodedValue = cookie.slice(cookieName.length + 1);
+
+    try {
+      return decodeURIComponent(encodedValue).toLowerCase();
+    } catch {
+      return encodedValue.toLowerCase();
+    }
   }
 
   return "";

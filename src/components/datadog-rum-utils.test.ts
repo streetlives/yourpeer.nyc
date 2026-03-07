@@ -67,6 +67,32 @@ test("sanitizeRumEvent sanitizes nested event values", () => {
   });
 });
 
+test("sanitizeRumEvent sanitizes values beyond six levels deep", () => {
+  const event: any = {
+    level1: {
+      level2: {
+        level3: {
+          level4: {
+            level5: {
+              level6: {
+                level7: {
+                  secret: "user@example.com?token=super-secret",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  sanitizeRumEvent(event);
+
+  assert.equal(
+    event.level1.level2.level3.level4.level5.level6.level7.secret,
+    "[redacted-email]",
+  );
+});
 test("consent helper reads cookie values", () => {
   const mockWindow = {
     document: {
@@ -78,6 +104,17 @@ test("consent helper reads cookie values", () => {
   assert.equal(hasDatadogConsent(mockWindow, "analytics_consent"), true);
 });
 
+test("parseCookieValue does not throw on malformed percent encoding", () => {
+  const mockWindow = {
+    document: {
+      cookie: "analytics_consent=%E0%A4%A; x=1",
+    },
+  } as Window;
+
+  assert.doesNotThrow(() => parseCookieValue(mockWindow, "analytics_consent"));
+  assert.equal(parseCookieValue(mockWindow, "analytics_consent"), "%e0%a4%a");
+  assert.equal(hasDatadogConsent(mockWindow, "analytics_consent"), false);
+});
 test("single-init guard behaves correctly", () => {
   const mockWindow = {} as Window & { [RUM_WINDOW_GUARD_KEY]?: boolean };
 
