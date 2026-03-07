@@ -2,9 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   RUM_WINDOW_GUARD_KEY,
+  hasDatadogConsent,
   isRumAlreadyInitialized,
   markRumAsInitialized,
   normalizePathnameForViewName,
+  parseCookieValue,
+  sanitizeRumEvent,
   sanitizeStringValue,
 } from "@/components/datadog-rum-utils";
 
@@ -46,6 +49,33 @@ test("sanitizeStringValue strips query/hash and redacts emails", () => {
     sanitizeStringValue("Error for person@example.org happened"),
     "Error for [redacted-email] happened",
   );
+});
+
+test("sanitizeRumEvent sanitizes nested event values", () => {
+  const event = {
+    a: {
+      b: ["https://x.y/path?token=1", "hello test@example.com"],
+    },
+  };
+
+  sanitizeRumEvent(event);
+
+  assert.deepEqual(event, {
+    a: {
+      b: ["https://x.y/path", "hello [redacted-email]"],
+    },
+  });
+});
+
+test("consent helper reads cookie values", () => {
+  const mockWindow = {
+    document: {
+      cookie: "session=abc; analytics_consent=granted; x=1",
+    },
+  } as Window;
+
+  assert.equal(parseCookieValue(mockWindow, "analytics_consent"), "granted");
+  assert.equal(hasDatadogConsent(mockWindow, "analytics_consent"), true);
 });
 
 test("single-init guard behaves correctly", () => {

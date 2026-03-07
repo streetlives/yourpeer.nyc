@@ -3,11 +3,54 @@ const UUID_SEGMENT_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const LONG_TOKEN_SEGMENT_PATTERN = /^[a-z0-9_-]{24,}$/i;
 const EMAIL_PATTERN = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const MAX_SANITIZE_DEPTH = 6;
 
 export const RUM_WINDOW_GUARD_KEY = "__yourPeerRumInitialized__";
 
-type RumGuardWindow = Window & {
+export type RumGuardWindow = Window & {
   [RUM_WINDOW_GUARD_KEY]?: boolean;
+};
+
+const isObjectLike = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null;
+};
+
+const sanitizeUnknown = (
+  value: unknown,
+  depth = 0,
+  seen = new WeakSet<object>(),
+): unknown => {
+  if (depth > MAX_SANITIZE_DEPTH) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return sanitizeStringValue(value);
+  }
+
+  if (!isObjectLike(value)) {
+    return value;
+  }
+
+  if (seen.has(value)) {
+    return value;
+  }
+
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      value[index] = sanitizeUnknown(value[index], depth + 1, seen);
+    }
+
+    return value;
+  }
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    value[key] = sanitizeUnknown(nestedValue, depth + 1, seen);
+  }
+
+  return value;
 };
 
 export const normalizePathnameForViewName = (pathname: string) => {
@@ -44,6 +87,33 @@ export const stripQueryAndHash = (value: string) => {
 
 export const sanitizeStringValue = (value: string) => {
   return stripQueryAndHash(value).replace(EMAIL_PATTERN, "[redacted-email]");
+};
+
+export const sanitizeRumEvent = (event: unknown) => {
+  sanitizeUnknown(event);
+};
+
+export const parseCookieValue = (windowObject: Window, cookieName: string) => {
+  const cookies = windowObject.document.cookie
+    .split(";")
+    .map((cookie) => cookie.trim());
+
+  for (const cookie of cookies) {
+    if (!cookie.startsWith(`${cookieName}=`)) {
+      continue;
+    }
+
+    return decodeURIComponent(
+      cookie.slice(cookieName.length + 1),
+    ).toLowerCase();
+  }
+
+  return "";
+};
+
+export const hasDatadogConsent = (windowObject: Window, cookieName: string) => {
+  const consentValue = parseCookieValue(windowObject, cookieName);
+  return ["true", "1", "yes", "granted"].includes(consentValue);
 };
 
 export const isRumAlreadyInitialized = (windowObject: Window) => {

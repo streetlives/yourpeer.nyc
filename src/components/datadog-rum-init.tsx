@@ -3,11 +3,12 @@
 import { datadogRum } from "@datadog/browser-rum";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { initializeRum, startRumView } from "@/components/datadog-rum-runtime";
 import {
+  hasDatadogConsent,
   isRumAlreadyInitialized,
   markRumAsInitialized,
   normalizePathnameForViewName,
-  sanitizeStringValue,
 } from "@/components/datadog-rum-utils";
 
 const DATADOG_APPLICATION_ID =
@@ -30,6 +31,11 @@ const DATADOG_SESSION_REPLAY_ENABLED =
   process.env.NEXT_PUBLIC_DATADOG_SESSION_REPLAY_ENABLED === "true";
 const DATADOG_TRACING_ORIGINS =
   process.env.NEXT_PUBLIC_DATADOG_TRACING_ORIGINS ?? "";
+const DATADOG_ENABLED = process.env.NEXT_PUBLIC_DATADOG_ENABLED === "true";
+const DATADOG_REQUIRE_CONSENT =
+  process.env.NEXT_PUBLIC_DATADOG_REQUIRE_CONSENT !== "false";
+const DATADOG_CONSENT_COOKIE_NAME =
+  process.env.NEXT_PUBLIC_DATADOG_CONSENT_COOKIE_NAME ?? "analytics_consent";
 
 const buildTracingOrigins = () => {
   const configuredOrigins = DATADOG_TRACING_ORIGINS.split(",")
@@ -43,77 +49,69 @@ const buildTracingOrigins = () => {
 };
 
 const hasDatadogConfiguration =
-  DATADOG_APPLICATION_ID.length > 0 && DATADOG_CLIENT_TOKEN.length > 0;
+  DATADOG_ENABLED &&
+  DATADOG_APPLICATION_ID.length > 0 &&
+  DATADOG_CLIENT_TOKEN.length > 0;
+
+const getConsentStatus = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return (
+    !DATADOG_REQUIRE_CONSENT ||
+    hasDatadogConsent(window, DATADOG_CONSENT_COOKIE_NAME)
+  );
+};
 
 export default function DatadogRumInit() {
   const pathname = usePathname() ?? "/";
 
   useEffect(() => {
-    if (!hasDatadogConfiguration || isRumAlreadyInitialized(window)) {
-      return;
-    }
-
-    datadogRum.init({
+    const hasConsent = getConsentStatus();
+    const didInitialize = initializeRum({
+      allowedTracingUrls: buildTracingOrigins(),
+      appName: DATADOG_APP_NAME,
       applicationId: DATADOG_APPLICATION_ID,
       clientToken: DATADOG_CLIENT_TOKEN,
-      site: DATADOG_SITE,
-      service: DATADOG_SERVICE,
+      datadogRum,
+      defaultPrivacyLevel: "mask-user-input",
       env: DATADOG_ENV,
-      version: DATADOG_VERSION,
-      sessionSampleRate: Number.isFinite(DATADOG_SESSION_SAMPLE_RATE)
-        ? DATADOG_SESSION_SAMPLE_RATE
-        : 100,
+      hasConsent,
+      hasDatadogConfiguration,
+      isAlreadyInitialized: isRumAlreadyInitialized(window),
+      service: DATADOG_SERVICE,
       sessionReplaySampleRate: DATADOG_SESSION_REPLAY_ENABLED
         ? Number.isFinite(DATADOG_SESSION_REPLAY_SAMPLE_RATE)
           ? DATADOG_SESSION_REPLAY_SAMPLE_RATE
           : 100
         : 0,
-      trackUserInteractions: true,
-      trackResources: true,
+      sessionSampleRate: Number.isFinite(DATADOG_SESSION_SAMPLE_RATE)
+        ? DATADOG_SESSION_SAMPLE_RATE
+        : 100,
+      site: DATADOG_SITE,
       trackLongTasks: true,
+      trackResources: true,
+      trackUserInteractions: true,
       trackViewsManually: true,
-      defaultPrivacyLevel: "mask-user-input",
-      allowedTracingUrls: buildTracingOrigins(),
-      beforeSend: (event) => {
-        const view = (event as { view?: { url?: string } }).view;
-        const resource = (event as { resource?: { url?: string } }).resource;
-        const error = (event as { error?: { message?: string } }).error;
-
-        if (view?.url) {
-          view.url = sanitizeStringValue(view.url);
-        }
-
-        if (resource?.url) {
-          resource.url = sanitizeStringValue(resource.url);
-        }
-
-        if (error?.message) {
-          error.message = sanitizeStringValue(error.message);
-        }
-
-        event.context = {
-          ...event.context,
-          app_name: DATADOG_APP_NAME,
-        };
-
-        return true;
-      },
+      version: DATADOG_VERSION,
     });
 
-    markRumAsInitialized(window);
-  }, []);
+    if (didInitialize) {
+      markRumAsInitialized(window);
+    }
+  }, [pathname]);
 
   useEffect(() => {
-    if (!hasDatadogConfiguration || !datadogRum.getInitConfiguration()) {
-      return;
-    }
+    const hasConsent = getConsentStatus();
 
-    datadogRum.startView({
-      name: normalizePathnameForViewName(pathname),
+    startRumView({
+      appName: DATADOG_APP_NAME,
+      datadogRum,
+      hasConsent,
+      hasDatadogConfiguration,
+      normalizedViewName: normalizePathnameForViewName(pathname),
       service: DATADOG_SERVICE,
-      context: {
-        app_name: DATADOG_APP_NAME,
-      },
     });
   }, [pathname]);
 
