@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
 
 import { isDatadogTracingEnabled, register } from '../src/instrumentation';
 import { redactRequestSpanData, sanitizeUrl } from '../src/instrumentation.redaction';
@@ -102,4 +104,36 @@ test('redactRequestSpanData is a no-op when URL is missing', () => {
   redactRequestSpanData(span, undefined);
 
   assert.deepEqual(tags, {});
+});
+
+test('dd-trace emitted payloads do not retain query-string values', async () => {
+  const fixturePath = path.join(process.cwd(), 'tests/fixtures/datadog-trace-privacy.ts');
+
+  const exitCode = await new Promise<number>((resolve, reject) => {
+    const child = spawn(process.execPath, ['--import', 'tsx', fixturePath], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+      },
+      stdio: 'pipe',
+    });
+
+    let stderr = '';
+
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+
+    child.on('error', reject);
+    child.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(stderr || `fixture exited with code ${code}`));
+        return;
+      }
+
+      resolve(code ?? 0);
+    });
+  });
+
+  assert.equal(exitCode, 0);
 });
