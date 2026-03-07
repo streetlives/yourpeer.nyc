@@ -13,6 +13,7 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import QueryClientProvider from "@/app/QueryClientProvider";
 import GTProdGuardScript from "@/components/gt-prod-guard-script";
+import DatadogRumInit from "@/components/datadog-rum-init";
 import { inter } from "./fonts";
 
 export const viewport: Viewport = {
@@ -63,6 +64,7 @@ export default function RootLayout({
           </LanguageTranslationProvider>
         </CookiesProvider>
         <Toaster />
+        <DatadogRumInit />
         <GoogleAnalytics gaId={GOOGLE_ANALYTICS_MEASUREMENT_ID} />
         <GoogleTagManager gtmId="GTM-ND2QBSQH" />
       </body>
