@@ -9,7 +9,7 @@ export default function ExploreServicesButton({
   className = "primary-button",
 }: ExploreServicesButtonProps) {
   return (
-    <Link type="button" className={className} href={"/locations"}>
+    <Link className={className} href={"/locations"}>
       <TranslatableText text="Explore services" />
     </Link>
   );
