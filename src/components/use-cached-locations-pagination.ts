@@ -21,6 +21,7 @@ import {
   BackgroundLocationsResponse,
   DISPLAY_PAGES_PER_BACKGROUND_PAGE,
   MAX_PARALLEL_BACKGROUND_REQUESTS,
+  applyPaginationNavigation,
   getSearchParamEntries,
   getTotalBackgroundPages,
   getVisibleLocationsForPage,
@@ -289,25 +290,15 @@ export function useCachedLocationsPagination({
 
   const navigateToPage = useCallback(
     (pageNumber: number) => {
-      const nextSearchParams = new URLSearchParams(
-        liveSearchParams ? Array.from(liveSearchParams.entries()) : [],
-      );
-
-      if (pageNumber > 0) {
-        nextSearchParams.set(PAGE_PARAM, (pageNumber + 1).toString());
-      } else {
-        nextSearchParams.delete(PAGE_PARAM);
-      }
-
-      const nextUrl = `${window.location.pathname}${
-        nextSearchParams.toString() ? `?${nextSearchParams.toString()}` : ""
-      }`;
-      window.history.pushState(null, "", nextUrl);
-
-      const locationsContainer = document.getElementById("locations_container");
-      if (locationsContainer) {
-        locationsContainer.scrollTop = 0;
-      }
+      applyPaginationNavigation({
+        pathname: window.location.pathname,
+        searchParams: liveSearchParams ? liveSearchParams.entries() : [],
+        pageNumber,
+        pushState: (nextUrl) => {
+          window.history.pushState(null, "", nextUrl);
+        },
+        locationsContainer: document.getElementById("locations_container"),
+      });
     },
     [liveSearchParams],
   );

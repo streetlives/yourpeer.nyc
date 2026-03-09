@@ -111,3 +111,53 @@ export function getVisibleLocationsForPage({
 }): YourPeerLegacyLocationData[] {
   return pages[currentPage] || pages[lastResolvedPage] || [];
 }
+
+export function getPaginationUrl({
+  pathname,
+  searchParams,
+  pageNumber,
+}: {
+  pathname: string;
+  searchParams: Iterable<[string, string]>;
+  pageNumber: number;
+}): string {
+  const nextSearchParams = new URLSearchParams(Array.from(searchParams));
+
+  if (pageNumber > 0) {
+    nextSearchParams.set(PAGE_PARAM, (pageNumber + 1).toString());
+  } else {
+    nextSearchParams.delete(PAGE_PARAM);
+  }
+
+  return `${pathname}${
+    nextSearchParams.toString() ? `?${nextSearchParams.toString()}` : ""
+  }`;
+}
+
+export function applyPaginationNavigation({
+  pathname,
+  searchParams,
+  pageNumber,
+  pushState,
+  locationsContainer,
+}: {
+  pathname: string;
+  searchParams: Iterable<[string, string]>;
+  pageNumber: number;
+  pushState: (url: string) => void;
+  locationsContainer?: { scrollTop: number } | null;
+}): string {
+  const nextUrl = getPaginationUrl({
+    pathname,
+    searchParams,
+    pageNumber,
+  });
+
+  pushState(nextUrl);
+
+  if (locationsContainer) {
+    locationsContainer.scrollTop = 0;
+  }
+
+  return nextUrl;
+}

@@ -7,6 +7,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  parseLocationsBackgroundPageNumber,
   parseLocationsBackgroundPageSize,
   parseNonNegativeInteger,
   parsePositiveInteger,
@@ -32,4 +33,11 @@ test("parseLocationsBackgroundPageSize clamps malformed and oversized values", (
   assert.equal(parseLocationsBackgroundPageSize("-5"), 200);
   assert.equal(parseLocationsBackgroundPageSize("50"), 50);
   assert.equal(parseLocationsBackgroundPageSize("500"), 200);
+});
+
+test("parseLocationsBackgroundPageNumber rejects page numbers above the supported cap", () => {
+  assert.equal(parseLocationsBackgroundPageNumber(null), 0);
+  assert.equal(parseLocationsBackgroundPageNumber("0"), 0);
+  assert.equal(parseLocationsBackgroundPageNumber("100"), 100);
+  assert.equal(parseLocationsBackgroundPageNumber("101"), null);
 });

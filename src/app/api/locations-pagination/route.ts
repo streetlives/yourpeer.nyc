@@ -23,8 +23,8 @@ import {
   map_gogetta_to_yourpeer,
 } from "@/components/streetlives-api-service";
 import {
+  parseLocationsBackgroundPageNumber,
   parseLocationsBackgroundPageSize,
-  parseNonNegativeInteger,
 } from "@/lib/locations-pagination-request";
 
 function toSearchParamsObject(
@@ -78,10 +78,17 @@ export async function GET(request: NextRequest) {
         }
       : { route };
 
-  const page = parseNonNegativeInteger(
+  const page = parseLocationsBackgroundPageNumber(
     requestUrl.searchParams.get("pageNumber"),
-    0,
   );
+  if (page === null) {
+    return NextResponse.json(
+      {
+        error: "pageNumber exceeds the supported background pagination range.",
+      },
+      { status: 400 },
+    );
+  }
   const pageSize = parseLocationsBackgroundPageSize(
     requestUrl.searchParams.get("pageSize"),
   );

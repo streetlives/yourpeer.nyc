@@ -6,6 +6,7 @@
 
 export const DEFAULT_BACKGROUND_PAGE_SIZE = 200;
 export const MAX_BACKGROUND_PAGE_SIZE = 200;
+export const MAX_BACKGROUND_PAGE_NUMBER = 100;
 
 export function parseNonNegativeInteger(
   rawValue: string | null,
@@ -42,4 +43,11 @@ export function parseLocationsBackgroundPageSize(
     parsePositiveInteger(rawValue, DEFAULT_BACKGROUND_PAGE_SIZE),
     MAX_BACKGROUND_PAGE_SIZE,
   );
+}
+
+export function parseLocationsBackgroundPageNumber(
+  rawValue: string | null,
+): number | null {
+  const pageNumber = parseNonNegativeInteger(rawValue, 0);
+  return pageNumber <= MAX_BACKGROUND_PAGE_NUMBER ? pageNumber : null;
 }

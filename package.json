@@ -8,7 +8,7 @@
     "start": "next start -p $PORT",
     "lint": "next lint",
     "check-types": "tsc --noEmit",
-    "test": "tsx --test src/components/locations-pagination-cache.test.ts src/lib/locations-pagination-request.test.ts",
+    "test": "tsx --test src/components/locations-pagination-cache.test.ts src/components/locations-pagination-navigation.test.ts src/lib/locations-pagination-request.test.ts",
     "format": "prettier . --write",
     "check-format": "prettier --check .",
     "all-checks": "npm run check-format && npm run check-types && npm run lint",
