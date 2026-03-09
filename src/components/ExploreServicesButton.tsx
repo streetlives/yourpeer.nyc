@@ -1,6 +1,7 @@
 "use client";
 
 import { TranslatableText } from "@/components/translatable-text";
+import Link from "next/link";
 
 type ExploreServicesButtonProps = {
   className?: string;
@@ -10,14 +11,8 @@ export default function ExploreServicesButton({
   className = "primary-button",
 }: ExploreServicesButtonProps) {
   return (
-    <button
-      type="button"
-      className={className}
-      onClick={() => {
-        window.location.assign("/locations");
-      }}
-    >
+    <Link type="button" className={className} href={"/locations"}>
       <TranslatableText text="Explore services" />
-    </button>
+    </Link>
   );
 }
