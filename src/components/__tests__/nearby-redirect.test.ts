@@ -35,6 +35,34 @@ test("shouldRedirectToNearbyPath normalizes trailing slash", () => {
   assert.equal(shouldRedirectToNearbyPath("/locations/slug/"), false);
 });
 
+test("shouldRedirectToNearbyPath allows locale-prefixed index routes", () => {
+  assert.equal(shouldRedirectToNearbyPath("/en/locations"), true);
+  assert.equal(shouldRedirectToNearbyPath("/en-US/food"), true);
+  assert.equal(shouldRedirectToNearbyPath("/es/mental-health"), true);
+  assert.equal(
+    shouldRedirectToNearbyPath("/en/locations/roman-catholic-archdiocese"),
+    false,
+  );
+});
+
+test("shouldRedirectToNearbyPath allows basePath-prefixed index routes", () => {
+  const previous = process.env.NEXT_PUBLIC_BASE_PATH;
+  process.env.NEXT_PUBLIC_BASE_PATH = "app";
+
+  assert.equal(shouldRedirectToNearbyPath("/app/locations"), true);
+  assert.equal(shouldRedirectToNearbyPath("/app/other-services/"), true);
+  assert.equal(
+    shouldRedirectToNearbyPath("/app/locations/roman-catholic-archdiocese"),
+    false,
+  );
+
+  if (previous === undefined) {
+    delete process.env.NEXT_PUBLIC_BASE_PATH;
+  } else {
+    process.env.NEXT_PUBLIC_BASE_PATH = previous;
+  }
+});
+
 test("shouldAutoRedirectToNearby enforces all redirect guards", () => {
   assert.equal(
     shouldAutoRedirectToNearby({
