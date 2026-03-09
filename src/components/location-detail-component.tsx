@@ -6,6 +6,23 @@
 
 "use client";
 
+import ReviewHighlights from "@/components/feedback/review-highlights";
+import ReviewList from "@/components/feedback/review-list";
+import ReviewListItem from "@/components/feedback/review-list-item";
+import { EditIcon } from "@/components/icons/edit-icon";
+import LocationDetailContainer from "@/components/location-detail/location-detail-container";
+import LocationDetailHeader from "@/components/location-detail/location-detail-header";
+import LocationDetailHeaderInfo from "@/components/location-detail/location-detail-header-info";
+import LocationDetailInfo from "@/components/location-detail/location-detail-info";
+import LocationDetailNavigation from "@/components/location-detail/location-detail-navigation";
+import LocationServices from "@/components/location-detail/location-services";
+import StreetView from "@/components/location-detail/street-view";
+import { Button } from "@/components/ui/button";
+import { useFilters } from "@/lib/store";
+import { Authenticator } from "@aws-amplify/ui-react";
+import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   CATEGORIES,
   Comment,
@@ -13,26 +30,12 @@ import {
   LOCATION_ROUTE,
   YourPeerLegacyLocationData,
 } from "./common";
-import { useState } from "react";
-import { ReportIssueForm } from "./report-issue";
-import ReviewForm from "./feedback/review-form";
-import ReviewList from "@/components/feedback/review-list";
-import LocationDetailHeaderInfo from "@/components/location-detail/location-detail-header-info";
-import LocationDetailNavigation from "@/components/location-detail/location-detail-navigation";
-import StreetView from "@/components/location-detail/street-view";
-import LocationDetailInfo from "@/components/location-detail/location-detail-info";
-import ReviewHighlights from "@/components/feedback/review-highlights";
-import LocationServices from "@/components/location-detail/location-services";
-import LocationDetailContainer from "@/components/location-detail/location-detail-container";
-import LocationDetailHeader from "@/components/location-detail/location-detail-header";
-import { usePreviousRoute } from "./use-previous-route";
-import { useRouter } from "next/navigation";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { Button } from "@/components/ui/button";
-import { EditIcon } from "@/components/icons/edit-icon";
-import ReviewListItem from "@/components/feedback/review-list-item";
-import { Authenticator } from "@aws-amplify/ui-react";
 import DonationBanner from "./donation-banner";
+import ReviewForm from "./feedback/review-form";
+import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
+import { ReportIssueForm } from "./report-issue";
+import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
+import { usePreviousRoute } from "./use-previous-route";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -57,11 +60,22 @@ export default function LocationDetailComponent({
   const [isShowingReportIssueForm, setIsShowingReportIssueForm] =
     useState(false);
   const [stickyTitle, setStickyTitle] = useState<boolean>(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
   const router = useRouter();
   const previousRoute = usePreviousRoute();
+  const isDetailPanelLoading = useFilters(
+    (state) => state.isDetailPanelLoading,
+  );
+  const setDetailPanelLoading = useFilters(
+    (state) => state.setDetailPanelLoading,
+  );
+
+  useEffect(() => {
+    setDetailPanelLoading(false);
+  }, [setDetailPanelLoading]);
 
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
@@ -79,8 +93,27 @@ export default function LocationDetailComponent({
       return;
     }
 
-    router.push(previousRoute ? previousRoute : `/${LOCATION_ROUTE}`);
+    const backRoute = previousRoute ? previousRoute : `/${LOCATION_ROUTE}`;
+    setIsClosing(true);
+    window.history.pushState(null, "", backRoute);
+    router.push(backRoute);
   };
+
+  if (isClosing) {
+    return (
+      <div className="w-full h-full bg-white">
+        <SidebarLoadingAnimation />
+      </div>
+    );
+  }
+
+  if (isDetailPanelLoading) {
+    return (
+      <div className="w-full h-full bg-white">
+        <LocationDetailLoadingPanel />
+      </div>
+    );
+  }
 
   const headerTitle = isShowingReviewDetails
     ? "Reviews"
@@ -97,9 +130,6 @@ export default function LocationDetailComponent({
       .filter((name) => name !== null);
     servicesNames.push(...names);
   });
-
-  console.log("Location Detail Component rendered with location:");
-  console.log(location);
 
   return (
     <LocationDetailContainer
