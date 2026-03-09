@@ -34,22 +34,13 @@ import {
   GeoCoordinatesContextType,
 } from "./geo-context";
 import { useFilters, useViewStore } from "@/lib/store";
+import { shouldAutoRedirectToNearby } from "./nearby-redirect";
 
 function isMobile(): boolean {
   return window.innerWidth <= 768;
 }
 
 const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 20;
-
-const ROUTES_TO_REDIRECT_TO_NEARBY = new Set([
-  "/locations",
-  "/shelters-housing",
-  "/food",
-  "/clothing",
-  "/personal-care",
-  "/health-care",
-  "/other-services",
-]);
 
 const GOOGLE_MAPS_API_KEY = (
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
@@ -83,16 +74,6 @@ function calculateDistanceInMiles(
 
 function toRad(value: number): number {
   return (value * Math.PI) / 180;
-}
-
-function shouldRedirectToNearbyPath(pathname: string | null): boolean {
-  if (!pathname) {
-    return false;
-  }
-  const normalizedPath = pathname.endsWith("/")
-    ? pathname.slice(0, -1)
-    : pathname;
-  return ROUTES_TO_REDIRECT_TO_NEARBY.has(normalizedPath);
 }
 
 interface SimplifiedLocationDataWithDistance extends SimplifiedLocationData {
@@ -261,10 +242,12 @@ function MapWrapper({
       const sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
       const searchText = searchParams?.get(SEARCH_PARAM);
       if (
-        !sortBy &&
-        !locationDetailStub &&
-        !searchText &&
-        shouldRedirectToNearbyPath(pathname)
+        shouldAutoRedirectToNearby({
+          pathname,
+          sortBy,
+          searchText,
+          isLocationDetail: !!locationDetailStub,
+        })
       ) {
         router.push(
           getUrlWithNewFilterParameter(
