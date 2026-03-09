@@ -1,5 +1,3 @@
-"use client";
-
 import { TranslatableText } from "@/components/translatable-text";
 import Link from "next/link";
 
