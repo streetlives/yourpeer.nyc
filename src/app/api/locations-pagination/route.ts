@@ -22,9 +22,10 @@ import {
   getTaxonomies,
   map_gogetta_to_yourpeer,
 } from "@/components/streetlives-api-service";
-
-const DEFAULT_PAGE_SIZE = 200;
-const MAX_PAGE_SIZE = 200;
+import {
+  parseLocationsBackgroundPageSize,
+  parseNonNegativeInteger,
+} from "@/lib/locations-pagination-request";
 
 function toSearchParamsObject(
   urlSearchParams: URLSearchParams,
@@ -54,20 +55,6 @@ function toSearchParamsObject(
   );
 }
 
-function parsePositiveInteger(
-  rawValue: string | null,
-  fallbackValue: number,
-): number {
-  if (!rawValue) {
-    return fallbackValue;
-  }
-
-  const parsedValue = Number.parseInt(rawValue, 10);
-  return Number.isFinite(parsedValue) && parsedValue >= 0
-    ? parsedValue
-    : fallbackValue;
-}
-
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const route = requestUrl.searchParams.get("route");
@@ -91,16 +78,12 @@ export async function GET(request: NextRequest) {
         }
       : { route };
 
-  const page = parsePositiveInteger(
+  const page = parseNonNegativeInteger(
     requestUrl.searchParams.get("pageNumber"),
     0,
   );
-  const pageSize = Math.min(
-    parsePositiveInteger(
-      requestUrl.searchParams.get("pageSize"),
-      DEFAULT_PAGE_SIZE,
-    ),
-    MAX_PAGE_SIZE,
+  const pageSize = parseLocationsBackgroundPageSize(
+    requestUrl.searchParams.get("pageSize"),
   );
 
   const searchParams = toSearchParamsObject(
@@ -140,13 +123,11 @@ export async function GET(request: NextRequest) {
     }),
   };
 
-  const { locations, numberOfPages, resultCount } =
-    await getFullLocationData(locationParams);
+  const { locations, resultCount } = await getFullLocationData(locationParams);
 
   return NextResponse.json({
     pageNumber: page,
     pageSize,
-    numberOfPages,
     resultCount,
     locations: locations.map((location) =>
       map_gogetta_to_yourpeer(location, false),

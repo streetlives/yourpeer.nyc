@@ -15,28 +15,17 @@ import {
   YourPeerLegacyLocationData,
   parsePageParam,
 } from "./common";
-
-const DISPLAY_PAGE_SIZE = 20;
-const BACKGROUND_PAGE_SIZE = 200;
-const DISPLAY_PAGES_PER_BACKGROUND_PAGE =
-  BACKGROUND_PAGE_SIZE / DISPLAY_PAGE_SIZE;
-const MAX_PARALLEL_BACKGROUND_REQUESTS = 3;
-
-interface CachedLocationsDataset {
-  pages: Record<number, YourPeerLegacyLocationData[]>;
-  loadedBackgroundPages: number[];
-  loadingBackgroundPages: number[];
-  resultCount: number;
-  numberOfPages: number;
-}
-
-interface BackgroundLocationsResponse {
-  locations: YourPeerLegacyLocationData[];
-  pageNumber: number;
-  pageSize: number;
-  resultCount: number;
-  numberOfPages: number;
-}
+import {
+  BACKGROUND_PAGE_SIZE,
+  CachedLocationsDataset,
+  BackgroundLocationsResponse,
+  DISPLAY_PAGES_PER_BACKGROUND_PAGE,
+  MAX_PARALLEL_BACKGROUND_REQUESTS,
+  getSearchParamEntries,
+  getTotalBackgroundPages,
+  getVisibleLocationsForPage,
+  mergeBackgroundPage,
+} from "./locations-pagination-cache";
 
 interface UseCachedLocationsPaginationArgs {
   route: string;
@@ -46,67 +35,6 @@ interface UseCachedLocationsPaginationArgs {
   initialPageLocations: YourPeerLegacyLocationData[];
   resultCount: number;
   numberOfPages: number;
-}
-
-function getSearchParamEntries(searchParams: SearchParams): string[][] {
-  return Object.entries(searchParams)
-    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
-    .flatMap(([key, value]): string[][] => {
-      if (key === PAGE_PARAM || value === undefined) {
-        return [];
-      }
-
-      if (Array.isArray(value)) {
-        return value
-          .slice()
-          .sort((left, right) => left.localeCompare(right))
-          .map((item) => [key, item]);
-      }
-
-      return [[key, value]];
-    });
-}
-
-function splitLocationsIntoDisplayPages(
-  backgroundPageNumber: number,
-  locations: YourPeerLegacyLocationData[],
-): Record<number, YourPeerLegacyLocationData[]> {
-  const nextPages: Record<number, YourPeerLegacyLocationData[]> = {};
-  const startingDisplayPage =
-    backgroundPageNumber * DISPLAY_PAGES_PER_BACKGROUND_PAGE;
-
-  for (let offset = 0; offset < locations.length; offset += DISPLAY_PAGE_SIZE) {
-    const displayPageNumber = startingDisplayPage + offset / DISPLAY_PAGE_SIZE;
-    nextPages[displayPageNumber] = locations.slice(
-      offset,
-      offset + DISPLAY_PAGE_SIZE,
-    );
-  }
-
-  return nextPages;
-}
-
-function mergeBackgroundPage(
-  currentDataset: CachedLocationsDataset,
-  response: BackgroundLocationsResponse,
-): CachedLocationsDataset {
-  return {
-    pages: {
-      ...currentDataset.pages,
-      ...splitLocationsIntoDisplayPages(
-        response.pageNumber,
-        response.locations,
-      ),
-    },
-    loadedBackgroundPages: Array.from(
-      new Set(currentDataset.loadedBackgroundPages.concat(response.pageNumber)),
-    ).sort((left, right) => left - right),
-    loadingBackgroundPages: currentDataset.loadingBackgroundPages.filter(
-      (pageNumber) => pageNumber !== response.pageNumber,
-    ),
-    resultCount: response.resultCount,
-    numberOfPages: response.numberOfPages,
-  };
 }
 
 async function fetchBackgroundPage({
@@ -298,12 +226,12 @@ export function useCachedLocationsPagination({
   }, [currentPage, currentPageLocations, ensureBackgroundPage]);
 
   useEffect(() => {
-    if (numberOfPages <= 0) {
+    if (cachedDataset.numberOfPages <= 0) {
       return;
     }
 
-    const totalBackgroundPages = Math.ceil(
-      (numberOfPages + 1) / DISPLAY_PAGES_PER_BACKGROUND_PAGE,
+    const totalBackgroundPages = getTotalBackgroundPages(
+      cachedDataset.numberOfPages,
     );
     const missingBackgroundPages = Array.from(
       { length: totalBackgroundPages },
@@ -348,12 +276,15 @@ export function useCachedLocationsPagination({
   }, [
     cachedDataset.loadedBackgroundPages,
     cachedDataset.loadingBackgroundPages,
+    cachedDataset.numberOfPages,
     ensureBackgroundPage,
-    numberOfPages,
   ]);
 
-  const visibleLocations =
-    currentPageLocations || cachedDataset.pages[lastResolvedPage] || [];
+  const visibleLocations = getVisibleLocationsForPage({
+    pages: cachedDataset.pages,
+    currentPage,
+    lastResolvedPage,
+  });
   const isPageLoading = !currentPageLocations;
 
   const navigateToPage = useCallback(
