@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import Script from "next/script";
 
-const GT_PROD_GUARD_ENABLED = process.env.NEXT_PUBLIC_GT_PROD_GUARD === "true";
+// const GT_PROD_GUARD_ENABLED = process.env.NEXT_PUBLIC_GT_PROD_GUARD === "true";
 
 const GT_PROD_GUARD_SCRIPT = `(() => {
   if (typeof window === "undefined" || typeof Node === "undefined") {
@@ -57,9 +57,9 @@ declare global {
 }
 
 export default function GTProdGuardScript() {
-  if (!GT_PROD_GUARD_ENABLED) {
-    return null;
-  }
+  // if (!GT_PROD_GUARD_ENABLED) {
+  //   return null;
+  // }
 
   return (
     <Script id="gt-prod-guard" strategy="beforeInteractive">
