@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
 import Image from "next/image";
+import ExploreServicesButton from "@/components/ExploreServicesButton";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -93,9 +94,7 @@ export default async function HomePage() {
             ></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
-            <Link href="/locations" className="primary-button ">
-              <TranslatableText text="Explore services" />
-            </Link>
+            <ExploreServicesButton className="primary-button" />
           </div>
         </div>
       </div>
@@ -556,9 +555,7 @@ export default async function HomePage() {
               <TranslatableText text="People rely on social services for many reasons. We’re building YourPeer so it's easier for you to find the right service." />
             </p>
             <div>
-              <Link href="/locations" className="primary-button">
-                <TranslatableText text="Explore services" />
-              </Link>
+              <ExploreServicesButton className="primary-button" />
             </div>
           </div>
         </div>
