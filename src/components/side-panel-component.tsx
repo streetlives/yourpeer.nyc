@@ -18,6 +18,33 @@ import { useEffect } from "react";
 import { SidePanelComponentData } from "./get-side-panel-component-data";
 import { useFilters } from "@/lib/store";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
+import { useSearchParams } from "next/navigation";
+
+function getLiveSearchParamsObject(
+  liveSearchParams: ReturnType<typeof useSearchParams>,
+): SearchParams {
+  if (!liveSearchParams) {
+    return {};
+  }
+
+  const entries = new Map<string, string[]>();
+  liveSearchParams.forEach((value, key) => {
+    const existing = entries.get(key);
+    if (existing) {
+      existing.push(value);
+      return;
+    }
+
+    entries.set(key, [value]);
+  });
+
+  return Object.fromEntries(
+    Array.from(entries.entries()).map(([key, values]) => [
+      key,
+      values.length === 1 ? values[0] : values,
+    ]),
+  );
+}
 
 export function SidePanelComponent({
   searchParams,
@@ -38,6 +65,7 @@ export function SidePanelComponent({
   const updateResultsCount = useFilters((state) => state.updateResultCount);
   const setLoading = useFilters((state) => state.setLoading);
   const isLoading = useFilters((state) => state.isLoading);
+  const liveSearchParams = useSearchParams();
 
   useEffect(() => {
     updateResultsCount(resultCount);
@@ -46,10 +74,17 @@ export function SidePanelComponent({
       LAST_SET_PARAMS_COOKIE_NAME,
       JSON.stringify({
         params,
-        searchParams,
+        searchParams: getLiveSearchParamsObject(liveSearchParams),
       }),
     );
-  }, [params, searchParams]);
+  }, [
+    cookies,
+    liveSearchParams,
+    params,
+    resultCount,
+    setLoading,
+    updateResultsCount,
+  ]);
 
   return (
     <>
@@ -69,12 +104,16 @@ export function SidePanelComponent({
         />
         <LocationsContainer
           searchParams={searchParams}
+          route={params.route}
+          locationSlugOrPersonalCareSubCategory={
+            params.locationSlugOrPersonalCareSubCategory
+          }
           resultCount={resultCount}
           numberOfPages={numberOfPages}
-          currentPage={parsedSearchParams[PAGE_PARAM]}
+          initialPage={parsedSearchParams[PAGE_PARAM]}
           category={category}
           subCategory={subCategory}
-          yourPeerLegacyLocationData={yourPeerLegacyLocationData}
+          initialPageLocations={yourPeerLegacyLocationData}
         />
       </div>
     </>

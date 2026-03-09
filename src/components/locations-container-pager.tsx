@@ -19,20 +19,46 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import React from "react";
 
 export function LocationsContainerPager({
-  resultCount,
   numberOfPages,
   currentPage,
+  onPageChange,
 }: {
-  resultCount: number;
   numberOfPages: number;
   currentPage: number;
+  onPageChange?: (pageNumber: number) => void;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hasPreviousPage = currentPage > 0;
   const hasNextPage = currentPage < numberOfPages;
+
+  const firstPageHref = hasPreviousPage
+    ? getFirstPageHref(pathname, searchParams)
+    : undefined;
+  const previousPageHref = hasPreviousPage
+    ? getUrlToNextOrPreviousPage(pathname, searchParams, false)
+    : undefined;
+  const nextPageHref = hasNextPage
+    ? getUrlToNextOrPreviousPage(pathname, searchParams, true)
+    : undefined;
+  const lastPageHref = hasNextPage
+    ? getLastPageHref(pathname, searchParams, numberOfPages)
+    : undefined;
+
+  function handlePageChange(
+    event: React.MouseEvent<HTMLAnchorElement>,
+    pageNumber: number,
+  ) {
+    if (!onPageChange || pageNumber < 0 || pageNumber > numberOfPages) {
+      return;
+    }
+
+    event.preventDefault();
+    onPageChange(pageNumber);
+  }
 
   return (
     <div className="p-6 border-t border-neutral-100 mb-14 md:mb-0">
@@ -42,11 +68,8 @@ export function LocationsContainerPager({
             className={`text-dark inline-flex space-x-1 disabled:text-muted ${
               !hasPreviousPage ? "text-muted cursor-not-allowed" : ""
             }`}
-            href={
-              hasPreviousPage
-                ? getFirstPageHref(pathname, searchParams)
-                : undefined
-            }
+            href={firstPageHref}
+            onClick={(event) => handlePageChange(event, 0)}
           >
             <ChevronsLeft className="w-6 h-6" />
           </a>
@@ -55,11 +78,8 @@ export function LocationsContainerPager({
             className={`text-dark inline-flex space-x-1 disabled:text-muted ${
               !hasPreviousPage ? "text-muted cursor-not-allowed" : ""
             }`}
-            href={
-              hasPreviousPage
-                ? getUrlToNextOrPreviousPage(pathname, searchParams, false)
-                : undefined
-            }
+            href={previousPageHref}
+            onClick={(event) => handlePageChange(event, currentPage - 1)}
           >
             <ChevronLeft className="w-6 h-6" />
             <TranslatableText text="Previous" />
@@ -77,11 +97,8 @@ export function LocationsContainerPager({
             className={`inline-flex space-x-1 disabled:text-muted ${
               hasNextPage ? "text-dark" : "text-muted cursor-not-allowed"
             }`}
-            href={
-              hasNextPage
-                ? getUrlToNextOrPreviousPage(pathname, searchParams, true)
-                : undefined
-            }
+            href={nextPageHref}
+            onClick={(event) => handlePageChange(event, currentPage + 1)}
           >
             <TranslatableText text="Next" />
             <ChevronRight className="w-6 h-6" />
@@ -91,11 +108,8 @@ export function LocationsContainerPager({
             className={`inline-flex space-x-1 disabled:text-muted ${
               hasNextPage ? "text-dark" : "text-muted cursor-not-allowed"
             }`}
-            href={
-              hasNextPage
-                ? getLastPageHref(pathname, searchParams, numberOfPages)
-                : undefined
-            }
+            href={lastPageHref}
+            onClick={(event) => handlePageChange(event, numberOfPages)}
           >
             <ChevronsRight className="w-6 h-6" />
           </a>
