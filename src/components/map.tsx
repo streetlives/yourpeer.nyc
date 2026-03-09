@@ -241,9 +241,10 @@ function MapWrapper({
       // then by default route to nearby
       const sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
       const searchText = searchParams?.get(SEARCH_PARAM);
+      const currentPathname = window.location.pathname;
       if (
         shouldAutoRedirectToNearby({
-          pathname,
+          pathname: currentPathname,
           sortBy,
           searchText,
           isLocationDetail: !!locationDetailStub,
@@ -251,7 +252,7 @@ function MapWrapper({
       ) {
         router.push(
           getUrlWithNewFilterParameter(
-            pathname,
+            currentPathname,
             searchParams,
             SORT_BY_QUERY_PARAM,
             NEARBY_SORT_BY_VALUE,
