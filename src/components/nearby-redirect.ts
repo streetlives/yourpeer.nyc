@@ -25,15 +25,22 @@ function removeKnownPrefix(pathname: string): string {
     "",
   );
 
-  if (nextPublicBasePath && segments[0] === nextPublicBasePath) {
-    return `/${segments.slice(1).join("/") || ""}` || "/";
+  let didRemovePrefix = true;
+  while (segments.length && didRemovePrefix) {
+    didRemovePrefix = false;
+
+    if (nextPublicBasePath && segments[0] === nextPublicBasePath) {
+      segments.shift();
+      didRemovePrefix = true;
+    }
+
+    if (segments.length && isLocaleSegment(segments[0])) {
+      segments.shift();
+      didRemovePrefix = true;
+    }
   }
 
-  if (isLocaleSegment(segments[0])) {
-    return `/${segments.slice(1).join("/") || ""}` || "/";
-  }
-
-  return normalizedPath;
+  return `/${segments.join("/") || ""}` || "/";
 }
 
 export function shouldRedirectToNearbyPath(pathname: string | null): boolean {

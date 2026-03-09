@@ -63,6 +63,25 @@ test("shouldRedirectToNearbyPath allows basePath-prefixed index routes", () => {
   }
 });
 
+test("shouldRedirectToNearbyPath allows basePath and locale prefixed index routes", () => {
+  const previous = process.env.NEXT_PUBLIC_BASE_PATH;
+  process.env.NEXT_PUBLIC_BASE_PATH = "app";
+
+  assert.equal(shouldRedirectToNearbyPath("/app/en/locations"), true);
+  assert.equal(shouldRedirectToNearbyPath("/app/en-US/food/"), true);
+  assert.equal(shouldRedirectToNearbyPath("/app/es/mental-health"), true);
+  assert.equal(
+    shouldRedirectToNearbyPath("/app/en/locations/roman-catholic-archdiocese"),
+    false,
+  );
+
+  if (previous === undefined) {
+    delete process.env.NEXT_PUBLIC_BASE_PATH;
+  } else {
+    process.env.NEXT_PUBLIC_BASE_PATH = previous;
+  }
+});
+
 test("shouldAutoRedirectToNearby enforces all redirect guards", () => {
   assert.equal(
     shouldAutoRedirectToNearby({
