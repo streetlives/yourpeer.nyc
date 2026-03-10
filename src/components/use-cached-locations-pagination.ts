@@ -8,22 +8,20 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import {
-  PAGE_PARAM,
-  SearchParams,
-  YourPeerLegacyLocationData,
-  parsePageParam,
-} from "./common";
+import { SearchParams, YourPeerLegacyLocationData } from "./common";
 import {
   BACKGROUND_PAGE_SIZE,
   CachedLocationsDataset,
   BackgroundLocationsResponse,
-  DISPLAY_PAGES_PER_BACKGROUND_PAGE,
+  MAX_SUPPORTED_BACKGROUND_PAGE_COUNT,
   MAX_PARALLEL_BACKGROUND_REQUESTS,
   applyPaginationNavigation,
+  canServeDisplayPageLocally,
+  getBackgroundPageNumberForDisplayPage,
+  getPaginationPageFromSearch,
+  getPaginationUrl,
   getSearchParamEntries,
-  getTotalBackgroundPages,
+  getSupportedBackgroundPageCount,
   getVisibleLocationsForPage,
   mergeBackgroundPage,
 } from "./locations-pagination-cache";
@@ -82,8 +80,8 @@ export function useCachedLocationsPagination({
   resultCount,
   numberOfPages,
 }: UseCachedLocationsPaginationArgs) {
-  const liveSearchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [lastResolvedPage, setLastResolvedPage] = useState(initialPage);
 
   const serializedSearchParams = useMemo(
@@ -123,8 +121,20 @@ export function useCachedLocationsPagination({
   });
 
   useEffect(() => {
+    setCurrentPage(initialPage);
     setLastResolvedPage(initialPage);
   }, [initialPage, queryKey]);
+
+  useEffect(() => {
+    function handlePopState() {
+      setCurrentPage(getPaginationPageFromSearch(window.location.search));
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   useEffect(() => {
     queryClient.setQueryData<CachedLocationsDataset>(queryKey, (previous) => {
@@ -151,6 +161,10 @@ export function useCachedLocationsPagination({
 
   const ensureBackgroundPage = useCallback(
     async (pageNumber: number) => {
+      if (pageNumber < 0 || pageNumber >= MAX_SUPPORTED_BACKGROUND_PAGE_COUNT) {
+        return;
+      }
+
       let shouldFetch = false;
 
       queryClient.setQueryData<CachedLocationsDataset>(queryKey, (previous) => {
@@ -211,7 +225,6 @@ export function useCachedLocationsPagination({
     ],
   );
 
-  const currentPage = parsePageParam(liveSearchParams?.get(PAGE_PARAM));
   const currentPageLocations = cachedDataset.pages[currentPage];
 
   useEffect(() => {
@@ -220,9 +233,12 @@ export function useCachedLocationsPagination({
       return;
     }
 
-    const backgroundPageNumber = Math.floor(
-      currentPage / DISPLAY_PAGES_PER_BACKGROUND_PAGE,
-    );
+    const backgroundPageNumber =
+      getBackgroundPageNumberForDisplayPage(currentPage);
+    if (backgroundPageNumber === null) {
+      return;
+    }
+
     void ensureBackgroundPage(backgroundPageNumber);
   }, [currentPage, currentPageLocations, ensureBackgroundPage]);
 
@@ -231,7 +247,7 @@ export function useCachedLocationsPagination({
       return;
     }
 
-    const totalBackgroundPages = getTotalBackgroundPages(
+    const totalBackgroundPages = getSupportedBackgroundPageCount(
       cachedDataset.numberOfPages,
     );
     const missingBackgroundPages = Array.from(
@@ -290,17 +306,31 @@ export function useCachedLocationsPagination({
 
   const navigateToPage = useCallback(
     (pageNumber: number) => {
+      const currentSearchParams = new URLSearchParams(window.location.search);
+
+      if (!canServeDisplayPageLocally(cachedDataset.pages, pageNumber)) {
+        window.location.assign(
+          getPaginationUrl({
+            pathname: window.location.pathname,
+            searchParams: currentSearchParams.entries(),
+            pageNumber,
+          }),
+        );
+        return;
+      }
+
       applyPaginationNavigation({
         pathname: window.location.pathname,
-        searchParams: liveSearchParams ? liveSearchParams.entries() : [],
+        searchParams: currentSearchParams.entries(),
         pageNumber,
         pushState: (nextUrl) => {
           window.history.pushState(null, "", nextUrl);
         },
         locationsContainer: document.getElementById("locations_container"),
       });
+      setCurrentPage(pageNumber);
     },
-    [liveSearchParams],
+    [cachedDataset.pages],
   );
 
   return {

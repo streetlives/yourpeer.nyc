@@ -8,9 +8,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import type { YourPeerLegacyLocationData } from "./common";
 import {
+  canServeDisplayPageLocally,
+  getBackgroundPageNumberForDisplayPage,
   getDisplayNumberOfPages,
+  getSupportedBackgroundPageCount,
   getTotalBackgroundPages,
   getVisibleLocationsForPage,
+  MAX_SUPPORTED_BACKGROUND_PAGE_COUNT,
   mergeBackgroundPage,
   splitLocationsIntoDisplayPages,
 } from "./locations-pagination-cache";
@@ -100,6 +104,28 @@ test("getTotalBackgroundPages converts display-page bounds to background chunks"
   assert.equal(getTotalBackgroundPages(9), 1);
   assert.equal(getTotalBackgroundPages(10), 2);
   assert.equal(getTotalBackgroundPages(61), 7);
+});
+
+test("getSupportedBackgroundPageCount caps background prefetch at the API limit", () => {
+  assert.equal(getSupportedBackgroundPageCount(61), 7);
+  assert.equal(
+    getSupportedBackgroundPageCount(5000),
+    MAX_SUPPORTED_BACKGROUND_PAGE_COUNT,
+  );
+});
+
+test("getBackgroundPageNumberForDisplayPage rejects unsupported display pages", () => {
+  assert.equal(getBackgroundPageNumberForDisplayPage(0), 0);
+  assert.equal(getBackgroundPageNumberForDisplayPage(1009), 100);
+  assert.equal(getBackgroundPageNumberForDisplayPage(1010), null);
+});
+
+test("canServeDisplayPageLocally falls back once a page exceeds the cacheable range", () => {
+  assert.equal(canServeDisplayPageLocally({}, 1010), false);
+  assert.equal(
+    canServeDisplayPageLocally({ 1010: createLocations(1) }, 1010),
+    true,
+  );
 });
 
 test("getVisibleLocationsForPage falls back to the last resolved page while loading", () => {

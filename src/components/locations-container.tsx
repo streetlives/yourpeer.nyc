@@ -342,6 +342,7 @@ export default function LocationsContainer({
               </ul>
             </div>
             <LocationsContainerPager
+              searchParams={searchParams}
               numberOfPages={cachedNumberOfPages}
               currentPage={currentPage}
               onPageChange={navigateToPage}

@@ -8,6 +8,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   applyPaginationNavigation,
+  getPaginationPageFromSearch,
   getPaginationUrl,
 } from "./locations-pagination-cache";
 
@@ -50,4 +51,35 @@ test("applyPaginationNavigation pushes the new URL and resets the list scroll po
   assert.equal(nextUrl, "/locations?sortBy=nearby&page=8");
   assert.deepEqual(pushedUrls, ["/locations?sortBy=nearby&page=8"]);
   assert.equal(locationsContainer.scrollTop, 0);
+});
+
+test("pagination URLs round-trip into page state for back and forward navigation", () => {
+  const forwardUrl = getPaginationUrl({
+    pathname: "/locations",
+    searchParams: new URLSearchParams("search=&sortBy=nearby").entries(),
+    pageNumber: 7,
+  });
+
+  assert.equal(
+    getPaginationPageFromSearch(
+      new URL(forwardUrl, "https://yourpeer.nyc").search,
+    ),
+    7,
+  );
+
+  const backwardUrl = getPaginationUrl({
+    pathname: "/locations",
+    searchParams: new URL(
+      forwardUrl,
+      "https://yourpeer.nyc",
+    ).searchParams.entries(),
+    pageNumber: 0,
+  });
+
+  assert.equal(
+    getPaginationPageFromSearch(
+      new URL(backwardUrl, "https://yourpeer.nyc").search,
+    ),
+    0,
+  );
 });

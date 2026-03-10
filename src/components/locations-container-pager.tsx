@@ -6,12 +6,12 @@
 
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { SearchParams } from "./common";
 import {
-  getFirstPageHref,
-  getLastPageHref,
-  getUrlToNextOrPreviousPage,
-} from "./navigation";
+  getPaginationUrl,
+  getSearchParamEntries,
+} from "./locations-pagination-cache";
 import { TranslatableText } from "./translatable-text";
 import {
   ChevronLeft,
@@ -22,30 +22,51 @@ import {
 import React from "react";
 
 export function LocationsContainerPager({
+  searchParams,
   numberOfPages,
   currentPage,
   onPageChange,
 }: {
+  searchParams: SearchParams;
   numberOfPages: number;
   currentPage: number;
   onPageChange?: (pageNumber: number) => void;
 }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const baseSearchParams = React.useMemo(
+    () => getSearchParamEntries(searchParams),
+    [searchParams],
+  );
   const hasPreviousPage = currentPage > 0;
   const hasNextPage = currentPage < numberOfPages;
 
   const firstPageHref = hasPreviousPage
-    ? getFirstPageHref(pathname, searchParams)
+    ? getPaginationUrl({
+        pathname,
+        searchParams: baseSearchParams,
+        pageNumber: 0,
+      })
     : undefined;
   const previousPageHref = hasPreviousPage
-    ? getUrlToNextOrPreviousPage(pathname, searchParams, false)
+    ? getPaginationUrl({
+        pathname,
+        searchParams: baseSearchParams,
+        pageNumber: currentPage - 1,
+      })
     : undefined;
   const nextPageHref = hasNextPage
-    ? getUrlToNextOrPreviousPage(pathname, searchParams, true)
+    ? getPaginationUrl({
+        pathname,
+        searchParams: baseSearchParams,
+        pageNumber: currentPage + 1,
+      })
     : undefined;
   const lastPageHref = hasNextPage
-    ? getLastPageHref(pathname, searchParams, numberOfPages)
+    ? getPaginationUrl({
+        pathname,
+        searchParams: baseSearchParams,
+        pageNumber: numberOfPages,
+      })
     : undefined;
 
   function handlePageChange(
