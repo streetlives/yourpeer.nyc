@@ -418,6 +418,37 @@ function filter_services_by_name(
   return { services };
 }
 
+function getLocationEventInfos(d: FullLocationData | LocationDetailData) {
+  return Array.isArray(d.EventRelatedInfos) ? d.EventRelatedInfos : [];
+}
+
+function getLocationInfoMessages(d: FullLocationData | LocationDetailData) {
+  return Array.from(
+    new Set(
+      getLocationEventInfos(d)
+        .map((info) =>
+          typeof info?.information === "string" ? info.information.trim() : "",
+        )
+        .filter((information) => information.length > 0),
+    ),
+  );
+}
+
+function hasLocationClosureNote(d: FullLocationData | LocationDetailData) {
+  return getLocationEventInfos(d).some((info) => {
+    const event = String(info?.event || "").toUpperCase();
+    const information =
+      typeof info?.information === "string" ? info.information.trim() : "";
+    return event === "COVID19" && information.length > 0;
+  });
+}
+
+function isLocationClosed(
+  d: FullLocationData | LocationDetailData,
+): boolean {
+  return d.closed === true || hasLocationClosureNote(d);
+}
+
 export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
@@ -444,6 +475,7 @@ export function map_gogetta_to_yourpeer(
     state = address.state_province;
   }
   const updated_at = d["last_validated_at"];
+  const locationInfoMessages = getLocationInfoMessages(d);
   return {
     id: d.id,
     email: d.Organization.email,
@@ -457,7 +489,7 @@ export function map_gogetta_to_yourpeer(
     lat: d["position"]["coordinates"][1],
     lng: d["position"]["coordinates"][0],
     area: neighborhood,
-    info: d.EventRelatedInfos.map((info) => info.information),
+    info: locationInfoMessages,
     slug: `/locations/${d["slug"]}`,
     last_updated: moment(updated_at).fromNow(),
     last_updated_date: updated_at,
@@ -536,7 +568,7 @@ export function map_gogetta_to_yourpeer(
         ).length;
       }),
     },
-    closed: d["closed"],
+    closed: isLocationClosed(d),
   };
 }
 

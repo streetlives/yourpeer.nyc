@@ -1,7 +1,7 @@
 import { Marker } from "@vis.gl/react-google-maps";
 import { SimplifiedLocationData } from "./common";
 import { useRouter } from "next/navigation";
-import { activeMarkerIcon } from "./map-common";
+import { activeMarkerIcon, closedMarker } from "./map-common";
 
 export default function LocationStubMarker({
   locationStub,
@@ -29,10 +29,7 @@ export default function LocationStubMarker({
       title={locationStub.name}
       icon={
         locationStub.closed
-          ? {
-              url: "/img/icons/closed-pin.png",
-              scaledSize: new window.google.maps.Size(25, 32),
-            }
+          ? closedMarker
           : locationSlugClickedOnMobile === locationStub.slug
             ? activeMarkerIcon
             : {
