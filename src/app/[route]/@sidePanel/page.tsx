@@ -31,13 +31,13 @@ export default async function SidePanelPage(props: {
     return notFound();
   }
 
-  try {
-    redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
-      searchParams,
-      params,
-      cookies: await cookies(),
-    });
+  redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
+    searchParams,
+    params,
+    cookies: await cookies(),
+  });
 
+  try {
     return (
       <SidePanelComponent
         searchParams={searchParams}

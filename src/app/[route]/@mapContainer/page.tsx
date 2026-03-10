@@ -28,13 +28,13 @@ export default async function MapContainerPage(props: {
     return notFound();
   }
 
-  try {
-    redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
-      searchParams,
-      params,
-      cookies: await cookies(),
-    });
+  redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
+    searchParams,
+    params,
+    cookies: await cookies(),
+  });
 
+  try {
     return (
       <LocationsMap
         locationStubs={await getMapContainerData({

@@ -36,14 +36,15 @@ export default async function LocationDetail(props: {
   const params = await props.params;
 
   if (!isOnLocationDetailPage(params)) {
+    redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
+      searchParams,
+      params,
+      cookies: await cookies(),
+    });
+
     try {
       // validate
       getParsedSubCategory(params);
-      redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
-        searchParams,
-        params,
-        cookies: await cookies(),
-      });
       return (
         <SidePanelComponent
           searchParams={searchParams}
