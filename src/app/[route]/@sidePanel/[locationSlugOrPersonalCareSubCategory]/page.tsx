@@ -18,6 +18,7 @@ import {
 } from "../../../../components/common";
 import LocationDetailComponent from "../../../../components/location-detail-component";
 import { SidePanelComponent } from "../../../../components/side-panel-component";
+import SidePanelErrorState from "../../../../components/side-panel-error-state";
 import {
   Error404Response,
   fetchComments,
@@ -34,8 +35,8 @@ export default async function LocationDetail(props: {
   const searchParams = await props.searchParams;
   const params = await props.params;
 
-  try {
-    if (!isOnLocationDetailPage(params)) {
+  if (!isOnLocationDetailPage(params)) {
+    try {
       // validate
       getParsedSubCategory(params);
       redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
@@ -53,28 +54,36 @@ export default async function LocationDetail(props: {
           })}
         />
       );
-    } else {
-      const location = map_gogetta_to_yourpeer(
-        await fetchLocationsDetailData(
-          params.locationSlugOrPersonalCareSubCategory,
-        ),
-        true,
-      );
-      const comments = await fetchComments(location.id);
+    } catch (e) {
+      if (e instanceof Error404Response) {
+        return notFound();
+      }
 
-      return (
-        <LocationDetailComponent
-          location={location}
-          slug={params.locationSlugOrPersonalCareSubCategory}
-          comments={comments}
-        />
-      );
+      return <SidePanelErrorState />;
     }
+  }
+
+  try {
+    const location = map_gogetta_to_yourpeer(
+      await fetchLocationsDetailData(
+        params.locationSlugOrPersonalCareSubCategory,
+      ),
+      true,
+    );
+    const comments = await fetchComments(location.id);
+
+    return (
+      <LocationDetailComponent
+        location={location}
+        slug={params.locationSlugOrPersonalCareSubCategory}
+        comments={comments}
+      />
+    );
   } catch (e) {
     if (e instanceof Error404Response) {
       return notFound();
-    } else {
-      throw e; // rethrow the error to force a 500 response
     }
+
+    return <SidePanelErrorState />;
   }
 }
