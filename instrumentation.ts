@@ -1,7 +1,9 @@
 import { ProxyAgent, setGlobalDispatcher } from "undici";
 
 function getProxyUrl(): string | undefined {
-  return process.env.PROXIMO_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  return (
+    process.env.PROXIMO_URL || process.env.HTTPS_PROXY || process.env.HTTP_PROXY
+  );
 }
 
 export async function register() {
