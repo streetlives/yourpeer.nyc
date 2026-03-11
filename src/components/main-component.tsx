@@ -1,13 +1,12 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { LOCATION_ROUTE } from "./common";
-import { Suspense } from "react";
-import classNames from "classnames";
-import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
-import { MapLoadingAnimation } from "./map-loading-animation";
-import FiltersPopup from "./filters-popup";
 import { useViewStore } from "@/lib/store";
+import classNames from "classnames";
+import { usePathname } from "next/navigation";
+import { Suspense } from "react";
+import { LOCATION_ROUTE } from "./common";
+import FiltersPopup from "./filters-popup";
+import { MapLoadingAnimation } from "./map-loading-animation";
 
 export function MainComponent({
   mapContainer,
@@ -45,7 +44,7 @@ export function MainComponent({
         id="left_panel"
       >
         <FiltersPopup />
-        <Suspense fallback={<SidebarLoadingAnimation />}>{sidePanel}</Suspense>
+        {sidePanel}
       </div>
       <div
         id="map_container"

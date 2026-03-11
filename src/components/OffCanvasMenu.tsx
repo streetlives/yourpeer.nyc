@@ -80,9 +80,9 @@ const links = {
 
 type CategoryHasSubmenu = keyof typeof links;
 
-const slideLeftVariants: Variants = {
+const slideLeftVariants = (reverse: boolean = false): Variants => ({
   hidden: {
-    x: "100%", // off-screen right
+    x: reverse ? "-100%" : "100%", // off-screen right
     opacity: 0,
     pointerEvents: "none",
   },
@@ -94,7 +94,7 @@ const slideLeftVariants: Variants = {
       type: "tween",
     },
   },
-};
+});
 
 const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   const [nestedNav, setNestedNav] = useState(false);
@@ -131,23 +131,19 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
   return (
     <AnimatePresence>
       <>
-        {/* backdrop - keep in DOM for SEO, but hide/interact when closed */}
         <motion.div
           className="fixed inset-0 z-40 bg-black/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: open ? 1 : 0 }}
           exit={{ opacity: 0 }}
-          // when closed, prevent pointer events so it doesn't block the page
           style={{ pointerEvents: open ? undefined : "none" }}
           onClick={() => onClose()}
         />
-        {/* panel - keep in DOM for SEO, visually offscreen when closed */}
         <motion.aside
           className="fixed left-0 top-0 bottom-0 z-[1000] w-full sm:w-80 bg-amber-300 shadow-xl p-4 flex flex-col overflow-hidden"
-          initial={{ x: "-100%" }}
-          animate={{ x: open ? 0 : "-100%" }}
-          exit={{ x: "-100%" }}
-          transition={{ type: "tween", duration: 0.3 }}
+          variants={slideLeftVariants(true)}
+          initial="hidden"
+          animate={open ? "visible" : "hidden"}
           aria-hidden={!open}
         >
           <div className="px-5 py-5 h-16">
@@ -218,14 +214,14 @@ const OffCanvasMenu = ({ open, onClose }: OffCanvasMenuProps) => {
           <div className="relative mt-6 flex-1 px-4 sm:px-6 flex flex-col">
             <div className="flex-1 relative">
               <motion.div
-                variants={slideLeftVariants}
+                variants={slideLeftVariants()}
                 initial="hidden"
                 animate={nestedNav ? "visible" : "hidden"}
               >
                 <motion.div
                   className={`flex  pt-16 flex-col items-center sm:items-start space-y-6 bg-amber-300 absolute inset-x-0 inset-y-0`}
                   id="servicesNav"
-                  variants={slideLeftVariants}
+                  variants={slideLeftVariants()}
                   initial="hidden"
                   animate={subCategoryMenu ? "visible" : "hidden"}
                 >

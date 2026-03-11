@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { SidePanelComponentData } from "./get-side-panel-component-data";
 import { useFilters } from "@/lib/store";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
+import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
 
 export function SidePanelComponent({
   searchParams,
@@ -38,6 +39,12 @@ export function SidePanelComponent({
   const updateResultsCount = useFilters((state) => state.updateResultCount);
   const setLoading = useFilters((state) => state.setLoading);
   const isLoading = useFilters((state) => state.isLoading);
+  const setDetailPanelLoading = useFilters(
+    (state) => state.setDetailPanelLoading,
+  );
+  const isDetailPanelLoading = useFilters(
+    (state) => state.isDetailPanelLoading,
+  );
 
   useEffect(() => {
     updateResultsCount(resultCount);
@@ -60,6 +67,11 @@ export function SidePanelComponent({
         {isLoading ? (
           <div className="absolute inset-0 z-20 overflow-y-auto bg-white">
             <SidebarLoadingAnimation />
+          </div>
+        ) : undefined}
+        {isDetailPanelLoading ? (
+          <div className="absolute inset-0 z-20 overflow-y-auto bg-white">
+            <LocationDetailLoadingPanel />
           </div>
         ) : undefined}
         <FiltersHeader

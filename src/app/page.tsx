@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
 import Image from "next/image";
+import ExploreServicesButton from "@/components/ExploreServicesButton";
 
 export const metadata: Metadata = {
   title: "New York City Services & Resources For Unhoused People | YourPeer",
@@ -93,9 +94,7 @@ export default async function HomePage() {
             ></TranslatableText>
           </p>
           <div className="w-full max-w-sm mx-auto flex justify-center">
-            <Link href="/locations" className="primary-button ">
-              <TranslatableText text="Explore services" />
-            </Link>
+            <ExploreServicesButton className="primary-button" />
           </div>
         </div>
       </div>
@@ -216,14 +215,14 @@ export default async function HomePage() {
       <section className="py-12 bg-white">
         <div className="mx-auto max-w-5xl px-5">
           <h2 className="text-center text-3xl text-gray-700 font-bold mb-9">
-            <TranslatableText text="Our Partners" />
+            <TranslatableText text="Our Partners and Collaborators" />
           </h2>
           <div className="w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 justify-center place-content-center items-center gap-x-3">
             <div className="flex items-center justify-center">
               <Image
                 className="object-cover object-center w-24 sm:w-36 flex-shrink-0"
-                src="/img/partners/logo-1-updated.avif"
-                width={96}
+                src="/img/partners/nyc-fund-logo.avif"
+                width={144}
                 height={144}
                 alt="Logo"
               />
@@ -338,8 +337,8 @@ export default async function HomePage() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners/logo-9.avif"
+                className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                src="/img/partners/housing-works.avif"
                 width={96}
                 height={144}
                 alt="Logo"
@@ -363,10 +362,11 @@ export default async function HomePage() {
                 alt="Logo"
               />
             </div>
+
             <div className="flex items-center justify-center">
               <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners/logo-new-13.avif"
+                src="/img/partners/start-care.png"
                 width={96}
                 height={144}
                 alt="Logo"
@@ -451,9 +451,9 @@ export default async function HomePage() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners/logo-13.avif"
-                width={96}
+                className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                src="/img/partners/nyc-continuum-coc-of-care.avif"
+                width={144}
                 height={144}
                 alt="Logo"
               />
@@ -497,6 +497,24 @@ export default async function HomePage() {
             <div className="flex items-center justify-center">
               <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                src="/img/partners/logo-new-13.avif"
+                width={96}
+                height={144}
+                alt="Logo"
+              />
+            </div>
+            <div className="flex items-center justify-center">
+              <Image
+                className="object-cover object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
+                src="/img/partners/logo-9.avif"
+                width={96}
+                height={144}
+                alt="Logo"
+              />
+            </div>
+            <div className="flex items-center justify-center">
+              <Image
+                className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
                 src="/img/partners/logo-new-18.avif"
                 width={96}
                 height={144}
@@ -506,8 +524,8 @@ export default async function HomePage() {
             <div className="flex items-center justify-center">
               <Image
                 className="object-contain object-center w-24 sm:w-36 h-24 sm:h-36 flex-shrink-0"
-                src="/img/partners-logo/covenant-house.png"
-                width={96}
+                src="/img/partners/convenant-house.avif"
+                width={144}
                 height={144}
                 alt="Logo"
               />
@@ -556,9 +574,7 @@ export default async function HomePage() {
               <TranslatableText text="People rely on social services for many reasons. We’re building YourPeer so it's easier for you to find the right service." />
             </p>
             <div>
-              <Link href="/locations" className="primary-button">
-                <TranslatableText text="Explore services" />
-              </Link>
+              <ExploreServicesButton className="primary-button" />
             </div>
           </div>
         </div>
