@@ -18,6 +18,7 @@ import LocationDetailNavigation from "@/components/location-detail/location-deta
 import LocationServices from "@/components/location-detail/location-services";
 import StreetView from "@/components/location-detail/street-view";
 import { Button } from "@/components/ui/button";
+import { useReply } from "@/context/ReplyContext";
 import { useFilters } from "@/lib/store";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
@@ -36,14 +37,6 @@ import LocationDetailLoadingPanel from "./location-detail/location-detail-loadin
 import { ReportIssueForm } from "./report-issue";
 import { SidebarLoadingAnimation } from "./sidebar-loading-animation";
 import { usePreviousRoute } from "./use-previous-route";
-import { useRouter } from "next/navigation";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { Button } from "@/components/ui/button";
-import { EditIcon } from "@/components/icons/edit-icon";
-import ReviewListItem from "@/components/feedback/review-list-item";
-import { Authenticator } from "@aws-amplify/ui-react";
-import { useReply } from "@/context/ReplyContext";
-import DonationBanner from "./donation-banner";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
