@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 
 type ErrorPageProps = {
@@ -10,10 +8,6 @@ type ErrorPageProps = {
 };
 
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
-  useEffect(() => {
-    console.error("Unhandled error:", error);
-  }, [error]);
-
   return (
     <div className="min-h-[70vh] w-full px-6 py-16 flex items-center justify-center">
       <div className="mx-auto flex items-center justify-center w-full max-w-xl flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm">
