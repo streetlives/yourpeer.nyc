@@ -549,6 +549,7 @@ export default async function HomePage() {
             <TranslatableText text="For more information, visit" />{" "}
             <a
               href="https://www.nycfoodpolicy.org/food/"
+              rel="noopener noreferrer"
               className="text-blue-700 underline hover:no-underline"
               target="_blank"
             >
