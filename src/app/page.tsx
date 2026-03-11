@@ -550,6 +550,7 @@ export default async function HomePage() {
             <a
               href="https://www.nycfoodpolicy.org/food/"
               className="text-blue-700 underline hover:no-underline"
+              target="_blank"
             >
               www.nycfoodpolicy.org/food
             </a>
