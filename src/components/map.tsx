@@ -301,7 +301,7 @@ function MapWrapper({
             ),
           }))
           .sort((a, b) => a.distanceMiles - b.distanceMiles);
-      const closest25Locations = simplifiedLocationDataWithDistance.slice(
+      const closestLocations = simplifiedLocationDataWithDistance.slice(
         0,
         Math.min(
           simplifiedLocationDataWithDistance.length,
@@ -311,24 +311,26 @@ function MapWrapper({
 
       if (googleMap) {
         var bounds = new google.maps.LatLngBounds();
-        closest25Locations.forEach(function (loc) {
-          var latLng = new google.maps.LatLng(
-            loc.position.coordinates[1],
-            loc.position.coordinates[0],
-          );
-          bounds.extend(latLng);
+        closestLocations.forEach(function (loc) {
+          bounds.extend({
+            lat: loc.position.coordinates[1],
+            lng: loc.position.coordinates[0],
+          });
         });
-        // make sure user position is shown on the map if he is within 26 miles of central park, otherwise ignore him
-        bounds.extend(
-          new google.maps.LatLng(
-            normalizedUserPosition.lat,
-            normalizedUserPosition.lng,
-          ),
-        );
-        googleMap.fitBounds(bounds);
+        bounds.extend({
+          lat: normalizedUserPosition.lat,
+          lng: normalizedUserPosition.lng,
+        });
+        googleMap.fitBounds(bounds, 2);
       }
     }
-  }, [userPosition, locationStubs, googleMap, showMapViewOnMobile]);
+  }, [
+    userPosition,
+    locationStubs,
+    googleMap,
+    showMapViewOnMobile,
+    normalizedLocationDetailStub,
+  ]);
 
   return (
     <>
