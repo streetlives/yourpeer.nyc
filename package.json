@@ -11,7 +11,8 @@
     "format": "prettier . --write",
     "check-format": "prettier --check .",
     "all-checks": "npm run check-format && npm run check-types && npm run lint",
-    "check-translations": "tsx scripts/check-translations.ts"
+    "check-translations": "tsx scripts/check-translations.ts",
+    "test": "npx playwright test"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
