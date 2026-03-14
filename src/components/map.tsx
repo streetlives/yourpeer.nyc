@@ -36,7 +36,7 @@ import {
 import { useFilters, useViewStore } from "@/lib/store";
 
 function isMobile(): boolean {
-  return window.innerWidth <= 768;
+  return window.innerWidth < 768;
 }
 
 const MAX_NUM_LOCATIONS_TO_INCLUDE_IN_BOUNDS = 20;
@@ -336,6 +336,7 @@ function MapWrapper({
     <>
       <Map
         defaultZoom={zoom}
+        minZoom={11}
         gestureHandling={"greedy"}
         streetViewControl={false}
         mapTypeControl={false}
