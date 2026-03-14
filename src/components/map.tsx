@@ -6,13 +6,16 @@
 
 "use client";
 
+import { useFilters, useViewStore } from "@/lib/store";
 import {
   APIProvider,
   Map,
-  MapCameraChangedEvent,
   Marker,
-  useMap,
+  useMap
 } from "@vis.gl/react-google-maps";
+import { useCookies } from "next-client-cookies";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 import {
   LOCATION_ROUTE,
   NEARBY_SORT_BY_VALUE,
@@ -21,19 +24,14 @@ import {
   SimplifiedLocationData,
   SORT_BY_QUERY_PARAM,
 } from "./common";
-import { useCallback, useContext, useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
-import LocationStubMarker from "./location-stub-marker";
-import { MobileTray } from "./mobile-tray";
-import { useCookies } from "next-client-cookies";
-import { getUrlWithNewFilterParameter } from "./navigation";
-import { useSearchParams } from "next/navigation";
 import {
   GeoCoordinatesContext,
   GeoCoordinatesContextType,
 } from "./geo-context";
-import { useFilters, useViewStore } from "@/lib/store";
+import LocationStubMarker from "./location-stub-marker";
+import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
+import { MobileTray } from "./mobile-tray";
+import { getUrlWithNewFilterParameter } from "./navigation";
 
 function isMobile(): boolean {
   return window.innerWidth < 768;
@@ -200,34 +198,6 @@ function MapWrapper({
     }
   }
 
-  const handleCameraChange = useCallback(
-    (ev: MapCameraChangedEvent) => {
-      const googleMapDiv = ev.map.getDiv();
-
-      // if google map is already hidden, then ignore the event, because we get a weird zoom
-      if (
-        !googleMapDiv ||
-        (googleMapDiv.clientHeight === 0 && googleMapDiv.clientWidth === 0)
-      )
-        return;
-
-      const newCenter = ev.detail.center;
-      if (
-        newCenter.lat !== 0 &&
-        newCenter.lng !== 0 &&
-        (mapCenter.lat !== newCenter.lat || mapCenter.lng !== newCenter.lng)
-      ) {
-        setMapCenter(newCenter);
-      }
-
-      const newZoom = ev.detail.zoom;
-      if (newZoom && newZoom !== zoom) {
-        setZoom(newZoom);
-      }
-    },
-    [mapCenter, setMapCenter, zoom, setZoom],
-  );
-
   const { showMapViewOnMobile } = useViewStore();
 
   useEffect(() => {
@@ -341,8 +311,7 @@ function MapWrapper({
         streetViewControl={false}
         mapTypeControl={false}
         fullscreenControl={false}
-        center={mapCenter}
-        onCameraChanged={handleCameraChange}
+        defaultCenter={mapCenter}
         styles={mapStyles}
       >
         <span>
