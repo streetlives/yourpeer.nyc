@@ -18,6 +18,8 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
+        env:
+          NEXT_PUBLIC_GO_GETTA_PROD_URL: ${{ vars.NEXT_PUBLIC_GO_GETTA_PROD_URL || secrets.NEXT_PUBLIC_GO_GETTA_PROD_URL }}
         run: npx playwright test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

@@ -8,9 +8,9 @@ test("should navigate to the locations page after clicking 'Explore Services'", 
   await page.getByRole("link", { name: "Explore Services" }).first().click();
 
   await test.expect(page).toHaveURL("/locations");
-  // await test
-  //   .expect(page.getByRole("heading", { name: "All service locations" }))
-  //   .toBeVisible();
+  await test
+    .expect(page.getByRole("heading", { name: "All service locations" }))
+    .toBeVisible();
 });
 
 test("should navigate to home page after clicking the logo", async ({
