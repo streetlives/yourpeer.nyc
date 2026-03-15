@@ -48,7 +48,7 @@ export default function GlobalError({
           >
             Try again
           </button>
-          <Link href="/" style={{ color: "#3B82F6" }}>
+          <Link href="/" style={{ color: "#0c1117" }}>
             Go to Home
           </Link>
         </div>
