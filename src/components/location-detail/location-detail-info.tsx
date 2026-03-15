@@ -62,7 +62,7 @@ export default function LocationDetailInfo({
               {location.info?.map((info) => (
                 <p
                   key={info}
-                  className="text-dark font-normal have-links text-sm"
+                  className="text-dark font-normal prose prose-a:text-blue text-sm"
                   dangerouslySetInnerHTML={{
                     __html: info,
                   }}

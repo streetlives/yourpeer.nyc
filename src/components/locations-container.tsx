@@ -275,7 +275,7 @@ export default function LocationsContainer({
                           </p>
                           {location.info ? (
                             <p
-                              className="text-dark font-normal text-sm have-links"
+                              className="text-dark font-normal text-sm prose prose-a:text-blue"
                               dangerouslySetInnerHTML={{
                                 __html: location.info[0],
                               }}
