@@ -60,7 +60,7 @@ const translations: Record<string, string> = {
     "Наша информация проверяется нашими публицистами",
   "YourPeer's social service information is validated by our information specialists who all have lived experiences navigating the support system. They work hard to collect social services' information and keep them up-to-date.":
     "Информация о социальных службах, которую Вы найдете на YourPeer, проверяется нашими специалистами по информационным технологиям с большим опытом работы с системой социальных услуг. Они усердно работают над сбором информации о социальных службах и ее обновлением",
-  doobneek: "Antoinette или Антуанетт",
+  doobneek: "doobneek или Антуанетт",
   Kiesha: "Kiesha или Каи́ша",
   Gavilán: "Gavilán или Гавила́н",
   Anthony: "Anthony или Э́нтони",
