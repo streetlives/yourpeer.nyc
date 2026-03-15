@@ -6,6 +6,8 @@
 
 "use client";
 
+import Link from "next/link";
+
 export default function GlobalError({
   reset,
 }: {
@@ -30,7 +32,7 @@ export default function GlobalError({
             Something went wrong!
           </h1>
           <p style={{ marginBottom: "1.5rem", textAlign: "center" }}>
-            We're sorry, an unexpected error occurred. Please try again.
+            We&apos;re sorry, an unexpected error occurred. Please try again.
           </p>
           <button
             onClick={reset}
@@ -46,9 +48,9 @@ export default function GlobalError({
           >
             Try again
           </button>
-          <a href="/" style={{ color: "#3B82F6" }}>
+          <Link href="/" style={{ color: "#3B82F6" }}>
             Go to Home
-          </a>
+          </Link>
         </div>
       </body>
     </html>
