@@ -146,7 +146,7 @@
     "description": "Emergency shelter and supportive housing services.",
     "transportation": "Subway: 2/3 to Atlantic Ave",
     "position": {
-      "coordinates": [-73.9776, 40.6840]
+      "coordinates": [-73.9776, 40.684]
     },
     "additional_info": null,
     "slug": "brooklyn-shelter",
