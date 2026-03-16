@@ -7,12 +7,7 @@
 "use client";
 
 import { useFilters, useViewStore } from "@/lib/store";
-import {
-  APIProvider,
-  Map,
-  Marker,
-  useMap
-} from "@vis.gl/react-google-maps";
+import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { useCookies } from "next-client-cookies";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
