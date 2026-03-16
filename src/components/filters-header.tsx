@@ -391,6 +391,7 @@ export default function FiltersHeader({
         ) : undefined}
 
         <button
+          id="filters_popup_open_button"
           className="inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark bg-neutral-100 rounded-full text-xs py-1 px-3"
           style={linkHeight}
           onClick={openFiltersPopup}

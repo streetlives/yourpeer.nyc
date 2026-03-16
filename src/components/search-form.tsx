@@ -250,7 +250,7 @@ export default function SearchForm() {
           }}
         />
         {search ? (
-          <button onClick={clearSearch}>
+          <button onClick={clearSearch} id="search_clear_button">
             <XMarkIcon className="w-5 h-5 text-black" />
           </button>
         ) : undefined}
