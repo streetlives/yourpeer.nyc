@@ -32,7 +32,7 @@ export default function LocationDetailLoadingSkeleton({
 }) {
   return (
     <div
-      className={`details-screen bg-white md:flex z-50 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col ${className || ""}`.trim()}
+      className={`details-screen-loading-skeleton bg-white md:flex z-50 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col ${className || ""}`.trim()}
     >
       <LocationDetailLoadingSkeletonContent />
     </div>
