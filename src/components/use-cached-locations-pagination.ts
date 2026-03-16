@@ -25,6 +25,12 @@ import {
   getVisibleLocationsForPage,
   mergeBackgroundPage,
 } from "./locations-pagination-cache";
+import {
+  Error404Response,
+  fetchLocationsDetailDataById,
+  map_gogetta_to_yourpeer,
+  subscribeToLocationChanges,
+} from "./streetlives-api-service";
 
 interface UseCachedLocationsPaginationArgs {
   route: string;
@@ -69,6 +75,30 @@ async function fetchBackgroundPage({
   }
 
   return response.json();
+}
+
+function updateCachedDatasetLocations(
+  dataset: CachedLocationsDataset,
+  replacements: Map<string, YourPeerLegacyLocationData | null>,
+): CachedLocationsDataset {
+  const nextPages = Object.fromEntries(
+    Object.entries(dataset.pages).map(([pageNumber, locations]) => [
+      pageNumber,
+      (locations || [])
+        .map((location) => {
+          if (!replacements.has(location.id)) {
+            return location;
+          }
+          return replacements.get(location.id) || null;
+        })
+        .filter(Boolean),
+    ]),
+  ) as CachedLocationsDataset["pages"];
+
+  return {
+    ...dataset,
+    pages: nextPages,
+  };
 }
 
 export function useCachedLocationsPagination({
@@ -296,6 +326,50 @@ export function useCachedLocationsPagination({
     cachedDataset.numberOfPages,
     ensureBackgroundPage,
   ]);
+
+  useEffect(() => {
+    return subscribeToLocationChanges(async ({ locationIds }) => {
+      const dataset = queryClient.getQueryData<CachedLocationsDataset>(queryKey);
+      if (!dataset) {
+        return;
+      }
+
+      const knownLocationIds = new Set(
+        Object.values(dataset.pages)
+          .flatMap((locations) => locations || [])
+          .map((location) => location.id),
+      );
+      const targetLocationIds = [...new Set(locationIds.filter((locationId) => knownLocationIds.has(locationId)))];
+      if (!targetLocationIds.length) {
+        return;
+      }
+
+      const replacements = new Map<string, YourPeerLegacyLocationData | null>();
+      await Promise.all(targetLocationIds.map(async (locationId) => {
+        try {
+          const refreshed = await fetchLocationsDetailDataById(locationId);
+          replacements.set(locationId, map_gogetta_to_yourpeer(refreshed, true));
+        } catch (error) {
+          if (error instanceof Error404Response) {
+            replacements.set(locationId, null);
+            return;
+          }
+          console.warn("[YourPeer] Failed to refresh cached location:", locationId, error);
+        }
+      }));
+
+      if (!replacements.size) {
+        return;
+      }
+
+      queryClient.setQueryData<CachedLocationsDataset>(queryKey, (previous) => {
+        if (!previous) {
+          return previous;
+        }
+        return updateCachedDatasetLocations(previous, replacements);
+      });
+    });
+  }, [queryClient, queryKey]);
 
   const visibleLocations = getVisibleLocationsForPage({
     pages: cachedDataset.pages,

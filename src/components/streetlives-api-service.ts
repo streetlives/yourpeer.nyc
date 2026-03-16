@@ -52,6 +52,122 @@ import { permanentRedirect } from "next/navigation";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
+const LOCATION_CHANGES_POLL_INTERVAL_MS = 20000;
+const LOCATION_CHANGES_DEFAULT_LIMIT = 100;
+
+export interface LocationChange {
+  cursor: string;
+  locationId: string;
+  changedAt: string;
+  actionAt: string;
+  actionType: string;
+  resourceTable: string;
+  resourceId: string;
+  fieldName: string | null;
+  source: string | null;
+}
+
+export interface LocationChangesResponse {
+  changes: LocationChange[];
+  locationIds: string[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  serverTime: string;
+}
+
+const locationChangeSubscribers = new Set<
+  (result: LocationChangesResponse) => void | Promise<void>
+>();
+let locationChangesCursor: string | null = null;
+let locationChangesTimer: number | null = null;
+let locationChangesInFlight = false;
+let locationChangesVisibilityBound = false;
+
+function clearLocationChangesTimer() {
+  if (locationChangesTimer) {
+    clearTimeout(locationChangesTimer);
+    locationChangesTimer = null;
+  }
+}
+
+function notifyLocationChangeSubscribers(result: LocationChangesResponse) {
+  locationChangeSubscribers.forEach((subscriber) => {
+    Promise.resolve(subscriber(result)).catch((error) => {
+      console.warn("[StreetlivesApi] Location change subscriber failed:", error);
+    });
+  });
+}
+
+function bindLocationChangesVisibilityListener() {
+  if (
+    locationChangesVisibilityBound ||
+    typeof document === "undefined"
+  ) {
+    return;
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (
+      document.visibilityState === "visible" &&
+      locationChangeSubscribers.size
+    ) {
+      scheduleLocationChangesPoll(0);
+    }
+  });
+  locationChangesVisibilityBound = true;
+}
+
+function scheduleLocationChangesPoll(delay = LOCATION_CHANGES_POLL_INTERVAL_MS) {
+  if (!locationChangeSubscribers.size || typeof window === "undefined") {
+    return;
+  }
+
+  clearLocationChangesTimer();
+  locationChangesTimer = window.setTimeout(() => {
+    void pollLocationChanges();
+  }, Math.max(0, delay));
+}
+
+async function pollLocationChanges() {
+  if (!locationChangeSubscribers.size || locationChangesInFlight) {
+    return;
+  }
+  if (
+    typeof document !== "undefined" &&
+    document.visibilityState === "hidden"
+  ) {
+    scheduleLocationChangesPoll();
+    return;
+  }
+
+  locationChangesInFlight = true;
+  try {
+    const result = await fetchLocationChanges({
+      cursor: locationChangesCursor || undefined,
+      limit: LOCATION_CHANGES_DEFAULT_LIMIT,
+    });
+    if (result?.nextCursor) {
+      locationChangesCursor = result.nextCursor;
+    }
+    if (Array.isArray(result?.locationIds) && result.locationIds.length) {
+      notifyLocationChangeSubscribers(result);
+    }
+  } catch (error) {
+    console.warn("[StreetlivesApi] Location change poll failed:", error);
+  } finally {
+    locationChangesInFlight = false;
+    scheduleLocationChangesPoll();
+  }
+}
+
+function maybeStopLocationChangesPoller() {
+  if (locationChangeSubscribers.size) {
+    return;
+  }
+  clearLocationChangesTimer();
+  locationChangesCursor = null;
+  locationChangesInFlight = false;
+}
 
 export interface LocationsDataResponse<T extends SimplifiedLocationData> {
   locations: T[];
@@ -193,6 +309,10 @@ function recursiveParseUpdatedAt<T extends SimplifiedLocationData>(
     }
   });
   return gogetta_response;
+}
+
+function parseUpdatedAtRecord<T>(gogetta_response: unknown): T {
+  return recursiveParseUpdatedAt<any>(gogetta_response as any) as unknown as T;
 }
 
 export async function getSimplifiedLocationData({
@@ -416,6 +536,51 @@ function filter_services_by_name(
   }
 
   return { services };
+}
+
+export async function fetchLocationChanges({
+  cursor,
+  since,
+  limit = LOCATION_CHANGES_DEFAULT_LIMIT,
+}: {
+  cursor?: string;
+  since?: string;
+  limit?: number;
+} = {}): Promise<LocationChangesResponse> {
+  const queryUrl = new URL(`${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations/changes`);
+  if (cursor) {
+    queryUrl.searchParams.set("cursor", cursor);
+  } else if (since) {
+    queryUrl.searchParams.set("since", since);
+  }
+  if (Number.isFinite(limit) && limit > 0) {
+    queryUrl.searchParams.set("limit", String(Math.round(limit)));
+  }
+
+  const response = await fetch(queryUrl.toString(), {
+    cache: "no-store",
+  });
+  if (response.status !== 200) {
+    if (response.status === 404) {
+      throw new Error404Response();
+    }
+    throw new Error5XXResponse();
+  }
+
+  return response.json();
+}
+
+export function subscribeToLocationChanges(
+  onChange: (result: LocationChangesResponse) => void | Promise<void>,
+) {
+  locationChangeSubscribers.add(onChange);
+  bindLocationChangesVisibilityListener();
+  scheduleLocationChangesPoll(0);
+
+  return () => {
+    locationChangeSubscribers.delete(onChange);
+    maybeStopLocationChangesPoller();
+  };
 }
 
 function getLocationEventInfos(d: FullLocationData | LocationDetailData) {
@@ -822,7 +987,23 @@ export async function fetchLocationsDetailData(
     }
     throw new Error5XXResponse();
   }
-  return response.json();
+  return parseUpdatedAtRecord<LocationDetailData>(await response.json());
+}
+
+export async function fetchLocationsDetailDataById(
+  locationId: string,
+): Promise<LocationDetailData> {
+  const queryUrl = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations/${locationId}`;
+  const response = await fetch(queryUrl, {
+    cache: "no-store",
+  });
+  if (response.status !== 200) {
+    if (response.status === 404) {
+      throw new Error404Response();
+    }
+    throw new Error5XXResponse();
+  }
+  return parseUpdatedAtRecord<LocationDetailData>(await response.json());
 }
 
 export async function fetchComments(locationId: string): Promise<Comment[]> {

@@ -8,7 +8,7 @@
 
 import {
   APIProvider,
-  Map,
+  Map as GoogleMap,
   MapCameraChangedEvent,
   Marker,
   useMap,
@@ -34,6 +34,11 @@ import {
   GeoCoordinatesContextType,
 } from "./geo-context";
 import { useFilters, useViewStore } from "@/lib/store";
+import {
+  Error404Response,
+  fetchLocationsDetailDataById,
+  subscribeToLocationChanges,
+} from "./streetlives-api-service";
 
 function isMobile(): boolean {
   return window.innerWidth <= 768;
@@ -305,7 +310,7 @@ function MapWrapper({
 
   return (
     <>
-      <Map
+      <GoogleMap
         defaultZoom={zoom}
         gestureHandling={"greedy"}
         streetViewControl={false}
@@ -339,7 +344,7 @@ function MapWrapper({
             icon={myLocationIcon}
           />
         ) : undefined}
-      </Map>
+      </GoogleMap>
 
       <div
         id="recenter-btn"
@@ -379,8 +384,14 @@ export default function LocationsMap({
 
   const [locationSlugClickedOnMobile, setLocationSlugClickedOnMobile] =
     useState<string | undefined>(cookieLocationSlugClickedOnMobile);
+  const [liveLocationStubs, setLiveLocationStubs] =
+    useState<SimplifiedLocationData[] | undefined>(locationStubs);
   const [locationStubClickedOnMobile, setLocationStubClickedOnMobile] =
     useState<SimplifiedLocationData>();
+
+  useEffect(() => {
+    setLiveLocationStubs(locationStubs);
+  }, [locationStubs]);
 
   useEffect(() => {
     if (locationSlugClickedOnMobile) {
@@ -396,7 +407,7 @@ export default function LocationsMap({
   }, [locationSlugClickedOnMobile]);
 
   useEffect(() => {
-    const newLocationStub = locationStubs
+    const newLocationStub = liveLocationStubs
       ?.filter(
         (locationStub) => locationStub.slug === locationSlugClickedOnMobile,
       )
@@ -408,7 +419,49 @@ export default function LocationsMap({
       cookies.remove("zoom");
       cookies.remove("mapCenter");
     }
-  }, [locationStubs, locationSlugClickedOnMobile]);
+  }, [liveLocationStubs, locationSlugClickedOnMobile]);
+
+  useEffect(() => {
+    if (!liveLocationStubs?.length) {
+      return undefined;
+    }
+
+    return subscribeToLocationChanges(async ({ locationIds }) => {
+      const knownIds = new Set((liveLocationStubs || []).map((locationStub) => locationStub.id));
+      const targetLocationIds = [...new Set(locationIds.filter((locationId) => knownIds.has(locationId)))];
+      if (!targetLocationIds.length) {
+        return;
+      }
+
+      const replacements = new Map<string, SimplifiedLocationData | null>();
+      await Promise.all(targetLocationIds.map(async (locationId) => {
+        try {
+          replacements.set(locationId, await fetchLocationsDetailDataById(locationId));
+        } catch (error) {
+          if (error instanceof Error404Response) {
+            replacements.set(locationId, null);
+            return;
+          }
+          console.warn("[YourPeer] Failed to refresh map location:", locationId, error);
+        }
+      }));
+
+      if (!replacements.size) {
+        return;
+      }
+
+      setLiveLocationStubs((previous) =>
+        (previous || [])
+          .map((locationStub) => {
+            if (!replacements.has(locationStub.id)) {
+              return locationStub;
+            }
+            return replacements.get(locationStub.id) || null;
+          })
+          .filter(Boolean) as SimplifiedLocationData[],
+      );
+    });
+  }, [liveLocationStubs]);
 
   function checkIfIsMobile(): void {
     if (!isMobile()) {
@@ -433,7 +486,7 @@ export default function LocationsMap({
       <div id="map" className="w-full h-full">
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
           <MapWrapper
-            locationStubs={locationStubs}
+            locationStubs={liveLocationStubs}
             locationDetailStub={locationDetailStub}
             locationStubClickedOnMobile={locationStubClickedOnMobile}
             setLocationSlugClickedOnMobile={setLocationSlugClickedOnMobile}

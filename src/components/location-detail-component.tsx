@@ -13,7 +13,7 @@ import {
   LOCATION_ROUTE,
   YourPeerLegacyLocationData,
 } from "./common";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReportIssueForm } from "./report-issue";
 import ReviewForm from "./feedback/review-form";
 import ReviewList from "@/components/feedback/review-list";
@@ -33,6 +33,11 @@ import { EditIcon } from "@/components/icons/edit-icon";
 import ReviewListItem from "@/components/feedback/review-list-item";
 import { Authenticator } from "@aws-amplify/ui-react";
 import DonationBanner from "./donation-banner";
+import {
+  fetchLocationsDetailDataById,
+  map_gogetta_to_yourpeer,
+  subscribeToLocationChanges,
+} from "./streetlives-api-service";
 
 export function getIconPath(iconName: string): string {
   const hasExtension = /\.(png|jpg|jpeg|svg|gif|webp)$/i.test(iconName);
@@ -52,6 +57,7 @@ export default function LocationDetailComponent({
   comments: Comment[];
   slug: string;
 }) {
+  const [liveLocation, setLiveLocation] = useState(location);
   const [isShowingReviewDetails, setIsShowingReviewDetails] = useState(false);
   const [isShowingReviewForm, setIsShowingReviewForm] = useState(false);
   const [isShowingReportIssueForm, setIsShowingReportIssueForm] =
@@ -62,6 +68,24 @@ export default function LocationDetailComponent({
   >("info");
   const router = useRouter();
   const previousRoute = usePreviousRoute();
+
+  useEffect(() => {
+    setLiveLocation(location);
+  }, [location]);
+
+  useEffect(() => {
+    if (!liveLocation?.id) {
+      return undefined;
+    }
+
+    return subscribeToLocationChanges(async ({ locationIds }) => {
+      if (!locationIds.includes(liveLocation.id)) {
+        return;
+      }
+      const refreshed = await fetchLocationsDetailDataById(liveLocation.id);
+      setLiveLocation(map_gogetta_to_yourpeer(refreshed, true));
+    });
+  }, [liveLocation?.id]);
 
   function hideReportIssueForm() {
     setIsShowingReportIssueForm(false);
@@ -86,12 +110,12 @@ export default function LocationDetailComponent({
     ? "Reviews"
     : isShowingReviewForm
       ? "Add review"
-      : location.name;
+      : liveLocation.name;
 
   let servicesNames: string[] = [];
 
   CATEGORIES.map((serviceCategory) => {
-    const servicesWrapper = getServicesWrapper(serviceCategory, location);
+    const servicesWrapper = getServicesWrapper(serviceCategory, liveLocation);
     const names = servicesWrapper?.services
       .map(({ name }) => name)
       .filter((name) => name !== null);
@@ -99,7 +123,7 @@ export default function LocationDetailComponent({
   });
 
   console.log("Location Detail Component rendered with location:");
-  console.log(location);
+  console.log(liveLocation);
 
   return (
     <LocationDetailContainer
@@ -127,7 +151,7 @@ export default function LocationDetailComponent({
               isStuffUser={false}
               isAdmin={false}
               locationServices={servicesNames}
-              orgName={location.name || "Unknown provider"}
+              orgName={liveLocation.name || "Unknown provider"}
             />
           ))}
         </Authenticator.Provider>
@@ -135,16 +159,16 @@ export default function LocationDetailComponent({
 
       {isShowingReportIssueForm ? (
         <ReportIssueForm
-          location={location}
+          location={liveLocation}
           hideReportIssueForm={hideReportIssueForm}
         />
       ) : isShowingReviewDetails ? (
         <div className="bg-neutral-100 flex flex-col h-full relative overflow-y-hidden pt-2">
           <ReviewList
-            locationId={location.id}
-            organizationId={location.organization_id || ""}
+            locationId={liveLocation.id}
+            organizationId={liveLocation.organization_id || ""}
             location_services={servicesNames}
-            orgName={location.name || "Unknown provider"}
+            orgName={liveLocation.name || "Unknown provider"}
           />
 
           <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
@@ -162,28 +186,28 @@ export default function LocationDetailComponent({
         </div>
       ) : isShowingReviewForm ? (
         <ReviewForm
-          locationId={location.id}
-          provider={location.name || "Unknown provider"}
+          locationId={liveLocation.id}
+          provider={liveLocation.name || "Unknown provider"}
           onComplete={() => setIsShowingReviewForm(false)}
           services={servicesNames}
         />
       ) : (
         <div>
           <LocationDetailHeaderInfo
-            name={location.name}
-            locationName={location.location_name}
-            area={location.area}
-            lastUpdated={location.last_updated}
+            name={liveLocation.name}
+            locationName={liveLocation.location_name}
+            area={liveLocation.area}
+            lastUpdated={liveLocation.last_updated}
           />
           {!DISABLE_FEEDBACK ? (
             <LocationDetailNavigation currentSection={activeSection} />
           ) : undefined}
 
           <div id="locationDetailsContainer">
-            <StreetView location={location} />
+            <StreetView location={liveLocation} />
 
             <div className="px-4 mt-5 pb-4 bg-white">
-              <LocationDetailInfo location={location} />
+              <LocationDetailInfo location={liveLocation} />
 
               <div className="mt-5 flex gap-4">
                 <Button
@@ -202,7 +226,7 @@ export default function LocationDetailComponent({
             {!DISABLE_FEEDBACK ? (
               <div className="bg-neutral-50 pt-2" id="reviews">
                 <div className="bg-white p-4 pt-8">
-                  {location.name && (
+                  {liveLocation.name && (
                     <div className="bg-purple/10 rounded-lg px-4 py-3 flex space-x-2">
                       <img
                         src="/img/icons/group-users-icon.svg"
@@ -211,8 +235,8 @@ export default function LocationDetailComponent({
                       />
                       <div className="pr-6">
                         <p className="text-sm mb-2">
-                          {location.partners
-                            ? `YourPeer works with ${location.name} to collect community feedback.`
+                          {liveLocation.partners
+                            ? `YourPeer works with ${liveLocation.name} to collect community feedback.`
                             : "YourPeer partners with social service providers to collect community feedback."}
                         </p>
                       </div>
@@ -232,7 +256,7 @@ export default function LocationDetailComponent({
                       </button>
                     </div>
 
-                    <ReviewHighlights locationId={location.id} />
+                    <ReviewHighlights locationId={liveLocation.id} />
 
                     <div>
                       <button
@@ -254,7 +278,7 @@ export default function LocationDetailComponent({
               </div>
             ) : undefined}
 
-            <LocationServices location={location} />
+            <LocationServices location={liveLocation} />
           </div>
         </div>
       )}

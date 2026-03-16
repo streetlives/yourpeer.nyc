@@ -8,7 +8,9 @@ import {
 } from "./common";
 import {
   fetchLocationsDetailData,
+  fetchLocationsDetailDataById,
   map_gogetta_to_yourpeer,
+  subscribeToLocationChanges,
 } from "./streetlives-api-service";
 import { useEffect, useState } from "react";
 import { ServicesList } from "./locations-container";
@@ -31,6 +33,20 @@ export function MobileTray({
       setLoading(false);
     });
   }, [locationSlugClickedOnMobile]);
+
+  useEffect(() => {
+    if (!location?.id) {
+      return undefined;
+    }
+
+    return subscribeToLocationChanges(async ({ locationIds }) => {
+      if (!locationIds.includes(location.id)) {
+        return;
+      }
+      const refreshed = await fetchLocationsDetailDataById(location.id);
+      setLocation(map_gogetta_to_yourpeer(refreshed, true));
+    });
+  }, [location?.id]);
 
   return (
     <div
