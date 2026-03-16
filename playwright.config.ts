@@ -70,10 +70,19 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run dev -- --port 3000",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    /* Mock API server — must start before Next.js so the env var points to it */
+    {
+      command: "npx tsx tests/mock-server.ts",
+      url: "http://localhost:4000/health",
+      reuseExistingServer: !process.env.CI,
+    },
+    /* Next.js dev server pointed at the local mock API */
+    {
+      command:
+        "NEXT_PUBLIC_GO_GETTA_PROD_URL=http://localhost:4000 npm run dev -- --port 3000",
+      url: "http://localhost:3000",
+      reuseExistingServer: false,
+    },
+  ],
 });

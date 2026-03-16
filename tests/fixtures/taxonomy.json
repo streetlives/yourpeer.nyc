@@ -1,0 +1,158 @@
+[
+  {
+    "id": "tax-shelter-1",
+    "name": "Shelter",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": [
+      {
+        "id": "tax-shelter-single-1",
+        "name": "Single Adult",
+        "parent_name": "Shelter",
+        "parent_id": "tax-shelter-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-shelter-family-1",
+        "name": "Families",
+        "parent_name": "Shelter",
+        "parent_id": "tax-shelter-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "tax-food-1",
+    "name": "Food",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": [
+      {
+        "id": "tax-food-pantry-1",
+        "name": "Food Pantry",
+        "parent_name": "Food",
+        "parent_id": "tax-food-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-food-soup-1",
+        "name": "Soup Kitchen",
+        "parent_name": "Food",
+        "parent_id": "tax-food-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "tax-clothing-1",
+    "name": "Clothing",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": []
+  },
+  {
+    "id": "tax-personal-care-1",
+    "name": "Personal Care",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": [
+      {
+        "id": "tax-toiletries-1",
+        "name": "Toiletries",
+        "parent_name": "Personal Care",
+        "parent_id": "tax-personal-care-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-shower-1",
+        "name": "Shower",
+        "parent_name": "Personal Care",
+        "parent_id": "tax-personal-care-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-laundry-1",
+        "name": "Laundry",
+        "parent_name": "Personal Care",
+        "parent_id": "tax-personal-care-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-restrooms-1",
+        "name": "Restrooms",
+        "parent_name": "Personal Care",
+        "parent_id": "tax-personal-care-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      },
+      {
+        "id": "tax-haircut-1",
+        "name": "Haircut",
+        "parent_name": "Personal Care",
+        "parent_id": "tax-personal-care-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "tax-health-1",
+    "name": "Health",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": [
+      {
+        "id": "tax-mental-health-1",
+        "name": "Mental Health",
+        "parent_name": "Health",
+        "parent_id": "tax-health-1",
+        "createdAt": "2023-01-01T00:00:00.000Z",
+        "updatedAt": "2023-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  {
+    "id": "tax-legal-1",
+    "name": "Legal Services",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": []
+  },
+  {
+    "id": "tax-employment-1",
+    "name": "Employment",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": []
+  },
+  {
+    "id": "tax-other-1",
+    "name": "Other service",
+    "parent_name": null,
+    "parent_id": null,
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2023-01-01T00:00:00.000Z",
+    "children": []
+  }
+]
