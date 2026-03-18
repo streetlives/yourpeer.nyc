@@ -4,8 +4,12 @@ import { join } from "path";
 
 const PORT = 4000;
 
+// process.cwd() is always the project root when launched by Playwright,
+// so this path is stable in both CJS (__dirname) and ESM (no __dirname) contexts.
+const FIXTURES_DIR = join(process.cwd(), "tests", "fixtures");
+
 function fixture(name: string) {
-  return readFileSync(join(__dirname, "..", "fixtures", name), "utf-8");
+  return readFileSync(join(FIXTURES_DIR, name), "utf-8");
 }
 
 function json(res: ServerResponse, status: number, body: string) {

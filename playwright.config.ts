@@ -74,13 +74,13 @@ export default defineConfig({
     {
       command: "npx tsx tests/support/mock-server.ts",
       url: "http://localhost:4000/health",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
     },
     {
       command:
         "NEXT_PUBLIC_GO_GETTA_PROD_URL=http://localhost:4000 npm run dev -- --port 3000",
       url: "http://localhost:3000",
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
     },
   ],
 });
