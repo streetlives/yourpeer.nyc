@@ -12,7 +12,7 @@ import { defineConfig, devices } from "@playwright/test";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -71,18 +71,16 @@ export default defineConfig({
   ],
 
   webServer: [
-    /* Mock API server — must start before Next.js so the env var points to it */
     {
-      command: "npx tsx tests/mock-server.ts",
+      command: "npx tsx tests/support/mock-server.ts",
       url: "http://localhost:4000/health",
       reuseExistingServer: !process.env.CI,
     },
-    /* Next.js dev server pointed at the local mock API */
     {
       command:
         "NEXT_PUBLIC_GO_GETTA_PROD_URL=http://localhost:4000 npm run dev -- --port 3000",
       url: "http://localhost:3000",
-      reuseExistingServer: false,
+      reuseExistingServer: !process.env.CI,
     },
   ],
 });
