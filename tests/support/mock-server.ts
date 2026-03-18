@@ -22,7 +22,7 @@ function json(res: ServerResponse, status: number, body: string) {
  */
 const KNOWN_SLUGS: Record<string, string> = {
   "community-support-nyc-midtown": "location-detail.json",
-  "brooklyn-housing-services-brooklyn": "location-detail.json",
+  "brooklyn-housing-services-brooklyn": "location-detail-2.json",
 };
 
 /**
