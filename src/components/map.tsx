@@ -27,7 +27,6 @@ import LocationStubMarker from "./location-stub-marker";
 import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
 import { MobileTray } from "./mobile-tray";
 import { getUrlWithNewFilterParameter } from "./navigation";
-import { useFilters, useViewStore } from "@/lib/store";
 import { shouldAutoRedirectToNearby } from "./nearby-redirect";
 
 function isMobile(): boolean {
