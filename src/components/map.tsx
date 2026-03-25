@@ -27,6 +27,8 @@ import LocationStubMarker from "./location-stub-marker";
 import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
 import { MobileTray } from "./mobile-tray";
 import { getUrlWithNewFilterParameter } from "./navigation";
+import { useFilters, useViewStore } from "@/lib/store";
+import { shouldAutoRedirectToNearby } from "./nearby-redirect";
 
 function isMobile(): boolean {
   return window.innerWidth < 768;
@@ -218,10 +220,18 @@ function MapWrapper({
       // then by default route to nearby
       const sortBy = searchParams?.get(SORT_BY_QUERY_PARAM);
       const searchText = searchParams?.get(SEARCH_PARAM);
-      if (!sortBy && !locationDetailStub && !searchText) {
+      const currentPathname = window.location.pathname;
+      if (
+        shouldAutoRedirectToNearby({
+          pathname: currentPathname,
+          sortBy,
+          searchText,
+          isLocationDetail: !!locationDetailStub,
+        })
+      ) {
         router.push(
           getUrlWithNewFilterParameter(
-            pathname,
+            currentPathname,
             searchParams,
             SORT_BY_QUERY_PARAM,
             NEARBY_SORT_BY_VALUE,
