@@ -47,7 +47,7 @@ export default function ErrorPage({
           </h1>
           <p className="text-gray-500 mb-10 leading-relaxed">
             We&apos;re sorry — an unexpected error occurred on our end. Please
-            try again, or head back home.
+            try again, or head back to the home page.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button size="lg" onClick={reset}>
