@@ -25,7 +25,7 @@ export default function LocationDetailLoadingPanel() {
             }
       }
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="details-screen bg-white md:flex z-50 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col"
+      className="details-screen-loading-panel bg-white md:flex z-50 fixed md:absolute inset-0 w-full h-full overflow-y-auto flex flex-col"
     >
       <LocationDetailLoadingSkeletonContent />
     </motion.div>
