@@ -1,0 +1,154 @@
+{
+  "id": "loc-001",
+  "name": "Downtown Community Center",
+  "description": "A community center providing essential services to those in need.",
+  "transportation": "Subway: A/C/E to 34th St",
+  "position": {
+    "coordinates": [-73.9857, 40.7484]
+  },
+  "additional_info": null,
+  "additionalInfo": null,
+  "slug": "community-support-nyc-midtown",
+  "streetview_url": null,
+  "last_validated_at": "2024-01-15T00:00:00.000Z",
+  "createdAt": "2023-06-01T00:00:00.000Z",
+  "updatedAt": "2024-01-15T00:00:00.000Z",
+  "organization_id": "org-001",
+  "closed": false,
+  "neighborhood": "Midtown",
+  "address": {
+    "street": "123 Main Street",
+    "city": "New York",
+    "region": "Manhattan",
+    "state": "NY",
+    "postalCode": "10001",
+    "country": "US"
+  },
+  "AccessibilityForDisabilities": [],
+  "metadata": null,
+  "Organization": {
+    "id": "org-001",
+    "name": "Community Support NYC",
+    "description": "Providing essential community support services.",
+    "partners": false,
+    "email": "info@communitysupport.nyc",
+    "url": "https://communitysupport.nyc",
+    "createdAt": "2023-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "Phones": []
+  },
+  "Phones": [
+    {
+      "id": "phone-001",
+      "number": "212-555-0100",
+      "extension": null,
+      "type": "voice",
+      "language": null,
+      "description": null,
+      "createdAt": "2023-06-01T00:00:00.000Z",
+      "updatedAt": "2023-06-01T00:00:00.000Z",
+      "location_id": "loc-001",
+      "organization_id": null,
+      "service_id": null,
+      "service_at_location_id": null
+    }
+  ],
+  "Services": [
+    {
+      "id": "svc-001",
+      "name": "Food Pantry",
+      "description": "Weekly food distribution for community members.",
+      "url": null,
+      "email": null,
+      "interpretation_services": null,
+      "fees": null,
+      "additional_info": null,
+      "createdAt": "2023-06-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "organization_id": "org-001",
+      "ServiceAtLocation": {
+        "id": "sal-001",
+        "description": null,
+        "createdAt": "2023-06-01T00:00:00.000Z",
+        "updatedAt": "2023-06-01T00:00:00.000Z",
+        "location_id": "loc-001",
+        "service_id": "svc-001"
+      },
+      "Eligibilities": [
+        {
+          "id": "elig-001",
+          "eligible_values": [],
+          "description": "Open to all community members",
+          "createdAt": "2023-06-01T00:00:00.000Z",
+          "updatedAt": "2023-06-01T00:00:00.000Z",
+          "parameter_id": "param-001",
+          "service_id": "svc-001",
+          "EligibilityParameter": {
+            "id": "param-001",
+            "name": "general",
+            "createdAt": "2023-01-01T00:00:00.000Z",
+            "updatedAt": "2023-01-01T00:00:00.000Z"
+          }
+        }
+      ],
+      "ServiceTaxonomySpecificAttributes": [],
+      "Taxonomies": [
+        {
+          "id": "tax-food-pantry-1",
+          "name": "Food Pantry",
+          "parent_name": "Food",
+          "createdAt": "2023-01-01T00:00:00.000Z",
+          "updatedAt": "2023-01-01T00:00:00.000Z",
+          "parent_id": "tax-food-1",
+          "ServiceTaxonomy": {
+            "id": "st-001",
+            "createdAt": "2023-06-01T00:00:00.000Z",
+            "updatedAt": "2023-06-01T00:00:00.000Z",
+            "service_id": "svc-001",
+            "taxonomy_id": "tax-food-pantry-1"
+          }
+        }
+      ],
+      "RegularSchedules": [],
+      "HolidaySchedules": [
+        {
+          "id": "sched-001",
+          "closed": false,
+          "opens_at": "09:00",
+          "closes_at": "17:00",
+          "start_date": null,
+          "end_date": null,
+          "weekday": 1,
+          "occasion": null,
+          "createdAt": "2023-06-01T00:00:00.000Z",
+          "updatedAt": "2023-06-01T00:00:00.000Z",
+          "location_id": null,
+          "service_id": "svc-001",
+          "service_at_location_id": null
+        },
+        {
+          "id": "sched-002",
+          "closed": false,
+          "opens_at": "09:00",
+          "closes_at": "17:00",
+          "start_date": null,
+          "end_date": null,
+          "weekday": 3,
+          "occasion": null,
+          "createdAt": "2023-06-01T00:00:00.000Z",
+          "updatedAt": "2023-06-01T00:00:00.000Z",
+          "location_id": null,
+          "service_id": "svc-001",
+          "service_at_location_id": null
+        }
+      ],
+      "Languages": [],
+      "RequiredDocuments": [],
+      "DocumentsInfo": null,
+      "Phones": [],
+      "EventRelatedInfos": [],
+      "ServiceAreas": []
+    }
+  ],
+  "EventRelatedInfos": []
+}
