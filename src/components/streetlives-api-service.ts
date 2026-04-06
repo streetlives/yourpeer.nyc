@@ -136,7 +136,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   }
 
   if (search) {
-    query_url += `&searchString=${search}`;
+    query_url += `&naturalLanguageQuery=${search}`;
   }
 
   if (open) {
