@@ -1,13 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.devtool = "eval-source-map";
-    }
-    return config;
-  },
   pageExtensions: ["ts", "tsx"],
   transpilePackages: ["@tanstack/react-query", "@tanstack/query-core"],
+  images: {
+    qualities: [60, 75],
+  },
 
   // Optional: helps client-side traces too
   productionBrowserSourceMaps: true,
