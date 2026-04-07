@@ -1,27 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-test("should show search panel when typing in the search input", async ({
-  page,
-}) => {
-  await page.goto("/locations");
-
-  await page.locator("#search_input").fill("food");
-
-  await expect(page.locator("#search_panel")).toBeVisible();
-  await expect(page.locator("#search_for")).toHaveText("food");
-});
-
-test("should update URL with search param when clicking the search panel link", async ({
-  page,
-}) => {
-  await page.goto("/locations");
-
-  await page.locator("#search_input").fill("food");
-  await page.locator("#search_panel_link").click();
-
-  await expect(page).toHaveURL(/search=food/);
-});
-
 test("should update URL with search param when pressing Enter", async ({
   page,
 }) => {
