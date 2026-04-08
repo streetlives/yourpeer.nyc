@@ -29,7 +29,7 @@
     "@tanstack/react-query": "^5.65.1",
     "@vis.gl/react-google-maps": "^1.1.0",
     "aws-amplify": "^6.9.0",
-    "axios": "^1.8.2",
+    "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
