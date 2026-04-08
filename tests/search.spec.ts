@@ -5,8 +5,10 @@ test("should update URL with search param when pressing Enter", async ({
 }) => {
   await page.goto("/locations");
 
-  await page.locator("#search_input").fill("shelter");
-  await page.locator("#search_input").press("Enter");
+  const locator = page.locator("#search_input");
+
+  await locator.fill("shelter");
+  await locator.press("Enter");
 
   await expect(page).toHaveURL(/search=shelter/);
 });
