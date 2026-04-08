@@ -31,8 +31,8 @@ export default async function MapDetail(props: {
   const searchParams = await props.searchParams;
   const previousParams = await getPreviousParams();
 
-  try {
-    if (!isOnLocationDetailPage(params)) {
+  if (!isOnLocationDetailPage(params)) {
+    try {
       // validate
       getParsedSubCategory(params);
       redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
@@ -48,26 +48,46 @@ export default async function MapDetail(props: {
           })}
         />
       );
-    } else {
-      const location = await fetchLocationsDetailData(
-        params.locationSlugOrPersonalCareSubCategory,
-      );
-      return (
-        <LocationsMap
-          locationStubs={
-            previousParams
-              ? await getMapContainerData(previousParams)
-              : [location]
-          }
-          locationDetailStub={location}
-        />
-      );
+    } catch (e) {
+      if (e instanceof Error404Response) {
+        return notFound();
+      }
+
+      return <LocationsMap locationStubs={[]} />;
     }
+  }
+
+  try {
+    const location = await fetchLocationsDetailData(
+      params.locationSlugOrPersonalCareSubCategory,
+    );
+    return (
+      <LocationsMap
+        locationStubs={
+          previousParams
+            ? await getMapContainerData(previousParams)
+            : [location]
+        }
+        locationDetailStub={location}
+      />
+    );
   } catch (e) {
     if (e instanceof Error404Response) {
       return notFound();
-    } else {
-      throw e; // rethrow the error to force a 500 response
     }
+
+    if (previousParams) {
+      try {
+        return (
+          <LocationsMap
+            locationStubs={await getMapContainerData(previousParams)}
+          />
+        );
+      } catch {
+        return <LocationsMap locationStubs={[]} />;
+      }
+    }
+
+    return <LocationsMap locationStubs={[]} />;
   }
 }
