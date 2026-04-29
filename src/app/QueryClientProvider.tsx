@@ -1,5 +1,6 @@
 "use client";
 
+import { ReplyProvider } from "@/context/ReplyContext";
 import {
   QueryClient,
   QueryClientProvider as ReactQueryClientProvider,
@@ -11,7 +12,7 @@ const queryClient = new QueryClient();
 const QueryClientProvider = ({ children }: PropsWithChildren) => {
   return (
     <ReactQueryClientProvider client={queryClient}>
-      {children}
+      <ReplyProvider>{children}</ReplyProvider>
     </ReactQueryClientProvider>
   );
 };

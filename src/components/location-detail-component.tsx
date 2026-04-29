@@ -18,6 +18,7 @@ import LocationDetailNavigation from "@/components/location-detail/location-deta
 import LocationServices from "@/components/location-detail/location-services";
 import StreetView from "@/components/location-detail/street-view";
 import { Button } from "@/components/ui/button";
+import { useReply } from "@/context/ReplyContext";
 import { useFilters } from "@/lib/store";
 import { Authenticator } from "@aws-amplify/ui-react";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
@@ -64,6 +65,7 @@ export default function LocationDetailComponent({
   const [activeSection, setActiveSection] = useState<
     "info" | "reviews" | "services"
   >("info");
+  const { isReplying } = useReply();
   const router = useRouter();
   const previousRoute = usePreviousRoute();
   const isDetailPanelLoading = useFilters(
@@ -177,13 +179,14 @@ export default function LocationDetailComponent({
             orgName={location.name || "Unknown provider"}
           />
 
-          <div className=" absolute bottom-0 w-full bg-white px-5 py-2">
+          <div className="absolute bottom-0 w-full bg-white px-5 py-2">
             <button
               onClick={() => {
                 setIsShowingReviewDetails(false);
                 setIsShowingReviewForm(true);
               }}
-              className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+              disabled={isReplying}
+              className=" flex items-center disabled:opacity-55 disabled:cursor-not-allowed justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
             >
               <PlusCircleIcon className="w-5 h-5 text-white" />
               <span>Add review</span>
@@ -267,7 +270,8 @@ export default function LocationDetailComponent({
                     <div>
                       <button
                         onClick={() => setIsShowingReviewForm(true)}
-                        className=" flex items-center justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
+                        disabled={isReplying}
+                        className=" flex items-center disabled:opacity-65 disabled:cursor-not-allowed justify-center space-x-2 py-2 px-4 text-white font-medium bg-purple rounded-full w-full"
                       >
                         <PlusCircleIcon className="w-5 h-5 text-white" />
                         <span>Add review</span>
