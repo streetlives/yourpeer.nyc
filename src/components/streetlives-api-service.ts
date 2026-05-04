@@ -41,6 +41,7 @@ import {
   TaxonomyResponse,
   TaxonomySubCategory,
   YourPeerLegacyLocationData,
+  YourPeerLegacyPhoneData,
   YourPeerLegacyServiceData,
   YourPeerLegacyServiceDataWrapper,
   YourPeerParsedRequestParams,
@@ -315,6 +316,59 @@ function isServiceClosed(schedule: ScheduleData[]) {
   return isClosed;
 }
 
+function getLocationPhones(
+  d: FullLocationData | LocationDetailData,
+): YourPeerLegacyPhoneData[] {
+  const phones = [
+    ...(d.Organization?.Phones ?? []),
+    ...(d.Phones ?? []),
+  ].flatMap((phone) => {
+    if (!phone || !phone.number?.trim()) {
+      return [];
+    }
+
+    return [
+      {
+        id: phone.id,
+        number: phone.number.trim(),
+        extension: phone.extension ?? null,
+        type: phone.type ?? null,
+        language: phone.language ?? null,
+        description: phone.description ?? null,
+      },
+    ];
+  });
+
+  const seenPhones = new Set<string>();
+  return phones.filter((phone) => {
+    const key = [
+      phone.number.replace(/\D/g, ""),
+      phone.extension ?? "",
+      phone.type?.toLowerCase() ?? "",
+      phone.description?.toLowerCase() ?? "",
+    ].join(":");
+
+    if (seenPhones.has(key)) {
+      return false;
+    }
+
+    seenPhones.add(key);
+    return true;
+  });
+}
+
+function formatLegacyPhoneValue(phone: YourPeerLegacyPhoneData): string {
+  const phoneNumber = phone.number.trim();
+  const phoneExtension = `${phone.extension ?? ""}`.trim();
+  const phoneHasExtension = /(?:ext\.?|extension|x)\s*[:#-]?\s*\d+\s*$/i.test(
+    phoneNumber,
+  );
+
+  return phoneNumber && phoneExtension && !phoneHasExtension
+    ? `${phoneNumber} x${phoneExtension}`
+    : phoneNumber;
+}
+
 function filter_services_by_name(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
@@ -427,18 +481,8 @@ export function map_gogetta_to_yourpeer(
 ): YourPeerLegacyLocationData {
   // Debug logging removed for production.
   const org_name = d["Organization"]["name"];
-  const primaryPhone = d["Phones"] && d["Phones"][0];
-  const phoneNumber = primaryPhone?.number?.trim() ?? null;
-  const phoneExtension = primaryPhone?.extension?.trim() || null;
-  const phoneHasExtension =
-    phoneNumber !== null &&
-    /(?:ext\.?|extension|x)\s*[:#-]?\s*\d+\s*$/i.test(phoneNumber);
-  const phone =
-    phoneNumber && phoneExtension
-      ? phoneHasExtension
-        ? phoneNumber
-        : `${phoneNumber} x${phoneExtension}`
-      : phoneNumber;
+  const phones = getLocationPhones(d);
+  const phone = phones[0] ? formatLegacyPhoneValue(phones[0]) : null;
   let address,
     street,
     zip,
@@ -478,6 +522,7 @@ export function map_gogetta_to_yourpeer(
     last_updated_date: updated_at,
     name: org_name,
     phone,
+    phones,
     url: d["Organization"]["url"],
     streetview_url: d["streetview_url"],
     partners: d["Organization"]["partners"],

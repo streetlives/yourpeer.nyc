@@ -560,6 +560,26 @@ export interface ScheduleData {
   service_at_location_id: string | null;
 }
 
+export interface PhoneData {
+  id: string | null;
+  number: string;
+  extension: string | number | null;
+  type: string | null;
+  language: string | null;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  location_id: string | null;
+  organization_id: string | null;
+  service_id: string | null;
+  service_at_location_id: string | null;
+}
+
+export type YourPeerLegacyPhoneData = Pick<
+  PhoneData,
+  "id" | "number" | "extension" | "type" | "language" | "description"
+>;
+
 export interface ServiceData {
   id: string;
   name: string | null;
@@ -643,7 +663,7 @@ export interface ServiceData {
     updatedAt: Date;
     service_id: string;
   };
-  Phones: [];
+  Phones: PhoneData[];
   EventRelatedInfos: {
     id: string;
     event: string | null;
@@ -673,22 +693,9 @@ export interface AbstractDetailedLocationData {
     url: string | null;
     createdAt: Date;
     updatedAt: Date;
-    Phones: string[];
+    Phones: PhoneData[];
   };
-  Phones: {
-    id: string | null;
-    number: string;
-    extension: string | null;
-    type: string | null;
-    language: string | null;
-    description: string | null;
-    createdAt: Date;
-    updatedAt: Date;
-    location_id: string | null;
-    organization_id: string | null;
-    service_id: string | null;
-    service_at_location_id: string | null;
-  }[];
+  Phones: PhoneData[];
   Services: ServiceData[];
   EventRelatedInfos: {
     id: string;
@@ -858,6 +865,7 @@ export interface YourPeerLegacyLocationData {
   last_updated_date: Date;
   name: string | null;
   phone: string | null;
+  phones: YourPeerLegacyPhoneData[];
   url: string | null;
   streetview_url: string | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;

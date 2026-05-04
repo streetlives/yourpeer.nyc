@@ -1,6 +1,9 @@
 "use client";
 
-import { YourPeerLegacyLocationData } from "@/components/common";
+import {
+  YourPeerLegacyLocationData,
+  YourPeerLegacyPhoneData,
+} from "@/components/common";
 
 function normalizeWebsiteUrl(url: string): string | undefined {
   if (url) {
@@ -20,51 +23,193 @@ function renderNormalizedWebsiteUrl(url: string): string | undefined {
 
 type FormattedPhone = {
   display: string;
-  tel: string;
+  href?: string;
+  external?: boolean;
+  key: string;
 };
 
-function formatPhoneNumber(rawPhone: string): FormattedPhone | null {
-  const trimmed = rawPhone.trim();
+type PhoneUse = "phone" | "sms" | "whatsapp" | "fax";
+
+const extensionPattern = /(?:ext\.?|extension|x)\s*[:#-]?\s*(\d+)\s*$/i;
+
+function normalizePhoneUse(type?: string | null): PhoneUse {
+  const normalizedType = (type ?? "").toLowerCase().replace(/[\s_-]+/g, "");
+
+  if (normalizedType.includes("whatsapp")) {
+    return "whatsapp";
+  }
+
+  if (normalizedType.includes("sms") || normalizedType.includes("text")) {
+    return "sms";
+  }
+
+  if (normalizedType.includes("fax")) {
+    return "fax";
+  }
+
+  return "phone";
+}
+
+function phoneCanHaveExtension(phoneUse: PhoneUse): boolean {
+  return phoneUse === "phone";
+}
+
+function normalizePhoneDigits(rawNumber: string): string {
+  const digits = rawNumber.replace(/\D/g, "");
+  return digits.length === 11 && digits.startsWith("1")
+    ? digits.slice(1)
+    : digits;
+}
+
+function formatPhoneDigits(digits: string): string {
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length === 7) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  }
+
+  return digits;
+}
+
+function getPhoneLabel(
+  phone: YourPeerLegacyPhoneData,
+  phoneUse: PhoneUse,
+): string | null {
+  if (phoneUse === "sms") {
+    return "Text";
+  }
+
+  if (phoneUse === "whatsapp") {
+    return "WhatsApp";
+  }
+
+  if (phoneUse === "fax") {
+    return "Fax";
+  }
+
+  const customType = phone.type === "Phone" ? null : phone.type;
+  return phone.description || customType || null;
+}
+
+function getPhoneDetails(
+  phone: YourPeerLegacyPhoneData,
+  label: string | null,
+): string | null {
+  if (!phone.description || phone.description === label) {
+    return null;
+  }
+
+  return phone.description;
+}
+
+function formatPhoneContact(
+  phone: YourPeerLegacyPhoneData,
+  index: number,
+): FormattedPhone | null {
+  const trimmed = phone.number.trim();
   if (!trimmed) {
     return null;
   }
 
-  const extensionMatch = trimmed.match(
-    /(?:ext\.?|extension|x)\s*[:#-]?\s*(\d+)\s*$/i,
-  );
-  let extension: string | null = null;
+  const phoneUse = normalizePhoneUse(phone.type);
+  const allowExtension = phoneCanHaveExtension(phoneUse);
+  const extensionMatch = trimmed.match(extensionPattern);
+  let extension = `${phone.extension ?? ""}`.trim() || null;
   let numberPart = trimmed;
 
   if (extensionMatch) {
-    extension = extensionMatch[1];
+    if (allowExtension && !extension) {
+      extension = extensionMatch[1];
+    }
     numberPart = trimmed.slice(0, extensionMatch.index).trim();
   }
 
-  let digits = numberPart.replace(/\D/g, "");
+  let digits = normalizePhoneDigits(numberPart);
   if (!digits) {
-    return { display: trimmed, tel: trimmed };
-  }
-
-  if (digits.length === 11 && digits.startsWith("1")) {
-    digits = digits.slice(1);
+    return {
+      display: trimmed,
+      key: phone.id ?? `${trimmed}-${index}`,
+    };
   }
 
   if (digits.length > 10) {
-    if (!extension) {
+    if (allowExtension && !extension) {
       extension = digits.slice(10);
     }
     digits = digits.slice(0, 10);
   }
 
-  if (digits.length !== 10) {
-    return { display: trimmed, tel: digits };
+  if (!allowExtension) {
+    extension = null;
   }
 
-  const formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  const display = extension ? `${formatted} x${extension}` : formatted;
-  const tel = extension ? `${digits};ext=${extension}` : digits;
+  const label = getPhoneLabel(phone, phoneUse);
+  const details = getPhoneDetails(phone, label);
+  const formattedNumber = formatPhoneDigits(digits);
+  const extensionText = extension ? ` x${extension}` : "";
+  const detailsText = details ? ` (${details})` : "";
+  const display = `${label ? `${label}: ` : ""}${formattedNumber}${extensionText}${detailsText}`;
 
-  return { display, tel };
+  if (digits.length < 3 || digits.length > 10) {
+    return {
+      display,
+      key: phone.id ?? `${digits}-${index}`,
+    };
+  }
+
+  if (phoneUse === "fax") {
+    return {
+      display,
+      key: phone.id ?? `${digits}-${index}`,
+    };
+  }
+
+  if (phoneUse === "whatsapp") {
+    return {
+      display,
+      href: digits.length === 10 ? `https://wa.me/1${digits}` : undefined,
+      external: true,
+      key: phone.id ?? `${digits}-${index}`,
+    };
+  }
+
+  const dialableNumber = digits.length === 10 ? `+1${digits}` : digits;
+  const href =
+    phoneUse === "sms"
+      ? `sms:${dialableNumber}`
+      : `tel:${dialableNumber}${extension ? `;ext=${extension}` : ""}`;
+
+  return {
+    display,
+    href,
+    key: phone.id ?? `${digits}-${index}`,
+  };
+}
+
+function getPhoneContacts(
+  location: YourPeerLegacyLocationData,
+): FormattedPhone[] {
+  const phones = location.phones.length
+    ? location.phones
+    : location.phone
+      ? [
+          {
+            id: null,
+            number: location.phone,
+            extension: null,
+            type: null,
+            language: null,
+            description: null,
+          },
+        ]
+      : [];
+
+  return phones.flatMap((phone, index) => {
+    const formattedPhone = formatPhoneContact(phone, index);
+    return formattedPhone ? [formattedPhone] : [];
+  });
 }
 
 export default function LocationDetailInfo({
@@ -72,9 +217,7 @@ export default function LocationDetailInfo({
 }: {
   location: YourPeerLegacyLocationData;
 }) {
-  const formattedPhone = location.phone
-    ? formatPhoneNumber(location.phone)
-    : null;
+  const phoneContacts = getPhoneContacts(location);
 
   return (
     <>
@@ -133,26 +276,40 @@ export default function LocationDetailInfo({
             ) : undefined}
           </p>
         </li>
-        <span>
+        <>
           {!location.closed ? (
             <>
-              {formattedPhone ? (
-                <li translate="no" className="flex space-x-3">
+              {phoneContacts.map((phoneContact) => (
+                <li
+                  key={phoneContact.key}
+                  translate="no"
+                  className="flex space-x-3"
+                >
                   <img
                     src="/img/icons/phone.svg"
                     className="flex-shrink-0 w-5 h-5 max-h-5"
                     alt=""
                   />
                   <p className="text-dark text-sm ml-2">
-                    <a
-                      href={`tel:${formattedPhone.tel}`}
-                      className="text-blue underline hover:no-underline"
-                    >
-                      {formattedPhone.display}
-                    </a>
+                    {phoneContact.href ? (
+                      <a
+                        href={phoneContact.href}
+                        target={phoneContact.external ? "_blank" : undefined}
+                        rel={
+                          phoneContact.external
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                        className="text-blue underline hover:no-underline"
+                      >
+                        {phoneContact.display}
+                      </a>
+                    ) : (
+                      <span>{phoneContact.display}</span>
+                    )}
                   </p>
                 </li>
-              ) : undefined}
+              ))}
               {location.email ? (
                 <li translate="no" className="flex space-x-3">
                   <svg
@@ -194,7 +351,7 @@ export default function LocationDetailInfo({
               ) : undefined}
             </>
           ) : undefined}
-        </span>
+        </>
       </ul>
     </>
   );
