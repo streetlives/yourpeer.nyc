@@ -80,7 +80,7 @@ export default function ReplyForm({
 
   return isSuccess ? (
     <>
-      <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center">
+      <div className="p-5 absolute inset-0 bg-white z-40 flex flex-col space-y-5 items-center justify-center -mt-14">
         <Image
           width={60}
           height={60}
