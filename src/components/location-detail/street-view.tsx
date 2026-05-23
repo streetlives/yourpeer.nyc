@@ -92,7 +92,7 @@ export default function StreetView({
 
   let streetview = `${location.lat},${location.lng}`;
   if (data !== null) {
-    streetview = `${data.lat},${data.lng}&fov=${data.fov ?? 75}&heading=${data.heading ?? 0}&pano=${data.pano ?? ""}`;
+    streetview = `${data.lat},${data.lng}&fov=${data.fov ?? 75}&heading=${data.heading ?? 0}`;
   }
   const streetviewHref = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${streetview}`;
 
@@ -137,7 +137,7 @@ export default function StreetView({
           className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block"
         >
           <img
-            src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=${GOOGLE_MAPS_API_KEY}&fov=100&location=${streetview}`}
+            src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=${GOOGLE_MAPS_API_KEY}&fov=75&location=${streetview}`}
             className="w-full h-full object-cover object-center cursor-pointer"
             loading="lazy"
           />
