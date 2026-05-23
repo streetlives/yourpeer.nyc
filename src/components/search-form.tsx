@@ -281,7 +281,7 @@ export default function SearchForm() {
           title={aiSearchEnabled ? "AI Search on" : "AI Search off"}
           className={`flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded border transition-colors ${
             aiSearchEnabled
-              ? "bg-indigo-600 text-white border-indigo-600"
+              ? "bg-primary text-black border-primary"
               : "bg-white text-gray-400 border-gray-300"
           }`}
         >
