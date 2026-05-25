@@ -22,17 +22,18 @@ export default function LocationStubMarker({
       clickable={true}
       onClick={() =>
         handleClickOnLocationStubMarker &&
+        activeLocationSlug !== locationStub.slug &&
         handleClickOnLocationStubMarker(locationStub)
       }
       title={locationStub.name}
       icon={
-        locationStub.closed
-          ? {
-              url: "/img/icons/closed-pin.png",
-              scaledSize: new window.google.maps.Size(25, 32),
-            }
-          : activeLocationSlug === locationStub.slug
-            ? activeMarkerIcon
+        activeLocationSlug === locationStub.slug
+          ? activeMarkerIcon
+          : locationStub.closed
+            ? {
+                url: "/img/icons/closed-pin.png",
+                scaledSize: new window.google.maps.Size(25, 32),
+              }
             : {
                 url: "/img/icons/pin.avif",
                 scaledSize: new window.google.maps.Size(25, 32),
