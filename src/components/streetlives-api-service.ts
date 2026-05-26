@@ -468,7 +468,7 @@ export function map_gogetta_to_yourpeer(
       type: phone["type"],
     })),
     url: d["Organization"]["url"],
-    streetview_url: d["streetview_url"],
+    streetview: d["Streetview"],
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,

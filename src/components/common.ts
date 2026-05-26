@@ -529,6 +529,15 @@ export function parseRequest({
   };
 }
 
+export interface StreetviewData {
+  pano_id: string | null;
+  lat: number | null;
+  lng: number | null;
+  heading: number | null;
+  pitch: number | null;
+  fov: number | null;
+}
+
 // TODO: this should get exported by the streetlives-api REST API or a shared types library, rather than being embedded here
 export interface SimplifiedLocationData {
   id: string;
@@ -540,7 +549,7 @@ export interface SimplifiedLocationData {
   };
   additional_info: string | null;
   slug: string;
-  streetview_url: string | null;
+  Streetview: StreetviewData | null;
   last_validated_at: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -869,7 +878,7 @@ export interface YourPeerLegacyLocationData {
   name: string | null;
   phones: null | Phone[];
   url: string | null;
-  streetview_url: string | null;
+  streetview: StreetviewData | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;
   food_services: YourPeerLegacyServiceDataWrapper;
   clothing_services: YourPeerLegacyServiceDataWrapper;

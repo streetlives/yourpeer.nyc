@@ -1,82 +1,28 @@
 "use client";
 
 import {
-  APIProvider,
-  Map,
-  MapCameraChangedEvent,
-  Marker,
-} from "@vis.gl/react-google-maps";
+  Position,
+  SimplifiedLocationData,
+  YourPeerLegacyLocationData,
+} from "@/components/common";
+import LocationStubMarker from "@/components/location-stub-marker";
 import {
   activeMarkerIcon,
   defaultZoom,
   mapStyles,
 } from "@/components/map-common";
-import LocationStubMarker from "@/components/location-stub-marker";
+import { buildStreetViewUrls } from "@/lib/streetView";
 import {
-  Position,
-  SimplifiedLocationData,
-  YourPeerLegacyLocationData,
-} from "@/components/common";
+  APIProvider,
+  Map,
+  MapCameraChangedEvent,
+  Marker,
+} from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useState } from "react";
 
 const GOOGLE_MAPS_API_KEY = (
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
 ).toString();
-
-function trimLocationFromSlug(path: string) {
-  const parts = path.split("/");
-  if (parts.length > 2 && parts[1] === "locations") {
-    return parts.slice(2).join("/");
-  }
-  return path.startsWith("/") ? path.slice(1) : path;
-}
-
-interface StreetViewData {
-  lat?: number;
-  lng?: number;
-  heading?: number;
-  pitch?: number;
-  fov?: number;
-  pano?: string;
-}
-
-function extractStreetViewData(url: string | null): StreetViewData | null {
-  if (!url) return null;
-  const result: StreetViewData = {};
-
-  // Lat and Lng after @lat,lng
-  const latLngMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (latLngMatch) {
-    result.lat = parseFloat(latLngMatch[1]);
-    result.lng = parseFloat(latLngMatch[2]);
-  }
-
-  // Heading: after h in the URL (e.g., 14.82h)
-  const headingMatch = url.match(/,(\d+(?:\.\d+)?)h/);
-  if (headingMatch) {
-    result.heading = parseFloat(headingMatch[1]);
-  }
-
-  // Pitch: after t in the URL (e.g., 88.07t)
-  const pitchMatch = url.match(/,(\d+(?:\.\d+)?)t/);
-  if (pitchMatch) {
-    result.pitch = parseFloat(pitchMatch[1]);
-  }
-
-  // FOV: after y in the URL (e.g., 75y)
-  const fovMatch = url.match(/,(\d+(?:\.\d+)?)y/);
-  if (fovMatch) {
-    result.fov = parseFloat(fovMatch[1]);
-  }
-
-  // Pano ID: after !1s in the URL
-  const panoMatch = url.match(/!1s([^!]+)/);
-  if (panoMatch) {
-    result.pano = panoMatch[1];
-  }
-
-  return result;
-}
 
 export default function StreetView({
   location,
@@ -88,13 +34,10 @@ export default function StreetView({
   const [locationStubs, setLocationStubs] = useState<SimplifiedLocationData[]>(
     [],
   );
-  const data = extractStreetViewData(location.streetview_url);
 
-  let streetview = `${location.lat},${location.lng}`;
-  if (data !== null) {
-    streetview = `${data.lat},${data.lng}&fov=${data.fov ?? 75}&heading=${data.heading ?? 0}`;
-  }
-  const streetviewHref = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${streetview}`;
+  const { imageUrl, mapsUrl } = buildStreetViewUrls(location, {
+    size: "600x500",
+  });
 
   // TODO: eliminate duplicate code
   const handleCameraChange = useCallback(
@@ -132,12 +75,14 @@ export default function StreetView({
     <div>
       <div>
         <a
-          href={streetviewHref}
+          href={mapsUrl}
           target="_blank"
+          rel="noopener noreferrer"
           className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block"
         >
           <img
-            src={`https://maps.googleapis.com/maps/api/streetview?size=600x500&key=${GOOGLE_MAPS_API_KEY}&fov=75&location=${streetview}`}
+            src={imageUrl}
+            alt=""
             className="w-full h-full object-cover object-center cursor-pointer"
             loading="lazy"
           />
@@ -181,8 +126,9 @@ export default function StreetView({
           </APIProvider>
         </div>
         <a
-          href={streetviewHref}
+          href={mapsUrl}
           target="_blank"
+          rel="noopener noreferrer"
           className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow rounded-full px-5 py-2 text-dark font-medium text-sm"
         >
           Open Street View
