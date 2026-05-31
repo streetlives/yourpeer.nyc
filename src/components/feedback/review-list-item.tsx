@@ -53,7 +53,7 @@ export default function ReviewListItem({
   orgName: string;
 }) {
   const [isReplying, setIsReplying] = useState(false);
-  const replyContext = useReply();
+  const { openReply, closeReply } = useReply();
   const [isReporting, setIsReporting] = useState(false);
   const { user } = useAuthenticator((context) => [context.user]);
   const queryClient = useQueryClient();
@@ -62,12 +62,12 @@ export default function ReviewListItem({
     if (!isReplying) {
       return;
     }
-    replyContext.setIsReplying(true);
+    openReply();
 
     return () => {
-      replyContext.setIsReplying(false);
+      closeReply();
     };
-  }, [isReplying, replyContext]);
+  }, [isReplying, openReply, closeReply]);
 
   const { mutate: mutateHideComment, isPending } = useMutation({
     mutationFn: (hidden: boolean) => hideComment(comment.id, hidden),

@@ -1,20 +1,32 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 interface ReplyContextType {
   isReplying: boolean;
-  setIsReplying: React.Dispatch<React.SetStateAction<boolean>>;
-  toggleReply: () => void;
+  openReply: () => void;
+  closeReply: () => void;
 }
 
 const ReplyContext = createContext<ReplyContextType | undefined>(undefined);
 
 export const ReplyProvider = ({ children }: { children: ReactNode }) => {
-  const [isReplying, setIsReplying] = useState(false);
+  const [replyCount, setReplyCount] = useState(0);
 
-  const toggleReply = () => setIsReplying((prev) => !prev);
+  const openReply = useCallback(() => setReplyCount((n) => n + 1), []);
+  const closeReply = useCallback(
+    () => setReplyCount((n) => Math.max(0, n - 1)),
+    [],
+  );
 
   return (
-    <ReplyContext.Provider value={{ isReplying, setIsReplying, toggleReply }}>
+    <ReplyContext.Provider
+      value={{ isReplying: replyCount > 0, openReply, closeReply }}
+    >
       {children}
     </ReplyContext.Provider>
   );
