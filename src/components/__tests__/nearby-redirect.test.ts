@@ -1,60 +1,54 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-
 import {
   shouldAutoRedirectToNearby,
   shouldRedirectToNearbyPath,
 } from "../nearby-redirect";
 
 test("shouldRedirectToNearbyPath allows all resource index routes", () => {
-  assert.equal(shouldRedirectToNearbyPath("/locations"), true);
-  assert.equal(shouldRedirectToNearbyPath("/shelters-housing"), true);
-  assert.equal(shouldRedirectToNearbyPath("/food"), true);
-  assert.equal(shouldRedirectToNearbyPath("/clothing"), true);
-  assert.equal(shouldRedirectToNearbyPath("/personal-care"), true);
-  assert.equal(shouldRedirectToNearbyPath("/health-care"), true);
-  assert.equal(shouldRedirectToNearbyPath("/other-services"), true);
-  assert.equal(shouldRedirectToNearbyPath("/legal-services"), true);
-  assert.equal(shouldRedirectToNearbyPath("/mental-health"), true);
-  assert.equal(shouldRedirectToNearbyPath("/employment"), true);
+  expect(shouldRedirectToNearbyPath("/locations")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/shelters-housing")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/food")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/clothing")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/personal-care")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/health-care")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/other-services")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/legal-services")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/mental-health")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/employment")).toBe(true);
 });
 
 test("shouldRedirectToNearbyPath rejects detail and unknown routes", () => {
-  assert.equal(
+  expect(
     shouldRedirectToNearbyPath(
       "/locations/roman-catholic-archdiocese-of-newark-rcan-629-clinton-ave",
     ),
-    false,
-  );
-  assert.equal(shouldRedirectToNearbyPath("/about-us"), false);
-  assert.equal(shouldRedirectToNearbyPath(null), false);
+  ).toBe(false);
+  expect(shouldRedirectToNearbyPath("/about-us")).toBe(false);
+  expect(shouldRedirectToNearbyPath(null)).toBe(false);
 });
 
 test("shouldRedirectToNearbyPath normalizes trailing slash", () => {
-  assert.equal(shouldRedirectToNearbyPath("/locations/"), true);
-  assert.equal(shouldRedirectToNearbyPath("/locations/slug/"), false);
+  expect(shouldRedirectToNearbyPath("/locations/")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/locations/slug/")).toBe(false);
 });
 
 test("shouldRedirectToNearbyPath allows locale-prefixed index routes", () => {
-  assert.equal(shouldRedirectToNearbyPath("/en/locations"), true);
-  assert.equal(shouldRedirectToNearbyPath("/en-US/food"), true);
-  assert.equal(shouldRedirectToNearbyPath("/es/mental-health"), true);
-  assert.equal(
+  expect(shouldRedirectToNearbyPath("/en/locations")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/en-US/food")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/es/mental-health")).toBe(true);
+  expect(
     shouldRedirectToNearbyPath("/en/locations/roman-catholic-archdiocese"),
-    false,
-  );
+  ).toBe(false);
 });
 
 test("shouldRedirectToNearbyPath allows basePath-prefixed index routes", () => {
   const previous = process.env.NEXT_PUBLIC_BASE_PATH;
   process.env.NEXT_PUBLIC_BASE_PATH = "app";
 
-  assert.equal(shouldRedirectToNearbyPath("/app/locations"), true);
-  assert.equal(shouldRedirectToNearbyPath("/app/other-services/"), true);
-  assert.equal(
+  expect(shouldRedirectToNearbyPath("/app/locations")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/app/other-services/")).toBe(true);
+  expect(
     shouldRedirectToNearbyPath("/app/locations/roman-catholic-archdiocese"),
-    false,
-  );
+  ).toBe(false);
 
   if (previous === undefined) {
     delete process.env.NEXT_PUBLIC_BASE_PATH;
@@ -67,13 +61,12 @@ test("shouldRedirectToNearbyPath allows basePath and locale prefixed index route
   const previous = process.env.NEXT_PUBLIC_BASE_PATH;
   process.env.NEXT_PUBLIC_BASE_PATH = "app";
 
-  assert.equal(shouldRedirectToNearbyPath("/app/en/locations"), true);
-  assert.equal(shouldRedirectToNearbyPath("/app/en-US/food/"), true);
-  assert.equal(shouldRedirectToNearbyPath("/app/es/mental-health"), true);
-  assert.equal(
+  expect(shouldRedirectToNearbyPath("/app/en/locations")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/app/en-US/food/")).toBe(true);
+  expect(shouldRedirectToNearbyPath("/app/es/mental-health")).toBe(true);
+  expect(
     shouldRedirectToNearbyPath("/app/en/locations/roman-catholic-archdiocese"),
-    false,
-  );
+  ).toBe(false);
 
   if (previous === undefined) {
     delete process.env.NEXT_PUBLIC_BASE_PATH;
@@ -83,43 +76,39 @@ test("shouldRedirectToNearbyPath allows basePath and locale prefixed index route
 });
 
 test("shouldAutoRedirectToNearby enforces all redirect guards", () => {
-  assert.equal(
+  expect(
     shouldAutoRedirectToNearby({
       pathname: "/locations",
       sortBy: null,
       searchText: null,
       isLocationDetail: false,
     }),
-    true,
-  );
+  ).toBe(true);
 
-  assert.equal(
+  expect(
     shouldAutoRedirectToNearby({
       pathname: "/locations",
       sortBy: "nearby",
       searchText: null,
       isLocationDetail: false,
     }),
-    false,
-  );
+  ).toBe(false);
 
-  assert.equal(
+  expect(
     shouldAutoRedirectToNearby({
       pathname: "/locations",
       sortBy: null,
       searchText: "soup kitchen",
       isLocationDetail: false,
     }),
-    false,
-  );
+  ).toBe(false);
 
-  assert.equal(
+  expect(
     shouldAutoRedirectToNearby({
       pathname: "/locations",
       sortBy: null,
       searchText: null,
       isLocationDetail: true,
     }),
-    false,
-  );
+  ).toBe(false);
 });

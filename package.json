@@ -14,8 +14,7 @@
     "check-translations": "tsx scripts/check-translations.ts",
     "test": "npx playwright test",
     "test:unit": "vitest",
-    "test:unit:run": "vitest run",
-    "test:node": "node --import tsx --test src/components/__tests__/**/*.test.ts"
+    "test:unit:run": "vitest run"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
