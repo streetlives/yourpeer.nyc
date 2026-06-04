@@ -28,8 +28,9 @@ describe("parsePreviousParamsCookie", () => {
       },
       searchParams: {},
     });
-    expect(parsePreviousParamsCookie(value)?.params.locationSlugOrPersonalCareSubCategory).toBe(
-      "shelter-abc-123",
-    );
+    expect(
+      parsePreviousParamsCookie(value)?.params
+        .locationSlugOrPersonalCareSubCategory,
+    ).toBe("shelter-abc-123");
   });
 });
