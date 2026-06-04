@@ -15,7 +15,7 @@
     "test": "npx playwright test",
     "test:unit": "vitest",
     "test:unit:run": "vitest run",
-    "test:node": "node --test src/components/__tests__/**/*.test.ts"
+    "test:node": "node --import tsx --test src/components/__tests__/**/*.test.ts"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
