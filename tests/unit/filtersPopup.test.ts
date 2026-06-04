@@ -71,7 +71,12 @@ describe("getUrlWithNewFilterParameter", () => {
 
   it("overrides an existing parameter", () => {
     expect(
-      getUrlWithNewFilterParameter("/locations", params({ age: "30" }), "age", "25"),
+      getUrlWithNewFilterParameter(
+        "/locations",
+        params({ age: "30" }),
+        "age",
+        "25",
+      ),
     ).toBe("/locations?age=25");
   });
 });
@@ -126,7 +131,12 @@ describe("getUrlWithNewCategoryAndSubcategory", () => {
 describe("getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved", () => {
   it("throws when pathname is null", () => {
     expect(() =>
-      getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(null, params(), "no", true),
+      getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+        null,
+        params(),
+        "no",
+        true,
+      ),
     ).toThrow("Expected pathname to not be null");
   });
 
@@ -243,13 +253,21 @@ describe("getUrlWithSubCategoryAddedOrRemoved", () => {
 
   it("switches subcategory", () => {
     expect(
-      getUrlWithSubCategoryAddedOrRemoved("/food/soup-kitchens", params(), "pantry"),
+      getUrlWithSubCategoryAddedOrRemoved(
+        "/food/soup-kitchens",
+        params(),
+        "pantry",
+      ),
     ).toBe("/food/pantry");
   });
 
   it("clears a subcategory when null is passed", () => {
     expect(
-      getUrlWithSubCategoryAddedOrRemoved("/food/soup-kitchens", params(), null),
+      getUrlWithSubCategoryAddedOrRemoved(
+        "/food/soup-kitchens",
+        params(),
+        null,
+      ),
     ).toBe("/food");
   });
 
