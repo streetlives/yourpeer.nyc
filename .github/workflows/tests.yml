@@ -42,10 +42,10 @@ jobs:
           key: playwright-${{ steps.playwright-version.outputs.version }}
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
       - name: Install Playwright system deps (cached browsers)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        run: npx playwright install-deps
       - name: Run E2E tests
         env:
           # NEXT_PUBLIC_GO_GETTA_PROD_URL is set to http://localhost:4000 by
