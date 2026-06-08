@@ -134,10 +134,12 @@ export const SHELTER_PARAM = "shelter";
 export const SHELTER_PARAM_SINGLE_VALUE = "adult";
 export const SHELTER_PARAM_FAMILY_VALUE = "families";
 export const SHELTER_PARAM_YOUTH_VALUE = "youth";
+export const SHELTER_PARAM_DROP_IN_VALUE = "drop-in-center";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
   | typeof SHELTER_PARAM_YOUTH_VALUE
-  | typeof SHELTER_PARAM_FAMILY_VALUE;
+  | typeof SHELTER_PARAM_FAMILY_VALUE
+  | typeof SHELTER_PARAM_DROP_IN_VALUE;
 
 export const FOOD_PARAM = "food";
 export const FOOD_PARAM_SOUP_KITCHEN_VALUE = "soup-kitchens";
@@ -273,7 +275,8 @@ export function getParsedSubCategory(
     (!subCategory ||
       subCategory === SHELTER_PARAM_FAMILY_VALUE ||
       subCategory === SHELTER_PARAM_YOUTH_VALUE ||
-      subCategory === SHELTER_PARAM_SINGLE_VALUE)
+      subCategory === SHELTER_PARAM_SINGLE_VALUE ||
+      subCategory === SHELTER_PARAM_DROP_IN_VALUE)
   ) {
     return subCategory as ShelterValues;
   } else {
@@ -462,7 +465,8 @@ export function parseRequest({
     [SHELTER_PARAM]:
       (typeof searchParams[SHELTER_PARAM] === "string" &&
         searchParams[SHELTER_PARAM] === SHELTER_PARAM_SINGLE_VALUE) ||
-      searchParams[SHELTER_PARAM] === SHELTER_PARAM_FAMILY_VALUE
+      searchParams[SHELTER_PARAM] === SHELTER_PARAM_FAMILY_VALUE ||
+      searchParams[SHELTER_PARAM] === SHELTER_PARAM_DROP_IN_VALUE
         ? (searchParams[SHELTER_PARAM] as ShelterValues)
         : (parsedSubCategory as ShelterValues),
     [FOOD_PARAM]:

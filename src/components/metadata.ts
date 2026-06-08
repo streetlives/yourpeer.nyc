@@ -25,6 +25,7 @@ import {
   PAGE_PARAM,
   PRIVACY_POLICY_ROUTE,
   RouteParams,
+  SHELTER_PARAM_DROP_IN_VALUE,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   SubRouteParams,
@@ -141,6 +142,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
           );
           description =
             "Find family shelters and housing for unhoused people in NYC. Explore all of our family resources to ensure your family's well-being and find the support you need.";
+          break;
+        case SHELTER_PARAM_DROP_IN_VALUE:
+          title = attachSuffix("Drop-In Centers in NYC");
+          description =
+            "Find drop-in centers in NYC. See available services at each location, like food, showers, and case management.";
           break;
       }
       break;

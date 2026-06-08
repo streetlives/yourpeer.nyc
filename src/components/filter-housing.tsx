@@ -6,18 +6,25 @@
 
 import { useFilters } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
-import { ChangeEvent } from "react";
 import {
   SHELTER_PARAM,
   SHELTER_PARAM_FAMILY_VALUE,
   parsePathnameToCategoryAndSubCategory,
   SHELTER_PARAM_YOUTH_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_DROP_IN_VALUE,
   ShelterValues,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
 import { TranslatableText } from "./translatable-text";
 import { useNormalizedSearchParams } from "./use-normalized-search-params";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const options = [
   { value: null, label: "Any" },
@@ -33,6 +40,10 @@ const options = [
     value: SHELTER_PARAM_YOUTH_VALUE,
     label: "Youth",
   },
+  {
+    value: SHELTER_PARAM_DROP_IN_VALUE,
+    label: "Drop-in Center",
+  },
 ];
 
 export default function FilterHousing() {
@@ -40,58 +51,44 @@ export default function FilterHousing() {
   const pathname = usePathname() as string;
   const { normalizedSearchParams } = useNormalizedSearchParams();
   const setLoading = useFilters((state) => state.setLoading);
-  const [category, subCategory] =
-    parsePathnameToCategoryAndSubCategory(pathname);
+  const [, subCategory] = parsePathnameToCategoryAndSubCategory(pathname);
   const shelterParam =
     (normalizedSearchParams && normalizedSearchParams.get(SHELTER_PARAM)) ||
-    subCategory;
+    subCategory ||
+    "any";
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value as ShelterValues | "any";
-
+  const handleChange = (value: string) => {
     setLoading(true);
     router.push(
       getUrlWithSubCategoryAddedOrRemoved(
         pathname,
         normalizedSearchParams,
-        value === "any" ? null : value,
+        value === "any" ? null : (value as ShelterValues),
       ),
     );
   };
-
-  function handleIsYouthClick() {
-    router.push(
-      getUrlWithSubCategoryAddedOrRemoved(
-        pathname,
-        normalizedSearchParams,
-        SHELTER_PARAM_YOUTH_VALUE,
-      ),
-    );
-  }
 
   return (
     <fieldset className="mt-6">
       <legend className="text-xs font-semibold leading-6 text-dark">
         <TranslatableText text="Shelter & Housing type" />
       </legend>
-      <div className="mt-2 flex w-full">
-        {options.map((option) => (
-          <label
-            key={option.value}
-            className="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center first:rounded-l-lg last:rounded-r-lg has-[:checked]:bg-primary has-[:checked]:border-black"
-          >
-            <input
-              type="radio"
-              name="shelter-type"
+      <Select value={shelterParam as string} onValueChange={handleChange}>
+        <SelectTrigger className="mt-2 w-full text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem
+              key={option.value ?? "any"}
               value={option.value ?? "any"}
-              defaultChecked={shelterParam === option.value}
-              className="sr-only"
-              onChange={handleChange}
-            />
-            <TranslatableText text={option.label} />
-          </label>
-        ))}
-      </div>
+              className="text-xs"
+            >
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </fieldset>
   );
 }
