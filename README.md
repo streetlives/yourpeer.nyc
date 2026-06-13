@@ -17,7 +17,23 @@ Create a `.env.local` in your project root directory. It should contain the foll
 ```
 NEXT_PUBLIC_GO_GETTA_PROD_URL=https://w6pkliozjh.execute-api.us-east-1.amazonaws.com/Stage
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert a google maps API key here or contact us to get a development key>
+NEXT_PUBLIC_DATADOG_APPLICATION_ID=<required for Browser RUM>
+NEXT_PUBLIC_DATADOG_CLIENT_TOKEN=<required for Browser RUM>
+NEXT_PUBLIC_DATADOG_SITE=datadoghq.com
+NEXT_PUBLIC_DATADOG_SERVICE=yourpeer-frontend
+NEXT_PUBLIC_DATADOG_ENV=production
+NEXT_PUBLIC_DATADOG_VERSION=<set to release/version identifier>
+NEXT_PUBLIC_DATADOG_APP_NAME=yourpeer.nyc
+NEXT_PUBLIC_DATADOG_TRACING_ORIGINS=https://yourpeer.nyc,https://<api-gateway-domain>
+NEXT_PUBLIC_DATADOG_ENABLED=false
+NEXT_PUBLIC_DATADOG_REQUIRE_CONSENT=true
+NEXT_PUBLIC_DATADOG_CONSENT_COOKIE_NAME=analytics_consent
+NEXT_PUBLIC_DATADOG_SESSION_SAMPLE_RATE=100
+NEXT_PUBLIC_DATADOG_SESSION_REPLAY_ENABLED=false
+NEXT_PUBLIC_DATADOG_SESSION_REPLAY_SAMPLE_RATE=0
 ```
+
+Datadog Browser RUM only initializes in the browser and is a no-op unless all of the following are true: `NEXT_PUBLIC_DATADOG_ENABLED=true`, required Datadog tokens are present, and consent is granted when `NEXT_PUBLIC_DATADOG_REQUIRE_CONSENT=true` (read from `NEXT_PUBLIC_DATADOG_CONSENT_COOKIE_NAME`).
 
 Then run:
 
