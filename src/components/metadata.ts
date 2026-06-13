@@ -30,7 +30,10 @@ import {
   SubRouteParams,
   TERMS_OF_USE_ROUTE,
 } from "./common";
-import { fetchLocationsDetailData } from "./streetlives-api-service";
+import {
+  fetchLocationsDetailData,
+  Error404Response,
+} from "./streetlives-api-service";
 
 type Props = {
   params: RouteParams | SubRouteParams | Promise<RouteParams | SubRouteParams>;
@@ -67,7 +70,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
             ? attachSuffix(locationDetailsResponse.Organization.name)
             : "";
         } catch (e) {
-          console.error("Error fetching data in metadata", e);
+          if (!(e instanceof Error404Response)) {
+            console.error("Error fetching data in metadata", e);
+          }
         }
       } else {
         title = attachSuffix("All Locations");
