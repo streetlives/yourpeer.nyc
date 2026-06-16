@@ -19,17 +19,26 @@ export function getTargetLanguage(gTranslateCookie: string) {
   return gTranslateCookie.split("|")[1];
 }
 
+export function parseGoogTransCookie(raw: string | undefined): string {
+  return raw ? raw.replace(/\//g, "|").slice(1) : "en|en";
+}
+
+export function computeNewGoogTransCookieValue(
+  gTranslateCookie: string,
+): string | undefined {
+  const targetLanguage = getTargetLanguage(gTranslateCookie);
+  return targetLanguage === "en"
+    ? undefined
+    : `/${gTranslateCookie.replace("|", "/")}`;
+}
+
 export const LanguageTranslationProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const cookies = useCookies();
 
-  const googtransCookie = cookies.get("googtrans");
-  const googtransCookieDefaultValue = googtransCookie
-    ? googtransCookie.replace(/\//g, "|").slice(1)
-    : "en|en";
   const [gTranslateCookie, setGTranslateCookie] = useState<string | null>(
-    googtransCookieDefaultValue,
+    parseGoogTransCookie(cookies.get("googtrans")),
   );
   return (
     <LanguageTranslationContext.Provider
@@ -38,11 +47,8 @@ export const LanguageTranslationProvider: React.FC<{
         setGTranslateCookie: (gTranslateCookie: string | null) => {
           setGTranslateCookie(gTranslateCookie);
           if (gTranslateCookie) {
-            const targetLanguage = getTargetLanguage(gTranslateCookie);
             const newCookieValue =
-              targetLanguage === "en"
-                ? undefined
-                : `/${gTranslateCookie.replace("|", "/")}`;
+              computeNewGoogTransCookieValue(gTranslateCookie);
             // we clear the cookie if it's english so that we do not run google translate
             if (newCookieValue) {
               cookies.set(GOOGLE_TRANLATE_COOKIE_NAME, newCookieValue);

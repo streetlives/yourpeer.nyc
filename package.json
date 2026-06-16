@@ -12,7 +12,9 @@
     "check-format": "prettier --check .",
     "all-checks": "npm run check-format && npm run check-types && npm run lint",
     "check-translations": "tsx scripts/check-translations.ts",
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "test:unit": "vitest",
+    "test:unit:run": "vitest run"
   },
   "dependencies": {
     "@aws-amplify/ui": "^6.7.0",
@@ -41,7 +43,7 @@
     "moment-strftime": "^0.5.0",
     "momentjs": "^2.0.0",
     "next": "15.5.9",
-    "next-client-cookies": "^1.1.1",
+    "next-client-cookies": "^2.1.1",
     "next-themes": "^0.4.4",
     "react": "19.1.1",
     "react-cookie": "^7.2.0",
@@ -65,10 +67,14 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.13",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "@types/underscore": "^1.11.15",
+    "@vitejs/plugin-react": "^6.0.2",
     "aws-cdk": "^2.170.0",
     "aws-cdk-lib": "^2.170.0",
     "classnames": "^2.5.1",
@@ -76,6 +82,7 @@
     "esbuild": "^0.24.0",
     "eslint": "^8",
     "eslint-config-next": "15.5.3",
+    "jsdom": "^29.1.1",
     "postcss": "^8",
     "prettier": "^3.3.2",
     "tailwind-scrollbar": "^3.1.0",
@@ -83,7 +90,9 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-debug-screens": "^2.2.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.6"
   },
   "browserslist": [
     "safari 14"
