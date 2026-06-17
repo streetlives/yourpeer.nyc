@@ -816,6 +816,55 @@ export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
   [AMENITIES_PARAM_HAIRCUTS_VALUE]: HAIRCUTS_TAXONOMY,
 };
 
+// Maps a shelters-housing subcategory to the exact child taxonomy name it must resolve
+// to under the "Shelter" parent taxonomy. "youth" is intentionally absent: like the
+// unfiltered case it maps to the parent "Shelter" taxonomy and is further narrowed by an
+// age range elsewhere (see get-side-panel-component-data / map-container-component).
+export const SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME: Record<
+  Exclude<ShelterValues, typeof SHELTER_PARAM_YOUTH_VALUE>,
+  string
+> = {
+  [SHELTER_PARAM_SINGLE_VALUE]: "Single Adult",
+  [SHELTER_PARAM_FAMILY_VALUE]: "Families",
+  [SHELTER_PARAM_DROP_IN_VALUE]: "Drop-in Center",
+};
+
+// Resolves the taxonomies to filter on for the shelters-housing category. `null` and
+// "youth" map to the parent "Shelter" taxonomy; every other subcategory must resolve to a
+// specific child taxonomy by exact name. If that child is missing from the taxonomy
+// response we throw rather than returning an empty set: an empty set would cause the
+// caller to drop the taxonomy filter entirely and return every location, silently
+// breaking the filter (see getSimplifiedLocationData's `taxonomies.length` guard).
+export function getShelterTaxonomies(
+  taxonomyResponse: TaxonomyResponse[],
+  parentTaxonomyName: TaxonomyCategory,
+  shelterParam: ShelterValues | null,
+): Taxonomy[] {
+  if (shelterParam === null || shelterParam === SHELTER_PARAM_YOUTH_VALUE) {
+    return taxonomyResponse.flatMap((r) =>
+      r.name === parentTaxonomyName ? [r as Taxonomy] : [],
+    );
+  }
+
+  const taxonomyName = SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME[shelterParam];
+  const matches = taxonomyResponse.flatMap((r) =>
+    r.children
+      ? r.children.filter(
+          (t) =>
+            t.parent_name === parentTaxonomyName && t.name === taxonomyName,
+        )
+      : [],
+  );
+
+  if (!matches.length) {
+    throw new Error(
+      `No "${taxonomyName}" taxonomy found under "${parentTaxonomyName}" for the "${shelterParam}" shelter filter`,
+    );
+  }
+
+  return matches;
+}
+
 export interface AgeEligibility {
   age_min: number | null;
   age_max: number | null;
