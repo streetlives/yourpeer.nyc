@@ -115,10 +115,22 @@ describe("getShelterTaxonomies", () => {
 
   it("maps single-adult and families to their child taxonomies", () => {
     expect(
-      ids(getShelterTaxonomies(FULL_RESPONSE, "Shelter", SHELTER_PARAM_SINGLE_VALUE)),
+      ids(
+        getShelterTaxonomies(
+          FULL_RESPONSE,
+          "Shelter",
+          SHELTER_PARAM_SINGLE_VALUE,
+        ),
+      ),
     ).toEqual(["tax-0"]);
     expect(
-      ids(getShelterTaxonomies(FULL_RESPONSE, "Shelter", SHELTER_PARAM_FAMILY_VALUE)),
+      ids(
+        getShelterTaxonomies(
+          FULL_RESPONSE,
+          "Shelter",
+          SHELTER_PARAM_FAMILY_VALUE,
+        ),
+      ),
     ).toEqual(["tax-1"]);
   });
 
@@ -127,7 +139,13 @@ describe("getShelterTaxonomies", () => {
       "tax-shelter",
     ]);
     expect(
-      ids(getShelterTaxonomies(FULL_RESPONSE, "Shelter", SHELTER_PARAM_YOUTH_VALUE)),
+      ids(
+        getShelterTaxonomies(
+          FULL_RESPONSE,
+          "Shelter",
+          SHELTER_PARAM_YOUTH_VALUE,
+        ),
+      ),
     ).toEqual(["tax-shelter"]);
   });
 
