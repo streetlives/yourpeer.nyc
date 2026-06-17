@@ -830,10 +830,12 @@ export const SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME: Record<
 };
 
 // Sentinel taxonomy id used when a requested shelter subcategory cannot be resolved to a
-// real taxonomy. It is a non-UUID string that will never match a location, so the filter
+// real taxonomy. This is the RFC 4122 "nil" UUID: it is a well-formed UUID (so the
+// locations API's taxonomyId validation accepts it and returns 200 with zero results
+// rather than a 400/500) but is never assigned to a real taxonomy. The filter therefore
 // degrades to "no results" rather than (a) throwing and turning the page into a 500 or
 // (b) dropping the taxonomy filter entirely and returning every location.
-export const NONEXISTENT_TAXONOMY_ID = "no-matching-taxonomy";
+export const NONEXISTENT_TAXONOMY_ID = "00000000-0000-0000-0000-000000000000";
 
 // Resolves the taxonomies to filter on for the shelters-housing category. `null` and
 // "youth" map to the parent "Shelter" taxonomy; every other subcategory must resolve to a

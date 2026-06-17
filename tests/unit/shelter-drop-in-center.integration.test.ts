@@ -82,13 +82,26 @@ function jsonResponse(body: unknown, headers: Record<string, string> = {}) {
 // taxonomyId it filtered on.
 const locationRequestUrls: string[] = [];
 
-function installFetchMock(taxonomyBody: unknown, totalCount = "3") {
+function installFetchMock(
+  taxonomyBody: unknown,
+  {
+    totalCount = "3",
+    locationStatus = 200,
+  }: { totalCount?: string; locationStatus?: number } = {},
+) {
   const fetchMock = vi.fn(async (url: string) => {
     if (url.includes("/taxonomy")) {
       return jsonResponse(taxonomyBody);
     }
     if (url.includes("/locations")) {
       locationRequestUrls.push(url);
+      if (locationStatus !== 200) {
+        return {
+          status: locationStatus,
+          headers: { get: () => null },
+          json: async () => ({}),
+        };
+      }
       return jsonResponse([], {
         "Pagination-Count": "1",
         "Total-Count": totalCount,
@@ -99,6 +112,14 @@ function installFetchMock(taxonomyBody: unknown, totalCount = "3") {
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
+
+// Parses the taxonomyId value out of a captured locations request URL.
+function taxonomyIdParam(url: string): string | null {
+  return new URL(url).searchParams.get("taxonomyId");
+}
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // The module reads NEXT_PUBLIC_GO_GETTA_PROD_URL into a const at load time, so set it
 // before importing and import dynamically.
@@ -201,8 +222,8 @@ describe("end-to-end taxonomy -> locations query for drop-in-center", () => {
 
   it("does not 500 and returns zero results (not all locations) when the taxonomy is missing", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    // Locations endpoint returns total-count 0 for an unknown taxonomyId.
-    installFetchMock(TAXONOMY_WITHOUT_DROP_IN, "0");
+    // Locations endpoint returns total-count 0 for an unknown (but well-formed) taxonomyId.
+    installFetchMock(TAXONOMY_WITHOUT_DROP_IN, { totalCount: "0" });
     const { service, common } = await importServiceAndCommon();
 
     const { taxonomies } = await service.getTaxonomies(
@@ -221,9 +242,34 @@ describe("end-to-end taxonomy -> locations query for drop-in-center", () => {
     });
 
     expect(locationRequestUrls).toHaveLength(1);
-    expect(locationRequestUrls[0]).toContain(
-      `taxonomyId=${common.NONEXISTENT_TAXONOMY_ID}`,
+    // The value sent to the API must be a well-formed UUID so taxonomyId validation
+    // accepts it (and returns zero results) instead of rejecting it as a 400/500.
+    expect(taxonomyIdParam(locationRequestUrls[0])).toBe(
+      common.NONEXISTENT_TAXONOMY_ID,
     );
+    expect(taxonomyIdParam(locationRequestUrls[0])).toMatch(UUID_RE);
     expect(locations).toHaveLength(0);
+  });
+
+  it("surfaces an API error for the sentinel request instead of swallowing it", async () => {
+    // If the locations API ever did reject the request, the failure must propagate (the
+    // normal non-200 error path) rather than being silently treated as zero results.
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    installFetchMock(TAXONOMY_WITHOUT_DROP_IN, { locationStatus: 500 });
+    const { service, common } = await importServiceAndCommon();
+
+    const { taxonomies } = await service.getTaxonomies(
+      "shelters-housing",
+      parsedParamsForSubcategory(common, "drop-in-center"),
+    );
+
+    await expect(
+      service.getSimplifiedLocationData({
+        taxonomies,
+        taxonomySpecificAttributes: null,
+      }),
+    ).rejects.toThrow();
+
+    expect(taxonomyIdParam(locationRequestUrls[0])).toMatch(UUID_RE);
   });
 });
