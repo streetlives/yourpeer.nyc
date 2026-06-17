@@ -134,10 +134,12 @@ export const SHELTER_PARAM = "shelter";
 export const SHELTER_PARAM_SINGLE_VALUE = "adult";
 export const SHELTER_PARAM_FAMILY_VALUE = "families";
 export const SHELTER_PARAM_YOUTH_VALUE = "youth";
+export const SHELTER_PARAM_DROP_IN_VALUE = "drop-in-center";
 export type ShelterValues =
   | typeof SHELTER_PARAM_SINGLE_VALUE
   | typeof SHELTER_PARAM_YOUTH_VALUE
-  | typeof SHELTER_PARAM_FAMILY_VALUE;
+  | typeof SHELTER_PARAM_FAMILY_VALUE
+  | typeof SHELTER_PARAM_DROP_IN_VALUE;
 
 export const FOOD_PARAM = "food";
 export const FOOD_PARAM_SOUP_KITCHEN_VALUE = "soup-kitchens";
@@ -273,7 +275,8 @@ export function getParsedSubCategory(
     (!subCategory ||
       subCategory === SHELTER_PARAM_FAMILY_VALUE ||
       subCategory === SHELTER_PARAM_YOUTH_VALUE ||
-      subCategory === SHELTER_PARAM_SINGLE_VALUE)
+      subCategory === SHELTER_PARAM_SINGLE_VALUE ||
+      subCategory === SHELTER_PARAM_DROP_IN_VALUE)
   ) {
     return subCategory as ShelterValues;
   } else {
@@ -812,6 +815,75 @@ export const AMENITY_TO_TAXONOMY_NAME_MAP: Record<
   [AMENITIES_PARAM_TOILETRIES_VALUE]: TOILETRIES_TAXONOMY,
   [AMENITIES_PARAM_HAIRCUTS_VALUE]: HAIRCUTS_TAXONOMY,
 };
+
+// Maps a shelters-housing subcategory to the exact child taxonomy name it must resolve
+// to under the "Shelter" parent taxonomy. "youth" is intentionally absent: like the
+// unfiltered case it maps to the parent "Shelter" taxonomy and is further narrowed by an
+// age range elsewhere (see get-side-panel-component-data / map-container-component).
+export const SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME: Record<
+  Exclude<ShelterValues, typeof SHELTER_PARAM_YOUTH_VALUE>,
+  string
+> = {
+  [SHELTER_PARAM_SINGLE_VALUE]: "Single Adult",
+  [SHELTER_PARAM_FAMILY_VALUE]: "Families",
+  [SHELTER_PARAM_DROP_IN_VALUE]: "Drop-in Center",
+};
+
+// Sentinel taxonomy id used when a requested shelter subcategory cannot be resolved to a
+// real taxonomy. This is the RFC 4122 "nil" UUID: it is a well-formed UUID (so the
+// locations API's taxonomyId validation accepts it and returns 200 with zero results
+// rather than a 400/500) but is never assigned to a real taxonomy. The filter therefore
+// degrades to "no results" rather than (a) throwing and turning the page into a 500 or
+// (b) dropping the taxonomy filter entirely and returning every location.
+export const NONEXISTENT_TAXONOMY_ID = "00000000-0000-0000-0000-000000000000";
+
+// Resolves the taxonomies to filter on for the shelters-housing category. `null` and
+// "youth" map to the parent "Shelter" taxonomy; every other subcategory must resolve to a
+// specific child taxonomy by exact name. The child name is an external data contract: if
+// it is renamed or removed upstream the match fails. Rather than returning an empty set
+// (which the caller would treat as "no filter" and return every location — see
+// getSimplifiedLocationData's `taxonomies.length` guard) or throwing (which would 500 the
+// page), we log the misconfiguration and fall back to a sentinel id that yields zero
+// results, keeping the page up and the filter scoped.
+export function getShelterTaxonomies(
+  taxonomyResponse: TaxonomyResponse[],
+  parentTaxonomyName: TaxonomyCategory,
+  shelterParam: ShelterValues | null,
+): Taxonomy[] {
+  if (shelterParam === null || shelterParam === SHELTER_PARAM_YOUTH_VALUE) {
+    return taxonomyResponse.flatMap((r) =>
+      r.name === parentTaxonomyName ? [r as Taxonomy] : [],
+    );
+  }
+
+  const taxonomyName = SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME[shelterParam];
+  const matches = taxonomyResponse.flatMap((r) =>
+    r.children
+      ? r.children.filter(
+          (t) =>
+            t.parent_name === parentTaxonomyName && t.name === taxonomyName,
+        )
+      : [],
+  );
+
+  if (!matches.length) {
+    console.error(
+      `No "${taxonomyName}" taxonomy found under "${parentTaxonomyName}" for the "${shelterParam}" shelter filter; returning no results.`,
+    );
+    return [
+      {
+        id: NONEXISTENT_TAXONOMY_ID,
+        name: taxonomyName,
+        parent_name: parentTaxonomyName,
+        parent_id: null,
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
+      },
+    ];
+  }
+
+  return matches;
+}
 
 export interface AgeEligibility {
   age_min: number | null;

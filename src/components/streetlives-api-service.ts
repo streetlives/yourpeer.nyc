@@ -32,9 +32,7 @@ import {
   ScheduleData,
   setIntersection,
   SHELTER_PARAM,
-  SHELTER_PARAM_FAMILY_VALUE,
-  SHELTER_PARAM_SINGLE_VALUE,
-  SHELTER_PARAM_YOUTH_VALUE,
+  getShelterTaxonomies,
   SimplifiedLocationData,
   Taxonomy,
   TaxonomyCategory,
@@ -723,40 +721,12 @@ export async function getTaxonomies(
       //     query += " and t.name = 'Families' and t.parent_name = 'Shelter'"
       // else:
       //     query += " and t.name = 'Shelter'"
-      switch (parsedSearchParams[SHELTER_PARAM]) {
-        case null:
-          taxonomies = taxonomyResponse.flatMap((r) =>
-            r.name === parentTaxonomyName ? [r as Taxonomy] : [],
-          );
-          break;
-        case SHELTER_PARAM_FAMILY_VALUE:
-          taxonomies = taxonomyResponse.flatMap((r) =>
-            !r.children
-              ? []
-              : r.children.filter(
-                  (t) =>
-                    t.parent_name === parentTaxonomyName &&
-                    t.name === "Families",
-                ),
-          );
-          break;
-        case SHELTER_PARAM_YOUTH_VALUE:
-          taxonomies = taxonomyResponse.flatMap((r) =>
-            r.name === parentTaxonomyName ? [r as Taxonomy] : [],
-          );
-          break;
-        case SHELTER_PARAM_SINGLE_VALUE:
-          taxonomies = taxonomyResponse.flatMap((r) =>
-            !r.children
-              ? []
-              : r.children.filter(
-                  (t) =>
-                    t.parent_name === parentTaxonomyName &&
-                    t.name === "Single Adult",
-                ),
-          );
-          break;
-      }
+      taxonomies = getShelterTaxonomies(
+        taxonomyResponse,
+        parentTaxonomyName,
+        parsedSearchParams[SHELTER_PARAM],
+      );
+      break;
   }
 
   return {

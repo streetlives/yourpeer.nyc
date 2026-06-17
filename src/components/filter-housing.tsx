@@ -13,6 +13,7 @@ import {
   parsePathnameToCategoryAndSubCategory,
   SHELTER_PARAM_YOUTH_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
+  SHELTER_PARAM_DROP_IN_VALUE,
   ShelterValues,
 } from "./common";
 import { getUrlWithSubCategoryAddedOrRemoved } from "./navigation";
@@ -32,6 +33,10 @@ const options = [
   {
     value: SHELTER_PARAM_YOUTH_VALUE,
     label: "Youth",
+  },
+  {
+    value: SHELTER_PARAM_DROP_IN_VALUE,
+    label: "Drop-in Center",
   },
 ];
 
@@ -74,11 +79,11 @@ export default function FilterHousing() {
       <legend className="text-xs font-semibold leading-6 text-dark">
         <TranslatableText text="Shelter & Housing type" />
       </legend>
-      <div className="mt-2 flex w-full">
+      <div className="mt-2 flex flex-col w-full">
         {options.map((option) => (
           <label
             key={option.value}
-            className="text-xs relative flex-1 flex flex-col items-center justify-center cursor-pointer border py-2 px-5 focus:outline-none text-center first:rounded-l-lg last:rounded-r-lg has-[:checked]:bg-primary has-[:checked]:border-black"
+            className="text-xs relative flex items-center justify-start cursor-pointer border [&:not(:first-child)]:-mt-px py-2 px-5 focus:outline-none text-left first:rounded-t-lg last:rounded-b-lg has-[:checked]:bg-primary has-[:checked]:border-black has-[:checked]:z-10"
           >
             <input
               type="radio"
