@@ -35,6 +35,7 @@ import {
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   SHELTER_PARAM_YOUTH_VALUE,
+  SHELTER_PARAM_DROP_IN_VALUE,
   SimplifiedLocationData,
   Taxonomy,
   TaxonomyCategory,
@@ -753,6 +754,17 @@ export async function getTaxonomies(
                   (t) =>
                     t.parent_name === parentTaxonomyName &&
                     t.name === "Single Adult",
+                ),
+          );
+          break;
+        case SHELTER_PARAM_DROP_IN_VALUE:
+          taxonomies = taxonomyResponse.flatMap((r) =>
+            !r.children
+              ? []
+              : r.children.filter(
+                  (t) =>
+                    t.parent_name === parentTaxonomyName &&
+                    t.name === "Drop-in Center",
                 ),
           );
           break;

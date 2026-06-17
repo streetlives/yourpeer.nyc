@@ -36,6 +36,7 @@ import {
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
   SHELTER_PARAM_YOUTH_VALUE,
+  SHELTER_PARAM_DROP_IN_VALUE,
   SubCategory,
 } from "./common";
 import {
@@ -294,7 +295,8 @@ export default function FiltersHeader({
         {currentCategory === "shelters-housing" &&
         (subCategory === SHELTER_PARAM_FAMILY_VALUE ||
           subCategory === SHELTER_PARAM_SINGLE_VALUE ||
-          subCategory === SHELTER_PARAM_YOUTH_VALUE) ? (
+          subCategory === SHELTER_PARAM_YOUTH_VALUE ||
+          subCategory === SHELTER_PARAM_DROP_IN_VALUE) ? (
           <Link
             className="bg-primary inline-flex flex-shrink-0 overflow-hidden items-center space-x-2 text-dark rounded-full text-xs py-1 px-3 transition location_filter"
             style={linkHeight}
@@ -313,6 +315,11 @@ export default function FiltersHeader({
             ) : subCategory === SHELTER_PARAM_SINGLE_VALUE ? (
               <TranslatableText
                 text={"Single Adult"}
+                className="leading-3 truncate"
+              />
+            ) : subCategory === SHELTER_PARAM_DROP_IN_VALUE ? (
+              <TranslatableText
+                text={"Drop-in Center"}
                 className="leading-3 truncate"
               />
             ) : (
