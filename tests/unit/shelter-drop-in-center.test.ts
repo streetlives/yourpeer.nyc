@@ -23,6 +23,7 @@ vi.mock("next/dist/server/web/spec-extension/adapters/request-cookies", () => ({
 }));
 
 import {
+  NONEXISTENT_TAXONOMY_ID,
   SHELTER_PARAM_DROP_IN_VALUE,
   SHELTER_PARAM_FAMILY_VALUE,
   SHELTER_PARAM_SINGLE_VALUE,
@@ -149,20 +150,26 @@ describe("getShelterTaxonomies", () => {
     ).toEqual(["tax-shelter"]);
   });
 
-  it("throws instead of silently returning an empty set when the taxonomy is missing", () => {
+  it("degrades to a non-matching sentinel (no throw, no empty set) when the taxonomy is missing", () => {
     // If the upstream taxonomy were renamed or removed, an empty result would drop the
-    // taxonomy filter entirely and return every location, silently breaking the filter.
+    // taxonomy filter entirely and return every location, while throwing would 500 the
+    // page. Instead we log and return a sentinel id that matches nothing -> zero results.
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const responseWithoutDropIn = buildTaxonomyResponse([
       "Single Adult",
       "Families",
     ]);
-    expect(() =>
-      getShelterTaxonomies(
-        responseWithoutDropIn,
-        "Shelter",
-        SHELTER_PARAM_DROP_IN_VALUE,
-      ),
-    ).toThrow(/Drop-in Center/);
+
+    const result = getShelterTaxonomies(
+      responseWithoutDropIn,
+      "Shelter",
+      SHELTER_PARAM_DROP_IN_VALUE,
+    );
+
+    expect(ids(result)).toEqual([NONEXISTENT_TAXONOMY_ID]);
+    expect(errorSpy).toHaveBeenCalledOnce();
+    expect(errorSpy.mock.calls[0][0]).toMatch(/Drop-in Center/);
+    errorSpy.mockRestore();
   });
 });
 

@@ -829,12 +829,20 @@ export const SHELTER_SUBCATEGORY_TO_TAXONOMY_NAME: Record<
   [SHELTER_PARAM_DROP_IN_VALUE]: "Drop-in Center",
 };
 
+// Sentinel taxonomy id used when a requested shelter subcategory cannot be resolved to a
+// real taxonomy. It is a non-UUID string that will never match a location, so the filter
+// degrades to "no results" rather than (a) throwing and turning the page into a 500 or
+// (b) dropping the taxonomy filter entirely and returning every location.
+export const NONEXISTENT_TAXONOMY_ID = "no-matching-taxonomy";
+
 // Resolves the taxonomies to filter on for the shelters-housing category. `null` and
 // "youth" map to the parent "Shelter" taxonomy; every other subcategory must resolve to a
-// specific child taxonomy by exact name. If that child is missing from the taxonomy
-// response we throw rather than returning an empty set: an empty set would cause the
-// caller to drop the taxonomy filter entirely and return every location, silently
-// breaking the filter (see getSimplifiedLocationData's `taxonomies.length` guard).
+// specific child taxonomy by exact name. The child name is an external data contract: if
+// it is renamed or removed upstream the match fails. Rather than returning an empty set
+// (which the caller would treat as "no filter" and return every location — see
+// getSimplifiedLocationData's `taxonomies.length` guard) or throwing (which would 500 the
+// page), we log the misconfiguration and fall back to a sentinel id that yields zero
+// results, keeping the page up and the filter scoped.
 export function getShelterTaxonomies(
   taxonomyResponse: TaxonomyResponse[],
   parentTaxonomyName: TaxonomyCategory,
@@ -857,9 +865,19 @@ export function getShelterTaxonomies(
   );
 
   if (!matches.length) {
-    throw new Error(
-      `No "${taxonomyName}" taxonomy found under "${parentTaxonomyName}" for the "${shelterParam}" shelter filter`,
+    console.error(
+      `No "${taxonomyName}" taxonomy found under "${parentTaxonomyName}" for the "${shelterParam}" shelter filter; returning no results.`,
     );
+    return [
+      {
+        id: NONEXISTENT_TAXONOMY_ID,
+        name: taxonomyName,
+        parent_name: parentTaxonomyName,
+        parent_id: null,
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
+      },
+    ];
   }
 
   return matches;
