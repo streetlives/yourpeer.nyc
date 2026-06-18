@@ -40,9 +40,22 @@ describe("map_gogetta_to_yourpeer — Streetview mapping", () => {
     });
   });
 
-  it("treats an absent Streetview field as null (backward-compat with old API shape)", () => {
+  it("treats an absent Streetview field as null", () => {
     const { Streetview: _omitted, ...rest } = BASE as any;
     const result = map_gogetta_to_yourpeer(rest as LocationDetailData, true);
+    expect(result.streetview).toBeNull();
+  });
+
+  it("ignores legacy streetview_url field — backend has fully migrated to Streetview", () => {
+    // Contract test: the old streetview_url field must not silently produce data.
+    // If streetview_url reappears in an API response, it should be ignored (null),
+    // not silently mapped into a user-visible street view link.
+    const fixture = {
+      ...BASE,
+      Streetview: undefined,
+      streetview_url: "https://maps.google.com/?some=legacy&url=1",
+    } as any;
+    const result = map_gogetta_to_yourpeer(fixture as LocationDetailData, true);
     expect(result.streetview).toBeNull();
   });
 });
