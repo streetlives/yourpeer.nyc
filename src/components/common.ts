@@ -549,7 +549,8 @@ export interface SimplifiedLocationData {
   };
   additional_info: string | null;
   slug: string;
-  Streetview: StreetviewData | null;
+  /** Absent in pre-migration API responses that only carry streetview_url. */
+  Streetview?: StreetviewData | null;
   /** Present only in pre-migration API responses; use Streetview instead. */
   streetview_url?: string | null;
   last_validated_at: Date;

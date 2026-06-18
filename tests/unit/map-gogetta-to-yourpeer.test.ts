@@ -148,4 +148,15 @@ describe("parseStreetviewUrl", () => {
     const result = parseStreetviewUrl(url);
     expect(result?.pano_id).toBe("abc123");
   });
+
+  it("does not throw on a malformed percent-escape in the pano_id — returns raw string", () => {
+    // A truncated or invalid escape like %GG would cause decodeURIComponent to
+    // throw URIError. The parser must catch it and return the raw captured string
+    // rather than propagating the error and breaking location rendering.
+    const url =
+      "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t/data=!1sBadPano%GG!2e0";
+    expect(() => parseStreetviewUrl(url)).not.toThrow();
+    const result = parseStreetviewUrl(url);
+    expect(result?.pano_id).toBe("BadPano%GG");
+  });
 });

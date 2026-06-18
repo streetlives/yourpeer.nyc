@@ -73,18 +73,16 @@ describe("SimplifiedLocationData type — backward-compatible shape", () => {
     expect(newShape.Streetview?.pano_id).toBe("abc");
   });
 
-  it("accepts the legacy shape (streetview_url present alongside Streetview)", () => {
-    // If this compiles, the type can represent a partially-migrated response
-    // without a TypeScript error at the consumer.
-    const legacyShape: Pick<
-      SimplifiedLocationData,
-      "Streetview" | "streetview_url"
-    > = {
-      Streetview: null,
+  it("accepts the true pre-migration shape (only streetview_url, no Streetview key)", () => {
+    // The actual pre-migration API response had no Streetview field at all.
+    // If this compiles, the type correctly models old responses without forcing
+    // consumers to synthesise a Streetview: null they never received.
+    const legacyShape: Pick<SimplifiedLocationData, "streetview_url"> = {
       streetview_url:
         "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h",
     };
     expect(legacyShape.streetview_url).toContain("google.com/maps");
+    expect(legacyShape).not.toHaveProperty("Streetview");
   });
 });
 

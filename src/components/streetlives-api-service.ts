@@ -431,6 +431,14 @@ function filter_services_by_name(
  *   - 88t         → pitch
  *   - !1sPANO_ID  → pano_id
  */
+function safeDecodeURIComponent(s: string): string {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
 export function parseStreetviewUrl(
   url: string | null | undefined,
 ): StreetviewData | null {
@@ -445,7 +453,7 @@ export function parseStreetviewUrl(
   if (!latLngMatch && !panoMatch) return null;
 
   return {
-    pano_id: panoMatch ? decodeURIComponent(panoMatch[1]) : null,
+    pano_id: panoMatch ? safeDecodeURIComponent(panoMatch[1]) : null,
     lat: latLngMatch ? parseFloat(latLngMatch[1]) : null,
     lng: latLngMatch ? parseFloat(latLngMatch[2]) : null,
     heading: headingMatch ? parseFloat(headingMatch[1]) : null,
