@@ -36,6 +36,7 @@ import {
   SHELTER_PARAM_SINGLE_VALUE,
   SHELTER_PARAM_YOUTH_VALUE,
   SimplifiedLocationData,
+  StreetviewData,
   Taxonomy,
   TaxonomyCategory,
   TaxonomyResponse,
@@ -418,6 +419,41 @@ function filter_services_by_name(
   return { services };
 }
 
+/**
+ * Parses a legacy Google Maps Street View URL into a StreetviewData object.
+ * Used as a backward-compatible fallback when the API still returns `streetview_url`
+ * instead of the structured `Streetview` field.
+ *
+ * URL shape (Google Maps): https://www.google.com/maps/@lat,lng,3a,75y,90h,88t/data=...!1sPANO_ID!...
+ *   - @lat,lng    → lat / lng
+ *   - 75y         → fov
+ *   - 90h         → heading
+ *   - 88t         → pitch
+ *   - !1sPANO_ID  → pano_id
+ */
+export function parseStreetviewUrl(
+  url: string | null | undefined,
+): StreetviewData | null {
+  if (!url) return null;
+
+  const latLngMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  const headingMatch = url.match(/,(\d+(?:\.\d+)?)h/);
+  const pitchMatch = url.match(/,(\d+(?:\.\d+)?)t/);
+  const fovMatch = url.match(/,(\d+(?:\.\d+)?)y/);
+  const panoMatch = url.match(/!1s([^!]+)/);
+
+  if (!latLngMatch && !panoMatch) return null;
+
+  return {
+    pano_id: panoMatch ? panoMatch[1] : null,
+    lat: latLngMatch ? parseFloat(latLngMatch[1]) : null,
+    lng: latLngMatch ? parseFloat(latLngMatch[2]) : null,
+    heading: headingMatch ? parseFloat(headingMatch[1]) : null,
+    pitch: pitchMatch ? parseFloat(pitchMatch[1]) : null,
+    fov: fovMatch ? parseFloat(fovMatch[1]) : null,
+  };
+}
+
 export function map_gogetta_to_yourpeer(
   d: FullLocationData | LocationDetailData,
   is_location_detail: boolean,
@@ -468,19 +504,15 @@ export function map_gogetta_to_yourpeer(
       type: phone["type"],
     })),
     url: d["Organization"]["url"],
-    streetview: (() => {
-      if (
-        process.env.NODE_ENV !== "production" &&
-        "streetview_url" in (d as unknown as Record<string, unknown>)
-      ) {
-        console.warn(
-          `[map_gogetta_to_yourpeer] Legacy 'streetview_url' field detected in API response for location ${d.id}. ` +
-            "The backend has not fully migrated to the 'Streetview' field — custom Street View data will be lost. " +
-            "Check the Go-Getta API deployment.",
-        );
-      }
-      return d["Streetview"] ?? null;
-    })(),
+    streetview:
+      d["Streetview"] ??
+      parseStreetviewUrl(
+        (d as unknown as Record<string, unknown>)["streetview_url"] as
+          | string
+          | null
+          | undefined,
+      ) ??
+      null,
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,

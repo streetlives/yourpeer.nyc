@@ -6,7 +6,10 @@ vi.mock("@/components/auth", () => ({
 }));
 
 import locationDetailFixture from "../fixtures/location-detail.json";
-import { map_gogetta_to_yourpeer } from "@/components/streetlives-api-service";
+import {
+  map_gogetta_to_yourpeer,
+  parseStreetviewUrl,
+} from "@/components/streetlives-api-service";
 import type { LocationDetailData } from "@/components/common";
 
 const BASE = locationDetailFixture as unknown as LocationDetailData;
@@ -40,26 +43,91 @@ describe("map_gogetta_to_yourpeer — Streetview mapping", () => {
     });
   });
 
-  it("treats an absent Streetview field as null", () => {
+  it("treats an absent Streetview field as null when no streetview_url is present", () => {
     const { Streetview: _omitted, ...rest } = BASE as any;
     const result = map_gogetta_to_yourpeer(rest as LocationDetailData, true);
     expect(result.streetview).toBeNull();
   });
 
-  it("ignores legacy streetview_url field and emits a dev warning if it reappears", () => {
-    // Contract test: the old streetview_url field must not silently produce data.
-    // If streetview_url reappears in an API response it should be ignored (null),
-    // and a console.warn must fire so developers can catch a backend regression.
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+  it("falls back to parsed streetview_url when Streetview is absent", () => {
+    // Backward-compat: if the backend still returns the legacy Google Maps URL,
+    // parse it into a StreetviewData object so custom views are not silently dropped.
     const fixture = {
       ...BASE,
-      Streetview: undefined,
-      streetview_url: "https://maps.google.com/?some=legacy&url=1",
+      Streetview: null,
+      streetview_url:
+        "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t/data=!3m6!1e1!3m4!1sabc123pano!2e0",
     } as any;
     const result = map_gogetta_to_yourpeer(fixture as LocationDetailData, true);
-    expect(result.streetview).toBeNull();
-    expect(warnSpy).toHaveBeenCalledOnce();
-    expect(warnSpy.mock.calls[0][0]).toContain("streetview_url");
-    warnSpy.mockRestore();
+    expect(result.streetview).toEqual({
+      pano_id: "abc123pano",
+      lat: 40.7484,
+      lng: -73.9857,
+      heading: 90,
+      pitch: 88,
+      fov: 75,
+    });
+  });
+
+  it("prefers Streetview over streetview_url when both are present", () => {
+    const fixture = {
+      ...BASE,
+      Streetview: {
+        pano_id: "new-pano",
+        lat: 40.6892,
+        lng: -74.0445,
+        heading: 45,
+        pitch: 0,
+        fov: 90,
+      },
+      streetview_url:
+        "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t",
+    } as any;
+    const result = map_gogetta_to_yourpeer(fixture as LocationDetailData, true);
+    expect(result.streetview?.pano_id).toBe("new-pano");
+  });
+});
+
+describe("parseStreetviewUrl", () => {
+  it("returns null for null input", () => {
+    expect(parseStreetviewUrl(null)).toBeNull();
+  });
+
+  it("returns null for undefined input", () => {
+    expect(parseStreetviewUrl(undefined)).toBeNull();
+  });
+
+  it("returns null when the URL has no parseable Street View data", () => {
+    expect(parseStreetviewUrl("https://maps.google.com/")).toBeNull();
+  });
+
+  it("parses lat/lng, heading, pitch, fov, and pano_id from a full Google Maps URL", () => {
+    const url =
+      "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t/data=!3m6!1e1!3m4!1sabc123!2e0";
+    expect(parseStreetviewUrl(url)).toEqual({
+      pano_id: "abc123",
+      lat: 40.7484,
+      lng: -73.9857,
+      heading: 90,
+      pitch: 88,
+      fov: 75,
+    });
+  });
+
+  it("parses a URL with pano_id but no lat/lng", () => {
+    const url = "https://www.google.com/maps/!1smyPanoId!2e0";
+    const result = parseStreetviewUrl(url);
+    expect(result?.pano_id).toBe("myPanoId");
+    expect(result?.lat).toBeNull();
+    expect(result?.lng).toBeNull();
+  });
+
+  it("fills optional fields with null when absent from the URL", () => {
+    const url = "https://www.google.com/maps/@40.7484,-73.9857";
+    const result = parseStreetviewUrl(url);
+    expect(result?.heading).toBeNull();
+    expect(result?.pitch).toBeNull();
+    expect(result?.fov).toBeNull();
+    expect(result?.pano_id).toBeNull();
   });
 });
