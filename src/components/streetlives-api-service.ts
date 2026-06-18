@@ -468,7 +468,19 @@ export function map_gogetta_to_yourpeer(
       type: phone["type"],
     })),
     url: d["Organization"]["url"],
-    streetview: d["Streetview"] ?? null,
+    streetview: (() => {
+      if (
+        process.env.NODE_ENV !== "production" &&
+        "streetview_url" in (d as unknown as Record<string, unknown>)
+      ) {
+        console.warn(
+          `[map_gogetta_to_yourpeer] Legacy 'streetview_url' field detected in API response for location ${d.id}. ` +
+            "The backend has not fully migrated to the 'Streetview' field — custom Street View data will be lost. " +
+            "Check the Go-Getta API deployment.",
+        );
+      }
+      return d["Streetview"] ?? null;
+    })(),
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,

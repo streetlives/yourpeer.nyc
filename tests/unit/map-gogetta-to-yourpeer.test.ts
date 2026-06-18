@@ -46,10 +46,11 @@ describe("map_gogetta_to_yourpeer — Streetview mapping", () => {
     expect(result.streetview).toBeNull();
   });
 
-  it("ignores legacy streetview_url field — backend has fully migrated to Streetview", () => {
+  it("ignores legacy streetview_url field and emits a dev warning if it reappears", () => {
     // Contract test: the old streetview_url field must not silently produce data.
-    // If streetview_url reappears in an API response, it should be ignored (null),
-    // not silently mapped into a user-visible street view link.
+    // If streetview_url reappears in an API response it should be ignored (null),
+    // and a console.warn must fire so developers can catch a backend regression.
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const fixture = {
       ...BASE,
       Streetview: undefined,
@@ -57,5 +58,8 @@ describe("map_gogetta_to_yourpeer — Streetview mapping", () => {
     } as any;
     const result = map_gogetta_to_yourpeer(fixture as LocationDetailData, true);
     expect(result.streetview).toBeNull();
+    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy.mock.calls[0][0]).toContain("streetview_url");
+    warnSpy.mockRestore();
   });
 });
