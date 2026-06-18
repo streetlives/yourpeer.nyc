@@ -20,10 +20,6 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useState } from "react";
 
-const GOOGLE_MAPS_API_KEY = (
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string
-).toString();
-
 export default function StreetView({
   location,
 }: {
@@ -93,7 +89,10 @@ export default function StreetView({
       </div>
       <div className="w-full max-h-52 h-52 overflow-hidden relative md:hidden">
         <div id="miniMap" className="w-full h-full bg-neutral-100">
-          <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
+          <APIProvider
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string}
+            libraries={["marker"]}
+          >
             <Map
               defaultZoom={zoom}
               gestureHandling={"greedy"}
