@@ -130,4 +130,22 @@ describe("parseStreetviewUrl", () => {
     expect(result?.fov).toBeNull();
     expect(result?.pano_id).toBeNull();
   });
+
+  it("decodes a percent-encoded pano_id so URLSearchParams does not double-encode it", () => {
+    // Real Google Maps URLs encode pano IDs; capturing the raw encoded form and
+    // then passing it through URLSearchParams produces %25XX (double-encoding).
+    // The parser must decodeURIComponent before storing.
+    const encoded = "5G7xi0rjQI9bMsP93dBAJA%3D%3D"; // trailing == signs encoded
+    const url = `https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t/data=!1s${encoded}!2e0`;
+    const result = parseStreetviewUrl(url);
+    expect(result?.pano_id).toBe("5G7xi0rjQI9bMsP93dBAJA==");
+    expect(result?.pano_id).not.toContain("%");
+  });
+
+  it("handles an already-decoded pano_id without corrupting it", () => {
+    const url =
+      "https://www.google.com/maps/@40.7484,-73.9857,3a,75y,90h,88t/data=!1sabc123!2e0";
+    const result = parseStreetviewUrl(url);
+    expect(result?.pano_id).toBe("abc123");
+  });
 });

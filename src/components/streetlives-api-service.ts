@@ -445,7 +445,7 @@ export function parseStreetviewUrl(
   if (!latLngMatch && !panoMatch) return null;
 
   return {
-    pano_id: panoMatch ? panoMatch[1] : null,
+    pano_id: panoMatch ? decodeURIComponent(panoMatch[1]) : null,
     lat: latLngMatch ? parseFloat(latLngMatch[1]) : null,
     lng: latLngMatch ? parseFloat(latLngMatch[2]) : null,
     heading: headingMatch ? parseFloat(headingMatch[1]) : null,
