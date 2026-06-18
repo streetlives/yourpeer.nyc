@@ -505,14 +505,7 @@ export function map_gogetta_to_yourpeer(
     })),
     url: d["Organization"]["url"],
     streetview:
-      d["Streetview"] ??
-      parseStreetviewUrl(
-        (d as unknown as Record<string, unknown>)["streetview_url"] as
-          | string
-          | null
-          | undefined,
-      ) ??
-      null,
+      d["Streetview"] ?? parseStreetviewUrl(d["streetview_url"]) ?? null,
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,
