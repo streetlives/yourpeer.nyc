@@ -11,8 +11,12 @@ export function buildStreetViewUrls(
   const sv = location.streetview;
 
   const panoId = sv?.pano_id ?? null;
-  const lat = sv?.lat ?? location.lat;
-  const lng = sv?.lng ?? location.lng;
+  // Only use custom coordinates when both are present; a partial payload would
+  // mix one custom coordinate with one location coordinate, pointing Street View
+  // at a wrong place.
+  const useCustomCoords = sv?.lat != null && sv?.lng != null;
+  const lat = useCustomCoords ? sv!.lat! : location.lat;
+  const lng = useCustomCoords ? sv!.lng! : location.lng;
   const heading = sv?.heading ?? null;
   const pitch = sv?.pitch ?? 0;
   const fov = sv?.fov ?? 90;
@@ -33,8 +37,10 @@ export function buildStreetViewUrls(
     api: "1",
     map_action: "pano",
   });
+  // viewpoint is always required by the Google Maps Street View URL spec;
+  // pano is an optional selector layered on top.
+  mapsParams.set("viewpoint", `${lat},${lng}`);
   if (panoId) mapsParams.set("pano", panoId);
-  else mapsParams.set("viewpoint", `${lat},${lng}`);
   if (heading !== null) mapsParams.set("heading", String(heading));
   mapsParams.set("pitch", String(pitch));
   mapsParams.set("fov", String(fov));

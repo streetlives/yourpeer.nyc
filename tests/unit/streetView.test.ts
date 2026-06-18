@@ -46,13 +46,14 @@ describe("buildStreetViewUrls", () => {
       expect(imageUrl).not.toContain("location=");
     });
 
-    it("uses pano instead of viewpoint in maps URL", () => {
+    it("includes both pano and viewpoint in maps URL", () => {
       const { mapsUrl } = buildStreetViewUrls({
         ...BASE_LOCATION,
         streetview: sv,
       });
       expect(mapsUrl).toContain("pano=abc123pano");
-      expect(mapsUrl).not.toContain("viewpoint=");
+      // viewpoint is always required by the Google Maps Street View URL spec
+      expect(mapsUrl).toContain("viewpoint=40.7484%2C-73.9857");
     });
   });
 
@@ -73,6 +74,40 @@ describe("buildStreetViewUrls", () => {
       });
       expect(imageUrl).toContain("location=40.6892%2C-74.0445");
       expect(imageUrl).not.toContain("40.7484");
+    });
+  });
+
+  describe("partial lat/lng — only one coordinate present", () => {
+    it("falls back to location coordinates when only lat is provided", () => {
+      const { imageUrl, mapsUrl } = buildStreetViewUrls({
+        ...BASE_LOCATION,
+        streetview: {
+          pano_id: null,
+          lat: 40.6892,
+          lng: null,
+          heading: null,
+          pitch: null,
+          fov: null,
+        },
+      });
+      expect(imageUrl).toContain("location=40.7484%2C-73.9857");
+      expect(mapsUrl).toContain("viewpoint=40.7484%2C-73.9857");
+    });
+
+    it("falls back to location coordinates when only lng is provided", () => {
+      const { imageUrl, mapsUrl } = buildStreetViewUrls({
+        ...BASE_LOCATION,
+        streetview: {
+          pano_id: null,
+          lat: null,
+          lng: -74.0445,
+          heading: null,
+          pitch: null,
+          fov: null,
+        },
+      });
+      expect(imageUrl).toContain("location=40.7484%2C-73.9857");
+      expect(mapsUrl).toContain("viewpoint=40.7484%2C-73.9857");
     });
   });
 
@@ -179,6 +214,7 @@ describe("buildStreetViewUrls", () => {
         streetview: sv,
       });
       expect(mapsUrl).toMatch(/^https:\/\/www\.google\.com\/maps\/@\?/);
+      expect(mapsUrl).toContain("viewpoint=40.6892%2C-74.0445");
       expect(mapsUrl).toContain("pano=xyz789");
       expect(mapsUrl).toContain("heading=270");
       expect(mapsUrl).toContain("pitch=5");
