@@ -112,7 +112,7 @@ describe("buildStreetViewUrls", () => {
 
   describe("pitch and fov", () => {
     it("defaults pitch to 0 and fov to 90 when null", () => {
-      const { imageUrl } = buildStreetViewUrls({
+      const { imageUrl, mapsUrl } = buildStreetViewUrls({
         ...BASE_LOCATION,
         streetview: {
           pano_id: null,
@@ -125,10 +125,12 @@ describe("buildStreetViewUrls", () => {
       });
       expect(imageUrl).toContain("pitch=0");
       expect(imageUrl).toContain("fov=90");
+      expect(mapsUrl).toContain("pitch=0");
+      expect(mapsUrl).toContain("fov=90");
     });
 
     it("uses provided pitch and fov values", () => {
-      const { imageUrl } = buildStreetViewUrls({
+      const { imageUrl, mapsUrl } = buildStreetViewUrls({
         ...BASE_LOCATION,
         streetview: {
           pano_id: null,
@@ -141,6 +143,8 @@ describe("buildStreetViewUrls", () => {
       });
       expect(imageUrl).toContain("pitch=-10");
       expect(imageUrl).toContain("fov=120");
+      expect(mapsUrl).toContain("pitch=-10");
+      expect(mapsUrl).toContain("fov=120");
     });
   });
 

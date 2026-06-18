@@ -37,6 +37,7 @@ export function buildStreetViewUrls(
   else mapsParams.set("viewpoint", `${lat},${lng}`);
   if (heading !== null) mapsParams.set("heading", String(heading));
   mapsParams.set("pitch", String(pitch));
+  mapsParams.set("fov", String(fov));
 
   const mapsUrl = `https://www.google.com/maps/@?${mapsParams}`;
 
