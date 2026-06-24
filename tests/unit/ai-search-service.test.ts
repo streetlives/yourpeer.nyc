@@ -47,7 +47,7 @@ describe("fetchLocationsData – outgoing API query param selection", () => {
 
   it("uses searchString by default (aiSearch omitted)", async () => {
     await fetchLocationsData({ taxonomies: null, search: "hot meals" });
-    expect(capturedUrls[0]).toContain("searchString=hot meals");
+    expect(capturedUrls[0]).toContain("searchString=hot%20meals");
     expect(capturedUrls[0]).not.toContain("naturalLanguageQuery");
   });
 
@@ -68,9 +68,34 @@ describe("fetchLocationsData – outgoing API query param selection", () => {
       aiSearch: true,
     });
     expect(capturedUrls[0]).toContain(
-      "naturalLanguageQuery=where can I get food",
+      "naturalLanguageQuery=where%20can%20I%20get%20food",
     );
     expect(capturedUrls[0]).not.toContain("searchString");
+  });
+
+  it("encodes reserved characters to prevent parameter injection", async () => {
+    await fetchLocationsData({
+      taxonomies: null,
+      search: "food&openAt=2099-01-01",
+      aiSearch: false,
+    });
+    const url = capturedUrls[0];
+    expect(url).toContain("searchString=food%26openAt%3D2099-01-01");
+    expect(url).not.toMatch(/openAt=2099/);
+  });
+
+  it("encodes reserved characters in naturalLanguageQuery", async () => {
+    await fetchLocationsData({
+      taxonomies: null,
+      search: "shelter & food = free",
+      aiSearch: true,
+    });
+    const url = capturedUrls[0];
+    expect(url).toContain(
+      "naturalLanguageQuery=shelter%20%26%20food%20%3D%20free",
+    );
+    expect(url).not.toContain("searchString");
+    expect(url).not.toMatch(/&food/);
   });
 
   it("adds no search param when search is absent", async () => {

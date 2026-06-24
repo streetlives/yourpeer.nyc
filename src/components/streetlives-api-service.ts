@@ -139,7 +139,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
 
   if (search) {
     const searchParamName = aiSearch ? "naturalLanguageQuery" : "searchString";
-    query_url += `&${searchParamName}=${search}`;
+    query_url += `&${searchParamName}=${encodeURIComponent(search)}`;
   }
 
   if (open) {
