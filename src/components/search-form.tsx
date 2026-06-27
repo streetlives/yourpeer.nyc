@@ -173,8 +173,14 @@ export default function SearchForm() {
       };
 
   const aiSearchFromQuery = searchParams && searchParams.get(AI_SEARCH_PARAM);
+  const aiSearchFromCookie = previousParams?.searchParams[AI_SEARCH_PARAM] as
+    | string
+    | undefined;
+
   const [aiSearchEnabled, setAiSearchEnabled] = useState(
-    aiSearchFromQuery === "true",
+    isCurrentlyOnLocationDetailPage
+      ? aiSearchFromCookie === "true"
+      : aiSearchFromQuery === "true",
   );
 
   useEffect(() => {
@@ -186,8 +192,12 @@ export default function SearchForm() {
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
   useEffect(() => {
-    setAiSearchEnabled(aiSearchFromQuery === "true");
-  }, [aiSearchFromQuery]);
+    setAiSearchEnabled(
+      isCurrentlyOnLocationDetailPage
+        ? aiSearchFromCookie === "true"
+        : aiSearchFromQuery === "true",
+    );
+  }, [aiSearchFromQuery, aiSearchFromCookie, isCurrentlyOnLocationDetailPage]);
 
   function buildSearchUrl(searchValue: string, aiEnabled: boolean): string {
     const baseUrl = getUrlWithNewFilterParameter(
