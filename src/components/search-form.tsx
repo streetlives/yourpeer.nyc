@@ -185,6 +185,10 @@ export default function SearchForm() {
     );
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
 
+  useEffect(() => {
+    setAiSearchEnabled(aiSearchFromQuery === "true");
+  }, [aiSearchFromQuery]);
+
   function buildSearchUrl(searchValue: string, aiEnabled: boolean): string {
     const baseUrl = getUrlWithNewFilterParameter(
       paramsToPathname(paramsToUseForNextUrl.params),
