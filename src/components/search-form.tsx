@@ -15,7 +15,12 @@ import {
   useSearchParams,
 } from "next/navigation";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { LOCATION_ROUTE, SEARCH_PARAM, SearchParams } from "./common";
+import {
+  AI_SEARCH_PARAM,
+  LOCATION_ROUTE,
+  SEARCH_PARAM,
+  SearchParams,
+} from "./common";
 import { PreviousParams } from "./get-previous-params";
 import {
   getUrlWithNewFilterParameter,
@@ -28,9 +33,11 @@ import { usePreviousParamsOnClient } from "./use-previous-params-client";
 function SearchPanel({
   currentSearch,
   paramsToUseForNextUrl,
+  aiSearchEnabled,
 }: {
   currentSearch: string;
   paramsToUseForNextUrl: PreviousParams;
+  aiSearchEnabled: boolean;
 }) {
   const { setShowMapViewOnMobile } = useViewStore();
   const setLoading = useFilters((state) => state.setLoading);
@@ -42,15 +49,15 @@ function SearchPanel({
         setLoading(true);
       }
       setShowMapViewOnMobile(false);
-      router.push(
-        getUrlWithNewFilterParameter(
-          // TODO
-          paramsToPathname(paramsToUseForNextUrl.params),
-          paramsToUseForNextUrl.searchParams,
-          SEARCH_PARAM,
-          currentSearch,
-        ),
+      const baseUrl = getUrlWithNewFilterParameter(
+        paramsToPathname(paramsToUseForNextUrl.params),
+        paramsToUseForNextUrl.searchParams,
+        SEARCH_PARAM,
+        currentSearch,
       );
+      const url = new URL(baseUrl, "http://localhost");
+      url.searchParams.set(AI_SEARCH_PARAM, String(aiSearchEnabled));
+      router.push(url.pathname + (url.search ? url.search : ""));
     }
   }
 
@@ -165,6 +172,17 @@ export default function SearchForm() {
           convertReadonlyURLSearchParamsToSearchParams(searchParams),
       };
 
+  const aiSearchFromQuery = searchParams && searchParams.get(AI_SEARCH_PARAM);
+  const aiSearchFromCookie = previousParams?.searchParams[AI_SEARCH_PARAM] as
+    | string
+    | undefined;
+
+  const [aiSearchEnabled, setAiSearchEnabled] = useState(
+    isCurrentlyOnLocationDetailPage
+      ? aiSearchFromCookie === "true"
+      : aiSearchFromQuery === "true",
+  );
+
   useEffect(() => {
     setSearch(
       isCurrentlyOnLocationDetailPage
@@ -172,6 +190,26 @@ export default function SearchForm() {
         : searchParamFromQuery,
     );
   }, [setSearch, searchParamFromQuery, searchParamFromCookie]);
+
+  useEffect(() => {
+    setAiSearchEnabled(
+      isCurrentlyOnLocationDetailPage
+        ? aiSearchFromCookie === "true"
+        : aiSearchFromQuery === "true",
+    );
+  }, [aiSearchFromQuery, aiSearchFromCookie, isCurrentlyOnLocationDetailPage]);
+
+  function buildSearchUrl(searchValue: string, aiEnabled: boolean): string {
+    const baseUrl = getUrlWithNewFilterParameter(
+      paramsToPathname(paramsToUseForNextUrl.params),
+      paramsToUseForNextUrl.searchParams,
+      SEARCH_PARAM,
+      searchValue,
+    );
+    const url = new URL(baseUrl, "http://localhost");
+    url.searchParams.set(AI_SEARCH_PARAM, String(aiEnabled));
+    return url.pathname + (url.search ? url.search : "");
+  }
 
   function clearSearch() {
     setSearch("");
@@ -188,6 +226,14 @@ export default function SearchForm() {
         "",
       ),
     );
+  }
+
+  function toggleAiSearch() {
+    const next = !aiSearchEnabled;
+    setAiSearchEnabled(next);
+    if (search) {
+      router.push(buildSearchUrl(search, next));
+    }
   }
 
   function doSetSearch(e: ChangeEvent) {
@@ -217,14 +263,7 @@ export default function SearchForm() {
         setLoading(true);
       }
       setShowMapViewOnMobile(false);
-      router.push(
-        getUrlWithNewFilterParameter(
-          paramsToPathname(paramsToUseForNextUrl.params),
-          paramsToUseForNextUrl.searchParams,
-          SEARCH_PARAM,
-          search,
-        ),
-      );
+      router.push(buildSearchUrl(search, aiSearchEnabled));
       setInputHasFocus(false);
     }
   }
@@ -249,8 +288,25 @@ export default function SearchForm() {
             }
           }}
         />
+        <button
+          type="button"
+          onClick={toggleAiSearch}
+          id="ai_search_toggle"
+          title={aiSearchEnabled ? "AI Search on" : "AI Search off"}
+          className={`flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded border transition-colors ${
+            aiSearchEnabled
+              ? "bg-primary text-black border-primary"
+              : "bg-white text-gray-400 border-gray-300"
+          }`}
+        >
+          AI
+        </button>
         {search ? (
-          <button onClick={clearSearch} id="search_clear_button">
+          <button
+            onClick={clearSearch}
+            className="ml-1"
+            id="search_clear_button"
+          >
             <XMarkIcon className="w-5 h-5 text-black" />
           </button>
         ) : undefined}
@@ -259,6 +315,7 @@ export default function SearchForm() {
         <SearchPanel
           currentSearch={search}
           paramsToUseForNextUrl={paramsToUseForNextUrl}
+          aiSearchEnabled={aiSearchEnabled}
         />
       ) : undefined}
     </>

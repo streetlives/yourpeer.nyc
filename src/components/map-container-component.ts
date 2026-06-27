@@ -5,6 +5,7 @@
 // https://opensource.org/licenses/MIT.
 
 import {
+  AI_SEARCH_PARAM,
   REQUIREMENT_PARAM,
   RouteParams,
   SHELTER_PARAM,
@@ -33,6 +34,7 @@ export async function getMapContainerData({
     ...parsedSearchParams,
     ...parsedSearchParams[REQUIREMENT_PARAM],
     ...taxonomiesResults,
+    aiSearch: parsedSearchParams[AI_SEARCH_PARAM],
     ageMin:
       parsedSearchParams[SHELTER_PARAM] === SHELTER_PARAM_YOUTH_VALUE
         ? 16

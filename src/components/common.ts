@@ -128,6 +128,7 @@ export function getIconPath(iconName: string): string {
 }
 
 export const SEARCH_PARAM = "search";
+export const AI_SEARCH_PARAM = "aiSearch";
 export const AGE_PARAM = "age";
 export const OPEN_PARAM = "open";
 export const SHELTER_PARAM = "shelter";
@@ -301,6 +302,7 @@ export const SORT_BY_QUERY_PARAM = "sortBy";
 
 export const URL_PARAM_NAMES = [
   SEARCH_PARAM,
+  AI_SEARCH_PARAM,
   AGE_PARAM,
   OPEN_PARAM,
   SHELTER_PARAM,
@@ -317,6 +319,7 @@ export type SearchParams = { [key: string]: string | string[] | undefined };
 
 export interface YourPeerParsedRequestParams {
   [SEARCH_PARAM]: string | null;
+  [AI_SEARCH_PARAM]: boolean;
   [AGE_PARAM]: number | null;
   [OPEN_PARAM]: boolean | null;
   [SHELTER_PARAM]: ShelterValues | null;
@@ -456,6 +459,7 @@ export function parseRequest({
       typeof searchParams[SEARCH_PARAM] === "string"
         ? (searchParams[SEARCH_PARAM] as string)
         : null,
+    [AI_SEARCH_PARAM]: searchParams[AI_SEARCH_PARAM] === "true",
     [AGE_PARAM]:
       typeof searchParams[AGE_PARAM] === "string" &&
       !isNaN(parseInt(searchParams[AGE_PARAM] as string, 10))

@@ -173,7 +173,7 @@ export default function FiltersPopup() {
               {isLoading ? (
                 <span className="animate-pulse">Loading...</span>
               ) : (
-                `Show ${resultsCount} results`
+                `Show ${resultsCount} ${resultsCount === 1 ? "result" : "results"}`
               )}
             </Button>
           </div>

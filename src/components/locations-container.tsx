@@ -166,7 +166,7 @@ export default function LocationsContainer({
     subCategory?: SubCategory | null,
   ): string {
     if (searchParams[SEARCH_PARAM]) {
-      return `${resultCount} results for "${searchParams[SEARCH_PARAM]}"`;
+      return `${resultCount} ${resultCount === 1 ? "result" : "results"} for "${searchParams[SEARCH_PARAM]}"`;
     }
     switch (category) {
       case "shelters-housing":

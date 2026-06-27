@@ -67,6 +67,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   membershipRequired,
   open = false,
   search = undefined,
+  aiSearch = false,
   location_fields_only,
   age = undefined,
   ageMax = undefined,
@@ -85,6 +86,7 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   membershipRequired?: boolean;
   open?: boolean | null;
   search?: string | null;
+  aiSearch?: boolean;
   location_fields_only?: boolean;
   age?: number | null;
   ageMin?: number | null;
@@ -136,7 +138,8 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   }
 
   if (search) {
-    query_url += `&searchString=${search}`;
+    const searchParamName = aiSearch ? "naturalLanguageQuery" : "searchString";
+    query_url += `&${searchParamName}=${encodeURIComponent(search)}`;
   }
 
   if (open) {
@@ -201,6 +204,7 @@ export async function getSimplifiedLocationData({
   membershipRequired,
   open = false,
   search = undefined,
+  aiSearch = false,
   age = undefined,
   ageMin = undefined,
   ageMax = undefined,
@@ -215,6 +219,7 @@ export async function getSimplifiedLocationData({
   membershipRequired?: boolean;
   open?: boolean | null;
   search?: string | null;
+  aiSearch?: boolean;
   age?: number | null;
   ageMin?: number | null;
   ageMax?: number | null;
@@ -230,6 +235,7 @@ export async function getSimplifiedLocationData({
       membershipRequired,
       open,
       search,
+      aiSearch,
       age,
       ageMin,
       ageMax,
@@ -249,6 +255,7 @@ export async function getFullLocationData({
   membershipRequired,
   open = false,
   search = undefined,
+  aiSearch = false,
   age = undefined,
   ageMax = undefined,
   ageMin = undefined,
@@ -266,6 +273,7 @@ export async function getFullLocationData({
   membershipRequired: boolean;
   open?: boolean | null;
   search?: string | null;
+  aiSearch?: boolean;
   age?: number | null;
   ageMin?: number | null;
   ageMax?: number | null;
@@ -284,6 +292,7 @@ export async function getFullLocationData({
     membershipRequired,
     open,
     search,
+    aiSearch,
     sortBy,
     age,
     ageMax,

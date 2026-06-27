@@ -1,4 +1,5 @@
 import {
+  AI_SEARCH_PARAM,
   Category,
   REQUIREMENT_PARAM,
   RouteParams,
@@ -48,6 +49,7 @@ export async function getSidePanelComponentData({
     ...parsedSearchParams,
     ...parsedSearchParams[REQUIREMENT_PARAM],
     ...taxonomiesResults,
+    aiSearch: parsedSearchParams[AI_SEARCH_PARAM],
     sortBy: parsedSearchParams[SORT_BY_QUERY_PARAM],
     ...(subCategory === SHELTER_PARAM_YOUTH_VALUE && {
       ageMin: 16,
