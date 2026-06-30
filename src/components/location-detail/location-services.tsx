@@ -18,15 +18,15 @@ import {
 } from "../common";
 
 const CATEGORY_ICON_SRC_MAP: Record<CategoryNotNull, string> = {
-  "health-care": "health-icon",
-  other: "other",
-  "shelters-housing": "home-icon",
-  food: "food-icon",
-  clothing: "clothing-icon",
-  "personal-care": "personal-care-icon",
-  "legal-services": "services/legal-2.svg",
-  "mental-health": "services/mental-health-2.svg",
-  employment: "services/employment-2.svg",
+  "health-care": "services/health.svg",
+  other: "services/other.svg",
+  "shelters-housing": "services/house.svg",
+  food: "services/food.svg",
+  clothing: "services/clothing.svg",
+  "personal-care": "services/personal-care.svg",
+  "legal-services": "services/legal.svg",
+  "mental-health": "services/mental-health.svg",
+  employment: "services/employment.svg",
 };
 
 function LocationService({
