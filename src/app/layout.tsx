@@ -25,6 +25,8 @@ const GOOGLE_ANALYTICS_MEASUREMENT_ID = process.env
 const NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY = process.env
   .NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY as string;
 
+const ZENDESK_KEY = process.env.ZENDESK_KEY as string;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -55,6 +57,13 @@ export default function RootLayout({
           gtag('config', '${NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY}');
         `}
       </Script>
+
+      {/* Add Zendesk widget script */}
+      <Script
+        id="ze-snippet"
+        src={`https://static.zdassets.com/ekr/snippet.js?key=${ZENDESK_KEY}`}
+        strategy="afterInteractive"
+      />
 
       <body>
         <CookiesProvider>
