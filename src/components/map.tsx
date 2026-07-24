@@ -28,6 +28,7 @@ import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
 import { MobileTray } from "./mobile-tray";
 import { getUrlWithNewFilterParameter } from "./navigation";
 import { shouldAutoRedirectToNearby } from "./nearby-redirect";
+import { shouldLoadGoogleMap } from "./map-loading";
 
 function isMobile(): boolean {
   return window.innerWidth < 768;
@@ -389,18 +390,18 @@ export default function LocationsMap({
 
   useEffect(() => {
     const updateMapLoading = () => {
-      // The detail panel entirely covers the map on mobile. Do not spend
-      // mobile bandwidth and main-thread time loading Google Maps behind it.
       setShouldLoadMap(
-        window.innerWidth >= 768 ||
-          (!locationDetailStub && showMapViewOnMobile),
+        shouldLoadGoogleMap({
+          viewportWidth: window.innerWidth,
+          showMapViewOnMobile,
+        }),
       );
     };
 
     updateMapLoading();
     window.addEventListener("resize", updateMapLoading);
     return () => window.removeEventListener("resize", updateMapLoading);
-  }, [locationDetailStub, showMapViewOnMobile]);
+  }, [showMapViewOnMobile]);
 
   useEffect(() => {
     if (locationSlugClickedOnMobile) {
