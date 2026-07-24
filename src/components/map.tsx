@@ -390,12 +390,15 @@ export default function LocationsMap({
 
   useEffect(() => {
     const updateMapLoading = () => {
-      setShouldLoadMap(
-        shouldLoadGoogleMap({
-          viewportWidth: window.innerWidth,
-          showMapViewOnMobile,
-        }),
-      );
+      const canLoadMap = shouldLoadGoogleMap({
+        viewportWidth: window.innerWidth,
+        showMapViewOnMobile,
+      });
+
+      // Deferring the initial load protects mobile LCP. Once the user has
+      // opened the map, keep it mounted so a list/map toggle preserves its
+      // pan and zoom state instead of constructing a new map each time.
+      setShouldLoadMap((hasLoadedMap) => hasLoadedMap || canLoadMap);
     };
 
     updateMapLoading();
