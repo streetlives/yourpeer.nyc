@@ -382,6 +382,25 @@ export default function LocationsMap({
     useState<string | undefined>(cookieLocationSlugClickedOnMobile);
   const [locationStubClickedOnMobile, setLocationStubClickedOnMobile] =
     useState<SimplifiedLocationData>();
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
+  const showMapViewOnMobile = useViewStore(
+    (state) => state.showMapViewOnMobile,
+  );
+
+  useEffect(() => {
+    const updateMapLoading = () => {
+      // The detail panel entirely covers the map on mobile. Do not spend
+      // mobile bandwidth and main-thread time loading Google Maps behind it.
+      setShouldLoadMap(
+        window.innerWidth >= 768 ||
+          (!locationDetailStub && showMapViewOnMobile),
+      );
+    };
+
+    updateMapLoading();
+    window.addEventListener("resize", updateMapLoading);
+    return () => window.removeEventListener("resize", updateMapLoading);
+  }, [locationDetailStub, showMapViewOnMobile]);
 
   useEffect(() => {
     if (locationSlugClickedOnMobile) {
@@ -432,15 +451,17 @@ export default function LocationsMap({
   return (
     <>
       <div id="map" className="w-full h-full">
-        <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
-          <MapWrapper
-            locationStubs={locationStubs}
-            locationDetailStub={locationDetailStub}
-            locationStubClickedOnMobile={locationStubClickedOnMobile}
-            setLocationSlugClickedOnMobile={setLocationSlugClickedOnMobile}
-            locationSlugClickedOnMobile={locationSlugClickedOnMobile}
-          />
-        </APIProvider>
+        {shouldLoadMap && (
+          <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
+            <MapWrapper
+              locationStubs={locationStubs}
+              locationDetailStub={locationDetailStub}
+              locationStubClickedOnMobile={locationStubClickedOnMobile}
+              setLocationSlugClickedOnMobile={setLocationSlugClickedOnMobile}
+              locationSlugClickedOnMobile={locationSlugClickedOnMobile}
+            />
+          </APIProvider>
+        )}
       </div>
       {locationStubClickedOnMobile ? (
         <MobileTray
