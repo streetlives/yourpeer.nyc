@@ -35,6 +35,7 @@ vi.mock("@/components/mobile-tray", () => ({ MobileTray: () => null }));
 import LocationsMap from "@/components/map";
 import { GeoCoordinatesContext } from "@/components/geo-context";
 import { useViewStore } from "@/lib/store";
+import { type SimplifiedLocationData } from "@/components/common";
 
 function setViewportWidth(width: number) {
   Object.defineProperty(window, "innerWidth", {
@@ -43,12 +44,12 @@ function setViewportWidth(width: number) {
   });
 }
 
-function renderMap() {
+function renderMap(locationDetailStub?: SimplifiedLocationData) {
   return render(
     <GeoCoordinatesContext.Provider
       value={{ userPosition: undefined, refreshUserPosition: vi.fn() }}
     >
-      <LocationsMap />
+      <LocationsMap locationDetailStub={locationDetailStub} />
     </GeoCoordinatesContext.Provider>,
   );
 }
@@ -74,6 +75,14 @@ describe("LocationsMap responsive loading", () => {
     act(() => useViewStore.getState().setShowMapViewOnMobile(true));
 
     expect(screen.getByTestId("google-map-provider")).toBeInTheDocument();
+  });
+
+  it("does not initialize a hidden map on a mobile location detail route", () => {
+    setViewportWidth(390);
+    useViewStore.setState({ showMapViewOnMobile: true });
+    renderMap({} as SimplifiedLocationData);
+
+    expect(screen.queryByTestId("google-map-provider")).not.toBeInTheDocument();
   });
 
   it("preserves an initialized map while resizing in both directions", () => {

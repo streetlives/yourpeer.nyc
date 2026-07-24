@@ -393,6 +393,7 @@ export default function LocationsMap({
       const canLoadMap = shouldLoadGoogleMap({
         viewportWidth: window.innerWidth,
         showMapViewOnMobile,
+        isLocationDetail: !!locationDetailStub,
       });
 
       // Deferring the initial load protects mobile LCP. Once the user has
@@ -404,7 +405,7 @@ export default function LocationsMap({
     updateMapLoading();
     window.addEventListener("resize", updateMapLoading);
     return () => window.removeEventListener("resize", updateMapLoading);
-  }, [showMapViewOnMobile]);
+  }, [locationDetailStub, showMapViewOnMobile]);
 
   useEffect(() => {
     if (locationSlugClickedOnMobile) {

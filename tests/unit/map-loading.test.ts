@@ -7,21 +7,23 @@ describe("shouldLoadGoogleMap", () => {
       shouldLoadGoogleMap({
         viewportWidth: 390,
         showMapViewOnMobile: false,
+        isLocationDetail: true,
       }),
     ).toBe(false);
   });
 
-  it("loads the map when a mobile location detail user selects map view", () => {
+  it("does not load the hidden map when a mobile location detail route is opened", () => {
     expect(
       shouldLoadGoogleMap({
         viewportWidth: 390,
         showMapViewOnMobile: true,
+        isLocationDetail: true,
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("loads the map for a mobile list page after the map toggle changes", () => {
-    const mobileList = { viewportWidth: 390 };
+    const mobileList = { viewportWidth: 390, isLocationDetail: false };
 
     expect(
       shouldLoadGoogleMap({ ...mobileList, showMapViewOnMobile: false }),
@@ -36,6 +38,7 @@ describe("shouldLoadGoogleMap", () => {
       shouldLoadGoogleMap({
         viewportWidth: 1024,
         showMapViewOnMobile: false,
+        isLocationDetail: true,
       }),
     ).toBe(true);
   });
@@ -45,6 +48,7 @@ describe("shouldLoadGoogleMap", () => {
       shouldLoadGoogleMap({
         viewportWidth: 768,
         showMapViewOnMobile: false,
+        isLocationDetail: false,
       }),
     ).toBe(true);
   });
