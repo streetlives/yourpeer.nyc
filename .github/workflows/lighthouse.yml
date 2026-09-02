@@ -13,41 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NEXT_TELEMETRY_DISABLED: "1"
-      PORT: "3000"
-      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
-      NEXT_PUBLIC_GO_GETTA_PROD_URL: ${{ vars.NEXT_PUBLIC_GO_GETTA_PROD_URL || secrets.NEXT_PUBLIC_GO_GETTA_PROD_URL }}
-      NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY || secrets.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY }}
-      NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID || secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+      LIGHTHOUSE_BASE_URL: ${{ vars.LIGHTHOUSE_BASE_URL || 'https://yourpeer.nyc' }}
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24.x"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Start application
-        run: |
-          npm run dev -- --port "${PORT}" > /tmp/next-server.log 2>&1 &
-          echo "$!" > /tmp/next-server.pid
-
-      - name: Wait for application
+      - name: Wait for deployed environment
         run: |
           for attempt in {1..60}; do
-            if curl --silent --fail "http://localhost:${PORT}/" > /dev/null; then
+            if curl --silent --fail "${LIGHTHOUSE_BASE_URL}/" > /dev/null; then
               exit 0
             fi
 
             sleep 2
           done
 
-          cat /tmp/next-server.log
+          echo "Timed out waiting for ${LIGHTHOUSE_BASE_URL}/"
           exit 1
 
       - name: Audit URLs using Lighthouse
@@ -55,8 +34,8 @@ jobs:
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            http://localhost:3000/
-            http://localhost:3000/about-us
+            ${{ env.LIGHTHOUSE_BASE_URL }}/
+            ${{ env.LIGHTHOUSE_BASE_URL }}/about-us
           runs: 3
           uploadArtifacts: true
           temporaryPublicStorage: true
