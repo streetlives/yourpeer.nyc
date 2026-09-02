@@ -28,6 +28,9 @@ import {
   PERSONAL_CARE_CATEGORY,
   REQUIREMENT_PARAM,
   REQUIREMENT_PARAM_CANONICAL_ORDERING,
+  REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
+  REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
+  REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
   RequirementValue,
   RouteParams,
   SEARCH_PARAM,
@@ -216,19 +219,29 @@ export function getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
     currentRequirementValue,
   );
 
-  const newParsedRequirements = addRequirementType
-    ? !parsedRequirements.includes(newRequirementTypeToAddOrRemove)
-      ? parsedRequirements
-          .concat(newRequirementTypeToAddOrRemove)
-          .sort(
-            (a, b) =>
-              REQUIREMENT_PARAM_CANONICAL_ORDERING.indexOf(a) -
-              REQUIREMENT_PARAM_CANONICAL_ORDERING.indexOf(b),
-          )
-      : parsedRequirements
-    : parsedRequirements.filter(
-        (requirement) => requirement !== newRequirementTypeToAddOrRemove,
-      );
+  const newParsedRequirements =
+    newRequirementTypeToAddOrRemove === REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE
+      ? addRequirementType
+        ? [
+            REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
+            REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
+          ]
+        : []
+      : addRequirementType
+        ? !parsedRequirements.includes(newRequirementTypeToAddOrRemove)
+          ? parsedRequirements
+              .concat(newRequirementTypeToAddOrRemove)
+              .sort(
+                (a, b) =>
+                  REQUIREMENT_PARAM_CANONICAL_ORDERING.indexOf(a) -
+                  REQUIREMENT_PARAM_CANONICAL_ORDERING.indexOf(b),
+              )
+          : parsedRequirements
+        : parsedRequirements.filter(
+            (requirement) =>
+              requirement !== newRequirementTypeToAddOrRemove &&
+              requirement !== REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
+          );
 
   if (newParsedRequirements.length) {
     const serializedNewParsedRequirements = newParsedRequirements.join(" ");
