@@ -1,0 +1,73 @@
+name: Lighthouse
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: Lighthouse Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      PORT: "3000"
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+      NEXT_PUBLIC_GO_GETTA_PROD_URL: ${{ vars.NEXT_PUBLIC_GO_GETTA_PROD_URL || secrets.NEXT_PUBLIC_GO_GETTA_PROD_URL }}
+      NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY: ${{ vars.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY || secrets.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY }}
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID || secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start application
+        run: |
+          npm run dev -- --port "${PORT}" > /tmp/next-server.log 2>&1 &
+          echo "$!" > /tmp/next-server.pid
+
+      - name: Wait for application
+        run: |
+          for attempt in {1..60}; do
+            if curl --silent --fail "http://localhost:${PORT}/" > /dev/null; then
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          cat /tmp/next-server.log
+          exit 1
+
+      - name: Audit URLs using Lighthouse
+        id: lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            http://localhost:3000/
+            http://localhost:3000/about-us
+          runs: 3
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Add Lighthouse links to job summary
+        if: ${{ always() && steps.lighthouse.outputs.links != '' }}
+        env:
+          LIGHTHOUSE_LINKS: ${{ steps.lighthouse.outputs.links }}
+        run: |
+          {
+            echo "## Lighthouse report"
+            echo
+            echo "$LIGHTHOUSE_LINKS"
+          } >> "$GITHUB_STEP_SUMMARY"
