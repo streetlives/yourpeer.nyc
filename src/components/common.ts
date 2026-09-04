@@ -7,6 +7,7 @@
 import assert from "assert";
 import { Error404Response } from "./streetlives-api-service";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { isAiSearchEnabled } from "./feature-flags";
 
 export const CATEGORIES = [
   "shelters-housing",
@@ -459,7 +460,10 @@ export function parseRequest({
       typeof searchParams[SEARCH_PARAM] === "string"
         ? (searchParams[SEARCH_PARAM] as string)
         : null,
-    [AI_SEARCH_PARAM]: searchParams[AI_SEARCH_PARAM] === "true",
+    // AI search stays off entirely unless the feature flag is on, so an
+    // aiSearch=true URL cannot turn it on in an environment where it is disabled.
+    [AI_SEARCH_PARAM]:
+      isAiSearchEnabled() && searchParams[AI_SEARCH_PARAM] === "true",
     [AGE_PARAM]:
       typeof searchParams[AGE_PARAM] === "string" &&
       !isNaN(parseInt(searchParams[AGE_PARAM] as string, 10))
