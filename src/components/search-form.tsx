@@ -22,6 +22,7 @@ import {
   SEARCH_PARAM,
   SearchParams,
 } from "./common";
+import { isAiSearchEnabled } from "./feature-flags";
 import { PreviousParams } from "./get-previous-params";
 import {
   getUrlWithNewFilterParameter,
@@ -30,6 +31,18 @@ import {
   parsePathnameToSubRouteParams,
 } from "./navigation";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+
+// Carry the AI flag on the URL only while it is on, so that URLs stay free of
+// aiSearch=false noise when the feature is disabled. Deleting (rather than
+// omitting) matters because the param may already be present on the URL we are
+// building from.
+function setAiSearchParam(url: URL, aiEnabled: boolean) {
+  if (aiEnabled) {
+    url.searchParams.set(AI_SEARCH_PARAM, "true");
+  } else {
+    url.searchParams.delete(AI_SEARCH_PARAM);
+  }
+}
 
 function SearchPanel({
   currentSearch,
@@ -57,7 +70,7 @@ function SearchPanel({
         currentSearch,
       );
       const url = new URL(baseUrl, "http://localhost");
-      url.searchParams.set(AI_SEARCH_PARAM, String(aiSearchEnabled));
+      setAiSearchParam(url, aiSearchEnabled);
       router.push(url.pathname + (url.search ? url.search : ""));
     }
   }
@@ -178,10 +191,13 @@ export default function SearchForm() {
     | string
     | undefined;
 
+  const aiSearchAvailable = isAiSearchEnabled();
+
   const [aiSearchEnabled, setAiSearchEnabled] = useState(
-    isCurrentlyOnLocationDetailPage
-      ? aiSearchFromCookie === "true"
-      : aiSearchFromQuery === "true",
+    aiSearchAvailable &&
+      (isCurrentlyOnLocationDetailPage
+        ? aiSearchFromCookie === "true"
+        : aiSearchFromQuery === "true"),
   );
 
   useEffect(() => {
@@ -194,11 +210,17 @@ export default function SearchForm() {
 
   useEffect(() => {
     setAiSearchEnabled(
-      isCurrentlyOnLocationDetailPage
-        ? aiSearchFromCookie === "true"
-        : aiSearchFromQuery === "true",
+      aiSearchAvailable &&
+        (isCurrentlyOnLocationDetailPage
+          ? aiSearchFromCookie === "true"
+          : aiSearchFromQuery === "true"),
     );
-  }, [aiSearchFromQuery, aiSearchFromCookie, isCurrentlyOnLocationDetailPage]);
+  }, [
+    aiSearchAvailable,
+    aiSearchFromQuery,
+    aiSearchFromCookie,
+    isCurrentlyOnLocationDetailPage,
+  ]);
 
   function buildSearchUrl(searchValue: string, aiEnabled: boolean): string {
     const baseUrl = getUrlWithNewFilterParameter(
@@ -208,7 +230,7 @@ export default function SearchForm() {
       searchValue,
     );
     const url = new URL(baseUrl, "http://localhost");
-    url.searchParams.set(AI_SEARCH_PARAM, String(aiEnabled));
+    setAiSearchParam(url, aiEnabled);
     return url.pathname + (url.search ? url.search : "");
   }
 
@@ -230,6 +252,7 @@ export default function SearchForm() {
   }
 
   function toggleAiSearch() {
+    if (!aiSearchAvailable) return;
     const next = !aiSearchEnabled;
     setAiSearchEnabled(next);
     if (search) {
@@ -289,20 +312,22 @@ export default function SearchForm() {
             }
           }}
         />
-        <button
-          type="button"
-          onClick={toggleAiSearch}
-          id="ai_search_toggle"
-          title={aiSearchEnabled ? "AI Search on" : "AI Search off"}
-          className={`flex-shrink-0 flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border transition-all duration-200 hover:shadow-[0_0_10px_2px_rgba(255,220,0,0.6)] ${
-            aiSearchEnabled
-              ? "bg-primary text-black border-primary"
-              : "bg-white text-gray-400 border-gray-300"
-          }`}
-        >
-          <SparklesIcon className="w-3.5 h-3.5" />
-          <TranslatableText text="AI mode" />
-        </button>
+        {aiSearchAvailable ? (
+          <button
+            type="button"
+            onClick={toggleAiSearch}
+            id="ai_search_toggle"
+            title={aiSearchEnabled ? "AI Search on" : "AI Search off"}
+            className={`flex-shrink-0 flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full border transition-all duration-200 hover:shadow-[0_0_10px_2px_rgba(255,220,0,0.6)] ${
+              aiSearchEnabled
+                ? "bg-primary text-black border-primary"
+                : "bg-white text-gray-400 border-gray-300"
+            }`}
+          >
+            <SparklesIcon className="w-3.5 h-3.5" />
+            <TranslatableText text="AI mode" />
+          </button>
+        ) : undefined}
         {search ? (
           <button
             onClick={clearSearch}

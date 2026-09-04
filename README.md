@@ -19,6 +19,21 @@ NEXT_PUBLIC_GO_GETTA_PROD_URL=https://w6pkliozjh.execute-api.us-east-1.amazonaws
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert a google maps API key here or contact us to get a development key>
 ```
 
+## Feature flags
+
+`NEXT_PUBLIC_AI_SEARCH_ENABLED` controls the experimental AI search ("AI mode")
+feature. It is **off unless explicitly set to `true`**, so production deploys
+that do not define it get the regular keyword search: the AI mode toggle is not
+rendered, and an `aiSearch=true` URL param is ignored. To work on the feature
+locally, add this to `.env.local`:
+
+```
+NEXT_PUBLIC_AI_SEARCH_ENABLED=true
+```
+
+Because it is a `NEXT_PUBLIC_` variable it is inlined at build time, so changing
+it requires a rebuild.
+
 Then run:
 
 ```
