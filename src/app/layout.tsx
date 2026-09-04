@@ -13,6 +13,8 @@ import Script from "next/script";
 import { Toaster } from "sonner";
 import QueryClientProvider from "@/app/QueryClientProvider";
 import GTProdGuardScript from "@/components/gt-prod-guard-script";
+import { AiSearchEnabledProvider } from "@/components/ai-search-context";
+import { isAiSearchEnabled } from "@/components/feature-flags";
 import { inter } from "./fonts";
 
 export const viewport: Viewport = {
@@ -63,7 +65,9 @@ export default function RootLayout({
       <body>
         <CookiesProvider>
           <LanguageTranslationProvider>
-            <QueryClientProvider>{children}</QueryClientProvider>
+            <AiSearchEnabledProvider enabled={isAiSearchEnabled()}>
+              <QueryClientProvider>{children}</QueryClientProvider>
+            </AiSearchEnabledProvider>
           </LanguageTranslationProvider>
         </CookiesProvider>
         <Toaster />

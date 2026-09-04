@@ -76,6 +76,14 @@ vi.mock("@/components/translatable-text", () => ({
 Object.defineProperty(window, "gtag", { value: vi.fn(), writable: true });
 
 import SearchForm from "@/components/search-form";
+import { AiSearchEnabledProvider } from "@/components/ai-search-context";
+
+// The feature flag reaches the client through this provider (the root layout
+// feeds it from the server); these specs describe behaviour with it enabled.
+// Passing it as RTL's `wrapper` means rerender() keeps the provider in place.
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <AiSearchEnabledProvider enabled={true}>{children}</AiSearchEnabledProvider>
+);
 
 // ---------------------------------------------------------------------------
 // Listing page — aiSearch driven by current URL params
@@ -89,19 +97,19 @@ describe("SearchForm — aiSearchEnabled on listing page", () => {
   });
 
   it("initializes toggle as off when aiSearch param is absent", () => {
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
   });
 
   it("initializes toggle as on when aiSearch=true is in the URL", () => {
     state.searchParams = new URLSearchParams({ aiSearch: "true" });
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search on")).toBeTruthy();
   });
 
   it("syncs toggle to off when URL changes from aiSearch=true to aiSearch=false", () => {
     state.searchParams = new URLSearchParams({ aiSearch: "true" });
-    const { rerender } = render(<SearchForm />);
+    const { rerender } = render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search on")).toBeTruthy();
 
     act(() => {
@@ -114,7 +122,7 @@ describe("SearchForm — aiSearchEnabled on listing page", () => {
 
   it("syncs toggle to on when URL changes from no param to aiSearch=true", () => {
     state.searchParams = new URLSearchParams();
-    const { rerender } = render(<SearchForm />);
+    const { rerender } = render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
 
     act(() => {
@@ -128,7 +136,7 @@ describe("SearchForm — aiSearchEnabled on listing page", () => {
   it("keeps toggle off for non-'true' string values of aiSearch", () => {
     for (const value of ["1", "yes", "TRUE", "on"]) {
       state.searchParams = new URLSearchParams({ aiSearch: value });
-      const { unmount } = render(<SearchForm />);
+      const { unmount } = render(<SearchForm />, { wrapper });
       expect(screen.getByTitle("AI Search off")).toBeTruthy();
       unmount();
     }
@@ -153,7 +161,7 @@ describe("SearchForm — aiSearchEnabled on location detail page", () => {
       params: { route: "food" },
       searchParams: { aiSearch: "true", searchString: "soup kitchen" },
     };
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search on")).toBeTruthy();
   });
 
@@ -162,7 +170,7 @@ describe("SearchForm — aiSearchEnabled on location detail page", () => {
       params: { route: "food" },
       searchParams: { aiSearch: "false", searchString: "food pantry" },
     };
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
   });
 
@@ -171,13 +179,13 @@ describe("SearchForm — aiSearchEnabled on location detail page", () => {
       params: { route: "food" },
       searchParams: { searchString: "shelter" },
     };
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
   });
 
   it("keeps toggle off when previousParams is null (first visit)", () => {
     state.previousParams = null;
-    render(<SearchForm />);
+    render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
   });
 
@@ -186,7 +194,7 @@ describe("SearchForm — aiSearchEnabled on location detail page", () => {
       params: { route: "food" },
       searchParams: { aiSearch: "false" },
     };
-    const { rerender } = render(<SearchForm />);
+    const { rerender } = render(<SearchForm />, { wrapper });
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
 
     act(() => {

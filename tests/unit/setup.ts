@@ -4,4 +4,4 @@ import "@testing-library/jest-dom";
 // Existing specs describe the behaviour of the feature when it is turned on, so
 // enable it globally; the specs that cover the disabled state override this
 // themselves.
-process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED = "true";
+process.env.AI_SEARCH_ENABLED = "true";

@@ -21,18 +21,28 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<insert a google maps API key here or contact us
 
 ## Feature flags
 
-`NEXT_PUBLIC_AI_SEARCH_ENABLED` controls the experimental AI search ("AI mode")
-feature. It is **off unless explicitly set to `true`**, so production deploys
-that do not define it get the regular keyword search: the AI mode toggle is not
-rendered, and an `aiSearch=true` URL param is ignored. To work on the feature
-locally, add this to `.env.local`:
+`AI_SEARCH_ENABLED` controls the experimental AI search ("AI mode") feature. It
+is **off unless explicitly set to `true`**, so production deploys that do not
+define it get the regular keyword search: the AI mode toggle is not rendered, and
+an `aiSearch=true` URL param is ignored. To work on the feature locally, add this
+to `.env.local`:
 
 ```
-NEXT_PUBLIC_AI_SEARCH_ENABLED=true
+AI_SEARCH_ENABLED=true
 ```
 
-Because it is a `NEXT_PUBLIC_` variable it is inlined at build time, so changing
-it requires a rebuild.
+Note the deliberate absence of a `NEXT_PUBLIC_` prefix. Next.js inlines
+`NEXT_PUBLIC_` variables into the compiled output at build time — in server
+components as well as client ones — so such a flag can only be changed by
+rebuilding, and a build/runtime mismatch makes the server and the browser
+disagree (the toggle renders server-side, then vanishes on hydration).
+`AI_SEARCH_ENABLED` is read from the real environment on every request, so
+changing it takes effect on restart.
+
+It is read on the server only. Server code calls `isAiSearchEnabled()`; the value
+reaches client components through `AiSearchEnabledProvider` in the root layout,
+which they consume with `useAiSearchEnabled()`. Client components must never read
+the flag from `process.env` directly.
 
 Then run:
 

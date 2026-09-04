@@ -1,6 +1,12 @@
-// Tests the NEXT_PUBLIC_AI_SEARCH_ENABLED feature flag: with the flag off the
-// "AI mode" toggle is not rendered at all, and an aiSearch=true URL param
-// cannot switch AI search back on.
+// Tests the AI_SEARCH_ENABLED feature flag.
+//
+// The client half of the flag arrives through AiSearchEnabledProvider, which the
+// root layout feeds from the server at request time; these tests supply it
+// directly. The server half (parseRequest) still reads the environment variable
+// at runtime, so those cases set process.env.
+//
+// With the flag off the "AI mode" toggle is not rendered at all, and an
+// aiSearch=true URL param cannot switch AI search back on.
 
 import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -65,32 +71,41 @@ vi.mock("@/components/translatable-text", () => ({
 Object.defineProperty(window, "gtag", { value: vi.fn(), writable: true });
 
 import SearchForm from "@/components/search-form";
+import { AiSearchEnabledProvider } from "@/components/ai-search-context";
 import { parseRequest } from "@/components/common";
+
+function renderSearchForm(enabled: boolean) {
+  return render(
+    <AiSearchEnabledProvider enabled={enabled}>
+      <SearchForm />
+    </AiSearchEnabledProvider>,
+  );
+}
 
 // tests/unit/setup.ts turns the flag on for the rest of the suite; these tests
 // describe the production default, so turn it back off here.
-const flagFromSetup = process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED;
+const flagFromSetup = process.env.AI_SEARCH_ENABLED;
 
-describe("AI search disabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
+describe("AI search disabled via AI_SEARCH_ENABLED", () => {
   beforeEach(() => {
-    delete process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED;
+    delete process.env.AI_SEARCH_ENABLED;
     state.searchParams = new URLSearchParams();
     state.routerPush.mockClear();
   });
 
   afterAll(() => {
-    process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED = flagFromSetup;
+    process.env.AI_SEARCH_ENABLED = flagFromSetup;
   });
 
   it("does not render the AI mode toggle", () => {
-    render(<SearchForm />);
+    renderSearchForm(false);
     expect(screen.queryByTitle("AI Search off")).toBeNull();
     expect(screen.queryByTitle("AI Search on")).toBeNull();
   });
 
   it("does not render the toggle even when aiSearch=true is in the URL", () => {
     state.searchParams = new URLSearchParams({ aiSearch: "true" });
-    render(<SearchForm />);
+    renderSearchForm(false);
     expect(screen.queryByTitle("AI Search on")).toBeNull();
   });
 
@@ -107,7 +122,7 @@ describe("AI search disabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
       search: "food",
       aiSearch: "true",
     });
-    const { container } = render(<SearchForm />);
+    const { container } = renderSearchForm(false);
     const clearButton = container.querySelector("#search_clear_button");
     expect(clearButton).not.toBeNull();
     fireEvent.click(clearButton as Element);
@@ -117,7 +132,7 @@ describe("AI search disabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
 
   it("does not put aiSearch on the URL when submitting a search", () => {
     state.searchParams = new URLSearchParams({ aiSearch: "true" });
-    render(<SearchForm />);
+    renderSearchForm(false);
     const input = screen.getByPlaceholderText("Search");
     fireEvent.change(input, { target: { value: "food pantry" } });
     fireEvent.keyDown(input, { key: "Enter" });
@@ -127,19 +142,19 @@ describe("AI search disabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
   });
 });
 
-describe("AI search enabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
+describe("AI search enabled via AI_SEARCH_ENABLED", () => {
   beforeEach(() => {
-    process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED = "true";
+    process.env.AI_SEARCH_ENABLED = "true";
     state.searchParams = new URLSearchParams();
     state.routerPush.mockClear();
   });
 
   afterAll(() => {
-    process.env.NEXT_PUBLIC_AI_SEARCH_ENABLED = flagFromSetup;
+    process.env.AI_SEARCH_ENABLED = flagFromSetup;
   });
 
   it("renders the AI mode toggle", () => {
-    render(<SearchForm />);
+    renderSearchForm(true);
     expect(screen.getByTitle("AI Search off")).toBeTruthy();
   });
 
@@ -156,7 +171,7 @@ describe("AI search enabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
       search: "food",
       aiSearch: "true",
     });
-    const { container } = render(<SearchForm />);
+    const { container } = renderSearchForm(true);
     const clearButton = container.querySelector("#search_clear_button");
     expect(clearButton).not.toBeNull();
     fireEvent.click(clearButton as Element);
@@ -165,7 +180,7 @@ describe("AI search enabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
   });
 
   it("puts aiSearch=true on the URL once the toggle is turned on", () => {
-    render(<SearchForm />);
+    renderSearchForm(true);
     const input = screen.getByPlaceholderText("Search");
     fireEvent.change(input, { target: { value: "food pantry" } });
     fireEvent.click(screen.getByTitle("AI Search off"));
