@@ -241,14 +241,10 @@ export default function SearchForm() {
       setLoading(true);
     }
     setShowMapViewOnMobile(false);
-    router.push(
-      getUrlWithNewFilterParameter(
-        paramsToPathname(paramsToUseForNextUrl.params),
-        paramsToUseForNextUrl.searchParams,
-        SEARCH_PARAM,
-        "",
-      ),
-    );
+    // Route through buildSearchUrl so clearing the search follows the same
+    // aiSearch rules as submitting one: the param is dropped when AI search is
+    // off, rather than lingering on the URL from a previous navigation.
+    router.push(buildSearchUrl("", aiSearchEnabled));
   }
 
   function toggleAiSearch() {

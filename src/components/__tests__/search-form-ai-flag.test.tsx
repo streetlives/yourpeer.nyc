@@ -35,10 +35,15 @@ vi.mock("@/components/navigation", () => ({
   paramsToPathname: () => "/food",
   getUrlWithNewFilterParameter: (
     pathname: string,
-    _searchParams: unknown,
+    searchParams: Record<string, string> | undefined,
     key: string,
     value: string,
-  ) => `${pathname}?${key}=${encodeURIComponent(value)}`,
+  ) => {
+    const params = new URLSearchParams(searchParams ?? {});
+    params.set(key, value);
+    const queryString = params.toString();
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  },
 }));
 
 vi.mock("@/components/streetlives-api-service", () => ({
@@ -97,6 +102,19 @@ describe("AI search disabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
     expect(parsed.aiSearch).toBe(false);
   });
 
+  it("drops a lingering aiSearch param when clearing the search", () => {
+    state.searchParams = new URLSearchParams({
+      search: "food",
+      aiSearch: "true",
+    });
+    const { container } = render(<SearchForm />);
+    const clearButton = container.querySelector("#search_clear_button");
+    expect(clearButton).not.toBeNull();
+    fireEvent.click(clearButton as Element);
+    const pushedUrl = state.routerPush.mock.calls.at(-1)?.[0] as string;
+    expect(pushedUrl).not.toContain("aiSearch");
+  });
+
   it("does not put aiSearch on the URL when submitting a search", () => {
     state.searchParams = new URLSearchParams({ aiSearch: "true" });
     render(<SearchForm />);
@@ -131,6 +149,19 @@ describe("AI search enabled via NEXT_PUBLIC_AI_SEARCH_ENABLED", () => {
       searchParams: { aiSearch: "true" },
     });
     expect(parsed.aiSearch).toBe(true);
+  });
+
+  it("keeps aiSearch=true when clearing the search while AI mode is on", () => {
+    state.searchParams = new URLSearchParams({
+      search: "food",
+      aiSearch: "true",
+    });
+    const { container } = render(<SearchForm />);
+    const clearButton = container.querySelector("#search_clear_button");
+    expect(clearButton).not.toBeNull();
+    fireEvent.click(clearButton as Element);
+    const pushedUrl = state.routerPush.mock.calls.at(-1)?.[0] as string;
+    expect(pushedUrl).toContain("aiSearch=true");
   });
 
   it("puts aiSearch=true on the URL once the toggle is turned on", () => {
