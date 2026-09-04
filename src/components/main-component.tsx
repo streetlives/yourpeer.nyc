@@ -3,7 +3,7 @@
 import { useViewStore } from "@/lib/store";
 import classNames from "classnames";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { LOCATION_ROUTE } from "./common";
 import FiltersPopup from "./filters-popup";
 import { MapLoadingAnimation } from "./map-loading-animation";
@@ -15,18 +15,23 @@ export function MainComponent({
   mapContainer: React.ReactNode;
   sidePanel: React.ReactNode;
 }) {
-  const currentPath = usePathname() as string;
-  const [ignore, firstPathComponent, secondPathComponent] =
-    currentPath.split("/");
+  const showMapViewOnMobile = useViewStore(
+    (state) => state.showMapViewOnMobile,
+  );
+  const setShowMapViewOnMobile = useViewStore(
+    (state) => state.setShowMapViewOnMobile,
+  );
+  const currentPath = usePathname();
+  const [, firstPathComponent, secondPathComponent] = currentPath.split("/");
   const isLocationDetailPage =
     firstPathComponent === LOCATION_ROUTE &&
     typeof secondPathComponent === "string";
 
-  const showMapViewOnMobile = useViewStore(
-    (state) => state.showMapViewOnMobile,
-  );
-
-  const showMapView = showMapViewOnMobile && !isLocationDetailPage;
+  useEffect(() => {
+    if (isLocationDetailPage && showMapViewOnMobile) {
+      setShowMapViewOnMobile(false);
+    }
+  }, [isLocationDetailPage, setShowMapViewOnMobile, showMapViewOnMobile]);
 
   const classnames = classNames([
     "flex-1",
@@ -34,7 +39,9 @@ export function MainComponent({
     "flex",
     "flex-col",
     "md:flex-row",
-    showMapView ? "showMapOnMobile" : "hideMapOnMobile",
+    showMapViewOnMobile && !isLocationDetailPage
+      ? "showMapOnMobile"
+      : "hideMapOnMobile",
   ]);
 
   return (
