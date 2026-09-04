@@ -22,7 +22,7 @@ import {
   SEARCH_PARAM,
   SearchParams,
 } from "./common";
-import { isAiSearchEnabled } from "./feature-flags";
+import { useAiSearchEnabled } from "./ai-search-context";
 import { PreviousParams } from "./get-previous-params";
 import {
   getUrlWithNewFilterParameter,
@@ -191,7 +191,7 @@ export default function SearchForm() {
     | string
     | undefined;
 
-  const aiSearchAvailable = isAiSearchEnabled();
+  const aiSearchAvailable = useAiSearchEnabled();
 
   const [aiSearchEnabled, setAiSearchEnabled] = useState(
     aiSearchAvailable &&
