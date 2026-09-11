@@ -16,6 +16,8 @@ import GTProdGuardScript from "@/components/gt-prod-guard-script";
 import { AiSearchEnabledProvider } from "@/components/ai-search-context";
 import { isAiSearchEnabled } from "@/components/feature-flags";
 import { inter } from "./fonts";
+import PublicCallingProvider from "@/components/calling/public-calling-provider";
+import { isPublicCallingConfigured } from "@/lib/public-calling-server";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -66,7 +68,14 @@ export default function RootLayout({
         <CookiesProvider>
           <LanguageTranslationProvider>
             <AiSearchEnabledProvider enabled={isAiSearchEnabled()}>
-              <QueryClientProvider>{children}</QueryClientProvider>
+              <QueryClientProvider>
+                <PublicCallingProvider
+                  enabled={isPublicCallingConfigured()}
+                  sitekey={process.env.PUBLIC_CALLING_TURNSTILE_SITE_KEY || ""}
+                >
+                  {children}
+                </PublicCallingProvider>
+              </QueryClientProvider>
             </AiSearchEnabledProvider>
           </LanguageTranslationProvider>
         </CookiesProvider>
