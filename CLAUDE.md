@@ -29,6 +29,13 @@ npx playwright test --ui          # Open Playwright UI
 
 CI runs `check-types`, `check-format`, `lint`, and `check-translations` on every PR.
 
+Dependabot and Snyk PRs are approved and merged without a human by
+`.github/workflows/dependency-auto-merge.yml`, but only for the update types allowed in its
+`ALLOWED_UPDATES` map and only once every check in `REQUIRED_CHECKS` has reported success.
+`.github/scripts/dependency-update-policy.mjs` holds that classification logic and is covered by
+`tests/unit/dependency-update-policy.test.ts`. Requesting changes on such a PR, or labelling it
+`do-not-merge`, stops the merge.
+
 ## Architecture
 
 ### Routing (Next.js App Router)
