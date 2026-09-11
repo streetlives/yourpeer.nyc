@@ -43,6 +43,12 @@ jobs:
                 );
 
                 for (const deployment of deployments) {
+                  const deploymentUrl = deployment.payload?.web_url || "";
+
+                  if (!deploymentUrl.includes(".herokuapp.com")) {
+                    continue;
+                  }
+
                   const statuses =
                     await github.rest.repos.listDeploymentStatuses({
                       owner,
@@ -61,6 +67,10 @@ jobs:
 
                   if (successfulStatus) {
                     return successfulStatus.environment_url.replace(/\/$/, "");
+                  }
+
+                  if (statuses.data.length === 0) {
+                    return deploymentUrl.replace(/\/$/, "");
                   }
                 }
               }
