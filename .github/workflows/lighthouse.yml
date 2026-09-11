@@ -6,17 +6,89 @@ on:
 
 permissions:
   contents: read
+  deployments: read
+  pull-requests: read
 
 jobs:
   lighthouse:
     name: Lighthouse Report
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      LIGHTHOUSE_BASE_URL: ${{ vars.LIGHTHOUSE_BASE_URL || 'https://yourpeer.nyc' }}
 
     steps:
+      - name: Find Heroku Review App
+        id: review_app
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const { owner, repo } = context.repo;
+            const pullRequest = context.payload.pull_request;
+            const refs = [pullRequest.head.sha, pullRequest.head.ref];
+            const attempts = 30;
+            const delayMs = 10000;
+
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+            async function findReviewAppUrl() {
+              for (const ref of refs) {
+                const deployments = await github.paginate(
+                  github.rest.repos.listDeployments,
+                  {
+                    owner,
+                    repo,
+                    ref,
+                    per_page: 100,
+                  },
+                );
+
+                for (const deployment of deployments) {
+                  const statuses =
+                    await github.rest.repos.listDeploymentStatuses({
+                      owner,
+                      repo,
+                      deployment_id: deployment.id,
+                      per_page: 10,
+                    });
+                  const successfulStatus = statuses.data.find((status) => {
+                    const url = status.environment_url || "";
+
+                    return (
+                      status.state === "success" &&
+                      url.includes(".herokuapp.com")
+                    );
+                  });
+
+                  if (successfulStatus) {
+                    return successfulStatus.environment_url.replace(/\/$/, "");
+                  }
+                }
+              }
+            }
+
+            for (let attempt = 1; attempt <= attempts; attempt += 1) {
+              const url = await findReviewAppUrl();
+
+              if (url) {
+                core.info(`Using Heroku Review App: ${url}`);
+                return url;
+              }
+
+              if (attempt < attempts) {
+                core.info(
+                  `Waiting for Heroku Review App deployment (${attempt}/${attempts})`,
+                );
+                await sleep(delayMs);
+              }
+            }
+
+            core.setFailed(
+              "Could not find a successful Heroku Review App deployment for this pull request.",
+            );
+
       - name: Wait for deployed environment
+        env:
+          LIGHTHOUSE_BASE_URL: ${{ steps.review_app.outputs.result }}
         run: |
           for attempt in {1..60}; do
             if curl --silent --fail "${LIGHTHOUSE_BASE_URL}/" > /dev/null; then
@@ -34,8 +106,8 @@ jobs:
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            ${{ env.LIGHTHOUSE_BASE_URL }}/
-            ${{ env.LIGHTHOUSE_BASE_URL }}/about-us
+            ${{ steps.review_app.outputs.result }}/
+            ${{ steps.review_app.outputs.result }}/about-us
           runs: 3
           uploadArtifacts: true
           temporaryPublicStorage: true
