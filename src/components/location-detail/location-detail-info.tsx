@@ -2,6 +2,7 @@
 "use client";
 
 import { YourPeerLegacyLocationData } from "@/components/common";
+import { CallingScope } from "@/components/calling/public-calling-provider";
 
 function normalizeWebsiteUrl(url: string): string | undefined {
   if (url) {
@@ -103,24 +104,29 @@ export default function LocationDetailInfo({
                   className="flex-shrink-0 w-5 h-5 max-h-5"
                   alt=""
                 />
-                <p className="text-dark text-sm ml-2 flex flex-col space-y-0.5">
-                  {location.phones?.map((phone, index) => (
-                    <span key={index} className="block">
-                      <a
-                        href={`tel:${phone.number}${phone.extension ? `;ext=${phone.extension}` : ""}`}
-                        className="text-blue hover:no-underline underline"
-                      >
-                        <span>{formatPhoneNumber(phone.number)}</span>
-                        <span>
-                          {phone.extension ? ` x${phone.extension}` : ""}
+                <CallingScope
+                  locationId={location.id}
+                  label={location.name || "Service"}
+                >
+                  <p className="text-dark text-sm ml-2 flex flex-col space-y-0.5">
+                    {location.phones?.map((phone, index) => (
+                      <span key={index} className="block">
+                        <a
+                          href={`tel:${phone.number}${phone.extension ? `;ext=${phone.extension}` : ""}`}
+                          className="text-blue hover:no-underline underline"
+                        >
+                          <span>{formatPhoneNumber(phone.number)}</span>
+                          <span>
+                            {phone.extension ? ` x${phone.extension}` : ""}
+                          </span>
+                        </a>{" "}
+                        <span className="text-neutral-700">
+                          {phone.type ? `(${phone.type})` : ""}
                         </span>
-                      </a>{" "}
-                      <span className="text-neutral-700">
-                        {phone.type ? `(${phone.type})` : ""}
                       </span>
-                    </span>
-                  ))}
-                </p>
+                    ))}
+                  </p>
+                </CallingScope>
               </li>
             ) : undefined}
             {location.email ? (
