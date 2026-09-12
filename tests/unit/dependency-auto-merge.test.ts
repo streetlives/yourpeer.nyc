@@ -445,3 +445,60 @@ describe("binding the inspection to one revision", () => {
     ).rejects.toThrow(/partial list/);
   });
 });
+
+describe("state that changes during inspection", () => {
+  const changedMidFlight = async (
+    mutate: (pr: Record<string, any>) => void,
+    expected: RegExp,
+  ) => {
+    const after = fixture().pr as Record<string, any>;
+    mutate(after);
+    const { result, mutations } = await decide({ prAfter: after });
+    expect(result.outcome).toBe("skipped");
+    expect(result.reason).toMatch(expected);
+    expect(result.reason).toMatch(/changed during inspection/);
+    expect(mutations).toEqual([]);
+  };
+
+  it("refuses a PR retargeted away from the allowed base", async () => {
+    // The merge call's `sha` parameter binds the commit, not the branch it lands on.
+    await changedMidFlight((pr) => {
+      pr.base = { ...pr.base, ref: "production" };
+    }, /targets `production`/);
+  });
+
+  it("refuses a do-not-merge label added after the checks were read", async () => {
+    await changedMidFlight((pr) => {
+      pr.labels = [{ name: "do-not-merge" }];
+    }, /do-not-merge/);
+  });
+
+  it("refuses a PR closed after the checks were read", async () => {
+    await changedMidFlight((pr) => {
+      pr.state = "closed";
+    }, /not open/);
+  });
+
+  it("refuses a PR converted to a draft after the checks were read", async () => {
+    await changedMidFlight((pr) => {
+      pr.draft = true;
+    }, /draft/);
+  });
+
+  it("reads reviews last, so a late objection still stops the merge", async () => {
+    // The review list is fetched after the final PR re-read, which is what makes a
+    // maintainer's "request changes" the most recent thing seen before mutating.
+    const { result, calls, mutations } = await decide({
+      reviews: [{ user: { login: "jbeard4" }, state: "CHANGES_REQUESTED" }],
+    });
+
+    expect(result.outcome).toBe("skipped");
+    expect(result.reason).toMatch(/requested changes/);
+    expect(mutations).toEqual([]);
+
+    const paths = calls.map((call) => call.path);
+    expect(
+      paths.indexOf("/repos/" + REPO + "/pulls/643/reviews?per_page=100"),
+    ).toBeGreaterThan(paths.findIndex((path) => path.includes("/check-runs")));
+  });
+});
