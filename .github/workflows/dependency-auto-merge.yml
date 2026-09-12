@@ -7,6 +7,13 @@
 #
 # Because workflow_run executes with write permissions, this workflow never
 # checks out or runs PR code -- only .github/scripts from the default branch.
+#
+# Snyk PRs are evaluated but will not merge: the gate requires a verified
+# signature on every commit, and Snyk does not sign. Attribution alone is not
+# enough, because `package.json` is on the allowed-file list and carries the
+# scripts CI runs -- an unsigned commit could replace the checks vetting it. To
+# enable Snyk here, either get signed commits or restrict pushes to `snyk-*`
+# branches to the Snyk app with a ruleset, then relax verifyProvenance.
 name: Dependency auto-merge
 
 on:

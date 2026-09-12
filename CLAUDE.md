@@ -29,13 +29,18 @@ npx playwright test --ui          # Open Playwright UI
 
 CI runs `check-types`, `check-format`, `lint`, and `check-translations` on every PR.
 
-Dependabot and Snyk PRs are approved and merged without a human by
-`.github/workflows/dependency-auto-merge.yml`, but only for the update types allowed in its
-`ALLOWED_UPDATES` map, only when the diff touches nothing but `package.json`/`package-lock.json`,
-and only once every check in `REQUIRED_CHECKS` has reported success. The file allowlist is why
-Dependabot's `github-actions` PRs never merge themselves — they rewrite workflow files.
-`.github/scripts/dependency-update-policy.mjs` holds that classification logic and is covered by
-`tests/unit/dependency-update-policy.test.ts`. Requesting changes on such a PR, or labelling it
+Dependabot PRs are approved and merged without a human by
+`.github/workflows/dependency-auto-merge.yml`. Three gates have to agree: the diff touches nothing
+but `package.json`/`package-lock.json`, the bump is within `ALLOWED_UPDATES` (patch-only for runtime
+dependencies, never a major), and every commit carries a verified signature. Every check in
+`REQUIRED_CHECKS` must also have reported success. The file allowlist is why Dependabot's
+`github-actions` PRs never merge themselves — they rewrite workflow files. **Snyk PRs never
+auto-merge**: Snyk does not sign its commits, and attribution alone is spoofable by anyone with push
+access, which matters because `package.json` carries the scripts CI executes.
+`.github/scripts/dependency-update-policy.mjs` holds the classification logic and
+`.github/scripts/dependency-auto-merge.mjs` the privileged orchestration; both are covered by
+`tests/unit/dependency-update-policy.test.ts` and `tests/unit/dependency-auto-merge.test.ts`, which
+inject a fake `api` rather than calling GitHub. Requesting changes on such a PR, or labelling it
 `do-not-merge`, stops the merge.
 
 ## Architecture
