@@ -25,6 +25,10 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # An explicit block sets every unlisted scope to none, and the merge gate reads
+  # both check runs and commit statuses.
+  checks: read
+  statuses: read
 
 concurrency:
   group: dependency-auto-merge-${{ github.event.workflow_run.head_sha || inputs.pr_number }}
@@ -71,6 +75,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           PR_NUMBERS: ${{ steps.candidates.outputs.numbers }}
           MERGE_METHOD: squash
+          BASE_BRANCHES: '["main"]'
           # Every check that gates main. A bot PR is only merged when all of
           # these have actually reported success for its head commit.
           REQUIRED_CHECKS: >-

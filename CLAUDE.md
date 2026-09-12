@@ -31,7 +31,9 @@ CI runs `check-types`, `check-format`, `lint`, and `check-translations` on every
 
 Dependabot and Snyk PRs are approved and merged without a human by
 `.github/workflows/dependency-auto-merge.yml`, but only for the update types allowed in its
-`ALLOWED_UPDATES` map and only once every check in `REQUIRED_CHECKS` has reported success.
+`ALLOWED_UPDATES` map, only when the diff touches nothing but `package.json`/`package-lock.json`,
+and only once every check in `REQUIRED_CHECKS` has reported success. The file allowlist is why
+Dependabot's `github-actions` PRs never merge themselves — they rewrite workflow files.
 `.github/scripts/dependency-update-policy.mjs` holds that classification logic and is covered by
 `tests/unit/dependency-update-policy.test.ts`. Requesting changes on such a PR, or labelling it
 `do-not-merge`, stops the merge.
