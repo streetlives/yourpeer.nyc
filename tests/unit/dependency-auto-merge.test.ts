@@ -66,7 +66,7 @@ function fixture(overrides: State = {}) {
       draft: false,
       mergeable: true,
       user: { login: "dependabot[bot]" },
-      base: { ref: "main" },
+      base: { ref: "main", sha: "1111111122222222333333334444444455555555" },
       head: {
         ref: "dependabot/npm_and_yarn/next-15.5.19",
         sha: HEAD_SHA,
@@ -74,7 +74,11 @@ function fixture(overrides: State = {}) {
       },
       labels: [],
     },
+    // Returned on the second /pulls/{n} read, to stand in for a branch that moved
+    // mid-inspection.
+    prAfter: undefined as Record<string, unknown> | undefined,
     commits: [botCommit()],
+    totalCommits: undefined as number | undefined,
     files: [{ filename: "package.json" }, { filename: "package-lock.json" }],
     reviews: [],
     checkRuns: [passingCheck("check-types"), passingCheck("Unit Tests")],
@@ -90,6 +94,7 @@ function makeApi(state: ReturnType<typeof fixture>) {
     path: string;
     body?: Record<string, unknown>;
   }[] = [];
+  let prReads = 0;
   const api = async (
     path: string,
     options: { method?: string; body?: string } = {},
@@ -103,9 +108,20 @@ function makeApi(state: ReturnType<typeof fixture>) {
 
     if (method === "PUT" && path.endsWith("/merge")) return { merged: true };
     if (method === "POST" && path.endsWith("/reviews")) return { id: 1 };
-    if (path.endsWith(`/pulls/${state.pr.number}`)) return state.pr;
-    if (path.includes("/commits?")) return state.commits;
-    if (path.includes("/files?")) return state.files;
+    if (path.endsWith(`/pulls/${state.pr.number}`)) {
+      prReads += 1;
+      return prReads > 1 && state.prAfter ? state.prAfter : state.pr;
+    }
+    // Commits and the diff must come from an immutable base...head comparison, so
+    // nothing here answers a request against the PR's mutable ref.
+    if (path.includes("/compare/")) {
+      expect(path).toContain(`${state.pr.base.sha}...${state.pr.head.sha}`);
+      return {
+        commits: state.commits,
+        total_commits: state.totalCommits ?? state.commits.length,
+        files: state.files,
+      };
+    }
     if (path.includes("/reviews?")) return state.reviews;
     if (path.includes("/check-runs")) {
       return {
@@ -336,16 +352,6 @@ describe("evaluatePullRequest", () => {
       );
     });
   });
-
-  it("throws rather than judging a full page of commits", async () => {
-    const state = fixture({
-      commits: Array.from({ length: 100 }, () => botCommit()),
-    });
-    const { api } = makeApi(state);
-    await expect(
-      evaluatePullRequest(643, { api, repo: REPO, config: CONFIG }),
-    ).rejects.toThrow(/partial list/);
-  });
 });
 
 describe("verifyProvenance", () => {
@@ -383,5 +389,46 @@ describe("run", () => {
       "errored",
       "merged",
     ]);
+  });
+});
+
+describe("binding the inspection to one revision", () => {
+  it("refuses a head that moved between inspection and merge", async () => {
+    // The swap Codex reproduced: let a clean head be inspected, then restore the
+    // original one before the merge lands.
+    const clean = fixture().pr;
+    const { result, mutations } = await decide({
+      prAfter: {
+        ...clean,
+        head: {
+          ...clean.head,
+          sha: "9999999999999999999999999999999999999999",
+        },
+      },
+    });
+
+    expect(result.outcome).toBe("skipped");
+    expect(result.reason).toMatch(/head moved/);
+    expect(mutations).toEqual([]);
+  });
+
+  it("throws rather than judging a truncated commit list", async () => {
+    const { api } = makeApi(fixture({ totalCommits: 300 }));
+    await expect(
+      evaluatePullRequest(643, { api, repo: REPO, config: CONFIG }),
+    ).rejects.toThrow(/partial list/);
+  });
+
+  it("throws rather than judging a truncated file list", async () => {
+    const { api } = makeApi(
+      fixture({
+        files: Array.from({ length: 300 }, (_, index) => ({
+          filename: `packages/p${index}/package.json`,
+        })),
+      }),
+    );
+    await expect(
+      evaluatePullRequest(643, { api, repo: REPO, config: CONFIG }),
+    ).rejects.toThrow(/partial list/);
   });
 });
