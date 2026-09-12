@@ -29,6 +29,25 @@ npx playwright test --ui          # Open Playwright UI
 
 CI runs `check-types`, `check-format`, `lint`, and `check-translations` on every PR.
 
+Dependabot PRs are approved and merged without a human by
+`.github/workflows/dependency-auto-merge.yml`. Four gates have to agree: the diff touches nothing
+but `package.json`/`package-lock.json`; the bump is within `ALLOWED_UPDATES` (patch-only for runtime
+dependencies, never a major, and below 1.0.0 a minor counts as a major because `^0.34.4` will not
+take 0.35); every commit is authored by the bot, committed by GitHub's `web-flow` and signed; and the
+**contents** of those files check out — only dependency maps differ in `package.json`, every version
+is a plain range rather than an `npm:` alias or a git/tarball source, and every package the lockfile
+names resolves from the npm registry. That last gate is what makes the others more than a statement
+of intent: a signature proves GitHub made the commit, not that Dependabot asked for it. Every check in
+`REQUIRED_CHECKS` must also have reported success. The file allowlist is why Dependabot's
+`github-actions` PRs never merge themselves — they rewrite workflow files. **Snyk PRs never
+auto-merge**: Snyk does not sign its commits, and attribution alone is spoofable by anyone with push
+access, which matters because `package.json` carries the scripts CI executes.
+`.github/scripts/dependency-update-policy.mjs` holds the classification logic and
+`.github/scripts/dependency-auto-merge.mjs` the privileged orchestration; both are covered by
+`tests/unit/dependency-update-policy.test.ts` and `tests/unit/dependency-auto-merge.test.ts`, which
+inject a fake `api` rather than calling GitHub. Requesting changes on such a PR, or labelling it
+`do-not-merge`, stops the merge.
+
 ## Architecture
 
 ### Routing (Next.js App Router)

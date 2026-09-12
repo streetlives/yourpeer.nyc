@@ -1,0 +1,113 @@
+# Merges safe Dependabot and Snyk PRs once CI is green. See issue #681.
+#
+# This runs on workflow_run rather than pull_request for two reasons:
+#   1. Workflows triggered by Dependabot get a read-only GITHUB_TOKEN, so a
+#      pull_request job could not approve or merge anything.
+#   2. workflow_run fires after CI finishes, so there is nothing to poll for.
+#
+# Because workflow_run executes with write permissions, this workflow never
+# checks out or runs PR code -- only .github/scripts from the default branch.
+#
+# Snyk PRs are evaluated but will not merge: the gate requires every commit to be
+# authored by the bot, committed by GitHub's `web-flow`, and signed -- and Snyk
+# does not sign. Attribution alone is not enough, because `package.json` is on the
+# allowed-file list and carries the scripts CI runs, so an unsigned commit could
+# replace the very checks vetting it.
+#
+# A signature still only proves GitHub made the commit, not that Dependabot asked
+# for it: a collaborator with write access can have GitHub sign a commit
+# attributed to Dependabot through the contents API. So the gate reads the change
+# instead of trusting its description -- every key that differs in package.json
+# must be a dependency map, every version must be a plain range rather than an
+# alias or a git or tarball source, and every package the lockfile names must come
+# from the npm registry. A forged commit cannot reach `scripts`, add a postinstall
+# hook, or redirect a package at someone else's tarball.
+#
+# What remains is a real registry version that happens to be malicious, which is
+# the supply-chain risk any dependency update carries. An authoritative fix for the
+# forgery itself is a ruleset restricting pushes to `dependabot/**` (and `snyk-*`)
+# to those apps alone, which is also what would make Snyk safe to enable here.
+name: Dependency auto-merge
+
+on:
+  workflow_run:
+    workflows: ["Node.js CI", "Tests"]
+    types: [completed]
+  # Lets a maintainer retry a PR that was opened before this workflow landed, or
+  # one whose CI was re-run after a fix.
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to evaluate
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  # An explicit block sets every unlisted scope to none, and the merge gate reads
+  # both check runs and commit statuses.
+  checks: read
+  statuses: read
+
+concurrency:
+  group: dependency-auto-merge-${{ github.event.workflow_run.head_sha || inputs.pr_number }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'pull_request' &&
+       contains(fromJSON('["dependabot[bot]", "snyk-bot"]'), github.event.workflow_run.actor.login))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Default-branch code only; never the PR head.
+          sparse-checkout: .github/scripts
+
+      - name: Resolve candidate pull requests
+        id: candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCH_PR: ${{ inputs.pr_number }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          if [ -n "${DISPATCH_PR:-}" ]; then
+            numbers="$DISPATCH_PR"
+          else
+            # workflow_run.pull_requests is unreliable for some event shapes, so
+            # look the PR up by its head branch instead.
+            numbers=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open \
+              --head "$HEAD_BRANCH" --json number,headRefOid \
+              --jq '[.[] | select(.headRefOid == "'"$HEAD_SHA"'") | .number] | join(",")')
+          fi
+          echo "numbers=$numbers" >> "$GITHUB_OUTPUT"
+          echo "Candidate pull requests: ${numbers:-none}"
+
+      - name: Approve and merge safe updates
+        if: steps.candidates.outputs.numbers != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBERS: ${{ steps.candidates.outputs.numbers }}
+          MERGE_METHOD: squash
+          BASE_BRANCHES: '["main"]'
+          # Every check that gates main. A bot PR is only merged when all of
+          # these have actually reported success for its head commit.
+          REQUIRED_CHECKS: >-
+            ["check-types", "check-format", "check-lint", "check-translations",
+             "Unit Tests", "E2E Tests"]
+          # Dependabot dependency-type -> semver bumps that may merge unattended.
+          # Runtime dependencies are held to patch-only; anything larger, and any
+          # major, waits for a human.
+          ALLOWED_UPDATES: >-
+            {
+              "direct:production": ["patch"],
+              "direct:development": ["patch", "minor"],
+              "indirect": ["patch", "minor"]
+            }
+        run: node .github/scripts/dependency-auto-merge.mjs
