@@ -4,6 +4,8 @@ import {
   allowedPathsFor,
   classifyVersionChange,
   collectResolvedUrls,
+  deriveLockfileUpdates,
+  deriveManifestUpdates,
   evaluateChangedFiles,
   evaluateChecks,
   evaluateLockfileChanges,
@@ -905,6 +907,176 @@ describe("run", () => {
     const checkRuns = passingChecks();
     checkRuns[0] = checkRun(checkRuns[0].name, null, "in_progress", 1);
     const { github, calls } = fakeGithub({ ...mergeableState(), checkRuns });
+
+    await run({ github, context: CONTEXT, core: CORE });
+
+    expect(calls.merges).toHaveLength(0);
+  });
+});
+
+describe("policy is derived from the diff, not from what the pull request claims", () => {
+  it("rejects a manifest change larger than the declared update", () => {
+    // The title and trailer say patch; package.json actually crosses a major.
+    const base = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "0.27.2" },
+    };
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "1.8.3" },
+    };
+    const result = evaluateManifestChanges(base, head, AXIOS_UPDATE);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("major");
+  });
+
+  it("takes the policy tier from the manifest field, not from the claim", () => {
+    // Claimed as a devDependency to buy the looser minor rule; axios is production.
+    const claimedAsDev = [
+      {
+        name: "axios",
+        fromVersion: "1.8.2",
+        toVersion: "1.9.0",
+        dependencyType: "direct:development",
+        removed: false,
+      },
+    ];
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "^1.9.0" },
+    };
+    const result = evaluateManifestChanges(BASE_MANIFEST, head, claimedAsDev);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("direct:production");
+  });
+
+  it("derives both ends of every manifest change", () => {
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "^1.8.3" },
+      devDependencies: { prettier: "^3.4.0" },
+    };
+    expect(deriveManifestUpdates(BASE_MANIFEST, head)).toEqual([
+      {
+        name: "axios",
+        field: "dependencies",
+        fromVersion: "^1.8.2",
+        toVersion: "^1.8.3",
+        dependencyType: "direct:production",
+        added: false,
+        removed: false,
+      },
+      {
+        name: "prettier",
+        field: "devDependencies",
+        fromVersion: "^3.3.2",
+        toVersion: "^3.4.0",
+        dependencyType: "direct:development",
+        added: false,
+        removed: false,
+      },
+    ]);
+  });
+
+  it("rejects an undeclared major upgrade hiding in the lockfile", () => {
+    const base = lockfile({
+      "node_modules/lodash": {
+        version: "1.0.0",
+        resolved: "https://registry.npmjs.org/lodash/-/lodash-1.0.0.tgz",
+        integrity: "sha512-old",
+      },
+    });
+    const head = lockfile({
+      "node_modules/lodash": {
+        version: "2.0.0",
+        resolved: "https://registry.npmjs.org/lodash/-/lodash-2.0.0.tgz",
+        integrity: "sha512-new",
+      },
+    });
+    const result = evaluateLockfileChanges(base, head, BASE_MANIFEST);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("major");
+  });
+
+  it("polices a dev-only lockfile entry as a development dependency", () => {
+    const entry = (version: string, dev: boolean) => ({
+      "node_modules/tinypool": {
+        version,
+        resolved: `https://registry.npmjs.org/tinypool/-/tinypool-${version}.tgz`,
+        integrity: `sha512-${version}`,
+        ...(dev ? { dev: true } : {}),
+      },
+    });
+
+    // Dev tree: a minor bump is in policy and cannot reach production.
+    expect(
+      evaluateLockfileChanges(
+        lockfile(entry("1.0.0", true)),
+        lockfile(entry("1.1.0", true)),
+        BASE_MANIFEST,
+      ).safe,
+    ).toBe(true);
+
+    // Same bump in the production tree is not.
+    expect(
+      evaluateLockfileChanges(
+        lockfile(entry("1.0.0", false)),
+        lockfile(entry("1.1.0", false)),
+        BASE_MANIFEST,
+      ).safe,
+    ).toBe(false);
+  });
+
+  it("types a direct dependency from the manifest rather than the dev flag", () => {
+    const entry = (version: string) => ({
+      "node_modules/axios": {
+        version,
+        resolved: `https://registry.npmjs.org/axios/-/axios-${version}.tgz`,
+        integrity: `sha512-${version}`,
+      },
+    });
+    expect(
+      evaluateLockfileChanges(
+        lockfile(entry("1.8.2")),
+        lockfile(entry("1.9.0")),
+        BASE_MANIFEST,
+      ).safe,
+    ).toBe(false);
+    expect(
+      deriveLockfileUpdates(
+        lockfile(entry("1.8.2")),
+        lockfile(entry("1.9.0")),
+        BASE_MANIFEST,
+      )[0].dependencyType,
+    ).toBe("direct:production");
+  });
+
+  it("merges nothing when an eligible patch pull request smuggles a major into the lockfile", async () => {
+    const withLodash = (version: string) =>
+      lockfile({
+        "node_modules/axios": {
+          version: "1.8.2",
+          resolved: "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz",
+          integrity: "sha512-base",
+        },
+        "node_modules/lodash": {
+          version,
+          resolved: `https://registry.npmjs.org/lodash/-/lodash-${version}.tgz`,
+          integrity: `sha512-${version}`,
+        },
+      });
+
+    const { github, calls } = fakeGithub({
+      pull: pull(),
+      files: ["package-lock.json"],
+      commits: [PATCH_COMMIT],
+      contents: {
+        "basesha1:package.json": BASE_MANIFEST,
+        "headsha1:package.json": BASE_MANIFEST,
+        "basesha1:package-lock.json": withLodash("1.0.0"),
+        "headsha1:package-lock.json": withLodash("2.0.0"),
+      },
+    });
 
     await run({ github, context: CONTEXT, core: CORE });
 
