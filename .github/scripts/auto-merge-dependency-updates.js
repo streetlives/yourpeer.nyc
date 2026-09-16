@@ -55,6 +55,25 @@ const AUTO_MERGE_POLICY = {
   indirect: ["patch"],
 };
 
+/**
+ * Accounts whose `snyk-*` branches are eligible. Snyk opens its pull requests
+ * through a connected user account, so the branch name is a naming convention, not
+ * an identity: without this list any contributor could push a `snyk-fix-*` branch
+ * and have it merged without review.
+ */
+const SNYK_AUTHORS = ["jbeard4", "snyk-bot"];
+
+/** package.json fields a dependency update is allowed to touch. */
+const MANIFEST_DEPENDENCY_FIELDS = [
+  "dependencies",
+  "devDependencies",
+  "optionalDependencies",
+  "peerDependencies",
+];
+
+/** Hosts a lockfile may newly resolve a package from. */
+const ALLOWED_REGISTRY_HOSTS = ["registry.npmjs.org"];
+
 const MERGE_METHOD = "squash";
 
 /**
@@ -411,11 +430,193 @@ function evaluateReviews(reviews, botReviewers = BOT_REVIEWERS) {
   return { safe: true, reason: "" };
 }
 
-/** Identifies which bot opened a pull request, if any. */
-function identifySource(pullRequest) {
+/** Structural equality, used to prove nothing outside the dependency lists moved. */
+function deepEqual(a, b) {
+  if (a === b) return true;
+  if (typeof a !== typeof b || a === null || b === null) return false;
+  if (typeof a !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) => key in b && deepEqual(a[key], b[key]));
+}
+
+/**
+ * Checks the manifest diff itself rather than the file name.
+ *
+ * A file-name allowlist only proves which files changed, not what they say, so on
+ * its own it would let a `snyk-fix-*` branch add an install script or a new
+ * dependency and merge without review. Every dependency range that moved must
+ * belong to an update this pull request declares, and everything outside the
+ * dependency lists - `scripts`, `overrides`, `engines`, the rest - must be
+ * untouched.
+ */
+function evaluateManifestChanges(basePackageJson, headPackageJson, updates) {
+  if (!basePackageJson || !headPackageJson) {
+    return { safe: false, reason: "could not read package.json on both sides" };
+  }
+
+  const claimed = new Map(
+    (updates || []).map((update) => [update.name, update]),
+  );
+
+  for (const field of MANIFEST_DEPENDENCY_FIELDS) {
+    const before = basePackageJson[field] || {};
+    const after = headPackageJson[field] || {};
+    const names = new Set([...Object.keys(before), ...Object.keys(after)]);
+
+    for (const name of names) {
+      if (before[name] === after[name]) continue;
+
+      const update = claimed.get(name);
+      if (!update) {
+        return {
+          safe: false,
+          reason: `package.json changes ${name} in ${field}, which no declared update accounts for`,
+        };
+      }
+      if (!(name in after)) {
+        return {
+          safe: false,
+          reason: `package.json drops ${name} from ${field}`,
+        };
+      }
+
+      const declared = parseVersion(after[name]);
+      const expected = parseVersion(update.toVersion);
+      if (
+        !declared ||
+        !expected ||
+        declared.major !== expected.major ||
+        declared.minor !== expected.minor ||
+        declared.patch !== expected.patch
+      ) {
+        return {
+          safe: false,
+          reason: `package.json sets ${name} to ${after[name]}, not the ${update.toVersion} this pull request claims`,
+        };
+      }
+    }
+  }
+
+  const withoutDependencies = (manifest) => {
+    const rest = { ...manifest };
+    for (const field of MANIFEST_DEPENDENCY_FIELDS) delete rest[field];
+    return rest;
+  };
+  if (
+    !deepEqual(
+      withoutDependencies(basePackageJson),
+      withoutDependencies(headPackageJson),
+    )
+  ) {
+    return {
+      safe: false,
+      reason: "package.json changes fields outside its dependency lists",
+    };
+  }
+
+  return { safe: true, reason: "" };
+}
+
+/** True for a tarball URL npm may fetch from without a human looking first. */
+function isAllowedRegistryUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      ALLOWED_REGISTRY_HOSTS.includes(parsed.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** Every `resolved` URL anywhere in a lockfile, whatever its structure version. */
+function collectResolvedUrls(node, found = new Set()) {
+  if (!node || typeof node !== "object") return found;
+  if (Array.isArray(node)) {
+    for (const item of node) collectResolvedUrls(item, found);
+    return found;
+  }
+  if (typeof node.resolved === "string") found.add(node.resolved);
+  for (const value of Object.values(node)) {
+    if (value && typeof value === "object") collectResolvedUrls(value, found);
+  }
+  return found;
+}
+
+/**
+ * Checks the lockfile diff. The manifest check cannot see any of this: a lockfile
+ * is where a forged update would point a package at a tarball of its own, or swap
+ * the integrity hash of a version it left alone.
+ */
+function evaluateLockfileChanges(baseLock, headLock) {
+  if (!baseLock || !headLock) {
+    return {
+      safe: false,
+      reason: "could not read package-lock.json on both sides",
+    };
+  }
+  if (baseLock.lockfileVersion !== headLock.lockfileVersion) {
+    return {
+      safe: false,
+      reason: `package-lock.json changes lockfileVersion from ${baseLock.lockfileVersion} to ${headLock.lockfileVersion}`,
+    };
+  }
+  if (
+    baseLock.name !== headLock.name ||
+    baseLock.version !== headLock.version
+  ) {
+    return { safe: false, reason: "package-lock.json renames the project" };
+  }
+
+  const before = collectResolvedUrls(baseLock);
+  const offRegistry = [...collectResolvedUrls(headLock)].filter(
+    (url) => !before.has(url) && !isAllowedRegistryUrl(url),
+  );
+  if (offRegistry.length > 0) {
+    return {
+      safe: false,
+      reason: `package-lock.json resolves ${offRegistry.slice(0, 3).join(", ")} outside the npm registry`,
+    };
+  }
+
+  const basePackages = baseLock.packages || {};
+  const headPackages = headLock.packages || {};
+  for (const [path, headEntry] of Object.entries(headPackages)) {
+    const baseEntry = basePackages[path];
+    if (!baseEntry || !headEntry) continue;
+    if (
+      baseEntry.version === headEntry.version &&
+      baseEntry.resolved === headEntry.resolved &&
+      baseEntry.integrity !== headEntry.integrity
+    ) {
+      return {
+        safe: false,
+        reason: `package-lock.json changes the integrity hash of ${path} without changing its version`,
+      };
+    }
+  }
+
+  return { safe: true, reason: "" };
+}
+
+/**
+ * Identifies which bot opened a pull request, if any. Dependabot authors its own
+ * pull requests, so the author is proof; Snyk does not, so a Snyk branch counts
+ * only when it comes from an account connected to Snyk.
+ */
+function identifySource(pullRequest, snykAuthors = SNYK_AUTHORS) {
   const login = (pullRequest.user && pullRequest.user.login) || "";
   if (login === DEPENDABOT_LOGIN) return "dependabot";
-  if (SNYK_BRANCH_PATTERN.test(pullRequest.head.ref)) return "snyk";
+  if (
+    SNYK_BRANCH_PATTERN.test(pullRequest.head.ref) &&
+    snykAuthors.includes(login)
+  ) {
+    return "snyk";
+  }
   return null;
 }
 
@@ -435,27 +636,34 @@ function preflight(pullRequest) {
   return { safe: true, reason: "" };
 }
 
-async function fetchPackageJson(github, context, ref) {
+/** Reads a JSON file at a commit. Raw media type, so multi-MB lockfiles come back. */
+async function fetchJsonAtRef(github, context, path, ref) {
   try {
     const response = await github.rest.repos.getContent({
       owner: context.repo.owner,
       repo: context.repo.repo,
-      path: "package.json",
+      path,
       ref,
+      mediaType: { format: "raw" },
     });
-    return JSON.parse(
-      Buffer.from(response.data.content, response.data.encoding).toString(
-        "utf8",
-      ),
-    );
+    const raw =
+      typeof response.data === "string"
+        ? response.data
+        : Buffer.from(response.data.content, response.data.encoding).toString(
+            "utf8",
+          );
+    return JSON.parse(raw);
   } catch {
-    return {};
+    return null;
   }
 }
 
 /**
- * Evaluates one pull request against every gate and returns the decision plus the
- * sentence that explains it.
+ * Evaluates one pull request against every gate and returns the decision, the head
+ * commit it was evaluated against, and the sentence that explains it.
+ *
+ * Everything is read at one commit, and the head is re-checked at the end, so a
+ * commit pushed mid-evaluation cannot inherit the previous commit's green checks.
  */
 async function evaluatePullRequest({ github, context, pullRequest }) {
   const source = identifySource(pullRequest);
@@ -468,46 +676,63 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
   const { owner, repo } = context.repo;
   const number = pullRequest.number;
 
-  const [detail, files, commits, reviews, checkRuns, combinedStatus] =
-    await Promise.all([
-      github.rest.pulls.get({ owner, repo, pull_number: number }),
-      github.paginate(github.rest.pulls.listFiles, {
-        owner,
-        repo,
-        pull_number: number,
-        per_page: 100,
-      }),
-      github.paginate(github.rest.pulls.listCommits, {
-        owner,
-        repo,
-        pull_number: number,
-        per_page: 100,
-      }),
-      github.paginate(github.rest.pulls.listReviews, {
-        owner,
-        repo,
-        pull_number: number,
-        per_page: 100,
-      }),
-      github
-        .paginate(github.rest.checks.listForRef, {
-          owner,
-          repo,
-          ref: pullRequest.head.sha,
-          per_page: 100,
-        })
-        .catch(() => []),
-      github.rest.repos
-        .getCombinedStatusForRef({ owner, repo, ref: pullRequest.head.sha })
-        .then((response) => response.data.statuses)
-        .catch(() => []),
-    ]);
+  const detail = (
+    await github.rest.pulls.get({ owner, repo, pull_number: number })
+  ).data;
+  const headSha = detail.head.sha;
+  const baseSha = detail.base.sha;
 
+  const [files, commits, reviews, checkRuns, statuses] = await Promise.all([
+    github.paginate(github.rest.pulls.listFiles, {
+      owner,
+      repo,
+      pull_number: number,
+      per_page: 100,
+    }),
+    github.paginate(github.rest.pulls.listCommits, {
+      owner,
+      repo,
+      pull_number: number,
+      per_page: 100,
+    }),
+    github.paginate(github.rest.pulls.listReviews, {
+      owner,
+      repo,
+      pull_number: number,
+      per_page: 100,
+    }),
+    github
+      .paginate(github.rest.checks.listForRef, {
+        owner,
+        repo,
+        ref: headSha,
+        per_page: 100,
+      })
+      .catch(() => []),
+    github.rest.repos
+      .getCombinedStatusForRef({ owner, repo, ref: headSha })
+      .then((response) => response.data.statuses)
+      .catch(() => []),
+  ]);
+
+  const changedFiles = files.map((file) => file.filename);
   const paths = evaluateChangedFiles(
-    files.map((file) => file.filename),
-    allowedPathsFor(source, pullRequest.head.ref),
+    changedFiles,
+    allowedPathsFor(source, detail.head.ref),
   );
-  if (!paths.safe) return { source, action: "skip", reason: paths.reason };
+  if (!paths.safe)
+    return { source, headSha, action: "skip", reason: paths.reason };
+
+  const touchesManifest = changedFiles.includes("package.json");
+  const touchesLockfile = changedFiles.includes("package-lock.json");
+
+  const [basePackageJson, headPackageJson] =
+    touchesManifest || source === "snyk"
+      ? await Promise.all([
+          fetchJsonAtRef(github, context, "package.json", baseSha),
+          fetchJsonAtRef(github, context, "package.json", headSha),
+        ])
+      : [null, null];
 
   let updates;
   if (source === "dependabot") {
@@ -515,44 +740,76 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
       parseDependabotUpdates(commit.commit.message),
     );
   } else {
-    const packageJson = await fetchPackageJson(
-      github,
-      context,
-      pullRequest.base.sha,
-    );
-    const update = parseSnykUpdate(pullRequest.title, packageJson);
+    const update = parseSnykUpdate(detail.title, basePackageJson || {});
     updates = update ? [update] : [];
   }
 
   const policy = evaluateUpdates(updates);
-  if (!policy.safe) return { source, action: "skip", reason: policy.reason };
+  if (!policy.safe)
+    return { source, headSha, action: "skip", reason: policy.reason };
+
+  if (touchesManifest) {
+    const manifest = evaluateManifestChanges(
+      basePackageJson,
+      headPackageJson,
+      updates,
+    );
+    if (!manifest.safe)
+      return { source, headSha, action: "skip", reason: manifest.reason };
+  }
+
+  if (touchesLockfile) {
+    const [baseLock, headLock] = await Promise.all([
+      fetchJsonAtRef(github, context, "package-lock.json", baseSha),
+      fetchJsonAtRef(github, context, "package-lock.json", headSha),
+    ]);
+    const lockfile = evaluateLockfileChanges(baseLock, headLock);
+    if (!lockfile.safe)
+      return { source, headSha, action: "skip", reason: lockfile.reason };
+  }
 
   const review = evaluateReviews(reviews);
-  if (!review.safe) return { source, action: "skip", reason: review.reason };
+  if (!review.safe)
+    return { source, headSha, action: "skip", reason: review.reason };
 
-  if (
-    detail.data.mergeable === false ||
-    detail.data.mergeable_state === "dirty"
-  ) {
+  if (detail.mergeable === false || detail.mergeable_state === "dirty") {
     return {
       source,
+      headSha,
       action: "skip",
       reason: "pull request has merge conflicts",
     };
   }
-  if (detail.data.mergeable === null) {
-    return { source, action: "wait", reason: "mergeability not computed yet" };
+  if (detail.mergeable === null) {
+    return {
+      source,
+      headSha,
+      action: "wait",
+      reason: "mergeability not computed yet",
+    };
   }
 
-  const checks = evaluateChecks(checkRuns, combinedStatus);
+  const checks = evaluateChecks(checkRuns, statuses);
   if (checks.state === "pending") {
-    return { source, action: "wait", reason: checks.reason };
+    return { source, headSha, action: "wait", reason: checks.reason };
   }
   if (checks.state === "failed") {
-    return { source, action: "skip", reason: checks.reason };
+    return { source, headSha, action: "skip", reason: checks.reason };
   }
 
-  return { source, action: "merge", reason: policy.reason };
+  const current = (
+    await github.rest.pulls.get({ owner, repo, pull_number: number })
+  ).data;
+  if (current.head.sha !== headSha) {
+    return {
+      source,
+      headSha,
+      action: "wait",
+      reason: "head commit changed while this pull request was being evaluated",
+    };
+  }
+
+  return { source, headSha, action: "merge", reason: policy.reason };
 }
 
 /**
@@ -565,7 +822,7 @@ async function run({
   context,
   core,
   dryRun = false,
-  pullRequestNumber,
+  pullRequestNumber = null,
 }) {
   const { owner, repo } = context.repo;
 
@@ -630,6 +887,9 @@ async function run({
         owner,
         repo,
         pull_number: pullRequest.number,
+        // Refuses the merge if anything has been pushed since evaluation, so a new
+        // commit cannot ride in on the previous commit's green checks.
+        sha: decision.headSha,
         merge_method: MERGE_METHOD,
         commit_title: `${pullRequest.title} (#${pullRequest.number})`,
         commit_message: decision.reason,
@@ -667,10 +927,14 @@ module.exports = {
   REQUIRED_CHECKS,
   ADVISORY_CHECKS,
   BLOCKING_LABELS,
+  SNYK_AUTHORS,
   allowedPathsFor,
   classifyVersionChange,
+  collectResolvedUrls,
   evaluateChangedFiles,
   evaluateChecks,
+  evaluateLockfileChanges,
+  evaluateManifestChanges,
   evaluatePullRequest,
   evaluateReviews,
   evaluateUpdates,
