@@ -1,0 +1,44 @@
+# Dependabot version updates. Security updates are configured in the repository's
+# security settings and arrive as individual pull requests.
+#
+# The groups below mirror the auto-merge policy in
+# .github/scripts/auto-merge-dependency-updates.js: everything Dependabot groups here
+# is a size of update that merges automatically once CI passes, so a grouped pull
+# request never stalls because one member of the group needs a human. Major upgrades,
+# and minor upgrades of production dependencies, stay ungrouped and wait for review.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-patches:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
