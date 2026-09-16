@@ -89,3 +89,13 @@ SLACK_WEBHOOK_URL                   # Report notifications → Slack
 - Radix UI for accessible primitives (dialogs, dropdowns, popovers).
 - Framer Motion for animations.
 - Component variants use `class-variance-authority`.
+
+### Dependency updates
+
+Dependabot version updates are configured in `.github/dependabot.yml` (npm and github-actions, weekly). `.github/workflows/auto-merge-dependency-updates.yml` merges the safe ones automatically; the policy and every gate live in `.github/scripts/auto-merge-dependency-updates.js`, covered by `tests/unit/auto-merge-dependency-updates.test.ts`.
+
+A pull request merges automatically only when it is authored by Dependabot (or is a `snyk-fix-*`/`snyk-upgrade-*` branch), touches nothing but `package.json`/`package-lock.json` (or `.github/workflows/` for action bumps), has no `do-not-merge`/`blocked`/`on-hold` label and no human change-request, and every required check — `check-types`, `check-format`, `check-lint`, `check-translations`, `Unit Tests`, `E2E Tests` — has passed. Size limits: patch and minor for `devDependencies`, patch only for production and transitive dependencies, and a pre-1.0 minor bump counts as major. Everything else waits for a human.
+
+`codex_auto_approve` is advisory here: Dependabot runs get Dependabot secrets rather than Actions secrets, so `OPENAI_API_KEY` is empty and that job always fails on bot pull requests. CI plus the size policy is the gate instead.
+
+To try a change to the policy without merging anything, run the workflow manually with **Report decisions without merging** checked (`dry_run`), optionally narrowed to one pull request number.
