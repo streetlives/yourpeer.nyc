@@ -442,62 +442,60 @@ function deepEqual(a, b) {
   return aKeys.every((key) => key in b && deepEqual(a[key], b[key]));
 }
 
+/** Which policy tier a package sits in, given the manifest field it is declared in. */
+const FIELD_DEPENDENCY_TYPES = {
+  dependencies: "direct:production",
+  devDependencies: "direct:development",
+  optionalDependencies: "direct:production",
+  peerDependencies: "direct:production",
+};
+
+/**
+ * Reads the updates a manifest diff actually performs, rather than the ones the
+ * pull request says it performs. Both the starting version and the policy tier come
+ * from the manifest itself, so a patch-sized claim over a major-sized change cannot
+ * pass.
+ */
+function deriveManifestUpdates(basePackageJson, headPackageJson) {
+  const updates = [];
+  for (const field of MANIFEST_DEPENDENCY_FIELDS) {
+    const before = (basePackageJson || {})[field] || {};
+    const after = (headPackageJson || {})[field] || {};
+    for (const name of new Set([
+      ...Object.keys(before),
+      ...Object.keys(after),
+    ])) {
+      if (before[name] === after[name]) continue;
+      updates.push({
+        name,
+        field,
+        fromVersion: name in before ? before[name] : null,
+        toVersion: name in after ? after[name] : null,
+        dependencyType: FIELD_DEPENDENCY_TYPES[field],
+        added: !(name in before),
+        removed: !(name in after),
+      });
+    }
+  }
+  return updates;
+}
+
 /**
  * Checks the manifest diff itself rather than the file name.
  *
  * A file-name allowlist only proves which files changed, not what they say, so on
  * its own it would let a `snyk-fix-*` branch add an install script or a new
- * dependency and merge without review. Every dependency range that moved must
- * belong to an update this pull request declares, and everything outside the
- * dependency lists - `scripts`, `overrides`, `engines`, the rest - must be
- * untouched.
+ * dependency and merge without review. Policy is enforced against the change the
+ * diff makes; the declared updates only have to agree with it.
  */
-function evaluateManifestChanges(basePackageJson, headPackageJson, updates) {
+function evaluateManifestChanges(
+  basePackageJson,
+  headPackageJson,
+  updates,
+  policy = AUTO_MERGE_POLICY,
+) {
   if (!basePackageJson || !headPackageJson) {
     return { safe: false, reason: "could not read package.json on both sides" };
-  }
-
-  const claimed = new Map(
-    (updates || []).map((update) => [update.name, update]),
-  );
-
-  for (const field of MANIFEST_DEPENDENCY_FIELDS) {
-    const before = basePackageJson[field] || {};
-    const after = headPackageJson[field] || {};
-    const names = new Set([...Object.keys(before), ...Object.keys(after)]);
-
-    for (const name of names) {
-      if (before[name] === after[name]) continue;
-
-      const update = claimed.get(name);
-      if (!update) {
-        return {
-          safe: false,
-          reason: `package.json changes ${name} in ${field}, which no declared update accounts for`,
-        };
-      }
-      if (!(name in after)) {
-        return {
-          safe: false,
-          reason: `package.json drops ${name} from ${field}`,
-        };
-      }
-
-      const declared = parseVersion(after[name]);
-      const expected = parseVersion(update.toVersion);
-      if (
-        !declared ||
-        !expected ||
-        declared.major !== expected.major ||
-        declared.minor !== expected.minor ||
-        declared.patch !== expected.patch
-      ) {
-        return {
-          safe: false,
-          reason: `package.json sets ${name} to ${after[name]}, not the ${update.toVersion} this pull request claims`,
-        };
-      }
-    }
   }
 
   const withoutDependencies = (manifest) => {
@@ -517,7 +515,57 @@ function evaluateManifestChanges(basePackageJson, headPackageJson, updates) {
     };
   }
 
-  return { safe: true, reason: "" };
+  const claimed = new Map(
+    (updates || []).map((update) => [update.name, update]),
+  );
+  const actual = deriveManifestUpdates(basePackageJson, headPackageJson);
+
+  for (const change of actual) {
+    if (change.added) {
+      return {
+        safe: false,
+        reason: `package.json adds ${change.name} to ${change.field}`,
+      };
+    }
+    if (change.removed) {
+      return {
+        safe: false,
+        reason: `package.json drops ${change.name} from ${change.field}`,
+      };
+    }
+
+    const update = claimed.get(change.name);
+    if (!update) {
+      return {
+        safe: false,
+        reason: `package.json changes ${change.name} in ${change.field}, which no declared update accounts for`,
+      };
+    }
+
+    const declared = parseVersion(change.toVersion);
+    const expected = parseVersion(update.toVersion);
+    if (
+      !declared ||
+      !expected ||
+      declared.major !== expected.major ||
+      declared.minor !== expected.minor ||
+      declared.patch !== expected.patch
+    ) {
+      return {
+        safe: false,
+        reason: `package.json sets ${change.name} to ${change.toVersion}, not the ${update.toVersion} this pull request claims`,
+      };
+    }
+  }
+
+  // The size of the jump is judged on the versions in the files, not the ones in
+  // the commit trailer or the title.
+  const verdict = evaluateUpdates(actual, policy);
+  if (actual.length > 0 && !verdict.safe) {
+    return { safe: false, reason: `package.json: ${verdict.reason}` };
+  }
+
+  return { safe: true, reason: verdict.reason };
 }
 
 /** True for a tarball URL npm may fetch from without a human looking first. */
@@ -547,12 +595,60 @@ function collectResolvedUrls(node, found = new Set()) {
   return found;
 }
 
+/** The package a lockfile path refers to, e.g. node_modules/a/node_modules/b -> b. */
+function lockEntryName(path) {
+  return String(path).replace(/^.*node_modules\//, "");
+}
+
 /**
- * Checks the lockfile diff. The manifest check cannot see any of this: a lockfile
- * is where a forged update would point a package at a tarball of its own, or swap
- * the integrity hash of a version it left alone.
+ * Which policy tier a lockfile entry belongs to. Direct dependencies are typed from
+ * the manifest; everything else falls back to npm's own `dev` flag, so a package
+ * that only exists in the dev tree is policed as a development dependency and can
+ * never reach production.
  */
-function evaluateLockfileChanges(baseLock, headLock) {
+function lockEntryDependencyType(path, entry, headPackageJson) {
+  const declared = resolveDependencyType(headPackageJson, lockEntryName(path));
+  if (declared !== "indirect") return declared;
+  return entry && entry.dev ? "direct:development" : "indirect";
+}
+
+/**
+ * Reads the version changes a lockfile diff actually performs. Added and removed
+ * entries are the ordinary consequence of an upgrade and are left to the `resolved`
+ * URL check; it is the silent version jumps that need policing.
+ */
+function deriveLockfileUpdates(baseLock, headLock, headPackageJson) {
+  const basePackages = (baseLock || {}).packages || {};
+  const headPackages = (headLock || {}).packages || {};
+
+  const updates = [];
+  for (const [path, headEntry] of Object.entries(headPackages)) {
+    const baseEntry = basePackages[path];
+    if (!baseEntry || !headEntry) continue;
+    if (baseEntry.version === headEntry.version) continue;
+    updates.push({
+      name: path,
+      fromVersion: baseEntry.version,
+      toVersion: headEntry.version,
+      dependencyType: lockEntryDependencyType(path, headEntry, headPackageJson),
+      removed: false,
+    });
+  }
+  return updates;
+}
+
+/**
+ * Checks the lockfile diff. The manifest check cannot see any of this: a lockfile is
+ * where a forged update would point a package at a tarball of its own, swap the
+ * integrity hash of a version it left alone, or slip an undeclared major upgrade of
+ * a transitive package into an otherwise patch-sized pull request.
+ */
+function evaluateLockfileChanges(
+  baseLock,
+  headLock,
+  headPackageJson,
+  policy = AUTO_MERGE_POLICY,
+) {
   if (!baseLock || !headLock) {
     return {
       safe: false,
@@ -584,8 +680,7 @@ function evaluateLockfileChanges(baseLock, headLock) {
   }
 
   const basePackages = baseLock.packages || {};
-  const headPackages = headLock.packages || {};
-  for (const [path, headEntry] of Object.entries(headPackages)) {
+  for (const [path, headEntry] of Object.entries(headLock.packages || {})) {
     const baseEntry = basePackages[path];
     if (!baseEntry || !headEntry) continue;
     if (
@@ -598,6 +693,12 @@ function evaluateLockfileChanges(baseLock, headLock) {
         reason: `package-lock.json changes the integrity hash of ${path} without changing its version`,
       };
     }
+  }
+
+  const actual = deriveLockfileUpdates(baseLock, headLock, headPackageJson);
+  const verdict = evaluateUpdates(actual, policy);
+  if (actual.length > 0 && !verdict.safe) {
+    return { safe: false, reason: `package-lock.json: ${verdict.reason}` };
   }
 
   return { safe: true, reason: "" };
@@ -726,8 +827,10 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
   const touchesManifest = changedFiles.includes("package.json");
   const touchesLockfile = changedFiles.includes("package-lock.json");
 
+  // The head manifest is needed for lockfile-only pull requests too: it is what says
+  // whether a changed lockfile entry is a direct production or development package.
   const [basePackageJson, headPackageJson] =
-    touchesManifest || source === "snyk"
+    touchesManifest || touchesLockfile || source === "snyk"
       ? await Promise.all([
           fetchJsonAtRef(github, context, "package.json", baseSha),
           fetchJsonAtRef(github, context, "package.json", headSha),
@@ -763,7 +866,11 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
       fetchJsonAtRef(github, context, "package-lock.json", baseSha),
       fetchJsonAtRef(github, context, "package-lock.json", headSha),
     ]);
-    const lockfile = evaluateLockfileChanges(baseLock, headLock);
+    const lockfile = evaluateLockfileChanges(
+      baseLock,
+      headLock,
+      headPackageJson,
+    );
     if (!lockfile.safe)
       return { source, headSha, action: "skip", reason: lockfile.reason };
   }
@@ -931,6 +1038,8 @@ module.exports = {
   allowedPathsFor,
   classifyVersionChange,
   collectResolvedUrls,
+  deriveLockfileUpdates,
+  deriveManifestUpdates,
   evaluateChangedFiles,
   evaluateChecks,
   evaluateLockfileChanges,
