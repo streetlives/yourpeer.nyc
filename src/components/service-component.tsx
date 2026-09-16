@@ -288,7 +288,7 @@ export default function Service({
                   <>
                     {service.description ? (
                       <p
-                        className="text-sm text-dark mb-4 prose prose-a:text-blue prose-a:break-all"
+                        className="text-sm text-dark mb-4 prose prose-a:text-blue break-links"
                         dangerouslySetInnerHTML={{
                           __html: service.description.replace(/•/g, "<br>•"),
                         }}
@@ -334,7 +334,7 @@ export default function Service({
                             </svg>
                           </span>
                           <p
-                            className="text-dark text-sm prose service-info prose-a:text-blue prose-a:break-all"
+                            className="text-dark text-sm prose service-info prose-a:text-blue break-links"
                             dangerouslySetInnerHTML={{
                               __html: info.replace(/•/g, "<br>•"),
                             }}
@@ -457,7 +457,7 @@ export default function Service({
                       </span>
                       <p
                         dangerouslySetInnerHTML={{ __html: info }}
-                        className="text-dark text-sm prose prose-a:text-blue prose-a:break-all"
+                        className="text-dark text-sm prose prose-a:text-blue break-links"
                       ></p>
                     </li>
                   ))
