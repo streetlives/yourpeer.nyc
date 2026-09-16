@@ -53,6 +53,9 @@ const AUTO_MERGE_POLICY = {
   "direct:development": ["patch", "minor"],
   "direct:production": ["patch"],
   indirect: ["patch"],
+  // Actions never ship to users, but they run with repository write access, so a
+  // major rewrite of one is a human's call.
+  "github-action": ["patch", "minor"],
 };
 
 /**
@@ -581,6 +584,29 @@ function isAllowedRegistryUrl(url) {
   }
 }
 
+/**
+ * Checks that a registry tarball is the package and version the entry claims.
+ *
+ * The host check alone is not enough: any npm package's tarball is on
+ * registry.npmjs.org, so without this an entry could keep its name and version and
+ * point at some other package's tarball entirely.
+ */
+function resolvedUrlMatchesPackage(path, entry) {
+  if (!entry || typeof entry.resolved !== "string") return true;
+  if (!isAllowedRegistryUrl(entry.resolved)) return true;
+  if (!entry.version) return false;
+
+  const name = entry.name || lockEntryName(path);
+  const bare = name.includes("/") ? name.split("/")[1] : name;
+  const expected = `/${name}/-/${bare}-${entry.version}.tgz`;
+
+  try {
+    return decodeURIComponent(new URL(entry.resolved).pathname) === expected;
+  } catch {
+    return false;
+  }
+}
+
 /** Every `resolved` URL anywhere in a lockfile, whatever its structure version. */
 function collectResolvedUrls(node, found = new Set()) {
   if (!node || typeof node !== "object") return found;
@@ -681,16 +707,43 @@ function evaluateLockfileChanges(
 
   const basePackages = baseLock.packages || {};
   for (const [path, headEntry] of Object.entries(headLock.packages || {})) {
+    if (!headEntry) continue;
     const baseEntry = basePackages[path];
-    if (!baseEntry || !headEntry) continue;
-    if (
-      baseEntry.version === headEntry.version &&
-      baseEntry.resolved === headEntry.resolved &&
-      baseEntry.integrity !== headEntry.integrity
-    ) {
+
+    if (baseEntry) {
+      if (
+        baseEntry.version === headEntry.version &&
+        baseEntry.resolved === headEntry.resolved &&
+        baseEntry.integrity !== headEntry.integrity
+      ) {
+        return {
+          safe: false,
+          reason: `package-lock.json changes the integrity hash of ${path} without changing its version`,
+        };
+      }
+      // npm never rewrites the tarball of a version it is keeping. Doing both at
+      // once is how a substituted package would look.
+      if (
+        baseEntry.version === headEntry.version &&
+        baseEntry.resolved !== headEntry.resolved
+      ) {
+        return {
+          safe: false,
+          reason: `package-lock.json replaces the tarball of ${path} without changing its version`,
+        };
+      }
+      if (
+        baseEntry.version === headEntry.version &&
+        baseEntry.resolved === headEntry.resolved
+      ) {
+        continue;
+      }
+    }
+
+    if (!resolvedUrlMatchesPackage(path, headEntry)) {
       return {
         safe: false,
-        reason: `package-lock.json changes the integrity hash of ${path} without changing its version`,
+        reason: `package-lock.json resolves ${path} to ${headEntry.resolved}, which is not that package at ${headEntry.version}`,
       };
     }
   }
@@ -702,6 +755,123 @@ function evaluateLockfileChanges(
   }
 
   return { safe: true, reason: "" };
+}
+
+/** A `uses:` line, split into the part that must not move and the reference. */
+function parseUsesLine(line) {
+  const match = /^(\s*(?:-\s+)?uses:\s*)(\S+)(\s*#.*)?$/.exec(line);
+  if (!match) return null;
+  const reference = match[2];
+  const at = reference.lastIndexOf("@");
+  if (at <= 0) return null;
+  return {
+    prefix: match[1],
+    action: reference.slice(0, at),
+    ref: reference.slice(at + 1),
+    comment: match[3] || "",
+  };
+}
+
+/**
+ * The version of an action reference: the tag when it is a release tag, otherwise
+ * the `# v1.2.3` comment this repository writes next to a SHA pin. A SHA that moves
+ * with no version anywhere is unclassifiable and goes to a human.
+ */
+function actionVersion(use) {
+  if (!use) return null;
+  if (parseVersion(use.ref)) return use.ref;
+  const fromComment = /v?\d+\.\d+\.\d+/.exec(use.comment || "");
+  return fromComment ? fromComment[0] : null;
+}
+
+/**
+ * Reads the action bumps a workflow diff performs, and refuses anything else.
+ *
+ * Dependabot updates a workflow by rewriting `uses:` references and nothing else,
+ * so any other edit - a changed `run:` command above all - means this is no longer
+ * a dependency update, whoever pushed it.
+ */
+function deriveWorkflowUpdates(baseText, headText) {
+  if (typeof baseText !== "string" || typeof headText !== "string") {
+    return { problem: "could not be read on both sides" };
+  }
+
+  const baseLines = baseText.split("\n");
+  const headLines = headText.split("\n");
+  if (baseLines.length !== headLines.length) {
+    return { problem: "adds or removes lines, not just action references" };
+  }
+
+  const updates = [];
+  for (let index = 0; index < headLines.length; index++) {
+    if (baseLines[index] === headLines[index]) continue;
+
+    const before = parseUsesLine(baseLines[index]);
+    const after = parseUsesLine(headLines[index]);
+    if (!before || !after) {
+      return {
+        problem: `changes line ${index + 1}, which is not an action reference`,
+      };
+    }
+    if (before.prefix !== after.prefix) {
+      return { problem: `re-indents line ${index + 1}` };
+    }
+    if (before.action !== after.action) {
+      return {
+        problem: `swaps the action on line ${index + 1} from ${before.action} to ${after.action}`,
+      };
+    }
+
+    updates.push({
+      name: before.action,
+      fromVersion: actionVersion(before),
+      toVersion: actionVersion(after),
+      dependencyType: "github-action",
+      removed: false,
+    });
+  }
+
+  return { updates };
+}
+
+/**
+ * Validates every changed workflow file and applies the policy to the action
+ * versions the diff actually moves.
+ */
+function evaluateWorkflowChanges(
+  changes,
+  claimedNames,
+  policy = AUTO_MERGE_POLICY,
+) {
+  const updates = [];
+
+  for (const change of changes || []) {
+    const derived = deriveWorkflowUpdates(change.baseText, change.headText);
+    if (derived.problem) {
+      return { safe: false, reason: `${change.path} ${derived.problem}` };
+    }
+    updates.push(...derived.updates);
+  }
+
+  if (updates.length === 0) {
+    return { safe: false, reason: "no action updates could be parsed" };
+  }
+
+  if (claimedNames && claimedNames.length > 0) {
+    const undeclared = updates
+      .map((update) => update.name)
+      .filter((name) => !claimedNames.includes(name));
+    if (undeclared.length > 0) {
+      return {
+        safe: false,
+        reason: `updates ${undeclared.join(", ")}, which this pull request never declared`,
+      };
+    }
+  }
+
+  const verdict = evaluateUpdates(updates, policy);
+  if (!verdict.safe) return { safe: false, reason: verdict.reason };
+  return { safe: true, reason: verdict.reason };
 }
 
 /**
@@ -737,8 +907,8 @@ function preflight(pullRequest) {
   return { safe: true, reason: "" };
 }
 
-/** Reads a JSON file at a commit. Raw media type, so multi-MB lockfiles come back. */
-async function fetchJsonAtRef(github, context, path, ref) {
+/** Reads a file at a commit. Raw media type, so multi-MB lockfiles come back. */
+async function fetchTextAtRef(github, context, path, ref) {
   try {
     const response = await github.rest.repos.getContent({
       owner: context.repo.owner,
@@ -747,12 +917,21 @@ async function fetchJsonAtRef(github, context, path, ref) {
       ref,
       mediaType: { format: "raw" },
     });
-    const raw =
-      typeof response.data === "string"
-        ? response.data
-        : Buffer.from(response.data.content, response.data.encoding).toString(
-            "utf8",
-          );
+    return typeof response.data === "string"
+      ? response.data
+      : Buffer.from(response.data.content, response.data.encoding).toString(
+          "utf8",
+        );
+  } catch {
+    return null;
+  }
+}
+
+/** Reads a JSON file at a commit. */
+async function fetchJsonAtRef(github, context, path, ref) {
+  const raw = await fetchTextAtRef(github, context, path, ref);
+  if (raw === null) return null;
+  try {
     return JSON.parse(raw);
   } catch {
     return null;
@@ -847,7 +1026,28 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
     updates = update ? [update] : [];
   }
 
-  const policy = evaluateUpdates(updates);
+  // Action updates are judged on the workflow files themselves. Dependabot types an
+  // action as a production dependency in its trailer, which would hold every action
+  // bump to patch; the reference in the file is the honest signal.
+  const workflowFiles = changedFiles.filter((filename) =>
+    filename.startsWith(".github/workflows/"),
+  );
+  let policy;
+  if (workflowFiles.length > 0) {
+    const changes = await Promise.all(
+      workflowFiles.map(async (path) => ({
+        path,
+        baseText: await fetchTextAtRef(github, context, path, baseSha),
+        headText: await fetchTextAtRef(github, context, path, headSha),
+      })),
+    );
+    policy = evaluateWorkflowChanges(
+      changes,
+      updates.map((update) => update.name),
+    );
+  } else {
+    policy = evaluateUpdates(updates);
+  }
   if (!policy.safe)
     return { source, headSha, action: "skip", reason: policy.reason };
 
@@ -1038,8 +1238,10 @@ module.exports = {
   allowedPathsFor,
   classifyVersionChange,
   collectResolvedUrls,
+  actionVersion,
   deriveLockfileUpdates,
   deriveManifestUpdates,
+  deriveWorkflowUpdates,
   evaluateChangedFiles,
   evaluateChecks,
   evaluateLockfileChanges,
@@ -1047,6 +1249,8 @@ module.exports = {
   evaluatePullRequest,
   evaluateReviews,
   evaluateUpdates,
+  evaluateWorkflowChanges,
+  resolvedUrlMatchesPackage,
   identifySource,
   parseDependabotUpdates,
   parseRemovedDependencies,

