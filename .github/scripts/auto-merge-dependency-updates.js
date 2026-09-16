@@ -627,15 +627,17 @@ function lockEntryName(path) {
 }
 
 /**
- * Which policy tier a lockfile entry belongs to. Direct dependencies are typed from
- * the manifest; everything else falls back to npm's own `dev` flag, so a package
- * that only exists in the dev tree is policed as a development dependency and can
- * never reach production.
+ * Which policy tier a lockfile entry belongs to.
+ *
+ * Both inputs are the *base* commit's: the merge target is the one thing in this
+ * evaluation the pull request cannot write. Reading the head entry's `dev` flag
+ * instead would let a pull request reclassify a production package into the dev
+ * tier simply by adding `"dev": true` in the same diff.
  */
-function lockEntryDependencyType(path, entry, headPackageJson) {
-  const declared = resolveDependencyType(headPackageJson, lockEntryName(path));
+function lockEntryDependencyType(path, baseEntry, basePackageJson) {
+  const declared = resolveDependencyType(basePackageJson, lockEntryName(path));
   if (declared !== "indirect") return declared;
-  return entry && entry.dev ? "direct:development" : "indirect";
+  return baseEntry && baseEntry.dev ? "direct:development" : "indirect";
 }
 
 /**
@@ -643,7 +645,7 @@ function lockEntryDependencyType(path, entry, headPackageJson) {
  * entries are the ordinary consequence of an upgrade and are left to the `resolved`
  * URL check; it is the silent version jumps that need policing.
  */
-function deriveLockfileUpdates(baseLock, headLock, headPackageJson) {
+function deriveLockfileUpdates(baseLock, headLock, basePackageJson) {
   const basePackages = (baseLock || {}).packages || {};
   const headPackages = (headLock || {}).packages || {};
 
@@ -656,7 +658,7 @@ function deriveLockfileUpdates(baseLock, headLock, headPackageJson) {
       name: path,
       fromVersion: baseEntry.version,
       toVersion: headEntry.version,
-      dependencyType: lockEntryDependencyType(path, headEntry, headPackageJson),
+      dependencyType: lockEntryDependencyType(path, baseEntry, basePackageJson),
       removed: false,
     });
   }
@@ -672,7 +674,7 @@ function deriveLockfileUpdates(baseLock, headLock, headPackageJson) {
 function evaluateLockfileChanges(
   baseLock,
   headLock,
-  headPackageJson,
+  basePackageJson,
   policy = AUTO_MERGE_POLICY,
 ) {
   if (!baseLock || !headLock) {
@@ -721,6 +723,15 @@ function evaluateLockfileChanges(
           reason: `package-lock.json changes the integrity hash of ${path} without changing its version`,
         };
       }
+      // A package does not change tree between a commit and its child in an
+      // ordinary upgrade, and reclassifying one is how the dev tier would be
+      // borrowed for a production package.
+      if (!!baseEntry.dev !== !!headEntry.dev) {
+        return {
+          safe: false,
+          reason: `package-lock.json moves ${path} ${baseEntry.dev ? "out of" : "into"} the dev tree`,
+        };
+      }
       // npm never rewrites the tarball of a version it is keeping. Doing both at
       // once is how a substituted package would look.
       if (
@@ -748,7 +759,7 @@ function evaluateLockfileChanges(
     }
   }
 
-  const actual = deriveLockfileUpdates(baseLock, headLock, headPackageJson);
+  const actual = deriveLockfileUpdates(baseLock, headLock, basePackageJson);
   const verdict = evaluateUpdates(actual, policy);
   if (actual.length > 0 && !verdict.safe) {
     return { safe: false, reason: `package-lock.json: ${verdict.reason}` };
@@ -773,15 +784,106 @@ function parseUsesLine(line) {
 }
 
 /**
- * The version of an action reference: the tag when it is a release tag, otherwise
- * the `# v1.2.3` comment this repository writes next to a SHA pin. A SHA that moves
- * with no version anywhere is unclassifiable and goes to a human.
+ * What an action reference actually is: a release tag (`v5`, `v5.0`, `v5.0.1`,
+ * zero-filled to a comparable version) or a commit SHA.
+ */
+function classifyActionRef(ref) {
+  if (/^[0-9a-f]{40}$/i.test(String(ref))) return { kind: "sha" };
+  const match = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/.exec(String(ref));
+  if (match) {
+    return {
+      kind: "tag",
+      version: `${Number(match[1])}.${Number(match[2] || 0)}.${Number(match[3] || 0)}`,
+    };
+  }
+  return { kind: "unknown" };
+}
+
+/**
+ * The version an action reference resolves to.
+ *
+ * The executable part of the reference decides: a tag is read as itself, so
+ * `@v6 # v5.0.2` is a major upgrade however the comment describes it. Only a SHA
+ * pin has no version of its own, and then the comment is a *claim* that
+ * `verifyActionReferences` checks against the action's real tags before merging.
  */
 function actionVersion(use) {
   if (!use) return null;
-  if (parseVersion(use.ref)) return use.ref;
-  const fromComment = /v?\d+\.\d+\.\d+/.exec(use.comment || "");
-  return fromComment ? fromComment[0] : null;
+  const ref = classifyActionRef(use.ref);
+  if (ref.kind === "tag") return ref.version;
+  if (ref.kind === "sha") {
+    const fromComment = /v?(\d+\.\d+\.\d+)/.exec(use.comment || "");
+    return fromComment ? fromComment[1] : null;
+  }
+  return null;
+}
+
+/** Resolves a tag of an action repository to the commit it points at. */
+async function actionTagCommit(github, owner, repo, tag) {
+  try {
+    const ref = await github.rest.git.getRef({
+      owner,
+      repo,
+      ref: `tags/${tag}`,
+    });
+    const object = ref.data.object;
+    if (object.type === "commit") return object.sha;
+    const annotated = await github.rest.git.getTag({
+      owner,
+      repo,
+      tag_sha: object.sha,
+    });
+    return annotated.data.object.sha;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Proves that every SHA-pinned reference really is the release its comment claims.
+ *
+ * Without this the comment is the only thing saying a new 40-character SHA is a
+ * patch, and the comment is written by whoever pushed the commit.
+ */
+async function verifyActionReferences(github, updates) {
+  for (const update of updates || []) {
+    if (update.toRefKind !== "sha") continue;
+
+    if (!update.toVersion) {
+      return {
+        safe: false,
+        reason: `${update.name} is pinned to a SHA with no version comment`,
+      };
+    }
+
+    const [owner, repo] = String(update.name).split("/");
+    if (!owner || !repo) {
+      return { safe: false, reason: `${update.name} is not a GitHub action` };
+    }
+
+    const bare = update.toVersion.replace(/^v/, "");
+    const candidates = [`v${bare}`, bare];
+    let matched = false;
+    for (const tag of candidates) {
+      const commit = await actionTagCommit(github, owner, repo, tag);
+      if (
+        commit &&
+        commit.toLowerCase() === String(update.toRef).toLowerCase()
+      ) {
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      return {
+        safe: false,
+        reason: `${update.name}@${String(update.toRef).slice(0, 12)} is not the commit tagged ${update.toVersion}`,
+      };
+    }
+  }
+
+  return { safe: true, reason: "" };
 }
 
 /**
@@ -826,6 +928,8 @@ function deriveWorkflowUpdates(baseText, headText) {
       name: before.action,
       fromVersion: actionVersion(before),
       toVersion: actionVersion(after),
+      toRef: after.ref,
+      toRefKind: classifyActionRef(after.ref).kind,
       dependencyType: "github-action",
       removed: false,
     });
@@ -870,8 +974,8 @@ function evaluateWorkflowChanges(
   }
 
   const verdict = evaluateUpdates(updates, policy);
-  if (!verdict.safe) return { safe: false, reason: verdict.reason };
-  return { safe: true, reason: verdict.reason };
+  if (!verdict.safe) return { safe: false, reason: verdict.reason, updates };
+  return { safe: true, reason: verdict.reason, updates };
 }
 
 /**
@@ -1045,6 +1149,12 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
       changes,
       updates.map((update) => update.name),
     );
+    if (policy.safe) {
+      const references = await verifyActionReferences(github, policy.updates);
+      if (!references.safe) {
+        return { source, headSha, action: "skip", reason: references.reason };
+      }
+    }
   } else {
     policy = evaluateUpdates(updates);
   }
@@ -1069,7 +1179,7 @@ async function evaluatePullRequest({ github, context, pullRequest }) {
     const lockfile = evaluateLockfileChanges(
       baseLock,
       headLock,
-      headPackageJson,
+      basePackageJson,
     );
     if (!lockfile.safe)
       return { source, headSha, action: "skip", reason: lockfile.reason };
@@ -1239,6 +1349,7 @@ module.exports = {
   classifyVersionChange,
   collectResolvedUrls,
   actionVersion,
+  classifyActionRef,
   deriveLockfileUpdates,
   deriveManifestUpdates,
   deriveWorkflowUpdates,
@@ -1250,7 +1361,9 @@ module.exports = {
   evaluateReviews,
   evaluateUpdates,
   evaluateWorkflowChanges,
+  lockEntryDependencyType,
   resolvedUrlMatchesPackage,
+  verifyActionReferences,
   identifySource,
   parseDependabotUpdates,
   parseRemovedDependencies,
