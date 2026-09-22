@@ -15,6 +15,7 @@ import LocationsMap from "../../../components/map";
 import { getMapContainerData } from "../../../components/map-container-component";
 import { cookies } from "next/headers";
 import { redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet } from "@/components/navigation";
+import { Error404Response } from "@/components/streetlives-api-service";
 
 export default async function MapContainerPage(props: {
   searchParams: Promise<SearchParams>;
@@ -22,19 +23,31 @@ export default async function MapContainerPage(props: {
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
+
+  if (!RESOURCE_ROUTES.includes(params.route)) {
+    return notFound();
+  }
+
   redirectIfNearbyAndIfLatitudeAndLongitudeIsNotSet({
     searchParams,
     params,
     cookies: await cookies(),
   });
-  return RESOURCE_ROUTES.includes(params.route) ? (
-    <LocationsMap
-      locationStubs={await getMapContainerData({
-        searchParams,
-        params,
-      })}
-    />
-  ) : (
-    notFound()
-  );
+
+  try {
+    return (
+      <LocationsMap
+        locationStubs={await getMapContainerData({
+          searchParams,
+          params,
+        })}
+      />
+    );
+  } catch (e) {
+    if (e instanceof Error404Response) {
+      return notFound();
+    }
+
+    return <LocationsMap locationStubs={[]} />;
+  }
 }
