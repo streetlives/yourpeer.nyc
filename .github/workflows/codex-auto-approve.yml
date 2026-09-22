@@ -168,6 +168,7 @@ jobs:
         uses: openai/codex-action@v1
         with:
           allow-bot-users: "dependabot[bot]"
+          model: gpt-5.6-luna
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: .codex-run/prompt.md
           output-schema-file: .codex-protected/pr-approval.schema.json
