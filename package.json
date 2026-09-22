@@ -93,7 +93,7 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "browserslist": [
     "safari 14"
