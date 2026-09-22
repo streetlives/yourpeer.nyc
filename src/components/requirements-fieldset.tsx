@@ -24,19 +24,21 @@ import { useNormalizedSearchParams } from "./use-normalized-search-params";
 const options = [
   {
     value: REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
-    label: "No requirements",
+    label: "Only show services with no requirements",
+    description:
+      "Excludes services that require a referral letter or registered-client status.",
   },
   {
     value: REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
-    label: "Referral letter",
+    label: "Exclude referral letter",
     description:
-      "You must bring a letter from another service provider stating that you require this service.",
+      "Excludes services that require a referral letter from another service provider.",
   },
   {
     value: REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
-    label: "Registered client only",
+    label: "Exclude registered client only",
     description:
-      "You must be a registered client of their organization to access their services.",
+      "Excludes services that are only available to registered clients.",
   },
 ];
 
@@ -56,16 +58,32 @@ export function RequirementFieldset() {
   );
 
   useEffect(() => {
-    setSelected(parsedRequirementParam);
+    setSelected(
+      parsedRequirementParam.includes(REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE)
+        ? [
+            REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
+            REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
+          ]
+        : parsedRequirementParam,
+    );
   }, [parsedRequirementParam]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RequirementValue;
-    setSelected((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value],
-    );
+    setSelected((prev) => {
+      if (value === REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE) {
+        return e.target.checked
+          ? [
+              REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
+              REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
+            ]
+          : [];
+      }
+
+      return e.target.checked
+        ? [...prev, value]
+        : prev.filter((item) => item !== value);
+    });
 
     setLoading(true);
     router.push(
@@ -94,7 +112,12 @@ export function RequirementFieldset() {
               name="requirementType"
               className="w-5 h-5 text-primary !border-dark !border ring-dark focus:ring-dark"
               value={option.value}
-              checked={selected.includes(option.value as RequirementValue)}
+              checked={
+                option.value === REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE
+                  ? selected.includes(REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE) &&
+                    selected.includes(REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE)
+                  : selected.includes(option.value as RequirementValue)
+              }
               onChange={handleChange}
             />
             <div className="text-xs text-dark mt-0.5">

@@ -108,11 +108,11 @@ export default function FiltersHeader({
 
   const renderRequirementText = (text: string) => {
     if (text === REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE)
-      return "Referral letter";
+      return "Exclude referral letter";
     if (text === REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE)
-      return "Registered client only";
+      return "Exclude registered client only";
 
-    return "No Requirements";
+    return "Only services with no requirements";
   };
 
   const openFiltersPopup = useFilters((state) => state.open);
@@ -385,7 +385,7 @@ export default function FiltersHeader({
 
             {parsedRequirementParam.length > 1 ? (
               <TranslatableText
-                text={`${parsedRequirementParam.length} Requirements`}
+                text={`${parsedRequirementParam.length} exclusions`}
                 className="leading-3 truncate"
               />
             ) : (
