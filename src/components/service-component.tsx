@@ -20,6 +20,7 @@ import {
   LanguageTranslationContextType,
 } from "./language-translation-context";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
+import { markBreakableLinks } from "@/lib/break-links";
 import { useParams } from "next/navigation";
 
 const moment = require("moment-strftime");
@@ -290,7 +291,9 @@ export default function Service({
                       <p
                         className="text-sm text-dark mb-4 prose prose-a:text-blue break-links"
                         dangerouslySetInnerHTML={{
-                          __html: service.description.replace(/•/g, "<br>•"),
+                          __html: markBreakableLinks(
+                            service.description.replace(/•/g, "<br>•"),
+                          ),
                         }}
                       ></p>
                     ) : undefined}
@@ -336,7 +339,9 @@ export default function Service({
                           <p
                             className="text-dark text-sm prose service-info prose-a:text-blue break-links"
                             dangerouslySetInnerHTML={{
-                              __html: info.replace(/•/g, "<br>•"),
+                              __html: markBreakableLinks(
+                                info.replace(/•/g, "<br>•"),
+                              ),
                             }}
                           ></p>
                         </li>
@@ -456,7 +461,9 @@ export default function Service({
                         </svg>
                       </span>
                       <p
-                        dangerouslySetInnerHTML={{ __html: info }}
+                        dangerouslySetInnerHTML={{
+                          __html: markBreakableLinks(info),
+                        }}
                         className="text-dark text-sm prose prose-a:text-blue break-links"
                       ></p>
                     </li>

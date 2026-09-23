@@ -69,8 +69,14 @@ https://opensource.org/licenses/MIT.
     mid-number produces unreadable output like "(718) 92 / 0-2020" (#727).
     inline-block + nowrap lets surrounding text wrap *before* the number
     while keeping the number itself on one line.
+
+    break-all is scoped to anchors whose *visible* text is a URL or email
+    address: markBreakableLinks() (src/lib/break-links.ts) tags those with
+    .break-url. An anchor with a URL in its href but ordinary words in its
+    body -- "Apply here" -- wraps like normal prose instead of breaking
+    mid-word.
   */
-  .break-links a:not([href^="tel:"]) {
+  .break-links a.break-url:not([href^="tel:"]) {
     word-break: break-all;
   }
 
