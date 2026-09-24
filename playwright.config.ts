@@ -58,6 +58,18 @@ export default defineConfig({
       env: {
         NEXT_PUBLIC_GO_GETTA_PROD_URL: "http://localhost:4000",
         IS_PLAYWRIGHT_E2E: "true",
+        ...(process.env.PUBLIC_CALLING_E2E === "true"
+          ? {
+              PUBLIC_CALLING_ENABLED: "true",
+              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "calling-test-placeholder",
+              PUBLIC_CALLING_API_URL: "http://localhost:4000",
+              PUBLIC_CALLING_ORIGIN: "http://localhost:3000",
+              PUBLIC_CALLING_SECRET: "public-calling-local-test-secret-only",
+              PUBLIC_CALLING_CLIENT_IP_HEADER: "x-test-client-ip",
+              PUBLIC_CALLING_TURNSTILE_SITE_KEY: "test-site-key",
+              PUBLIC_CALLING_TURNSTILE_SECRET: "test-secret",
+            }
+          : {}),
       },
     },
   ],

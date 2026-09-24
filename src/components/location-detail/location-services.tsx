@@ -11,6 +11,7 @@ import { getIconPath } from "@/components/location-detail-component";
 import Service from "@/components/service-component";
 import { TranslatableText } from "@/components/translatable-text";
 import { usePreviousParamsOnClient } from "@/components/use-previous-params-client";
+import { CallingScope } from "@/components/calling/public-calling-provider";
 import {
   CATEGORIES,
   CATEGORY_DESCRIPTION_MAP,
@@ -35,12 +36,14 @@ function LocationService({
   icon,
   startExpanded,
   serviceCategory,
+  locationId,
 }: {
   serviceInfo: YourPeerLegacyServiceDataWrapper;
   name: string;
   icon: string;
   startExpanded: boolean;
   serviceCategory: CategoryNotNull;
+  locationId: string;
 }) {
   return (
     <div className="bg-white rounded-lg">
@@ -56,12 +59,18 @@ function LocationService({
       </div>
       <div className="flex flex-col divide-y divide-gray-200">
         {serviceInfo.services.map((service) => (
-          <Service
+          <CallingScope
             key={service.id}
-            service={service}
-            startExpanded={startExpanded}
-            serviceCategory={serviceCategory}
-          />
+            locationId={locationId}
+            serviceId={service.id}
+            label={service.name || name}
+          >
+            <Service
+              service={service}
+              startExpanded={startExpanded}
+              serviceCategory={serviceCategory}
+            />
+          </CallingScope>
         ))}
       </div>
     </div>
@@ -107,6 +116,7 @@ export default function LocationServices({
         const servicesWrapper = getServicesWrapper(serviceCategory, location);
         return servicesWrapper?.services.length ? (
           <LocationService
+            locationId={location.id}
             key={serviceCategory}
             serviceCategory={serviceCategory}
             serviceInfo={servicesWrapper}
