@@ -8,15 +8,17 @@ import {
 import LocationStubMarker from "@/components/location-stub-marker";
 import {
   activeMarkerIcon,
+  activePinSize,
   defaultZoom,
-  mapStyles,
+  GOOGLE_MAPS_MAP_ID,
 } from "@/components/map-common";
+import MapPinImage from "@/components/map-pin-image";
 import { buildStreetViewUrls } from "@/lib/streetView";
 import {
+  AdvancedMarker,
   APIProvider,
   Map,
   MapCameraChangedEvent,
-  Marker,
 } from "@vis.gl/react-google-maps";
 import { useCallback, useEffect, useState } from "react";
 
@@ -101,14 +103,16 @@ export default function StreetView({
               mapTypeControl={false}
               fullscreenControl={false}
               center={mapCenter}
-              styles={mapStyles}
+              mapId={GOOGLE_MAPS_MAP_ID}
               onCameraChanged={handleCameraChange}
             >
-              <Marker
-                position={location}
-                title={location.name}
-                icon={activeMarkerIcon}
-              />
+              <AdvancedMarker position={location} title={location.name}>
+                <MapPinImage
+                  src={activeMarkerIcon}
+                  width={activePinSize.width}
+                  height={activePinSize.height}
+                />
+              </AdvancedMarker>
               <span>
                 {locationStubs
                   ? locationStubs

@@ -1,6 +1,7 @@
-import { Marker } from "@vis.gl/react-google-maps";
+import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import { SimplifiedLocationData } from "./common";
-import { activeMarkerIcon } from "./map-common";
+import { activeMarkerIcon, activePinSize, pinSize } from "./map-common";
+import MapPinImage from "./map-pin-image";
 
 export default function LocationStubMarker({
   locationStub,
@@ -13,8 +14,15 @@ export default function LocationStubMarker({
     locationStub: SimplifiedLocationData,
   ) => void;
 }) {
+  const isActive = activeLocationSlug === locationStub.slug;
+  const { src, size } = isActive
+    ? { src: activeMarkerIcon, size: activePinSize }
+    : locationStub.closed
+      ? { src: "/img/icons/closed-pin.png", size: pinSize }
+      : { src: "/img/icons/pin.avif", size: pinSize };
+
   return (
-    <Marker
+    <AdvancedMarker
       position={{
         lat: locationStub.position.coordinates[1],
         lng: locationStub.position.coordinates[0],
@@ -22,23 +30,15 @@ export default function LocationStubMarker({
       clickable={true}
       onClick={() =>
         handleClickOnLocationStubMarker &&
-        activeLocationSlug !== locationStub.slug &&
+        !isActive &&
         handleClickOnLocationStubMarker(locationStub)
       }
       title={locationStub.name}
-      icon={
-        activeLocationSlug === locationStub.slug
-          ? activeMarkerIcon
-          : locationStub.closed
-            ? {
-                url: "/img/icons/closed-pin.png",
-                scaledSize: new window.google.maps.Size(25, 32),
-              }
-            : {
-                url: "/img/icons/pin.avif",
-                scaledSize: new window.google.maps.Size(25, 32),
-              }
-      }
-    />
+      // keep the selected pin on top of its neighbours, which the taller active icon would
+      // otherwise be drawn behind
+      zIndex={isActive ? 1 : undefined}
+    >
+      <MapPinImage src={src} width={size.width} height={size.height} />
+    </AdvancedMarker>
   );
 }
