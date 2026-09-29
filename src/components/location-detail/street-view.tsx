@@ -12,6 +12,7 @@ import {
   mapStyles,
 } from "@/components/map-common";
 import { buildStreetViewUrls } from "@/lib/streetView";
+import { TranslatableText } from "@/components/translatable-text";
 import {
   APIProvider,
   Map,
@@ -34,6 +35,12 @@ export default function StreetView({
   const { imageUrl, mapsUrl } = buildStreetViewUrls(location, {
     size: "600x500",
   });
+
+  // When the organization has supplied a photo it stands in for the Street View
+  // still, because Google's panorama is out of date for this location. The link
+  // is deliberately unchanged: tapping it still opens Street View, so people can
+  // look around the block and see the latest imagery.
+  const photoUrl = location.photo?.url ?? null;
 
   // TODO: eliminate duplicate code
   const handleCameraChange = useCallback(
@@ -77,15 +84,20 @@ export default function StreetView({
           className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block"
         >
           <img
-            src={imageUrl}
+            src={photoUrl ?? imageUrl}
             alt=""
             className="w-full h-full object-cover object-center cursor-pointer"
             loading="lazy"
           />
           <span className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow-sm rounded-full px-5 py-2 text-dark font-medium text-sm">
-            Open Street View
+            <TranslatableText text="Open Street View" />
           </span>
         </a>
+        {photoUrl ? (
+          <p className="hidden md:block px-4 pt-1 text-xs text-neutral-500">
+            <TranslatableText text="Photo provided by the organization" />
+          </p>
+        ) : null}
       </div>
       <div className="w-full max-h-52 h-52 overflow-hidden relative md:hidden">
         <div id="miniMap" className="w-full h-full bg-neutral-100">
@@ -130,7 +142,7 @@ export default function StreetView({
           rel="noopener noreferrer"
           className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow rounded-full px-5 py-2 text-dark font-medium text-sm"
         >
-          Open Street View
+          <TranslatableText text="Open Street View" />
         </a>
       </div>
     </div>

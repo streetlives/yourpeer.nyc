@@ -158,3 +158,64 @@ describe("parseStreetviewUrl — URL format contract", () => {
     });
   });
 });
+
+// ─── 5. LocationPhoto: the organization-provided photo ────────────────────────
+//
+// The photo is a separate object on the location response, added alongside
+// Streetview rather than inside it — the API keeps them in separate tables so
+// that clearing a Street View override cannot delete a photo.
+
+describe("LocationPhoto — API contract", () => {
+  it("is absent or null on fixtures without a photo, never undefined-by-typo", () => {
+    for (const fixture of [locationDetailFixture, locationDetail2Fixture]) {
+      const photo = (fixture as Record<string, unknown>)["LocationPhoto"];
+      expect(photo === undefined || photo === null).toBe(true);
+    }
+  });
+
+  it("accepts the photo shape on SimplifiedLocationData", () => {
+    // Compile-time check: if this builds, the type models the API contract.
+    const withPhoto: Pick<SimplifiedLocationData, "LocationPhoto"> = {
+      LocationPhoto: {
+        url: "https://photos.yourpeer.nyc/location-photos/a/b.jpg",
+        content_type: "image/jpeg",
+        byte_size: 548000,
+        width: 1600,
+        height: 1200,
+        original_filename: "storefront.jpg",
+      },
+    };
+    expect(withPhoto.LocationPhoto?.content_type).toBe("image/jpeg");
+  });
+
+  it("models a null url, which the API returns when storage is unconfigured", () => {
+    const unconfigured: Pick<SimplifiedLocationData, "LocationPhoto"> = {
+      LocationPhoto: {
+        url: null,
+        content_type: "image/jpeg",
+        byte_size: 548000,
+        width: null,
+        height: null,
+        original_filename: null,
+      },
+    };
+    expect(unconfigured.LocationPhoto?.url).toBeNull();
+  });
+
+  // Storage internals are deliberately not published by the API. If they ever
+  // reappear in a response, the frontend should not start depending on them.
+  it("does not model the storage internals the API withholds", () => {
+    const photo = {
+      url: "https://photos.yourpeer.nyc/location-photos/a/b.jpg",
+      content_type: "image/jpeg",
+      byte_size: 1,
+      width: null,
+      height: null,
+      original_filename: null,
+    } satisfies NonNullable<SimplifiedLocationData["LocationPhoto"]>;
+
+    for (const internal of ["s3_key", "s3_bucket", "sha256", "location_id"]) {
+      expect(photo).not.toHaveProperty(internal);
+    }
+  });
+});

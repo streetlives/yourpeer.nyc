@@ -549,6 +549,22 @@ export interface StreetviewData {
   fov: number | null;
 }
 
+/**
+ * A photo the organization supplied, shown in place of the Google Street View
+ * still when Google's panorama is out of date and shows the wrong storefront.
+ *
+ * `url` is the only portable field: the API stores an object key and composes
+ * this at read time, so it is null when photo storage is unconfigured.
+ */
+export interface LocationPhotoData {
+  url: string | null;
+  content_type: string;
+  byte_size: number;
+  width: number | null;
+  height: number | null;
+  original_filename: string | null;
+}
+
 // TODO: this should get exported by the streetlives-api REST API or a shared types library, rather than being embedded here
 export interface SimplifiedLocationData {
   id: string;
@@ -564,6 +580,8 @@ export interface SimplifiedLocationData {
   Streetview?: StreetviewData | null;
   /** Present only in pre-migration API responses; use Streetview instead. */
   streetview_url?: string | null;
+  /** Absent from API responses that predate organization-provided photos. */
+  LocationPhoto?: LocationPhotoData | null;
   last_validated_at: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -962,6 +980,7 @@ export interface YourPeerLegacyLocationData {
   phones: null | Phone[];
   url: string | null;
   streetview: StreetviewData | null;
+  photo: LocationPhotoData | null;
   accommodation_services: YourPeerLegacyServiceDataWrapper;
   food_services: YourPeerLegacyServiceDataWrapper;
   clothing_services: YourPeerLegacyServiceDataWrapper;

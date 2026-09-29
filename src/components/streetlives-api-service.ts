@@ -523,6 +523,7 @@ export function map_gogetta_to_yourpeer(
     url: d["Organization"]["url"],
     streetview:
       d["Streetview"] ?? parseStreetviewUrl(d["streetview_url"]) ?? null,
+    photo: d["LocationPhoto"] ?? null,
     partners: d["Organization"]["partners"],
     accommodation_services: filter_services_by_name(
       d,

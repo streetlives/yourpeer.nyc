@@ -160,3 +160,56 @@ describe("parseStreetviewUrl", () => {
     expect(result?.pano_id).toBe("BadPano%GG");
   });
 });
+
+describe("map_gogetta_to_yourpeer — LocationPhoto mapping", () => {
+  const PHOTO = {
+    url: "https://photos.yourpeer.nyc/location-photos/abc/def.jpg",
+    content_type: "image/jpeg",
+    byte_size: 548000,
+    width: 1600,
+    height: 1200,
+    original_filename: "storefront.jpg",
+  };
+
+  it("maps a missing LocationPhoto to null photo", () => {
+    const result = map_gogetta_to_yourpeer(BASE, true);
+    expect(result.photo).toBeNull();
+  });
+
+  it("maps an explicitly null LocationPhoto to null photo", () => {
+    const fixture = { ...BASE, LocationPhoto: null } as LocationDetailData;
+    expect(map_gogetta_to_yourpeer(fixture, true).photo).toBeNull();
+  });
+
+  it("passes a photo payload through", () => {
+    const fixture = { ...BASE, LocationPhoto: PHOTO } as LocationDetailData;
+    expect(map_gogetta_to_yourpeer(fixture, true).photo).toEqual(PHOTO);
+  });
+
+  // The photo and the Street View override are independent: a location can have
+  // one, both or neither, and the API keeps them in separate tables so that
+  // clearing an override cannot remove a photo.
+  it("keeps photo and streetview independent", () => {
+    const fixture = {
+      ...BASE,
+      LocationPhoto: PHOTO,
+      Streetview: null,
+    } as LocationDetailData;
+    const result = map_gogetta_to_yourpeer(fixture, true);
+
+    expect(result.photo).toEqual(PHOTO);
+    expect(result.streetview).toBeNull();
+  });
+
+  // The API composes `url` at read time from a stored object key, and returns
+  // null when photo storage is unconfigured. The UI has to treat that as "no
+  // photo" rather than rendering an empty src.
+  it("passes through a photo whose url is null", () => {
+    const fixture = {
+      ...BASE,
+      LocationPhoto: { ...PHOTO, url: null },
+    } as LocationDetailData;
+
+    expect(map_gogetta_to_yourpeer(fixture, true).photo?.url).toBeNull();
+  });
+});
