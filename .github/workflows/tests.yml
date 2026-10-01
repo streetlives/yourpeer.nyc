@@ -52,6 +52,21 @@ jobs:
         run: npx playwright test
 
       - uses: actions/upload-artifact@v4
+        # This pass uses intercepted calling responses and fake microphone permission.
+        # It cannot reach Telnyx, send OTPs or make telephone calls.
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-directory-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: Test public calling interaction
+        env:
+          PUBLIC_CALLING_E2E: "true"
+          PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
+        run: npx playwright test public-calling.spec.ts
+
+      - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
