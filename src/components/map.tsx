@@ -7,7 +7,12 @@
 "use client";
 
 import { useFilters, useViewStore } from "@/lib/store";
-import { APIProvider, Map, Marker, useMap } from "@vis.gl/react-google-maps";
+import {
+  AdvancedMarker,
+  APIProvider,
+  Map,
+  useMap,
+} from "@vis.gl/react-google-maps";
 import { useCookies } from "next-client-cookies";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -24,7 +29,13 @@ import {
   GeoCoordinatesContextType,
 } from "./geo-context";
 import LocationStubMarker from "./location-stub-marker";
-import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
+import MapPinImage from "./map-pin-image";
+import {
+  defaultZoom,
+  GOOGLE_MAPS_MAP_ID,
+  myLocationIcon,
+  myLocationIconSize,
+} from "./map-common";
 import { MobileTray } from "./mobile-tray";
 import { getUrlWithNewFilterParameter } from "./navigation";
 import { shouldAutoRedirectToNearby } from "./nearby-redirect";
@@ -316,7 +327,7 @@ function MapWrapper({
         mapTypeControl={false}
         fullscreenControl={false}
         defaultCenter={mapCenter}
-        styles={mapStyles}
+        mapId={GOOGLE_MAPS_MAP_ID}
       >
         <span>
           {normalizedLocationStubs
@@ -333,12 +344,18 @@ function MapWrapper({
             : undefined}
         </span>
         {userPosition ? (
-          <Marker
+          <AdvancedMarker
             position={userPosition}
             clickable={false}
             title="You are here!"
-            icon={myLocationIcon}
-          />
+          >
+            <MapPinImage
+              src={myLocationIcon}
+              width={myLocationIconSize.width}
+              height={myLocationIconSize.height}
+              centered
+            />
+          </AdvancedMarker>
         ) : undefined}
       </Map>
 

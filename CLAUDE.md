@@ -77,6 +77,9 @@ Uses Google Translate API. Wrap user-visible strings in `<TranslatableText>` fro
 ```
 NEXT_PUBLIC_GO_GETTA_PROD_URL       # Backend API (local: http://localhost:3001)
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY     # Google Maps
+NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID      # Cloud Map ID; required for Advanced Markers and for the
+                                    # cloud-based map style (mapStyles in map-common.ts is
+                                    # ignored once a Map ID is set). Falls back to DEMO_MAP_ID.
 NEXT_PUBLIC_GOOGLE_CAPTCHA_SITE_KEY # reCAPTCHA v3
 NEXT_PUBLIC_GOOGLE_TAG_MANAGER_API_KEY
 GOOGLE_ANALYTICS_MEASUREMENT_ID
