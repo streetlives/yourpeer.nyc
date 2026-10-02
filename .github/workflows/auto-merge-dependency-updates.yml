@@ -1,0 +1,78 @@
+# Merges Dependabot version upgrades and Snyk security patches once CI is green and
+# the update falls inside the policy in .github/scripts/auto-merge-dependency-updates.js
+# (patch + minor for devDependencies, patch only for production and transitive deps).
+#
+# Why workflow_run rather than pull_request: workflows triggered by Dependabot pull
+# requests get a read-only token, so they cannot merge. workflow_run runs in the base
+# repository context with a writable token, and always uses the workflow file and
+# merge script from the default branch, so a pull request cannot edit the rules that
+# merge it.
+#
+# main requires two approving reviews, which bot pull requests never collect. The
+# github-actions app sits in that rule's bypass list, so the merge below goes through
+# with CI - plus the update policy - as the gate. Add a `do-not-merge` label to any
+# pull request that should wait for a human instead.
+name: Auto-merge dependency updates
+
+on:
+  workflow_run:
+    workflows: ["Tests", "Node.js CI"]
+    types: [completed]
+  schedule:
+    # Hourly sweep, so a pull request whose last check finished while this workflow
+    # was failing or queued still gets picked up.
+    - cron: "23 * * * *"
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: "Evaluate only this pull request"
+        required: false
+        type: string
+      dry_run:
+        description: "Report decisions without merging"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  statuses: read
+
+concurrency:
+  group: auto-merge-dependency-updates
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    # Skip the sweep for CI runs that cannot belong to a dependency update.
+    if: >
+      github.event_name != 'workflow_run' ||
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/') ||
+      startsWith(github.event.workflow_run.head_branch, 'snyk-')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1 (tag v5)
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - name: Evaluate and merge safe dependency updates
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0 (tag v7)
+        env:
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          PULL_REQUEST_NUMBER: ${{ inputs.pull_request_number }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const autoMerge = require(
+              `${process.env.GITHUB_WORKSPACE}/.github/scripts/auto-merge-dependency-updates.js`,
+            );
+            await autoMerge.run({
+              github,
+              context,
+              core,
+              dryRun: process.env.DRY_RUN === "true",
+              pullRequestNumber: process.env.PULL_REQUEST_NUMBER || undefined,
+            });
