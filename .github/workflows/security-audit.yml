@@ -1,0 +1,46 @@
+name: Security Audit
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Mondays 13:00 UTC
+    - cron: "0 13 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  # Blocking: fails a PR only if it *introduces* a high/critical vulnerability
+  # through a package.json / package-lock.json change. Existing findings on main
+  # do not fail PRs.
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v5.0.0
+        with:
+          fail-on-severity: high
+          fail-on-scopes: runtime
+          comment-summary-in-pr: on-failure
+
+  # Advisory: reports every known vulnerability in production dependencies to
+  # the job summary. Never fails the workflow.
+  npm-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+      # npm audit only needs package-lock.json, so no install step. It exits
+      # nonzero both when it finds vulnerabilities and when the audit itself
+      # fails, so the summary script inspects the JSON to tell those apart.
+      - name: Audit production dependencies
+        run: |
+          npm audit --omit=dev --json > audit.json || true
+          node scripts/npm-audit-summary.mts audit.json
