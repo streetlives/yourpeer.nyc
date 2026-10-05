@@ -23,9 +23,9 @@ on:
       - Codex auto-approve (guarded)
     types: [completed]
   schedule:
-    # Fallback sweep twice an hour, off the busy top/half of the hour, when
-    # GitHub is most likely to delay or drop scheduled runs.
-    - cron: "7,37 * * * *"
+    # Daily fallback sweep at 06:17 UTC, off the top of the hour, when GitHub
+    # is most likely to delay or drop scheduled runs.
+    - cron: "17 6 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
