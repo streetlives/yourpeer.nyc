@@ -23,9 +23,18 @@ Context-gathering expectations:
 Decision rules:
 
 - If you find any high-severity issue (security, auth, data loss, broken API behavior, privacy/PII logging, injection risk, unsafe deserialization), set decision=REQUEST_CHANGES and list the issues.
-- If `.codex-run/valid-linked-issue-numbers.txt` is empty, set decision=REQUEST_CHANGES and list the missing existing linked GitHub Issue as a blocking issue.
+- If `.codex-run/valid-linked-issue-numbers.txt` is empty, set decision=REQUEST_CHANGES and list the missing existing linked GitHub Issue as a blocking issue, unless `.codex-run/dependency-update.txt` is non-empty (see below).
 - If there are any unclear behaviors, missing tests for risky logic, or potential regressions, set decision=REQUEST_CHANGES.
 - Only set decision=APPROVE if there are no blocking issues.
+
+Automated dependency updates:
+
+- `.codex-run/dependency-update.txt` is written by the workflow, not the PR. When it is non-empty it names the source (`dependabot` or `snyk`), the PR does not need a linked issue, and an approval may lead to the PR being merged automatically. Review it to this stricter standard instead:
+- Every changed file must be `package.json` or `package-lock.json`. Anything else is blocking.
+- `package.json` may only change version strings of existing entries in `dependencies`, `devDependencies`, `optionalDependencies`, `peerDependencies`, or `overrides`. New, removed, or renamed packages, and changes to scripts or any other field, are blocking.
+- In `package-lock.json`, every `resolved` URL must be on `https://registry.npmjs.org/`, and a package must not newly gain `hasInstallScript: true`. Treat either as blocking.
+- Check that the lockfile versions match the `package.json` changes and that the PR title/body describe the same packages and versions as the diff.
+- A major version bump of a direct dependency is not automatically blocking, but it is never merged automatically; note it in the summary.
 
 Output:
 

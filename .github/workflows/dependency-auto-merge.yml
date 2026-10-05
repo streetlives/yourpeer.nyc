@@ -1,0 +1,52 @@
+name: Dependency auto-merge
+
+# Merges Dependabot npm updates and Snyk security-fix PRs once tests and the
+# Codex review have passed. The gates live in scripts/dependency-auto-merge.mts.
+#
+# This runs on a schedule rather than on pull_request events: workflows
+# triggered by Dependabot get a read-only token, and the review Codex posts with
+# GITHUB_TOKEN does not trigger other workflows. Nothing from the PR is checked
+# out or executed; the script runs from main and reads PRs through the API.
+#
+# Merging uses GITHUB_TOKEN, which main's branch protection lets bypass the
+# human-review requirement. Add the `no-auto-merge` label to a PR to opt it out.
+
+on:
+  schedule:
+    # Every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report what would be merged without merging"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-auto-merge
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      statuses: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+      - name: Merge eligible dependency PRs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          # Snyk opens its PRs under the account that connected the repo.
+          SNYK_PR_AUTHORS: jbeard4
+        run: node scripts/dependency-auto-merge.mts
