@@ -4,11 +4,13 @@ import {
   checkBump,
   checkChangedFiles,
   checkLockfile,
+  checkLockfileMatchesManifest,
   checkPackageJson,
   checkPullRequest,
   checkReviews,
   checkStatuses,
   detectSource,
+  satisfies,
   tableCell,
   type PullRequest,
 } from "../../scripts/dependency-auto-merge.mjs";
@@ -263,6 +265,97 @@ describe("checkLockfile", () => {
   });
 });
 
+describe("satisfies", () => {
+  it.each([
+    ["^1.8.2", "1.20.0"],
+    ["^0.7.1", "0.7.9"],
+    ["^0.0.3", "0.0.3"],
+    ["~2.1.0", "2.1.4"],
+    ["^20", "20.19.1"],
+    ["^8", "8.57.0"],
+    ["20", "20.0.5"],
+    ["1.2.3", "1.2.3"],
+    [">=1.0.0", "4.0.0"],
+    ["^0.0.1-rc.4", "0.0.1-rc.4"],
+  ])("%s accepts %s", (spec, version) => {
+    expect(satisfies(spec, version)).toBe(true);
+  });
+
+  it.each([
+    ["^1.8.2", "2.0.0"],
+    ["^1.8.2", "1.8.1"],
+    ["^0.7.1", "0.8.0"],
+    ["^0.0.3", "0.0.4"],
+    ["~2.1.0", "2.2.0"],
+    ["^20", "21.0.0"],
+    ["1.2.3", "1.2.4"],
+    ["^0.0.1-rc.4", "0.0.1-rc.5"],
+    ["^1.0.0", "1.1.0-beta.1"],
+  ])("%s rejects %s", (spec, version) => {
+    expect(satisfies(spec, version)).toBe(false);
+  });
+
+  it("cannot evaluate other spec forms", () => {
+    expect(satisfies("latest", "1.0.0")).toBeNull();
+    expect(satisfies("npm:other@^1.0.0", "1.0.0")).toBeNull();
+    expect(satisfies(">=1.0.0 <2", "1.0.0")).toBeNull();
+  });
+});
+
+describe("checkLockfileMatchesManifest", () => {
+  const manifest = JSON.stringify({
+    dependencies: { axios: "^1.8.2" },
+    devDependencies: { "@types/node": "^20" },
+  });
+  const lock = (
+    root: Record<string, unknown>,
+    packages: Record<string, unknown>,
+  ) =>
+    JSON.stringify({ lockfileVersion: 3, packages: { "": root, ...packages } });
+  const root = {
+    dependencies: { axios: "^1.8.2" },
+    devDependencies: { "@types/node": "^20" },
+  };
+
+  it("accepts a lockfile consistent with package.json", () => {
+    const head = lock(root, {
+      "node_modules/axios": { version: "1.20.0" },
+      "node_modules/@types/node": { version: "20.19.1" },
+    });
+    expect(checkLockfileMatchesManifest(manifest, head)).toEqual([]);
+  });
+
+  it("rejects a lockfile-only change that pins a direct dependency outside its range", () => {
+    const head = lock(root, {
+      "node_modules/axios": { version: "2.0.0" },
+      "node_modules/@types/node": { version: "20.19.1" },
+    });
+    expect(checkLockfileMatchesManifest(manifest, head)).toEqual([
+      'axios: locked 2.0.0 does not satisfy "^1.8.2"',
+    ]);
+  });
+
+  it("rejects a root entry that disagrees with package.json", () => {
+    const head = lock(
+      { ...root, dependencies: { axios: "^2.0.0" } },
+      {
+        "node_modules/axios": { version: "1.20.0" },
+        "node_modules/@types/node": { version: "20.19.1" },
+      },
+    );
+    expect(checkLockfileMatchesManifest(manifest, head)).toEqual([
+      "package-lock.json root dependencies differs from package.json",
+    ]);
+  });
+
+  it("rejects a missing direct dependency", () => {
+    const head = lock(root, { "node_modules/axios": { version: "1.20.0" } });
+    expect(checkLockfileMatchesManifest(manifest, head)).toEqual([
+      "@types/node is not installed in package-lock.json",
+    ]);
+  });
+});
+
 describe("checkStatuses", () => {
   const passing = REQUIRED_CHECKS.map((name) => ({
     name,
@@ -274,6 +367,20 @@ describe("checkStatuses", () => {
     expect(
       checkStatuses(passing, [{ context: "security/snyk", state: "success" }]),
     ).toEqual([]);
+  });
+
+  it("does not count neutral or skipped checks as passing", () => {
+    const runs = passing.map((run) =>
+      run.name === "dependency-review"
+        ? { ...run, conclusion: "skipped" }
+        : run.name === "E2E Tests"
+          ? { ...run, conclusion: "neutral" }
+          : run,
+    );
+    expect(checkStatuses(runs, [])).toEqual([
+      "check E2E Tests concluded neutral",
+      "check dependency-review concluded skipped",
+    ]);
   });
 
   it("reports pending, failed, and missing checks", () => {
