@@ -60,7 +60,7 @@ const baseLocation = (
     ...overrides,
   }) as YourPeerLegacyLocationData;
 
-const CAPTION = "Photo provided by the organization";
+const CAPTION = "Organization's Image";
 
 // TranslatableText reads gTranslateCookie off this context and throws without a
 // provider. English is the default, so the raw strings render as written.
@@ -95,6 +95,15 @@ describe("StreetView with no organization photo", () => {
 
     expect(screen.queryByText(CAPTION)).not.toBeInTheDocument();
   });
+
+  it("keeps the Street View still at its fixed height", () => {
+    renderStreetView(baseLocation());
+
+    const box = desktopImage().closest("a");
+    expect(box).toHaveClass("h-72");
+    expect(screen.queryByTestId("photo-ratio")).not.toBeInTheDocument();
+    expect(desktopImage()).not.toHaveClass("absolute");
+  });
 });
 
 describe("StreetView with an organization photo", () => {
@@ -104,6 +113,20 @@ describe("StreetView with an organization photo", () => {
     const src = desktopImage().getAttribute("src");
     expect(src).toBe(PHOTO.url);
     expect(src).not.toContain("maps.googleapis.com");
+  });
+
+  // Uploads are cropped to 5:3 in streetlives-web's cropper, which promises
+  // the specialist that its frame is exactly what shows here.
+  it("frames the photo at the 5:3 it was cropped to", () => {
+    renderStreetView(baseLocation({ photo: PHOTO }));
+
+    const box = desktopImage().closest("a");
+    expect(box).not.toHaveClass("h-72");
+    // Padding, not aspect-ratio, which Safari 14 does not support. The real
+    // geometry is measured in tests/e2e/street-view-photo.spec.ts.
+    expect(box?.className).not.toMatch(/aspect-/);
+    expect(screen.getByTestId("photo-ratio")).toHaveClass("pt-[60%]");
+    expect(desktopImage()).toHaveClass("absolute", "inset-0");
   });
 
   it("captions it so it is not mistaken for Street View imagery", () => {
