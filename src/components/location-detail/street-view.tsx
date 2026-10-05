@@ -12,6 +12,7 @@ import {
   mapStyles,
 } from "@/components/map-common";
 import { buildStreetViewUrls } from "@/lib/streetView";
+import { cn } from "@/lib/utils";
 import { TranslatableText } from "@/components/translatable-text";
 import {
   APIProvider,
@@ -81,7 +82,14 @@ export default function StreetView({
           href={mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full max-h-72 h-72 bg-neutral-100 overflow-hidden relative hidden md:block"
+          className={cn(
+            "w-full bg-neutral-100 overflow-hidden relative hidden md:block",
+            // An organization photo is cropped to exactly 5:3 when it is
+            // uploaded, in a cropper that shows the specialist this frame. A
+            // fixed height would trim it again by a different amount at every
+            // panel width, so the box takes the photo's shape instead.
+            photoUrl ? "aspect-[5/3]" : "max-h-72 h-72",
+          )}
         >
           <img
             src={photoUrl ?? imageUrl}

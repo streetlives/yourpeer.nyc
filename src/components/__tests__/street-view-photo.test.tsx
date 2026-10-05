@@ -95,6 +95,14 @@ describe("StreetView with no organization photo", () => {
 
     expect(screen.queryByText(CAPTION)).not.toBeInTheDocument();
   });
+
+  it("keeps the Street View still at its fixed height", () => {
+    renderStreetView(baseLocation());
+
+    const box = desktopImage().closest("a");
+    expect(box).toHaveClass("h-72");
+    expect(box).not.toHaveClass("aspect-[5/3]");
+  });
 });
 
 describe("StreetView with an organization photo", () => {
@@ -104,6 +112,16 @@ describe("StreetView with an organization photo", () => {
     const src = desktopImage().getAttribute("src");
     expect(src).toBe(PHOTO.url);
     expect(src).not.toContain("maps.googleapis.com");
+  });
+
+  // Uploads are cropped to 5:3 in streetlives-web's cropper, which promises
+  // the specialist that its frame is exactly what shows here.
+  it("frames the photo at the 5:3 it was cropped to", () => {
+    renderStreetView(baseLocation({ photo: PHOTO }));
+
+    const box = desktopImage().closest("a");
+    expect(box).toHaveClass("aspect-[5/3]");
+    expect(box).not.toHaveClass("h-72");
   });
 
   it("captions it so it is not mistaken for Street View imagery", () => {
