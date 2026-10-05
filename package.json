@@ -17,8 +17,8 @@
     "test:unit:run": "vitest run"
   },
   "dependencies": {
-    "@aws-amplify/ui": "^6.15.6",
-    "@aws-amplify/ui-react": "^6.15.6",
+    "@aws-amplify/ui": "^6.15.7",
+    "@aws-amplify/ui-react": "^6.15.7",
     "@heroicons/react": "^2.2.0",
     "@next/third-parties": "15.5.3",
     "@radix-ui/react-alert-dialog": "^1.1.23",
@@ -28,7 +28,7 @@
     "@radix-ui/react-separator": "^1.1.15",
     "@radix-ui/react-slot": "^1.1.1",
     "@sendgrid/mail": "^8.1.6",
-    "@tanstack/react-query": "^5.104.0",
+    "@tanstack/react-query": "^5.104.1",
     "@vis.gl/react-google-maps": "^1.10.1",
     "aws-amplify": "^6.22.1",
     "axios": "^1.8.2",
@@ -90,7 +90,7 @@
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.4.3",
     "tailwindcss-debug-screens": "^2.2.1",
-    "tsx": "^4.19.2",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.6"
