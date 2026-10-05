@@ -61,6 +61,24 @@ jobs:
             echo "trusted=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Dependabot npm updates, and Snyk fix PRs opened by an allowlisted author,
+      # are reviewed without a linked issue (see the prompt's dependency section)
+      # and are then eligible for dependency-auto-merge.yml.
+      - name: Detect automated dependency update
+        id: dependency_update
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          TRUSTED: ${{ steps.allow.outputs.trusted }}
+        run: |
+          if [[ "$PR_AUTHOR" == "dependabot[bot]" && "$PR_HEAD_REF" == dependabot/npm_and_yarn/* ]]; then
+            echo "source=dependabot" >> "$GITHUB_OUTPUT"
+          elif [[ "$TRUSTED" == "true" && "$PR_HEAD_REF" =~ ^snyk-fix-[0-9a-f]+$ ]]; then
+            echo "source=snyk" >> "$GITHUB_OUTPUT"
+          else
+            echo "source=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build protected run prompt and bounded PR context
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -69,9 +87,16 @@ jobs:
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_TOKEN: ${{ github.token }}
+          DEPENDENCY_UPDATE_SOURCE: ${{ steps.dependency_update.outputs.source }}
         run: |
           set -euo pipefail
           mkdir -p .codex-run
+
+          if test -n "$DEPENDENCY_UPDATE_SOURCE"; then
+            echo "$DEPENDENCY_UPDATE_SOURCE" > .codex-run/dependency-update.txt
+          else
+            : > .codex-run/dependency-update.txt
+          fi
 
           git --no-pager diff --name-status "$BASE_SHA...$HEAD_SHA" > .codex-run/changed-files.txt
           git --no-pager diff --stat "$BASE_SHA...$HEAD_SHA" > .codex-run/diff-stat.txt
@@ -139,6 +164,7 @@ jobs:
           - .codex-run/valid-linked-issue-numbers.txt
           - .codex-run/linked-issues.jsonl
           - .codex-run/linked-issue-comments.jsonl
+          - .codex-run/dependency-update.txt
 
           The full PR diff is intentionally not embedded in this prompt. Inspect it selectively with:
           git --no-pager diff --unified=80 "$BASE_SHA...$HEAD_SHA" -- <path>
@@ -157,7 +183,7 @@ jobs:
       - name: Check linked issue requirement
         id: linked_issue
         run: |
-          if test -s .codex-run/valid-linked-issue-numbers.txt; then
+          if test -s .codex-run/valid-linked-issue-numbers.txt || test -s .codex-run/dependency-update.txt; then
             echo "has_linked_issue=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_linked_issue=false" >> "$GITHUB_OUTPUT"
@@ -186,7 +212,7 @@ jobs:
           echo "blocking_issues_json=$(jq -c '.blocking_issues' codex-review.json)" >> "$GITHUB_OUTPUT"
 
       - name: Approve PR if Codex says APPROVE and author is trusted
-        if: steps.parse.outputs.decision == 'APPROVE' && steps.allow.outputs.trusted == 'true' && steps.linked_issue.outputs.has_linked_issue == 'true'
+        if: steps.parse.outputs.decision == 'APPROVE' && (steps.allow.outputs.trusted == 'true' || steps.dependency_update.outputs.source == 'dependabot') && steps.linked_issue.outputs.has_linked_issue == 'true'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0 (tag v7)
         env:
           SUMMARY: ${{ steps.parse.outputs.summary }}
