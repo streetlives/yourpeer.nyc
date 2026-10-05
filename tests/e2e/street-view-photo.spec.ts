@@ -25,9 +25,7 @@ test("captions the photo and still links out to Street View", async ({
 }) => {
   await page.goto("/locations/samecare-with-photo");
 
-  await test
-    .expect(page.getByText("Photo provided by the organization"))
-    .toBeAttached();
+  await test.expect(page.getByText("Organization's Image")).toBeAttached();
 
   // The photo replaces the thumbnail only; the click-through is unchanged.
   await test
@@ -47,7 +45,5 @@ test("falls back to the Street View still without a photo", async ({
   await test
     .expect(page.locator('img[src*="maps/api/streetview"]').first())
     .toBeAttached();
-  await test
-    .expect(page.getByText("Photo provided by the organization"))
-    .toHaveCount(0);
+  await test.expect(page.getByText("Organization's Image")).toHaveCount(0);
 });

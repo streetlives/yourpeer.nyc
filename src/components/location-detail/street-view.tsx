@@ -103,7 +103,7 @@ export default function StreetView({
         </a>
         {photoUrl ? (
           <p className="hidden md:block px-4 pt-1 text-xs text-neutral-500">
-            <TranslatableText text="Photo provided by the organization" />
+            <TranslatableText text="Organization's Image" />
           </p>
         ) : null}
       </div>

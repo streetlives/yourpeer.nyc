@@ -60,7 +60,7 @@ const baseLocation = (
     ...overrides,
   }) as YourPeerLegacyLocationData;
 
-const CAPTION = "Photo provided by the organization";
+const CAPTION = "Organization's Image";
 
 // TranslatableText reads gTranslateCookie off this context and throws without a
 // provider. English is the default, so the raw strings render as written.
