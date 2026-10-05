@@ -39,10 +39,11 @@ Security checks (PRs, pushes to `main` for CodeQL, and a weekly Monday schedule)
 | Dependabot weekly npm + github-actions update PRs (minor/patch grouped)   | `.github/dependabot.yml`    | n/a                                                                            |
 | Auto-merge of Dependabot npm and Snyk `snyk-fix-*` PRs                    | `dependency-auto-merge.yml` | n/a                                                                            |
 
-`dependency-auto-merge.yml` runs every 30 minutes and merges a dependency PR only when it touches nothing but
-`package.json`/`package-lock.json`, has no major bump of a direct dependency, is up to date with `main`, all checks
-pass, and Codex approved its head commit. Gates live in `scripts/dependency-auto-merge.mts`; run the workflow
-manually for a dry run, or label a PR `no-auto-merge` to keep it for a human.
+`dependency-auto-merge.yml` runs whenever a PR's CI or Codex review finishes (with a daily 06:17 UTC run as a
+fallback) and merges a dependency PR only when it touches nothing but `package.json`/`package-lock.json`, has no
+major bump of a direct dependency, is up to date with `main`, all checks pass, and Codex approved its head commit.
+Gates live in `scripts/dependency-auto-merge.mts`; run the workflow manually for a dry run, or label a PR
+`no-auto-merge` to keep it for a human.
 
 Existing vulnerabilities on `main` don't fail PRs, so the npm audit report is the backlog to work down.
 
