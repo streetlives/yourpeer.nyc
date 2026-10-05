@@ -147,15 +147,13 @@ export const FOOD_PARAM = "food";
 export const FOOD_PARAM_SOUP_KITCHEN_VALUE = "soup-kitchens";
 export const FOOD_PARAM_PANTRY_VALUE = "pantry";
 export type FoodValues =
-  | typeof FOOD_PARAM_SOUP_KITCHEN_VALUE
-  | typeof FOOD_PARAM_PANTRY_VALUE;
+  typeof FOOD_PARAM_SOUP_KITCHEN_VALUE | typeof FOOD_PARAM_PANTRY_VALUE;
 
 export const OTHER_PARAM = "other-services";
 export const OTHER_PARAM_LEGAL_VALUE = "legal-services";
 export const OTHER_PARAM_EMPLOYMENT_VALUE = "employment";
 export type OtherValues =
-  | typeof OTHER_PARAM_LEGAL_VALUE
-  | typeof OTHER_PARAM_EMPLOYMENT_VALUE;
+  typeof OTHER_PARAM_LEGAL_VALUE | typeof OTHER_PARAM_EMPLOYMENT_VALUE;
 
 export const HEALTH_PARAM = "health-care";
 export const HEALTH_PARAM_MENTAL_HEALTH = "mental-health";
@@ -165,8 +163,7 @@ export const CLOTHING_PARAM = "clothing";
 export const CLOTHING_PARAM_CASUAL_VALUE = "casual";
 export const CLOTHING_PARAM_PROFESSIONAL_VALUE = "professional";
 export type ClothingValues =
-  | typeof CLOTHING_PARAM_PROFESSIONAL_VALUE
-  | typeof CLOTHING_PARAM_CASUAL_VALUE;
+  typeof CLOTHING_PARAM_PROFESSIONAL_VALUE | typeof CLOTHING_PARAM_CASUAL_VALUE;
 
 export const REQUIREMENT_PARAM = "requirement";
 export const REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE = "no";
@@ -747,8 +744,7 @@ export interface AbstractDetailedLocationData {
 }
 
 export interface FullLocationData
-  extends SimplifiedLocationData,
-    AbstractDetailedLocationData {
+  extends SimplifiedLocationData, AbstractDetailedLocationData {
   PhysicalAddresses: {
     id: string;
     address_1: string | null;
@@ -765,8 +761,7 @@ export interface FullLocationData
 }
 
 export interface LocationDetailData
-  extends SimplifiedLocationData,
-    AbstractDetailedLocationData {
+  extends SimplifiedLocationData, AbstractDetailedLocationData {
   AccessibilityForDisabilities: any[]; // TODO
   metadata: any; //TODO
   EventRelatedInfos: any[]; // TODO

@@ -336,11 +336,7 @@ export function getUrlWithSubCategoryAddedOrRemoved(
     | undefined
     | null,
   newSubCategoryToAddOrRemove:
-    | FoodValues
-    | ClothingValues
-    | ShelterValues
-    | OtherValues
-    | null,
+    FoodValues | ClothingValues | ShelterValues | OtherValues | null,
 ): string {
   if (!pathname) {
     throw new Error("Expected pathname to not be null");

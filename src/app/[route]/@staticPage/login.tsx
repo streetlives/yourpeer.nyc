@@ -2,12 +2,7 @@ import { Authenticator, useAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
-import {
-  getCurrentUser,
-  signIn,
-  SignInInput,
-  SignInOutput,
-} from "aws-amplify/auth";
+import { getCurrentUser, signIn } from "aws-amplify/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -35,15 +30,7 @@ export function LoginPage() {
         <p className="text-center animate-pulse">Redirecting...</p>
       </div>
       <div className="bg-white z-20 relative mt-12">
-        <Authenticator
-          services={{
-            handleSignIn: async (input: SignInInput): Promise<SignInOutput> => {
-              const result = await signIn(input);
-              return result;
-            },
-          }}
-          hideSignUp
-        >
+        <Authenticator services={{ handleSignIn: signIn }} hideSignUp>
           <AuthRedirect />
         </Authenticator>
       </div>
