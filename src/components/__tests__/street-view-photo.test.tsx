@@ -101,7 +101,8 @@ describe("StreetView with no organization photo", () => {
 
     const box = desktopImage().closest("a");
     expect(box).toHaveClass("h-72");
-    expect(box).not.toHaveClass("aspect-[5/3]");
+    expect(screen.queryByTestId("photo-ratio")).not.toBeInTheDocument();
+    expect(desktopImage()).not.toHaveClass("absolute");
   });
 });
 
@@ -120,8 +121,12 @@ describe("StreetView with an organization photo", () => {
     renderStreetView(baseLocation({ photo: PHOTO }));
 
     const box = desktopImage().closest("a");
-    expect(box).toHaveClass("aspect-[5/3]");
     expect(box).not.toHaveClass("h-72");
+    // Padding, not aspect-ratio, which Safari 14 does not support. The real
+    // geometry is measured in tests/e2e/street-view-photo.spec.ts.
+    expect(box?.className).not.toMatch(/aspect-/);
+    expect(screen.getByTestId("photo-ratio")).toHaveClass("pt-[60%]");
+    expect(desktopImage()).toHaveClass("absolute", "inset-0");
   });
 
   it("captions it so it is not mistaken for Street View imagery", () => {

@@ -84,17 +84,30 @@ export default function StreetView({
           rel="noopener noreferrer"
           className={cn(
             "w-full bg-neutral-100 overflow-hidden relative hidden md:block",
-            // An organization photo is cropped to exactly 5:3 when it is
-            // uploaded, in a cropper that shows the specialist this frame. A
-            // fixed height would trim it again by a different amount at every
-            // panel width, so the box takes the photo's shape instead.
-            photoUrl ? "aspect-[5/3]" : "max-h-72 h-72",
+            photoUrl ? null : "max-h-72 h-72",
           )}
         >
+          {/* An organization photo is cropped to exactly 5:3 when it is
+              uploaded, in a cropper that shows the specialist this frame. A
+              fixed height would trim it again by a different amount at every
+              panel width, so the box takes the photo's shape instead. That
+              shape comes from padding, not aspect-ratio: Safari 14, which
+              this site targets, has no aspect-ratio, and a percentage padding
+              is measured against the width everywhere. 60% = 3/5. */}
+          {photoUrl ? (
+            <span
+              className="block pt-[60%]"
+              aria-hidden="true"
+              data-testid="photo-ratio"
+            />
+          ) : null}
           <img
             src={photoUrl ?? imageUrl}
             alt=""
-            className="w-full h-full object-cover object-center cursor-pointer"
+            className={cn(
+              "w-full h-full object-cover object-center cursor-pointer",
+              photoUrl && "absolute inset-0",
+            )}
             loading="lazy"
           />
           <span className="inline-block absolute bottom-4 right-4 z-0 bg-white shadow-sm rounded-full px-5 py-2 text-dark font-medium text-sm">
