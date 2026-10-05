@@ -227,8 +227,9 @@ export function checkPackageJson(baseText: string, headText: string): string[] {
   return problems;
 }
 
-// Compares package-lock.json v2/v3 `packages` entries. Nothing may resolve
-// from outside the npm registry, and no direct dependency may take a major
+// Compares package-lock.json v2/v3 `packages` entries. Every fetched package
+// must resolve from the npm registry with an integrity hash, and no direct
+// dependency may take a major
 // update. Transitive packages are left to their parents' semver ranges: a
 // minor release of a direct dependency can legitimately require a new major
 // of one of its own dependencies.
@@ -261,13 +262,22 @@ export function checkLockfile(baseText: string, headText: string): string[] {
   for (const [path, entry] of Object.entries(head.packages)) {
     if (path === "" || !isObject(entry)) continue;
     if (entry.link === true) continue;
-    if (
-      typeof entry.resolved === "string" &&
-      !entry.resolved.startsWith(NPM_REGISTRY)
-    ) {
-      problems.push(
-        `${path} resolves from outside the npm registry: ${entry.resolved}`,
-      );
+    // Bundled packages ship inside their parent's tarball, which the parent's
+    // integrity hash covers, so they carry neither field themselves.
+    if (entry.inBundle !== true) {
+      if (typeof entry.resolved !== "string") {
+        problems.push(`${path} has no resolved URL`);
+      } else if (!entry.resolved.startsWith(NPM_REGISTRY)) {
+        problems.push(
+          `${path} resolves from outside the npm registry: ${entry.resolved}`,
+        );
+      }
+      if (
+        typeof entry.integrity !== "string" ||
+        !entry.integrity.startsWith("sha512-")
+      ) {
+        problems.push(`${path} has no sha512 integrity hash`);
+      }
     }
     const previous = base.packages[path];
     if (
@@ -455,6 +465,11 @@ async function evaluate(ctx: Context, pr: PullRequest): Promise<string[]> {
   return problems;
 }
 
+// PR titles are author-controlled, so escape anything that could break out of
+// a Markdown table cell.
+export const tableCell = (text: string) =>
+  text.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\s+/g, " ");
+
 async function run(ctx: Context): Promise<string> {
   const pulls = await apiList<PullRequest>(
     ctx,
@@ -494,9 +509,8 @@ async function run(ctx: Context): Promise<string> {
       result = `Error: ${(err as Error).message}`;
       console.log(`::warning::PR #${pr.number}: ${(err as Error).message}`);
     }
-    const title = pr.title.replace(/\|/g, "\\|");
     lines.push(
-      `| #${pr.number} ${title} | ${source} | ${result.replace(/\|/g, "\\|")} |`,
+      `| #${pr.number} ${tableCell(pr.title)} | ${source} | ${tableCell(result)} |`,
     );
     console.log(`#${pr.number} (${source}): ${result}`);
   }

@@ -9,6 +9,7 @@ import {
   checkReviews,
   checkStatuses,
   detectSource,
+  tableCell,
   type PullRequest,
 } from "../../scripts/dependency-auto-merge.mjs";
 
@@ -176,6 +177,7 @@ describe("checkLockfile", () => {
   const npm = (name: string, version: string) => ({
     version,
     resolved: `https://registry.npmjs.org/${name}/-/${name}-${version}.tgz`,
+    integrity: "sha512-abc",
   });
 
   it("allows a minor direct bump that pulls in a new transitive major", () => {
@@ -203,11 +205,39 @@ describe("checkLockfile", () => {
       "node_modules/axios": {
         version: "1.8.3",
         resolved: "https://evil.example/axios.tgz",
+        integrity: "sha512-abc",
       },
     });
     expect(checkLockfile(lock({}), head)).toEqual([
       "node_modules/axios resolves from outside the npm registry: https://evil.example/axios.tgz",
     ]);
+  });
+
+  it("rejects fetched packages without a resolved URL or integrity hash", () => {
+    const head = lock({
+      "node_modules/axios": { version: "1.8.3" },
+      "node_modules/left-pad": {
+        ...npm("left-pad", "1.0.0"),
+        integrity: "sha1-weak",
+      },
+    });
+    expect(checkLockfile(lock({}), head)).toEqual([
+      "node_modules/axios has no resolved URL",
+      "node_modules/axios has no sha512 integrity hash",
+      "node_modules/left-pad has no sha512 integrity hash",
+    ]);
+  });
+
+  it("accepts bundled and linked packages without resolved URLs", () => {
+    const head = lock({
+      "node_modules/npm": npm("npm", "10.0.0"),
+      "node_modules/npm/node_modules/abbrev": {
+        version: "2.0.0",
+        inBundle: true,
+      },
+      "node_modules/local": { resolved: "packages/local", link: true },
+    });
+    expect(checkLockfile(lock({}), head)).toEqual([]);
   });
 
   it("rejects packages that newly run an install script", () => {
@@ -298,5 +328,11 @@ describe("checkReviews", () => {
     expect(checkReviews([codex("APPROVED"), human], "head")).toEqual([
       "jbeard4 requested changes",
     ]);
+  });
+});
+
+describe("tableCell", () => {
+  it("escapes backslashes, pipes, and newlines", () => {
+    expect(tableCell("a\\|b|c\nd")).toBe("a\\\\\\|b\\|c d");
   });
 });
