@@ -29,6 +29,17 @@ npx playwright test --ui          # Open Playwright UI
 
 CI runs `check-types`, `check-format`, `lint`, and `check-translations` on every PR.
 
+Security checks (PRs, pushes to `main` for CodeQL, and a weekly Monday schedule):
+
+| Check                                                                     | Workflow                 | Blocks PRs?                                                                    |
+| ------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------ |
+| Dependency review: a PR that _adds_ a high/critical runtime vulnerability | `security-audit.yml`     | Yes                                                                            |
+| `npm audit --omit=dev` report of all known production vulnerabilities     | `security-audit.yml`     | No (job summary + warning)                                                     |
+| CodeQL for JS/TS and GitHub Actions                                       | `codeql.yml`             | No until made required in branch protection; alerts appear in the Security tab |
+| Dependabot weekly npm + github-actions update PRs (minor/patch grouped)   | `.github/dependabot.yml` | n/a                                                                            |
+
+Existing vulnerabilities on `main` don't fail PRs, so the npm audit report is the backlog to work down.
+
 ## Architecture
 
 ### Routing (Next.js App Router)
