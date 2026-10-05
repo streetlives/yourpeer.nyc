@@ -188,8 +188,7 @@ export default function SearchForm() {
 
   const aiSearchFromQuery = searchParams && searchParams.get(AI_SEARCH_PARAM);
   const aiSearchFromCookie = previousParams?.searchParams[AI_SEARCH_PARAM] as
-    | string
-    | undefined;
+    string | undefined;
 
   const aiSearchAvailable = useAiSearchEnabled();
 

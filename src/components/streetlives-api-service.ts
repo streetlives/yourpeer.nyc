@@ -791,8 +791,7 @@ export async function getTaxonomies(
   };
 }
 
-export interface AllLocationsData
-  extends LocationsDataResponse<FullLocationData> {
+export interface AllLocationsData extends LocationsDataResponse<FullLocationData> {
   locationStubs: SimplifiedLocationData[];
 }
 
