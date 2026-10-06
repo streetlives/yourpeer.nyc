@@ -1,0 +1,5 @@
+/* /design-sync stylesheet source: Inter (the app loads it via next/font) plus
+   the app's own globals.css (Tailwind layers + .primary-button/.outline-button/
+   .secondary-button/.link components). Compiled by cfg.buildCmd. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import "../src/app/globals.css";
