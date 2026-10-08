@@ -388,7 +388,10 @@ function filter_services_by_name(
               ),
             ).map(([k, v]) => [
               k,
-              v.sort((time1, time2) => (time1 < time2 ? 1 : -1)), // sort the times
+              // sort each day's intervals by opening time
+              v.sort((time1, time2) =>
+                time1.opens_at.localeCompare(time2.opens_at),
+              ),
             ]),
           ),
           docs: is_location_detail
