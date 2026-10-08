@@ -51,6 +51,22 @@ describe("formatSchedule", () => {
       null,
     ],
     [
+      "weekday 0 is Sunday (Emergency Shelter in tests/fixtures/locations.json)",
+      on([0], ["00:00", "23:59"]),
+      "Open Sundays 24 hours",
+    ],
+    [
+      "weekday 0 and 7 are merged as Sunday",
+      { ...on([0], ["09:00", "11:00"]), ...on([7], ["15:00", "17:00"]) },
+      "Open Sundays 9 AM to 11 AM and 3 PM to 5 PM",
+    ],
+    [
+      "weekday 0 completes 24/7",
+      on([0, 1, 2, 3, 4, 5, 6], ["00:00:00", "23:59:00"]),
+      "Open 24/7",
+    ],
+    ["unknown weekdays are ignored", on([8], ["09:00", "17:00"]), null],
+    [
       "single day is plural",
       on([1], ["17:00:00", "18:00:00"]),
       "Open Mondays 5 PM to 6 PM",
@@ -264,6 +280,12 @@ describe("getOpenStatus", () => {
       on(EVERY_DAY, ["00:00:00", "23:59:00"]),
       "2026-10-05T03:00:00",
       "Open now",
+    ],
+    [
+      "weekday 0 counts as Sunday",
+      on([0], ["09:00", "17:00"]),
+      "2026-10-11T12:00:00",
+      "Open now · Closes at 5 PM",
     ],
     ["no schedule", {}, "2026-10-05T12:00:00", null],
   ])("%s", (_, schedule, now, expected) => {

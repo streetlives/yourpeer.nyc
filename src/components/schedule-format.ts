@@ -87,17 +87,25 @@ function mergeIntervals(intervals: Interval[]): Interval[] {
 export function normalizeSchedule(
   schedule: YourPeerLegacyScheduleData,
 ): NormalizedSchedule {
-  const normalized: NormalizedSchedule = {};
+  const byDay: Record<number, Interval[]> = {};
   Object.entries(schedule || {}).forEach(([weekday, hours]) => {
-    const day = parseInt(weekday, 10);
+    // The API sends 1 = Monday ... 7 = Sunday. Accept JavaScript's 0 for
+    // Sunday too, as the API's own getDayOfWeekIntegerFromDate does.
+    const parsed = parseInt(weekday, 10);
+    const day = parsed === 0 ? 7 : parsed;
     if (!(day >= 1 && day <= 7)) {
       return;
     }
     const intervals = (hours || [])
       .filter((hour) => !hour.closed && hour.opens_at && hour.closes_at)
       .map((hour) => toInterval(hour.opens_at, hour.closes_at));
+    byDay[day] = [...(byDay[day] || []), ...intervals];
+  });
+
+  const normalized: NormalizedSchedule = {};
+  Object.entries(byDay).forEach(([day, intervals]) => {
     if (intervals.length) {
-      normalized[day] = mergeIntervals(intervals);
+      normalized[parseInt(day, 10)] = mergeIntervals(intervals);
     }
   });
   return normalized;

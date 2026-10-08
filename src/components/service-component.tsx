@@ -10,7 +10,6 @@ import { useContext, useEffect, useState, type JSX } from "react";
 import {
   AgeEligibility,
   CategoryNotNull,
-  YourPeerLegacyScheduleData,
   YourPeerLegacyServiceData,
 } from "./common";
 import { TranslatableText } from "./translatable-text";
@@ -72,14 +71,15 @@ export default function Service({
   // if service is closed, check that service.info is non-empty
   // otherwise, check that description, info are non-empty
   // or that there are some docs required
-  // or that there is a schedule
+  // or that there is a schedule we can describe
+  const scheduleText = formatSchedule(service.schedule);
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(
         service.description ||
         service.info.length ||
         service.docs?.filter((doc) => doc.trim() !== "None").length ||
-        Object.keys(service.schedule).length
+        scheduleText
       );
 
   function logCustomAnalyticsEvent(isClickGoingToExpandService: boolean) {
@@ -131,8 +131,7 @@ export default function Service({
     return s;
   }
 
-  function renderSchedule(schedule: YourPeerLegacyScheduleData): JSX.Element {
-    const text = formatSchedule(schedule);
+  function renderSchedule(text: string): JSX.Element {
     if (text === "Open 24/7") {
       return <TranslatableText text="Open 24/7" id="#service-component-Open" />;
     }
@@ -213,8 +212,7 @@ export default function Service({
                       ></p>
                     ) : undefined}
                     <ul className="flex flex-col space-y-3">
-                      {service.schedule &&
-                      Object.keys(service.schedule).length > 0 ? (
+                      {scheduleText ? (
                         <li className="flex items-start space-x-2">
                           <span className="text-success">
                             <svg
@@ -243,7 +241,7 @@ export default function Service({
                                 {openStatus.label}
                               </p>
                             ) : undefined}
-                            <p>{renderSchedule(service.schedule)}</p>
+                            <p>{renderSchedule(scheduleText)}</p>
                           </div>
                         </li>
                       ) : undefined}
