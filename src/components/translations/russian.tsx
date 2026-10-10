@@ -100,12 +100,23 @@ const translations: Record<string, string> = {
   "Requirement type": "Тип условия ограничивающего доступ к услуге",
   "AI mode": "Режим ИИ",
   "No requirements": "Услуга доступна всем без ограничений",
+  "Only show services with no requirements":
+    "Показывать только услуги без требований",
+  "Excludes services that require a referral letter or registered-client status.":
+    "Исключает услуги, для которых нужно письмо-направление или статус зарегистрированного клиента.",
   "Referral letter": "Письмо-направление",
+  "Exclude referral letter": "Исключить услуги с письмом-направлением",
   "You must bring a letter from another service provider stating that you require this service.":
     "Вам необходимо принести письмо-направление от другой организации, подтверждающее, что Вам необходима эта услуга",
+  "Excludes services that require a referral letter from another service provider.":
+    "Исключает услуги, для которых нужно письмо-направление от другого поставщика услуг.",
   "Registered client only": "Для зарегистрированных клиентов организации",
+  "Exclude registered client only":
+    "Исключить услуги только для зарегистрированных клиентов",
   "You must be a registered client of their organization to access their services.":
     "Для доступа к услугам Вы должны быть зарегистрированным клиентом этой организации",
+  "Excludes services that are only available to registered clients.":
+    "Исключает услуги, доступные только зарегистрированным клиентам.",
   Amenities: "Удобства",
   Toiletries: "Туалетные принадлежности",
   Restrooms: "Туалеты",

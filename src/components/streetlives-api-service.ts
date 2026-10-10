@@ -64,9 +64,9 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   pageSize,
   taxonomies = null,
   taxonomySpecificAttributes = null,
-  noRequirement,
-  referralRequired,
-  membershipRequired,
+  onlyServicesWithNoRequirements,
+  excludeReferralLetter,
+  excludeRegisteredClientOnly,
   open = false,
   search = undefined,
   aiSearch = false,
@@ -83,9 +83,9 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
   pageSize?: number;
   taxonomies: string[] | null;
   taxonomySpecificAttributes?: string[] | null;
-  noRequirement?: boolean;
-  referralRequired?: boolean;
-  membershipRequired?: boolean;
+  onlyServicesWithNoRequirements?: boolean;
+  excludeReferralLetter?: boolean;
+  excludeRegisteredClientOnly?: boolean;
   open?: boolean | null;
   search?: string | null;
   aiSearch?: boolean;
@@ -125,17 +125,21 @@ export async function fetchLocationsData<T extends SimplifiedLocationData>({
         .join("&");
   }
 
-  // one of these needs to be selected to apply filter logic
-  if (noRequirement || referralRequired || membershipRequired) {
-    if (noRequirement) {
-      if (!referralRequired) {
+  // Requirement filters exclude services with the selected requirements.
+  if (
+    onlyServicesWithNoRequirements ||
+    excludeReferralLetter ||
+    excludeRegisteredClientOnly
+  ) {
+    if (onlyServicesWithNoRequirements) {
+      query_url += `&referralRequired=false&membership=false`;
+    } else {
+      if (excludeReferralLetter) {
         query_url += `&referralRequired=false`;
       }
-      if (!membershipRequired) {
+      if (excludeRegisteredClientOnly) {
         query_url += `&membership=false`;
       }
-    } else {
-      query_url += `&referralRequired=${referralRequired}&membership=${membershipRequired}`;
     }
   }
 
@@ -202,9 +206,9 @@ function recursiveParseUpdatedAt<T extends SimplifiedLocationData>(
 export async function getSimplifiedLocationData({
   taxonomies,
   taxonomySpecificAttributes = null,
-  noRequirement,
-  referralRequired,
-  membershipRequired,
+  onlyServicesWithNoRequirements,
+  excludeReferralLetter,
+  excludeRegisteredClientOnly,
   open = false,
   search = undefined,
   aiSearch = false,
@@ -217,9 +221,9 @@ export async function getSimplifiedLocationData({
   pageSize?: number;
   taxonomies: string[] | null;
   taxonomySpecificAttributes: string[] | null;
-  noRequirement?: boolean;
-  referralRequired?: boolean;
-  membershipRequired?: boolean;
+  onlyServicesWithNoRequirements?: boolean;
+  excludeReferralLetter?: boolean;
+  excludeRegisteredClientOnly?: boolean;
   open?: boolean | null;
   search?: string | null;
   aiSearch?: boolean;
@@ -233,9 +237,9 @@ export async function getSimplifiedLocationData({
     await fetchLocationsData<SimplifiedLocationData>({
       taxonomies,
       taxonomySpecificAttributes,
-      noRequirement,
-      referralRequired,
-      membershipRequired,
+      onlyServicesWithNoRequirements,
+      excludeReferralLetter,
+      excludeRegisteredClientOnly,
       open,
       search,
       aiSearch,
@@ -253,9 +257,9 @@ export async function getFullLocationData({
   pageSize = DEFAULT_PAGE_SIZE,
   taxonomies,
   taxonomySpecificAttributes,
-  noRequirement,
-  referralRequired,
-  membershipRequired,
+  onlyServicesWithNoRequirements,
+  excludeReferralLetter,
+  excludeRegisteredClientOnly,
   open = false,
   search = undefined,
   aiSearch = false,
@@ -271,9 +275,9 @@ export async function getFullLocationData({
   pageSize?: number;
   taxonomies: string[] | null;
   taxonomySpecificAttributes?: string[] | null;
-  noRequirement: boolean;
-  referralRequired: boolean;
-  membershipRequired: boolean;
+  onlyServicesWithNoRequirements: boolean;
+  excludeReferralLetter: boolean;
+  excludeRegisteredClientOnly: boolean;
   open?: boolean | null;
   search?: string | null;
   aiSearch?: boolean;
@@ -290,9 +294,9 @@ export async function getFullLocationData({
     pageSize,
     taxonomies,
     taxonomySpecificAttributes,
-    noRequirement,
-    referralRequired,
-    membershipRequired,
+    onlyServicesWithNoRequirements,
+    excludeReferralLetter,
+    excludeRegisteredClientOnly,
     open,
     search,
     aiSearch,

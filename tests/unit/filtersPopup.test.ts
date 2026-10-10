@@ -140,40 +140,60 @@ describe("getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved", () => {
     ).toThrow("Expected pathname to not be null");
   });
 
-  it("adds a requirement", () => {
+  it("adds an exclusion", () => {
+    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+      "/clothing",
+      params(),
+      "referral-letter",
+      true,
+    );
+    expect(url).toBe("/clothing?requirement=referral-letter");
+  });
+
+  it("adds a second exclusion in canonical order", () => {
+    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+      "/clothing",
+      params({ requirement: "referral-letter" }),
+      "registered-client",
+      true,
+    );
+    expect(url).toBe("/clothing?requirement=referral-letter+registered-client");
+  });
+
+  it("removes an exclusion", () => {
+    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+      "/clothing",
+      params({ requirement: "referral-letter registered-client" }),
+      "referral-letter",
+      false,
+    );
+    expect(url).toBe("/clothing?requirement=registered-client");
+  });
+
+  it("removes the param entirely when the last exclusion is removed", () => {
+    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
+      "/clothing",
+      params({ requirement: "no" }),
+      "referral-letter",
+      false,
+    );
+    expect(url).toBe("/clothing");
+  });
+
+  it("adds both exclusions when only services with no requirements is selected", () => {
     const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
       "/clothing",
       params(),
       "no",
       true,
     );
-    expect(url).toBe("/clothing?requirement=no");
+    expect(url).toBe("/clothing?requirement=referral-letter+registered-client");
   });
 
-  it("adds a second requirement in canonical order", () => {
+  it("clears all exclusions when only services with no requirements is cleared", () => {
     const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
       "/clothing",
-      params({ requirement: "no" }),
-      "referral-letter",
-      true,
-    );
-    expect(url).toBe("/clothing?requirement=no+referral-letter");
-  });
-
-  it("removes a requirement", () => {
-    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
-      "/clothing",
-      params({ requirement: "no referral-letter" }),
-      "referral-letter",
-      false,
-    );
-    expect(url).toBe("/clothing?requirement=no");
-  });
-
-  it("removes the param entirely when the last requirement is removed", () => {
-    const url = getUrlWithNewRequirementTypeFilterParameterAddedOrRemoved(
-      "/clothing",
-      params({ requirement: "no" }),
+      params({ requirement: "referral-letter registered-client" }),
       "no",
       false,
     );
