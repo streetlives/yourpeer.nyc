@@ -1,0 +1,92 @@
+name: Bug report
+description: Something on YourPeer, SSTT or the API is broken
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: The boxes marked with a red asterisk are required.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What's broken?
+      description: >-
+        What did you see? Plain language is fine. You can paste screenshots
+        or links straight into this box.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where?
+      options:
+        - YourPeer website
+        - SSTT / GoGetta
+        - Chatbot
+        - API (streetlives-api)
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Which environment?
+      description: >-
+        Look at the address bar at the top of your browser. This matters:
+        feedback.yourpeer.nyc runs against the production backend,
+        test.yourpeer.nyc runs against the test backend.
+      options:
+        - production (yourpeer.nyc)
+        - feedback.yourpeer.nyc
+        - test.yourpeer.nyc
+        - my own computer (localhost)
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do, step by step?
+      description: So that someone else can see the same problem.
+      placeholder: |
+        1. Went to the shelters page
+        2. Tapped on a location
+        3. The phone number was split across two lines
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen instead?
+      description: This is how we will know it is fixed.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - urgent
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: What were you using?
+      description: Some problems only happen on certain phones or browsers.
+      placeholder: iPhone 14 + Safari, or Windows laptop + Chrome
+
+  - type: input
+    id: epic
+    attributes:
+      label: Parent epic
+      placeholder: e.g. "#669"
