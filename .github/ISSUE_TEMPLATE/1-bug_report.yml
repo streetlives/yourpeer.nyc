@@ -30,27 +30,13 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: environment
-    attributes:
-      label: Which environment?
-      description: >-
-        Look at the address bar at the top of your browser. This matters:
-        feedback.yourpeer.nyc runs against the production backend,
-        test.yourpeer.nyc runs against the test backend.
-      options:
-        - production (yourpeer.nyc)
-        - feedback.yourpeer.nyc
-        - test.yourpeer.nyc
-        - my own computer (localhost)
-    validations:
-      required: true
-
   - type: textarea
     id: steps
     attributes:
       label: What did you do, step by step?
-      description: So that someone else can see the same problem.
+      description: >-
+        So that someone else can see the same problem. Include the web
+        address if there is one.
       placeholder: |
         1. Went to the shelters page
         2. Tapped on a location
