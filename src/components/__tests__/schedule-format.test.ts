@@ -53,12 +53,12 @@ describe("formatSchedule", () => {
     [
       "weekday 0 is Sunday (Emergency Shelter in tests/fixtures/locations.json)",
       on([0], ["00:00", "23:59"]),
-      "Open Sundays 24 hours",
+      "Sun: 24 hours",
     ],
     [
       "weekday 0 and 7 are merged as Sunday",
       { ...on([0], ["09:00", "11:00"]), ...on([7], ["15:00", "17:00"]) },
-      "Open Sundays 9 AM to 11 AM and 3 PM to 5 PM",
+      "Sun: 9–11 AM and 3–5 PM",
     ],
     [
       "weekday 0 completes 24/7",
@@ -66,60 +66,52 @@ describe("formatSchedule", () => {
       "Open 24/7",
     ],
     ["unknown weekdays are ignored", on([8], ["09:00", "17:00"]), null],
-    [
-      "single day is plural",
-      on([1], ["17:00:00", "18:00:00"]),
-      "Open Mondays 5 PM to 6 PM",
-    ],
+    ["single day", on([1], ["17:00:00", "18:00:00"]), "Mon: 5–6 PM"],
     [
       "two days",
       on([1, 2], ["09:00:00", "17:00:00"]),
-      "Open Mondays and Tuesdays 9 AM to 5 PM",
+      "Mon and Tue: 9 AM–5 PM",
     ],
     [
       "weekday run",
       on(MON_TO_FRI, ["09:00:00", "17:00:00"]),
-      "Open Monday to Friday 9 AM to 5 PM",
+      "Mon–Fri: 9 AM–5 PM",
     ],
-    [
-      "every day",
-      on(EVERY_DAY, ["09:00:00", "17:00:00"]),
-      "Open every day 9 AM to 5 PM",
-    ],
+    ["every day", on(EVERY_DAY, ["09:00:00", "17:00:00"]), "Daily: 9 AM–5 PM"],
     [
       "one missing day inside a run",
       on([1, 2, 4, 5, 6], ["09:00:00", "17:00:00"]),
-      "Open Monday to Saturday except Wednesdays 9 AM to 5 PM",
+      "Mon–Sat: 9 AM–5 PM. Closed Wednesdays.",
     ],
     [
       "six days missing Sunday",
       on([1, 2, 3, 4, 5, 6], ["09:00:00", "17:00:00"]),
-      "Open Monday to Saturday 9 AM to 5 PM",
+      "Mon–Sat: 9 AM–5 PM",
     ],
     [
       "six days missing midweek",
       on([1, 2, 4, 5, 6, 7], ["09:00:00", "17:00:00"]),
-      "Open every day except Wednesdays 9 AM to 5 PM",
+      "Daily: 9 AM–5 PM. Closed Wednesdays.",
     ],
     [
-      "weekdays except midweek",
+      "weekdays with a closed midweek day",
       on([1, 2, 4, 5], ["09:00:00", "17:00:00"]),
-      "Open Monday to Friday except Wednesdays 9 AM to 5 PM",
+      "Mon–Fri: 9 AM–5 PM. Closed Wednesdays.",
     ],
     [
       "discontinuous days",
       on([1, 2, 5, 6], ["09:00:00", "17:00:00"]),
-      "Open Mondays, Tuesdays, Fridays and Saturdays 9 AM to 5 PM",
+      "Mon, Tue, Fri, and Sat: 9 AM–5 PM",
     ],
     [
       "short days plus a longer run",
       on([1, 4, 5, 6], ["09:00:00", "17:00:00"]),
-      "Open Mondays and Thursday to Saturday 9 AM to 5 PM",
+      "Mon and Thu–Sat: 9 AM–5 PM",
     ],
     [
       "weekend wraparound",
       on([6, 7, 1], ["10:00:00", "14:00:00"]),
-      "Open Saturday to Monday 10 AM to 2 PM",
+      "Sat–Mon: 10 AM–2 PM",
     ],
     [
       "CUCS meals: unsorted and duplicated rows become one sentence",
@@ -130,41 +122,41 @@ describe("formatSchedule", () => {
         ["07:30:00", "09:30:00"],
         ["17:00:00", "19:00:00"],
       ),
-      "Open every day 7:30 AM to 9:30 AM, 11:30 AM to 1:30 PM and 5 PM to 7 PM",
+      "Daily: 7:30–9:30 AM, 11:30 AM–1:30 PM, and 5–7 PM",
     ],
     [
-      "breaks within a day",
+      "several ranges in a day, with the Oxford comma",
       on(
         MON_TO_FRI,
         ["09:00:00", "11:00:00"],
         ["12:00:00", "14:00:00"],
         ["15:00:00", "17:00:00"],
       ),
-      "Open Monday to Friday 9 AM to 5 PM with breaks from 11 AM to 12 PM and 2 PM to 3 PM",
+      "Mon–Fri: 9–11 AM, 12–2 PM, and 3–5 PM",
     ],
     [
-      "a single break",
+      "two ranges in a day",
       on([3], ["09:00:00", "12:00:00"], ["13:00:00", "17:00:00"]),
-      "Open Wednesdays 9 AM to 5 PM with a break from 12 PM to 1 PM",
+      "Wed: 9 AM–12 PM and 1–5 PM",
     ],
     // Real schedules from the database (yourpeer.nyc#201).
     [
       "lunch break (new-york-city-bar-legal-referral-service-hells-kitchen)",
       on(MON_TO_FRI, ["08:30:00", "13:00:00"], ["14:00:00", "17:30:00"]),
-      "Open Monday to Friday 8:30 AM to 5:30 PM with a break from 1 PM to 2 PM",
+      "Mon–Fri: 8:30 AM–1 PM and 2–5:30 PM",
     ],
     [
-      "two-hour gap is listed (boom-health-mott-haven)",
+      "two ranges (boom-health-mott-haven)",
       on(MON_TO_FRI, ["09:00:00", "11:00:00"], ["13:00:00", "17:00:00"]),
-      "Open Monday to Friday 9 AM to 11 AM and 1 PM to 5 PM",
+      "Mon–Fri: 9–11 AM and 1–5 PM",
     ],
     [
-      "gap longer than the open period is listed (hamilton-madison-house-financial-district)",
+      "short ranges (hamilton-madison-house-financial-district)",
       on(MON_TO_FRI, ["09:00:00", "09:30:00"], ["11:30:00", "12:30:00"]),
-      "Open Monday to Friday 9 AM to 9:30 AM and 11:30 AM to 12:30 PM",
+      "Mon–Fri: 9–9:30 AM and 11:30 AM–12:30 PM",
     ],
     [
-      "meal times are listed (st-anns-corner-of-harm-reduction-sachr-longwood)",
+      "Thursday has other hours, so it is not reported closed (st-anns-corner-of-harm-reduction-sachr-longwood)",
       {
         ...on(
           [1, 2, 3, 5],
@@ -179,28 +171,44 @@ describe("formatSchedule", () => {
           ["17:00:00", "18:30:00"],
         ),
       },
-      "Open Monday to Friday except Thursdays 9 AM to 11 AM, 1 PM to 3:30 PM and 5 PM to 6:30 PM; Thursdays 9 AM to 11 AM, 1 PM to 3 PM and 5 PM to 6:30 PM",
+      "Mon–Wed and Fri: 9–11 AM, 1–3:30 PM, and 5–6:30 PM; Thu: 9–11 AM, 1–3 PM, and 5–6:30 PM",
+    ],
+    [
+      "a closed day is noted after other groups",
+      {
+        ...on([1, 2, 4, 5], ["09:00:00", "17:00:00"]),
+        ...on([6], ["10:00:00", "14:00:00"]),
+      },
+      "Mon–Fri: 9 AM–5 PM; Sat: 10 AM–2 PM. Closed Wednesdays.",
+    ],
+    [
+      "a day with other hours is listed, not reported closed",
+      {
+        ...on([1, 2, 4, 5, 6], ["09:00:00", "17:00:00"]),
+        ...on([3], ["10:00:00", "14:00:00"]),
+      },
+      "Mon, Tue, and Thu–Sat: 9 AM–5 PM; Wed: 10 AM–2 PM",
     ],
     [
       "overlapping rows are merged",
       on([3], ["09:00:00", "13:00:00"], ["12:00:00", "17:00:00"]),
-      "Open Wednesdays 9 AM to 5 PM",
+      "Wed: 9 AM–5 PM",
     ],
     [
       "overnight",
       on(MON_TO_FRI, ["21:00:00", "06:00:00"]),
-      "Open Monday to Friday 9 PM to 6 AM the next day",
+      "Mon–Fri: 9 PM–6 AM (next day)",
     ],
     [
       "closing at midnight",
       on([5], ["18:00:00", "23:59:00"]),
-      "Open Fridays 6 PM to midnight",
+      "Fri: 6 PM–midnight",
     ],
     ["24/7", on(EVERY_DAY, ["00:00:00", "23:59:00"]), "Open 24/7"],
     [
       "all day on some days",
       on([6, 7], ["00:00:00", "23:59:00"]),
-      "Open Saturdays and Sundays 24 hours",
+      "Sat and Sun: 24 hours",
     ],
     [
       "weekday and weekend hours, listed in weekly order",
@@ -208,7 +216,7 @@ describe("formatSchedule", () => {
         ...on([6, 7], ["10:00:00", "14:00:00"]),
         ...on(MON_TO_FRI, ["09:00:00", "17:00:00"]),
       },
-      "Open Monday to Friday 9 AM to 5 PM; Saturdays and Sundays 10 AM to 2 PM",
+      "Mon–Fri: 9 AM–5 PM; Sat and Sun: 10 AM–2 PM",
     ],
   ])("%s", (_, schedule, expected) => {
     expect(formatSchedule(schedule)).toBe(expected);

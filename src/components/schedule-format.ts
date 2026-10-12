@@ -6,18 +6,12 @@
 
 import { YourPeerLegacyScheduleData } from "./common";
 
-// Turns weekly service hours into a conversational sentence, e.g.
-// "Open Monday to Saturday except Wednesdays 9 AM to 5 PM", and computes a
-// Google-style "Open now · Closes at 5 PM" status. See yourpeer.nyc#201.
+// Turns weekly service hours into short, scannable text, e.g.
+// "Mon–Sat: 9 AM–5 PM. Closed Wednesdays.", and computes a Google-style
+// "Open now · Closes at 5 PM" status. See yourpeer.nyc#201.
 
 const MINUTES_PER_DAY = 24 * 60;
 const MINUTES_PER_WEEK = 7 * MINUTES_PER_DAY;
-
-// A gap within a day is described as a break in one span ("9 AM to 5 PM with
-// a break from 12 PM to 1 PM") only if it is at most this long and shorter
-// than the open periods on both sides. Otherwise, as with separate meal times,
-// the time ranges are listed.
-export const MAX_BREAK_MINUTES = 60;
 
 // "Open now" turns into "Closes soon" this many minutes before closing.
 export const CLOSING_SOON_MINUTES = 60;
@@ -33,6 +27,8 @@ const WEEKDAY_NAMES = [
   "Saturday",
   "Sunday",
 ];
+
+const WEEKDAY_ABBREVIATIONS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // Minutes since the start of the opening day. `close` is always greater than
 // `open`; overnight intervals have `close` > MINUTES_PER_DAY.
@@ -131,49 +127,35 @@ export function formatTime(minutes: number): string {
   return `${hours12}${mins ? `:${String(mins).padStart(2, "0")}` : ""} ${suffix}`;
 }
 
+const meridiem = (minutes: number) =>
+  minutes % MINUTES_PER_DAY < 12 * 60 ? "AM" : "PM";
+
+// "9 AM–5 PM", "2–5:30 PM" (AM/PM left off the start when it matches the
+// end), "9 PM–6 AM (next day)", or "24 hours".
 function formatInterval({ open, close }: Interval): string {
   if (open === 0 && close === MINUTES_PER_DAY) {
     return "24 hours";
   }
-  const range = `${formatTime(open)} to ${formatTime(close)}`;
-  return close > MINUTES_PER_DAY ? `${range} the next day` : range;
+  const start = formatTime(open);
+  const end = formatTime(close);
+  const isMidnight = (minutes: number) => minutes % MINUTES_PER_DAY === 0;
+  const shortStart =
+    close <= MINUTES_PER_DAY &&
+    !isMidnight(open) &&
+    !isMidnight(close) &&
+    meridiem(open) === meridiem(close)
+      ? start.replace(/ (AM|PM)$/, "")
+      : start;
+  const range = `${shortStart}–${end}`;
+  return close > MINUTES_PER_DAY ? `${range} (next day)` : range;
 }
 
+// "A", "A and B", "A, B, and C" (with the Oxford comma).
 function joinWithAnd(items: string[]): string {
-  if (items.length <= 1) {
-    return items.join("");
+  if (items.length <= 2) {
+    return items.join(" and ");
   }
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
-}
-
-function formatIntervals(intervals: Interval[]): string {
-  if (intervals.length === 1) {
-    return formatInterval(intervals[0]);
-  }
-
-  const gaps = intervals.slice(1).map((interval, index) => ({
-    open: intervals[index].close,
-    close: interval.open,
-  }));
-  const isOneSpanWithBreaks =
-    intervals[intervals.length - 1].close <= MINUTES_PER_DAY &&
-    gaps.every(({ open, close }, index) => {
-      const gap = close - open;
-      const before = intervals[index].close - intervals[index].open;
-      const after = intervals[index + 1].close - intervals[index + 1].open;
-      return gap <= MAX_BREAK_MINUTES && gap < before && gap < after;
-    });
-
-  if (isOneSpanWithBreaks) {
-    const span = formatInterval({
-      open: intervals[0].open,
-      close: intervals[intervals.length - 1].close,
-    });
-    const breaks = joinWithAnd(gaps.map(formatInterval));
-    return `${span} with ${gaps.length === 1 ? "a break" : "breaks"} from ${breaks}`;
-  }
-
-  return joinWithAnd(intervals.map(formatInterval));
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
 function plural(weekday: number): string {
@@ -202,41 +184,59 @@ function dayRuns(days: number[]): [number, number][] {
 const runLength = ([start, end]: [number, number]) =>
   ((end - start + 7) % 7) + 1;
 
-function formatDays(days: number[]): string {
+const dayRange = (start: number, end: number) =>
+  `${WEEKDAY_ABBREVIATIONS[start - 1]}–${WEEKDAY_ABBREVIATIONS[end - 1]}`;
+
+// The day label for a group, plus a weekday the label spans but the service
+// is closed on ("Mon–Sat" + Wednesday). `openDays` holds every day with any
+// hours, so a day with different hours is never reported as closed.
+function formatDays(
+  days: number[],
+  openDays: Set<number>,
+): { label: string; closedDay: number | null } {
   if (days.length === 7) {
-    return "every day";
+    return { label: "Daily", closedDay: null };
   }
+
+  const missing = [1, 2, 3, 4, 5, 6, 7].filter((day) => !days.includes(day));
   if (days.length === 6) {
-    const missing = [1, 2, 3, 4, 5, 6, 7].find((day) => !days.includes(day))!;
-    if (missing === 7) return "Monday to Saturday";
-    if (missing === 1) return "Tuesday to Sunday";
-    return `every day except ${plural(missing)}`;
+    if (missing[0] === 7) return { label: "Mon–Sat", closedDay: null };
+    if (missing[0] === 1) return { label: "Tue–Sun", closedDay: null };
+    if (!openDays.has(missing[0])) {
+      return { label: "Daily", closedDay: missing[0] };
+    }
   }
 
   const runs = dayRuns(days);
 
-  // "Monday to Saturday except Wednesdays": two runs split by a single day
-  // that together span at least five days without wrapping past Sunday.
+  // "Mon–Sat" + closed Wednesdays: two runs split by a single closed day that
+  // together span at least five days without wrapping past Sunday.
   if (runs.length === 2) {
     const [[firstStart, firstEnd], [secondStart, secondEnd]] = runs;
     if (
       firstStart <= firstEnd &&
       secondStart <= secondEnd &&
       secondStart - firstEnd === 2 &&
-      secondEnd - firstStart + 1 >= 5
+      secondEnd - firstStart + 1 >= 5 &&
+      !openDays.has(firstEnd + 1)
     ) {
-      return `${WEEKDAY_NAMES[firstStart - 1]} to ${WEEKDAY_NAMES[secondEnd - 1]} except ${plural(firstEnd + 1)}`;
+      return {
+        label: dayRange(firstStart, secondEnd),
+        closedDay: firstEnd + 1,
+      };
     }
   }
 
   const parts = runs.flatMap((run) => {
     const [start, end] = run;
     if (runLength(run) >= 3) {
-      return [`${WEEKDAY_NAMES[start - 1]} to ${WEEKDAY_NAMES[end - 1]}`];
+      return [dayRange(start, end)];
     }
-    return start === end ? [plural(start)] : [plural(start), plural(end)];
+    return start === end
+      ? [WEEKDAY_ABBREVIATIONS[start - 1]]
+      : [WEEKDAY_ABBREVIATIONS[start - 1], WEEKDAY_ABBREVIATIONS[end - 1]];
   });
-  return joinWithAnd(parts);
+  return { label: joinWithAnd(parts), closedDay: null };
 }
 
 function intervalsKey(intervals: Interval[]): string {
@@ -262,16 +262,27 @@ export function formatSchedule(
     groups.set(key, [...(groups.get(key) || []), day]);
   });
 
+  const openDays = new Set(days);
+  const closedDays: number[] = [];
   const phrases = Array.from(groups.values())
-    .map((groupDays) => ({
-      // Groups read in weekly order; "every day (except ...)" leads.
-      sortKey: groupDays.length >= 6 ? 0 : dayRuns(groupDays)[0][0],
-      text: `${formatDays(groupDays)} ${formatIntervals(normalized[groupDays[0]])}`,
-    }))
+    .map((groupDays) => {
+      const { label, closedDay } = formatDays(groupDays, openDays);
+      if (closedDay) {
+        closedDays.push(closedDay);
+      }
+      return {
+        // Groups read in weekly order; "Daily" leads.
+        sortKey: groupDays.length >= 6 ? 0 : dayRuns(groupDays)[0][0],
+        text: `${label}: ${joinWithAnd(normalized[groupDays[0]].map(formatInterval))}`,
+      };
+    })
     .sort((a, b) => a.sortKey - b.sortKey)
     .map(({ text }) => text);
 
-  return `Open ${phrases.join("; ")}`;
+  const closedNote = closedDays.length
+    ? `. Closed ${joinWithAnd(closedDays.sort((a, b) => a - b).map(plural))}.`
+    : "";
+  return `${phrases.join("; ")}${closedNote}`;
 }
 
 // Minutes since Monday 00:00 in New York for the given instant.
