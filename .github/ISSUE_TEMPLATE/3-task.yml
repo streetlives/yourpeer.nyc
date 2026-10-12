@@ -1,0 +1,47 @@
+name: Task
+description: Infrastructure, documentation, dependencies, cleanup
+body:
+  - type: markdown
+    attributes:
+      value: The boxes marked with a red asterisk are required.
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: What needs doing?
+      description: >-
+        You can paste screenshots or links straight into this box.
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: What should be true when this is finished?
+      description: >-
+        Describe what someone would see working. You do not need technical
+        detail. The automated code reviewer reads this and checks the pull
+        request against it.
+      placeholder: |
+        - [ ] The README lists every environment variable the app needs
+        - [ ] A new developer can set the project up without asking anyone
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - urgent
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+
+  - type: input
+    id: epic
+    attributes:
+      label: Parent epic
+      placeholder: e.g. "#669"

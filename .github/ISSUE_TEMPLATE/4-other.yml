@@ -1,0 +1,28 @@
+name: Other
+description: Anything that does not fit the three above
+body:
+  - type: markdown
+    attributes:
+      value: The boxes marked with a red asterisk are required.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What's this about?
+      description: >-
+        Plain language is fine. You can paste screenshots or links straight
+        into this box.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - urgent
+        - high
+        - medium
+        - low
+    validations:
+      required: true

@@ -1,0 +1,64 @@
+name: Feature request
+description: Something new, or a change to how something works
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: The boxes marked with a red asterisk are required.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem, and who has it?
+      description: >-
+        Who is stuck today, and what are they trying to do? You can paste
+        screenshots, designs or links straight into this box.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What should happen instead?
+      description: >-
+        Describe what someone would see working once this is finished. You do
+        not need technical detail. The automated code reviewer reads this and
+        checks the pull request against it.
+      placeholder: |
+        - [ ] Specialists can paste a Street View link and the fields fill in
+        - [ ] The old six-box version is gone
+        - [ ] It works on phones
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where?
+      options:
+        - YourPeer website
+        - SSTT / GoGetta
+        - Chatbot
+        - API (streetlives-api)
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How urgent?
+      options:
+        - urgent
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+
+  - type: input
+    id: epic
+    attributes:
+      label: Parent epic
+      placeholder: e.g. "#669"
