@@ -195,6 +195,64 @@ describe("formatSchedule", () => {
       "Wed: 9 AM–5 PM",
     ],
     [
+      "adjacent rows are merged",
+      on([1], ["09:00:00", "12:00:00"], ["12:00:00", "17:00:00"]),
+      "Mon: 9 AM–5 PM",
+    ],
+    [
+      "a row inside another is merged",
+      on([1], ["09:00:00", "17:00:00"], ["10:00:00", "11:00:00"]),
+      "Mon: 9 AM–5 PM",
+    ],
+    [
+      "duplicate overnight rows",
+      on([1], ["21:00:00", "06:00:00"], ["21:00:00", "06:00:00"]),
+      "Mon: 9 PM–6 AM (next day)",
+    ],
+    [
+      "overnight split at midnight every night (ali-forney-center-afc-hells-kitchen)",
+      on(EVERY_DAY, ["00:00:00", "08:00:00"], ["20:00:00", "23:59:00"]),
+      "Daily: 8 PM–8 AM (next day)",
+    ],
+    [
+      "overnight split at midnight on weeknights (holy-apostles-soup-kitchen-chelsea)",
+      {
+        ...on([1], ["21:00:00", "23:59:00"]),
+        ...on([2, 3, 4, 5], ["00:00:00", "08:00:00"], ["21:00:00", "23:59:00"]),
+        ...on([6], ["00:00:00", "08:00:00"]),
+      },
+      "Mon–Fri: 9 PM–8 AM (next day)",
+    ],
+    [
+      "overnight split from Sunday into Monday",
+      {
+        ...on([7], ["21:00:00", "23:59:00"]),
+        ...on([1], ["00:00:00", "06:00:00"]),
+      },
+      "Sun: 9 PM–6 AM (next day)",
+    ],
+    [
+      "overnight running into the next morning's hours",
+      {
+        ...on([1], ["21:00:00", "06:00:00"]),
+        ...on([2], ["05:00:00", "09:00:00"]),
+      },
+      "Mon: 9 PM–9 AM (next day)",
+    ],
+    [
+      "early hours with no evening before stay on their own day",
+      on([2], ["00:00:00", "06:00:00"]),
+      "Tue: midnight–6 AM",
+    ],
+    [
+      "a 24-hour day is not joined to the next morning",
+      {
+        ...on([1], ["00:00:00", "23:59:00"]),
+        ...on([2], ["00:00:00", "06:00:00"]),
+      },
+      "Mon: 24 hours; Tue: midnight–6 AM",
+    ],
+    [
       "overnight",
       on(MON_TO_FRI, ["21:00:00", "06:00:00"]),
       "Mon–Fri: 9 PM–6 AM (next day)",
@@ -294,6 +352,18 @@ describe("getOpenStatus", () => {
       on([0], ["09:00", "17:00"]),
       "2026-10-11T12:00:00",
       "Open now · Closes at 5 PM",
+    ],
+    [
+      "overnight split at midnight, late evening",
+      on(EVERY_DAY, ["00:00:00", "08:00:00"], ["20:00:00", "23:59:00"]),
+      "2026-10-05T23:30:00",
+      "Open now · Closes tomorrow at 8 AM",
+    ],
+    [
+      "overnight split at midnight, early morning",
+      on(EVERY_DAY, ["00:00:00", "08:00:00"], ["20:00:00", "23:59:00"]),
+      "2026-10-06T03:00:00",
+      "Open now · Closes at 8 AM",
     ],
     ["no schedule", {}, "2026-10-05T12:00:00", null],
   ])("%s", (_, schedule, now, expected) => {

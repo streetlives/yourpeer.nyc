@@ -104,7 +104,35 @@ export function normalizeSchedule(
       normalized[parseInt(day, 10)] = mergeIntervals(intervals);
     }
   });
+  joinOvernightIntervals(normalized);
   return normalized;
+}
+
+// Overnight hours are usually entered as two rows split at midnight, e.g.
+// Monday 21:00–23:59 and Tuesday 00:00–06:00. Join a day's last interval with
+// the next morning's hours when they meet or overlap, so they read
+// "9 PM–6 AM (next day)". Days open all day are left as they are.
+function joinOvernightIntervals(normalized: NormalizedSchedule) {
+  for (let day = 1; day <= 7; day++) {
+    const intervals = normalized[day];
+    const last = intervals?.[intervals.length - 1];
+    if (!last || last.open === 0 || last.close < MINUTES_PER_DAY) {
+      continue;
+    }
+    const nextDay = (day % 7) + 1;
+    const morning = normalized[nextDay] || [];
+    while (
+      morning.length &&
+      morning[0].close < MINUTES_PER_DAY &&
+      morning[0].open <= last.close - MINUTES_PER_DAY
+    ) {
+      const joined = morning.shift()!;
+      last.close = Math.max(last.close, joined.close + MINUTES_PER_DAY);
+    }
+    if (normalized[nextDay] && !morning.length) {
+      delete normalized[nextDay];
+    }
+  }
 }
 
 export function isOpen24_7(normalized: NormalizedSchedule): boolean {
