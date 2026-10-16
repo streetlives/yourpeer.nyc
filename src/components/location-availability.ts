@@ -1,14 +1,17 @@
 import type { AbstractDetailedLocationData } from "./common";
 
-// Match the hours displayed by the service mapper. A closure-only record or
-// location-level hours do not establish that any service has usable hours.
+// Directory eligibility is recorded service hours/status, not whether a service
+// is open. An explicit closure or either time value keeps the location eligible.
 export function hasServiceHours(
   location: Pick<AbstractDetailedLocationData, "Services">,
 ): boolean {
   return (
     location.Services?.some((service) =>
       service.HolidaySchedules?.some(
-        (schedule) => !!schedule.opens_at && !!schedule.closes_at,
+        (schedule) =>
+          schedule.closed === true ||
+          schedule.opens_at != null ||
+          schedule.closes_at != null,
       ),
     ) ?? false
   );

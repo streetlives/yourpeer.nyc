@@ -26,21 +26,53 @@ const noHours = {
     HolidaySchedules: [],
   })),
 };
+const closedHours = {
+  ...active,
+  Services: active.Services.map((service) => ({
+    ...service,
+    HolidaySchedules: service.HolidaySchedules.map((schedule) => ({
+      ...schedule,
+      closed: true,
+    })),
+  })),
+};
 const reply = (status: number, data?: unknown) => ({
   status,
   json: vi.fn().mockResolvedValue(data),
 });
 
 describe("service hours availability", () => {
-  it("requires a service with both opening and closing times", () => {
+  it("keeps closed services eligible regardless of retained time values", () => {
+    expect(hasServiceHours(closedHours)).toBe(true);
+    expect(
+      hasServiceHours({
+        Services: [
+          {
+            HolidaySchedules: [
+              { closed: true, opens_at: null, closes_at: null },
+            ],
+          },
+        ],
+      } as never),
+    ).toBe(true);
+  });
+
+  it("accepts open hours alongside closed rows with retained times", () => {
+    expect(
+      hasServiceHours({
+        Services: [...closedHours.Services, ...active.Services],
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects only missing services or entirely unknown service hours", () => {
     expect(hasServiceHours(active)).toBe(true);
     expect(hasServiceHours(noServices)).toBe(false);
     expect(hasServiceHours(noHours)).toBe(false);
     for (const times of [
       { opens_at: null, closes_at: null },
-      { opens_at: "09:00", closes_at: null },
-      { opens_at: null, closes_at: "17:00" },
-      { opens_at: "", closes_at: "17:00" },
+      { closed: null, opens_at: null, closes_at: null },
+      { closed: false, opens_at: null, closes_at: null },
     ]) {
       const location = structuredClone(active);
       location.Services.forEach((service) => {
@@ -49,6 +81,18 @@ describe("service hours availability", () => {
       expect(hasServiceHours(location)).toBe(false);
     }
   });
+
+  it.each([
+    { opens_at: "09:00", closes_at: null },
+    { opens_at: null, closes_at: "17:00" },
+  ])(
+    "accepts either recorded time without requiring a complete pair",
+    (times) => {
+      expect(
+        hasServiceHours({ Services: [{ HolidaySchedules: [times] }] } as never),
+      ).toBe(true);
+    },
+  );
 
   it("accepts one service with hours among services without hours", () => {
     expect(

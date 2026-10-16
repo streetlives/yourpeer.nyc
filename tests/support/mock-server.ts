@@ -53,8 +53,25 @@ function availabilityFixture(slug: string) {
     location.Services = [];
   } else if (slug === "location-with-no-schedules") {
     location.Services[0].HolidaySchedules = [];
+  } else if (slug === "location-with-closed-hours") {
+    for (const schedule of location.Services[0].HolidaySchedules) {
+      schedule.closed = true;
+    }
+  } else if (slug === "location-with-closed-status") {
+    for (const schedule of location.Services[0].HolidaySchedules) {
+      schedule.closed = true;
+      schedule.opens_at = null;
+      schedule.closes_at = null;
+    }
+  } else if (slug === "location-with-open-and-closed-hours") {
+    const closedService = structuredClone(location.Services[0]);
+    closedService.id = "svc-closed-with-hours";
+    for (const schedule of closedService.HolidaySchedules) {
+      schedule.closed = true;
+    }
+    location.Services.unshift(closedService);
   } else if (slug === "location-with-partial-hours") {
-    // Opening and closing times on separate schedules do not form usable hours.
+    // Either recorded time is sufficient for directory eligibility.
     location.Services[0].HolidaySchedules[0].closes_at = null;
     location.Services[0].HolidaySchedules[1].opens_at = null;
   } else if (slug === "location-with-mixed-hours") {
@@ -80,6 +97,9 @@ function availabilityFixture(slug: string) {
 const AVAILABILITY_SLUGS = new Set([
   "location-with-no-services",
   "location-with-no-schedules",
+  "location-with-closed-hours",
+  "location-with-closed-status",
+  "location-with-open-and-closed-hours",
   "location-with-null-hours",
   "location-with-partial-hours",
   "location-with-mixed-hours",

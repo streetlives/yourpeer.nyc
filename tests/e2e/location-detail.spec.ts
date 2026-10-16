@@ -28,7 +28,6 @@ for (const slug of [
   "location-with-no-services",
   "location-with-no-schedules",
   "location-with-null-hours",
-  "location-with-partial-hours",
   "old-location-with-null-hours",
 ]) {
   test(`should return a noindex 404 with a Home link for ${slug}`, async ({
@@ -51,9 +50,13 @@ for (const slug of [
 
 for (const slug of [
   "location-with-mixed-hours",
+  "location-with-partial-hours",
+  "location-with-closed-hours",
+  "location-with-closed-status",
+  "location-with-open-and-closed-hours",
   "location-with-midnight-hours",
 ]) {
-  test(`should return 200 when at least one service has usable hours: ${slug}`, async ({
+  test(`should return 200 when at least one service has recorded hours or closed status: ${slug}`, async ({
     page,
   }) => {
     const response = await page.goto(`/locations/${slug}`);

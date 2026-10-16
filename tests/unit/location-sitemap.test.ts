@@ -38,6 +38,17 @@ describe("location sitemap availability", () => {
         { ...detail, slug: "no-services", Services: [] },
         {
           ...detail,
+          slug: "closed-hours",
+          Services: detail.Services.map((service) => ({
+            ...service,
+            HolidaySchedules: service.HolidaySchedules.map((schedule) => ({
+              ...schedule,
+              closed: true,
+            })),
+          })),
+        },
+        {
+          ...detail,
           slug: "no-hours",
           Services: detail.Services.map((service) => ({
             ...service,
@@ -46,11 +57,12 @@ describe("location sitemap availability", () => {
         },
       ],
       numberOfPages: 0,
-      resultCount: 3,
+      resultCount: 4,
     } as never);
     const urls = (await sitemap()).map((entry) => entry.url);
     expect(urls).toContain("https://yourpeer.nyc/locations/active");
     expect(urls).not.toContain("https://yourpeer.nyc/locations/no-services");
+    expect(urls).toContain("https://yourpeer.nyc/locations/closed-hours");
     expect(urls).not.toContain("https://yourpeer.nyc/locations/no-hours");
     expect(fetchLocationsData).toHaveBeenCalledExactlyOnceWith({
       taxonomies: null,
