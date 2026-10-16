@@ -49,6 +49,7 @@ import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
 import { permanentRedirect } from "next/navigation";
+import { hasServiceHours } from "./location-availability";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -802,23 +803,47 @@ export interface AllLocationsData extends LocationsDataResponse<FullLocationData
 export async function fetchLocationsDetailData(
   slug: string,
 ): Promise<LocationDetailData> {
-  const query_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations-by-slug/${slug}`;
-  const response = await fetch(query_url);
-  if (response.status !== 200) {
-    const redirect_url = `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/location-slug-redirects/${slug}`;
-    const redirect_res = await fetch(redirect_url);
-    const redirect_data = await redirect_res.json();
+  const fetchLocation = (locationSlug: string) =>
+    fetch(
+      `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/locations-by-slug/${encodeURIComponent(locationSlug)}`,
+      { cache: "no-store" },
+    );
+  const readLocation = async (
+    response: Response,
+  ): Promise<LocationDetailData> => {
+    if (response.status === 404) throw new Error404Response();
+    if (response.status !== 200) throw new Error5XXResponse();
 
-    if (redirect_res.status && redirect_data.slug) {
-      permanentRedirect(`/locations/${redirect_data.slug}`);
-    }
+    const location: LocationDetailData = await response.json();
+    if (!hasServiceHours(location)) throw new Error404Response();
+    return location;
+  };
 
-    if (response.status === 404) {
-      throw new Error404Response();
-    }
-    throw new Error5XXResponse();
+  const response = await fetchLocation(slug);
+  if (response.status !== 404) return readLocation(response);
+
+  // Only a missing current slug can be historical. An API outage must remain
+  // an error, and an existing location without hours must remain a temporary 404.
+  const redirectResponse = await fetch(
+    `${NEXT_PUBLIC_GO_GETTA_PROD_URL}/location-slug-redirects/${encodeURIComponent(slug)}`,
+    { cache: "no-store" },
+  );
+  if (redirectResponse.status === 404) throw new Error404Response();
+  if (redirectResponse.status !== 200) throw new Error5XXResponse();
+
+  const redirectData: { slug?: unknown } = await redirectResponse.json();
+  if (
+    typeof redirectData.slug !== "string" ||
+    !redirectData.slug.trim() ||
+    redirectData.slug === slug
+  ) {
+    throw new Error404Response();
   }
-  return response.json();
+
+  // History resolves to the latest slug. Check its current hours before making
+  // a permanent redirect so unavailable locations keep every alias recoverable.
+  await readLocation(await fetchLocation(redirectData.slug));
+  permanentRedirect(`/locations/${encodeURIComponent(redirectData.slug)}`);
 }
 
 export async function fetchComments(locationId: string): Promise<Comment[]> {

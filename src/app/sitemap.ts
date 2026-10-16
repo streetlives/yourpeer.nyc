@@ -5,17 +5,23 @@
 // https://opensource.org/licenses/MIT.
 
 import type { MetadataRoute } from "next";
-import { getSimplifiedLocationData } from "../components/streetlives-api-service";
+import {
+  fetchLocationsData,
+  getSimplifiedLocationData,
+} from "../components/streetlives-api-service";
+import { hasServiceHours } from "../components/location-availability";
 import {
   AMENITIES_PARAM_SUBCATEGORY_AND_CANONICAL_ORDERING,
   CATEGORY_TO_ROUTE_MAP,
   COMPANY_ROUTES,
+  FullLocationData,
   LOCATION_ROUTE,
   PERSONAL_CARE_CATEGORY,
   RESOURCE_ROUTES,
 } from "../components/common";
 
 const ROOT_DOMAIN = "https://yourpeer.nyc";
+export const dynamic = "force-dynamic";
 const DEFAULT_CHANGE_FREQUENCY = "daily";
 const DEFAULT_SITEMAP_PROPERTIES = {
   changeFrequency: DEFAULT_CHANGE_FREQUENCY,
@@ -27,6 +33,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     taxonomies: null,
     taxonomySpecificAttributes: null,
   });
+
+  // New API responses expose availability without sending all service data.
+  // During rollout, use a single full search rather than one request per slug.
+  const indexableLocations = simplifiedLocationData.every(
+    (location) => typeof location.has_service_hours === "boolean",
+  )
+    ? simplifiedLocationData.filter((location) => location.has_service_hours)
+    : (
+        await fetchLocationsData<FullLocationData>({
+          taxonomies: null,
+          location_fields_only: false,
+        })
+      ).locations.filter(hasServiceHours);
 
   return [
     {
@@ -49,9 +68,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     )
     .concat(
-      simplifiedLocationData.map((d) => ({
-        url: `${ROOT_DOMAIN}/${LOCATION_ROUTE}/${d.slug}`,
-        ...DEFAULT_SITEMAP_PROPERTIES,
-      })),
+      indexableLocations
+        .filter((d) => d.slug)
+        .map((d) => ({
+          url: `${ROOT_DOMAIN}/${LOCATION_ROUTE}/${d.slug}`,
+          ...DEFAULT_SITEMAP_PROPERTIES,
+        })),
     );
 }
