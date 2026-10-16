@@ -269,7 +269,7 @@ export default function Service({
                             dangerouslySetInnerHTML={{
                               __html: markBreakableLinks(
                                 trackDescriptionLinks(
-                                  info.replace(/•/g, "<br>•"),
+                                  info?.replace(/•/g, "<br>•"),
                                 ),
                               ),
                             }}

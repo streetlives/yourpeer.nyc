@@ -174,4 +174,11 @@ describe("trackDescriptionLinks", () => {
       "Apply at https://example.org",
     );
   });
+
+  it.each([null, undefined])(
+    "renders absent description input as empty HTML: %s",
+    (html) => {
+      expect(trackDescriptionLinks(html)).toBe("");
+    },
+  );
 });

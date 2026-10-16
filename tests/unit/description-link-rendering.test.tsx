@@ -155,7 +155,40 @@ describe("description link tracking in rendered locations", () => {
     ]);
   });
 
-  it.each([location, { ...location, info: [] }])(
+  it("renders null closure-info entries alongside tracked links before hydration", () => {
+    const html = renderHtml(
+      <LocationDetailInfo
+        location={{ ...location, info: [null, ...location.info!, null] }}
+      />,
+    );
+    expect(html.textContent).toContain("Closed");
+    expect(html.querySelector("a")?.getAttribute("href")).toBe(
+      "https://example.org/closure?utm_source=yourpeer.nyc",
+    );
+  });
+
+  it.each([false, true])(
+    "renders absent service text with valid other info when closed=%s",
+    (closed) => {
+      const html = renderHtml(
+        <Service
+          service={{
+            ...service,
+            closed,
+            description: null,
+            info: service.info,
+          }}
+          serviceCategory="food"
+          startExpanded
+        />,
+      );
+      expect(html.querySelector("a")?.getAttribute("href")).toBe(
+        "https://example.org/info?utm_source=yourpeer.nyc",
+      );
+    },
+  );
+
+  it.each([location, { ...location, info: [] }, { ...location, info: [null] }])(
     "renders closure info in search cards, including empty info arrays",
     (entry) => {
       const html = renderHtml(
@@ -172,7 +205,7 @@ describe("description link tracking in rendered locations", () => {
         (a) => a.textContent === "Closure details",
       );
       expect(closureLink?.getAttribute("href")).toBe(
-        entry.info?.length
+        entry.info?.[0]
           ? "https://example.org/closure?utm_source=yourpeer.nyc"
           : undefined,
       );

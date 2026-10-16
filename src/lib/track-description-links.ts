@@ -127,7 +127,9 @@ function trackWebsiteHref(href: string): string {
  * Preserve YourPeer links, visible text, other attributes,
  * and non-web links. Works during server rendering and in the browser.
  */
-export function trackDescriptionLinks(html: string): string {
+export function trackDescriptionLinks(html: string | null | undefined): string {
+  if (html == null) return "";
+
   return html.replace(HTML_TAG, (tag) => {
     if (!/^<a(?:\s|\/?>)/i.test(tag)) return tag;
 
