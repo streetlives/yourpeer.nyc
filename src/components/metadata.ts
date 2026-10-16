@@ -5,6 +5,7 @@
 // https://opensource.org/licenses/MIT.
 
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   ABOUT_US_ROUTE,
   AMENITIES_PARAM_LAUNDRY_VALUE,
@@ -37,10 +38,8 @@ import {
 } from "./streetlives-api-service";
 
 type Props = {
-  params: RouteParams | SubRouteParams | Promise<RouteParams | SubRouteParams>;
-  searchParams:
-    | { [key: string]: string | string[] | undefined }
-    | Promise<{ [key: string]: string | string[] | undefined }>;
+  params: Promise<RouteParams | SubRouteParams>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 function attachSuffix(s: string): string {
@@ -48,11 +47,9 @@ function attachSuffix(s: string): string {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const paramsMaybe = (props as any).params;
-  const searchParamsMaybe = (props as any).searchParams;
   const [params, searchParams] = await Promise.all([
-    paramsMaybe,
-    searchParamsMaybe,
+    props.params,
+    props.searchParams,
   ]);
 
   let title, description;
@@ -71,9 +68,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
             ? attachSuffix(locationDetailsResponse.Organization.name)
             : "";
         } catch (e) {
-          if (!(e instanceof Error404Response)) {
-            console.error("Error fetching data in metadata", e);
-          }
+          if (e instanceof Error404Response) notFound();
+          throw e;
         }
       } else {
         title = attachSuffix("All Locations");

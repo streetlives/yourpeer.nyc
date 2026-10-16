@@ -573,6 +573,8 @@ export interface SimplifiedLocationData {
   };
   additional_info: string | null;
   slug: string;
+  /** Provided by the API when returning simplified location search results. */
+  has_service_hours?: boolean;
   /** Absent in pre-migration API responses that only carry streetview_url. */
   Streetview?: StreetviewData | null;
   /** Present only in pre-migration API responses; use Streetview instead. */
