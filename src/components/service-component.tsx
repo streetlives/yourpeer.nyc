@@ -20,6 +20,7 @@ import {
 } from "./language-translation-context";
 import { usePreviousParamsOnClient } from "./use-previous-params-client";
 import { markBreakableLinks } from "@/lib/break-links";
+import { trackDescriptionLinks } from "@/lib/track-description-links";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { formatSchedule, getOpenStatus } from "./schedule-format";
@@ -206,7 +207,9 @@ export default function Service({
                         className="text-sm text-dark mb-4 prose prose-a:text-blue break-links"
                         dangerouslySetInnerHTML={{
                           __html: markBreakableLinks(
-                            service.description.replace(/•/g, "<br>•"),
+                            trackDescriptionLinks(
+                              service.description.replace(/•/g, "<br>•"),
+                            ),
                           ),
                         }}
                       ></p>
@@ -265,7 +268,9 @@ export default function Service({
                             className="text-dark text-sm prose service-info prose-a:text-blue break-links"
                             dangerouslySetInnerHTML={{
                               __html: markBreakableLinks(
-                                info.replace(/•/g, "<br>•"),
+                                trackDescriptionLinks(
+                                  info.replace(/•/g, "<br>•"),
+                                ),
                               ),
                             }}
                           ></p>
@@ -387,7 +392,9 @@ export default function Service({
                       </span>
                       <p
                         dangerouslySetInnerHTML={{
-                          __html: markBreakableLinks(info),
+                          __html: markBreakableLinks(
+                            trackDescriptionLinks(info),
+                          ),
                         }}
                         className="text-dark text-sm prose prose-a:text-blue break-links"
                       ></p>

@@ -2,6 +2,7 @@
 "use client";
 
 import { YourPeerLegacyLocationData } from "@/components/common";
+import { trackDescriptionLinks } from "@/lib/track-description-links";
 
 function normalizeWebsiteUrl(url: string): string | undefined {
   if (url) {
@@ -64,7 +65,7 @@ export default function LocationDetailInfo({
                   key={info}
                   className="text-dark font-normal prose prose-a:text-blue text-sm"
                   dangerouslySetInnerHTML={{
-                    __html: info,
+                    __html: trackDescriptionLinks(info),
                   }}
                 ></p>
               ))}
