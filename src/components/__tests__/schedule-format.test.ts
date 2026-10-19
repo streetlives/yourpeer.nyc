@@ -378,3 +378,182 @@ describe("getOpenStatus", () => {
     });
   });
 });
+
+// HSDS 3.0 recurrence (yourpeer.nyc#758).
+describe("monthly and dated schedules", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const december: ScheduleData = {
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    valid_from: "2026-12-01",
+    valid_to: "2026-12-31",
+  };
+  const weekdays = (extra: Partial<ScheduleData> = {}) =>
+    Object.fromEntries(MON_TO_FRI.map((day) => [day, [nineToFive(extra)]]));
+
+  describe("formatSchedule", () => {
+    test.each<[string, YourPeerLegacyScheduleData, ScheduleData[], string]>([
+      [
+        "an ordinal weekday",
+        { 5: [nineToFive({ byday: "2FR" })] },
+        [],
+        "2nd Friday of the month: 9 AM–5 PM",
+      ],
+      [
+        "the last weekday of the month",
+        { 1: [nineToFive({ byday: "-1MO" })] },
+        [],
+        "Last Monday of the month: 9 AM–5 PM",
+      ],
+      [
+        "weekly hours alongside monthly ones",
+        {
+          ...weekdays(),
+          6: [
+            { ...hours("10:00:00", "14:00:00"), byday: "1SA" },
+            { ...hours("10:00:00", "14:00:00"), byday: "3SA" },
+          ],
+        },
+        [],
+        "Mon–Fri: 9 AM–5 PM; 1st and 3rd Saturday of the month: 10 AM–2 PM",
+      ],
+      [
+        "the same ordinal on several days reads as a week of the month",
+        {
+          ...Object.fromEntries(
+            [1, 2, 3, 4, 5, 6].map((day) => [
+              day,
+              [
+                {
+                  ...hours("00:00:00", "23:59:00"),
+                  byday: `1${["MO", "TU", "WE", "TH", "FR", "SA"][day - 1]}`,
+                },
+              ],
+            ]),
+          ),
+          7: [{ ...hours("11:00:00", "12:00:00"), byday: "1SU" }],
+        },
+        [],
+        "First week of the month: Mon–Sat 24 hours, Sun 11 AM–12 PM",
+      ],
+      [
+        "a whole week open around the clock",
+        Object.fromEntries(
+          EVERY_DAY.map((day) => [
+            day,
+            [
+              {
+                ...hours("00:00:00", "23:59:00"),
+                byday: `-1${["MO", "TU", "WE", "TH", "FR", "SA", "SU"][day - 1]}`,
+              },
+            ],
+          ]),
+        ),
+        [],
+        "Last week of the month: open 24 hours every day",
+      ],
+      [
+        "a date range",
+        weekdays({ valid_from: "2026-03-27", valid_to: "2026-07-27" }),
+        [],
+        "Mon–Fri: 9 AM–5 PM. Runs from March 27 to July 27, 2026.",
+      ],
+      [
+        "an open-ended range",
+        weekdays({ valid_to: "2026-07-27" }),
+        [],
+        "Mon–Fri: 9 AM–5 PM. Runs until July 27, 2026.",
+      ],
+      [
+        "a closed month",
+        { 5: [nineToFive({ byday: "2FR" })] },
+        [december],
+        "2nd Friday of the month: 9 AM–5 PM. Closed in December.",
+      ],
+    ])("%s", (_, schedule, exceptions, expected) => {
+      expect(formatSchedule(schedule, exceptions)).toBe(expected);
+    });
+
+    test("weekly BYDAY without an ordinal reads as weekly hours", () => {
+      expect(formatSchedule(weekdays({ byday: "MO", freq: "WEEKLY" }))).toBe(
+        "Mon–Fri: 9 AM–5 PM",
+      );
+    });
+  });
+
+  describe("getOpenStatus", () => {
+    // October 2026: Fridays are the 2nd, 9th, 16th, 23rd and 30th (EDT).
+    const at = (isoLocal: string, offset = "-04:00") =>
+      new Date(`${isoLocal}${offset}`);
+    const secondFriday = { 5: [nineToFive({ byday: "2FR" })] };
+
+    test.each<
+      [string, YourPeerLegacyScheduleData, ScheduleData[], Date, string | null]
+    >([
+      [
+        "on the 2nd Friday",
+        secondFriday,
+        [],
+        at("2026-10-09T12:00:00"),
+        "Open now · Closes at 5 PM",
+      ],
+      [
+        "earlier that week",
+        secondFriday,
+        [],
+        at("2026-10-05T12:00:00"),
+        "Closed · Opens Friday at 9 AM",
+      ],
+      [
+        "on the 3rd Friday, next opening is next month",
+        secondFriday,
+        [],
+        at("2026-10-16T12:00:00"),
+        "Closed · Opens Friday, November 13 at 9 AM",
+      ],
+      [
+        "a 5th Friday is not the 4th",
+        { 5: [nineToFive({ byday: "4FR" })] },
+        [],
+        at("2026-10-30T12:00:00"),
+        "Closed · Opens Friday, November 27 at 9 AM",
+      ],
+      [
+        "a 5th Friday is the last",
+        { 5: [nineToFive({ byday: "-1FR" })] },
+        [],
+        at("2026-10-30T12:00:00"),
+        "Open now · Closes at 5 PM",
+      ],
+      [
+        "before the date range starts",
+        weekdays({ valid_from: "2026-10-07" }),
+        [],
+        at("2026-10-05T12:00:00"),
+        "Closed · Opens Wednesday at 9 AM",
+      ],
+      [
+        "after the date range ends",
+        weekdays({ valid_to: "2026-10-05" }),
+        [],
+        at("2026-10-06T12:00:00"),
+        null,
+      ],
+      [
+        "skips a closed month",
+        weekdays(),
+        [december],
+        at("2026-11-30T18:00:00", "-05:00"),
+        "Closed · Opens Friday, January 1 at 9 AM",
+      ],
+    ])("%s", (_, schedule, exceptions, now, expected) => {
+      expect(getOpenStatus(schedule, now, exceptions)?.label ?? null).toBe(
+        expected,
+      );
+    });
+  });
+});

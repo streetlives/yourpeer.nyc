@@ -67,12 +67,14 @@ export default function Service({
     const timer = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(timer);
   }, []);
-  const openStatus = now ? getOpenStatus(service.schedule, now) : null;
+  const openStatus = now
+    ? getOpenStatus(service.schedule, now, service.exceptions)
+    : null;
   // if service is closed, check that service.info is non-empty
   // otherwise, check that description, info are non-empty
   // or that there are some docs required
   // or that there is a schedule we can describe
-  const scheduleText = formatSchedule(service.schedule);
+  const scheduleText = formatSchedule(service.schedule, service.exceptions);
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(
