@@ -68,13 +68,13 @@ export default function Service({
     return () => clearInterval(timer);
   }, []);
   const openStatus = now
-    ? getOpenStatus(service.schedule, now, service.exceptions)
+    ? getOpenStatus(service.schedule, now, service.specialHours)
     : null;
   // if service is closed, check that service.info is non-empty
   // otherwise, check that description, info are non-empty
   // or that there are some docs required
   // or that there is a schedule we can describe
-  const scheduleText = formatSchedule(service.schedule, service.exceptions);
+  const scheduleText = formatSchedule(service.schedule, service.specialHours);
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(

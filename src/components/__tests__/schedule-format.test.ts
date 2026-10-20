@@ -557,3 +557,102 @@ describe("monthly and dated schedules", () => {
     });
   });
 });
+
+// Week lists and Google-style special hours.
+describe("week lists and special hours", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const weekdays = Object.fromEntries(
+    MON_TO_FRI.map((day) => [day, [nineToFive()]]),
+  );
+  const special = (extra: Partial<ScheduleData>): ScheduleData => ({
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    weekday: null,
+    ...extra,
+  });
+  const christmas = special({
+    valid_from: "2026-12-25",
+    valid_to: "2026-12-25",
+    description: "Christmas Day",
+  });
+  const newYearsEve = special({
+    closed: false,
+    opens_at: "10:00:00",
+    closes_at: "14:00:00",
+    valid_from: "2026-12-31",
+    valid_to: "2026-12-31",
+    description: "New Year's Eve",
+  });
+
+  test("the first two Fridays of the month", () => {
+    expect(formatSchedule({ 5: [nineToFive({ byday: "1FR,2FR" })] })).toBe(
+      "1st and 2nd Friday of the month: 9 AM–5 PM",
+    );
+  });
+
+  test("the first two weeks of the month", () => {
+    const schedule = Object.fromEntries(
+      MON_TO_FRI.map((day) => [
+        day,
+        [
+          nineToFive({
+            byday: ["1", "2"]
+              .map((n) => `${n}${["MO", "TU", "WE", "TH", "FR"][day - 1]}`)
+              .join(","),
+          }),
+        ],
+      ]),
+    );
+    expect(formatSchedule(schedule)).toBe(
+      "First and second weeks of the month: Mon–Fri 9 AM–5 PM",
+    );
+  });
+
+  test("labelled special hours", () => {
+    expect(formatSchedule(weekdays, [christmas, newYearsEve])).toBe(
+      "Mon–Fri: 9 AM–5 PM. Closed December 25 (Christmas Day). December 31 (New Year's Eve): 10 AM–2 PM.",
+    );
+  });
+
+  // December 2026 is EST (UTC-5). Dec 25 is a Friday, Dec 31 a Thursday.
+  const at = (isoLocal: string) => new Date(`${isoLocal}-05:00`);
+
+  test.each<[string, ScheduleData[], Date, string | null]>([
+    [
+      "closed on a holiday",
+      [christmas],
+      at("2026-12-25T12:00:00"),
+      "Closed · Opens Monday at 9 AM",
+    ],
+    [
+      "special hours replace the regular ones",
+      [newYearsEve],
+      at("2026-12-31T12:00:00"),
+      "Open now · Closes at 2 PM",
+    ],
+    [
+      "closed after the special hours end",
+      [newYearsEve],
+      at("2026-12-31T15:00:00"),
+      "Closed · Opens tomorrow at 9 AM",
+    ],
+  ])("%s", (_, specialHours, now, expected) => {
+    expect(getOpenStatus(weekdays, now, specialHours)?.label ?? null).toBe(
+      expected,
+    );
+  });
+
+  test("open on the 2nd of a two-Friday list", () => {
+    // October 9, 2026 is the 2nd Friday (EDT).
+    expect(
+      getOpenStatus(
+        { 5: [nineToFive({ byday: "1FR,2FR" })] },
+        new Date("2026-10-09T12:00:00-04:00"),
+      )?.label,
+    ).toBe("Open now · Closes at 5 PM");
+  });
+});

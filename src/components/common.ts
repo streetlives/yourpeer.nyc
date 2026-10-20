@@ -946,8 +946,8 @@ export interface YourPeerLegacyServiceData {
   info: string[];
   closed: boolean;
   schedule: YourPeerLegacyScheduleData;
-  // Dated closures such as "closed in December" (closed rows with a valid range).
-  exceptions?: ScheduleData[];
+  // Dated overrides of the regular hours, e.g. closed on Christmas Day.
+  specialHours?: ScheduleData[];
   docs: string[] | null;
   referral_letter: boolean | null;
   eligibility: string[] | null;
