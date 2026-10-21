@@ -43,10 +43,14 @@ function isOpen(day: DaySchedule) {
   return day.hours.length > 0;
 }
 
-// Short text for a day's cell on wider screens: one time range, the one
-// that matters now on today.
-function cellText(day: DaySchedule, now: Date): string {
-  return getRelevantHours(day, now) || "Closed";
+// Short text for a day's cell on wider screens: one time range (on today,
+// the one that matters now), as up to two lines split after the dash, e.g.
+// ["9:30 AM–", "12:30 PM"]. "(next day)" is left to the details below.
+export function cellLines(day: DaySchedule, now: Date): string[] {
+  const hours = getRelevantHours(day, now);
+  if (!hours) return ["Closed"];
+  const [start, end] = hours.replace(" (next day)", "").split("–");
+  return end === undefined ? [start] : [`${start}–`, end];
 }
 
 function describeDay(day: DaySchedule): string {
@@ -164,18 +168,25 @@ export default function ServiceCalendar({
                 isPast && "opacity-40",
               )}
             >
-              <span>{Number(day.date.slice(8))}</span>
-              <span className="hidden sm:block w-full truncate text-[10px] leading-tight">
-                {cellText(day, now)}
+              <span>
+                {Number(day.date.slice(8))}
+                {day.hours.length > 1 ? (
+                  <span
+                    className="hidden sm:inline ml-0.5 text-[10px] font-bold align-top"
+                    aria-hidden
+                  >
+                    {MORE_HOURS}
+                  </span>
+                ) : undefined}
               </span>
-              {day.hours.length > 1 ? (
+              {cellLines(day, now).map((line) => (
                 <span
-                  className="hidden sm:block text-[10px] leading-none font-bold"
-                  aria-hidden
+                  key={line}
+                  className="hidden sm:block w-full truncate text-[10px] leading-tight"
                 >
-                  {MORE_HOURS}
+                  {line}
                 </span>
-              ) : undefined}
+              ))}
             </button>
           );
         })}

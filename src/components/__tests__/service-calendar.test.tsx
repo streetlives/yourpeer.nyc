@@ -9,7 +9,8 @@ vi.mock("../translatable-text", () => ({
   TranslatableText: ({ text }: { text: string }) => text,
 }));
 
-import ServiceCalendar from "../service-calendar";
+import ServiceCalendar, { cellLines } from "../service-calendar";
+import { getDaySchedule } from "../schedule-format";
 import { ScheduleData } from "../common";
 
 const row = (extra: Partial<ScheduleData>): ScheduleData =>
@@ -93,5 +94,29 @@ describe("ServiceCalendar", () => {
     expect(
       screen.getByRole("button", { name: "Friday, December 4: 9 AM–5 PM" }),
     ).toBeTruthy();
+  });
+});
+
+describe("cellLines", () => {
+  const day = (opensAt: string, closesAt: string) =>
+    getDaySchedule(
+      { 1: [row({ weekday: 1, opens_at: opensAt, closes_at: closesAt })] },
+      [],
+      "2026-11-09",
+    );
+
+  it.each<[string, string, string[]]>([
+    ["09:30:00", "12:30:00", ["9:30 AM–", "12:30 PM"]],
+    ["14:00:00", "17:30:00", ["2–", "5:30 PM"]],
+    ["21:00:00", "06:00:00", ["9 PM–", "6 AM"]],
+    ["00:00:00", "23:59:00", ["24 hours"]],
+  ])("%s–%s", (opensAt, closesAt, expected) => {
+    expect(cellLines(day(opensAt, closesAt), now)).toEqual(expected);
+  });
+
+  it("says Closed on a closed day", () => {
+    expect(cellLines(getDaySchedule(schedule, [], "2026-11-10"), now)).toEqual([
+      "Closed",
+    ]);
   });
 });
