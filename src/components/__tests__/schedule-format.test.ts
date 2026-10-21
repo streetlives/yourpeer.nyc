@@ -423,7 +423,7 @@ describe("monthly and dated schedules", () => {
           ],
         },
         [],
-        "Mon–Fri: 9 AM–5 PM; 1st and 3rd Saturday of the month: 10 AM–2 PM",
+        "Mon–Fri: 9 AM–5 PM; 1st and 3rd Saturdays of the month: 10 AM–2 PM",
       ],
       [
         "the same ordinal on several days reads as a week of the month",
@@ -594,7 +594,7 @@ describe("week lists and special hours", () => {
 
   test("the first two Fridays of the month", () => {
     expect(formatSchedule({ 5: [nineToFive({ byday: "1FR,2FR" })] })).toBe(
-      "1st and 2nd Friday of the month: 9 AM–5 PM",
+      "1st and 2nd Fridays of the month: 9 AM–5 PM",
     );
   });
 

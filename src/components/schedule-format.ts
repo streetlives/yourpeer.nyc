@@ -451,7 +451,7 @@ function formatMonthly(rows: ScheduleData[]): string[] {
     .map(({ singleDay, body, ordinals }) =>
       singleDay
         ? capitalize(
-            `${joinWithAnd(ordinals.map((n) => ORDINAL_WORDS[n]))} ${WEEKDAY_NAMES[singleDay - 1]} of the month: ${body}`,
+            `${joinWithAnd(ordinals.map((n) => ORDINAL_WORDS[n]))} ${WEEKDAY_NAMES[singleDay - 1]}${ordinals.length > 1 ? "s" : ""} of the month: ${body}`,
           )
         : capitalize(
             `${joinWithAnd(ordinals.map((n) => WEEK_WORDS[n]))} week${ordinals.length > 1 ? "s" : ""} of the month: ${body}`,
