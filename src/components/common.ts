@@ -603,7 +603,6 @@ export interface ScheduleData {
   valid_from?: string | null; // YYYY-MM-DD
   valid_to?: string | null; // YYYY-MM-DD
   description?: string | null;
-  notes?: string | null;
   timezone?: string | null;
   createdAt: Date;
   updatedAt: Date;
