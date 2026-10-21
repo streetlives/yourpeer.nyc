@@ -8,7 +8,12 @@
 
 import { useMemo, useState } from "react";
 import { ScheduleData, YourPeerLegacyScheduleData } from "./common";
-import { DaySchedule, getDaySchedule, newYorkDate } from "./schedule-format";
+import {
+  DaySchedule,
+  getDaySchedule,
+  getRelevantHours,
+  newYorkDate,
+} from "./schedule-format";
 import { cn } from "@/lib/utils";
 import { TranslatableText } from "./translatable-text";
 
@@ -16,6 +21,9 @@ import { TranslatableText } from "./translatable-text";
 // Mondays"), seasons and special hours such as holidays. See
 // yourpeer.nyc#758. On phones the days only show whether the service is open;
 // tapping a day shows its hours underneath.
+
+// Marks a day with more time ranges than the cell shows; tap for all of them.
+const MORE_HOURS = "+";
 
 const WEEKDAY_HEADINGS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
@@ -35,10 +43,10 @@ function isOpen(day: DaySchedule) {
   return day.hours.length > 0;
 }
 
-// Short text for a day's cell on wider screens.
-function cellText(day: DaySchedule): string {
-  if (!isOpen(day)) return "Closed";
-  return day.hours.length > 1 ? `${day.hours[0]} +` : day.hours[0];
+// Short text for a day's cell on wider screens: one time range, the one
+// that matters now on today.
+function cellText(day: DaySchedule, now: Date): string {
+  return getRelevantHours(day, now) || "Closed";
 }
 
 function describeDay(day: DaySchedule): string {
@@ -146,7 +154,7 @@ export default function ServiceCalendar({
               })}: ${describeDay(day)}`}
               onClick={() => setSelected(day.date)}
               className={cn(
-                "rounded min-h-11 sm:min-h-14 p-1 flex flex-col items-center text-sm border",
+                "rounded h-11 sm:h-16 p-1 flex flex-col items-center text-sm border overflow-hidden",
                 open
                   ? "bg-success/15 border-success/30"
                   : "bg-grey-100 border-transparent",
@@ -157,9 +165,17 @@ export default function ServiceCalendar({
               )}
             >
               <span>{Number(day.date.slice(8))}</span>
-              <span className="hidden sm:block text-[10px] leading-tight">
-                {cellText(day)}
+              <span className="hidden sm:block w-full truncate text-[10px] leading-tight">
+                {cellText(day, now)}
               </span>
+              {day.hours.length > 1 ? (
+                <span
+                  className="hidden sm:block text-[10px] leading-none font-bold"
+                  aria-hidden
+                >
+                  {MORE_HOURS}
+                </span>
+              ) : undefined}
             </button>
           );
         })}

@@ -4,6 +4,7 @@ import {
   getOpenStatus,
   getScheduleNotes,
   getDaySchedule,
+  getRelevantHours,
 } from "../schedule-format";
 import { ScheduleData, YourPeerLegacyScheduleData } from "../common";
 
@@ -717,6 +718,7 @@ describe("getDaySchedule", () => {
     expect(getDaySchedule(weekdays, [], "2026-11-02")).toEqual({
       date: "2026-11-02",
       hours: ["9 AM–5 PM"],
+      intervals: [{ open: 540, close: 1020 }],
       special: null,
       notes: ["Line up early."],
     });
@@ -730,6 +732,7 @@ describe("getDaySchedule", () => {
     expect(getDaySchedule(weekdays, [thanksgiving], "2026-11-26")).toEqual({
       date: "2026-11-26",
       hours: [],
+      intervals: [],
       special: { label: "Thanksgiving", closed: true },
       notes: [],
     });
@@ -741,5 +744,38 @@ describe("getDaySchedule", () => {
     expect(getDaySchedule(secondFriday, [], "2026-11-13").hours).toEqual([
       "9 AM–5 PM",
     ]);
+  });
+});
+
+describe("getRelevantHours", () => {
+  // Breakfast, lunch and dinner on Mondays; November 2, 2026 is a Monday (EST).
+  const meals = {
+    1: [
+      hours("08:00:00", "09:00:00"),
+      hours("12:00:00", "13:00:00"),
+      hours("17:00:00", "18:00:00"),
+    ],
+  };
+  const monday = getDaySchedule(meals, [], "2026-11-02");
+  const at = (time: string) => new Date(`2026-11-02T${time}-05:00`);
+
+  test.each([
+    ["before the first range", "07:00:00", "8–9 AM"],
+    ["during a range", "12:30:00", "12–1 PM"],
+    ["between ranges, the next one", "14:00:00", "5–6 PM"],
+    ["after the last range, the last one", "20:00:00", "5–6 PM"],
+  ])("today, %s", (_, time, expected) => {
+    expect(getRelevantHours(monday, at(time))).toBe(expected);
+  });
+
+  test("another day shows its first range", () => {
+    const nextMonday = getDaySchedule(meals, [], "2026-11-09");
+    expect(getRelevantHours(nextMonday, at("14:00:00"))).toBe("8–9 AM");
+  });
+
+  test("a closed day has none", () => {
+    expect(
+      getRelevantHours(getDaySchedule(meals, [], "2026-11-03"), at("14:00:00")),
+    ).toBeNull();
   });
 });

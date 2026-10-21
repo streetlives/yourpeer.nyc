@@ -721,6 +721,8 @@ export interface DaySchedule {
   date: string; // YYYY-MM-DD
   // e.g. ["9 AM–12 PM", "1–5 PM"]; empty when closed.
   hours: string[];
+  // The same ranges in minutes since the start of the day.
+  intervals: Interval[];
   // Set when special hours replace the regular hours on this date.
   special: { label: string | null; closed: boolean } | null;
   notes: string[];
@@ -747,6 +749,7 @@ export function getDaySchedule(
   return {
     date,
     hours: intervals.map(formatInterval),
+    intervals,
     special: special.length
       ? {
           label: unique(special.map((entry) => entry.description))[0] || null,
@@ -760,6 +763,16 @@ export function getDaySchedule(
 // Today's date in New York, as YYYY-MM-DD.
 export function newYorkDate(now: Date): string {
   return newYorkToday(now).date.toISOString().slice(0, 10);
+}
+
+// The time range to show for a day when there's room for only one: on today,
+// the one open now or the next one (else the last); on other days, the first.
+export function getRelevantHours(day: DaySchedule, now: Date): string | null {
+  if (!day.hours.length) return null;
+  const { date, minutes } = newYorkToday(now);
+  if (day.date !== date.toISOString().slice(0, 10)) return day.hours[0];
+  const index = day.intervals.findIndex(({ close }) => minutes < close);
+  return day.hours[index === -1 ? day.hours.length - 1 : index];
 }
 
 // The open status for schedules with dates, monthly rules or special hours:
