@@ -143,6 +143,11 @@ const translations: Record<string, string> = {
   "Age requirement:": "Возрастное ограничение:",
   "People of all ages are welcome": "Предназначено для всех возрастов",
   "#service-component-Open": "Открыто 24/7",
+  "#service-component-SeeCalendar": "Показать календарь",
+  "#service-component-HideCalendar": "Скрыть календарь",
+  "#service-calendar-Open": "Открыто",
+  "#service-calendar-Closed": "Закрыто",
+  "#service-calendar-SpecialHours": "Особые часы работы",
   "Only serves people who are clients of the organization":
     "Чтобы воспользоваться данной услугой Вы должны быть членом этой организации",
 

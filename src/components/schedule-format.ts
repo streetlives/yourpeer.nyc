@@ -685,6 +685,83 @@ function describeCalendarDay(target: number, today: Date): string {
   return ` ${weekday}, ${formatDate(date.toISOString(), false)}`;
 }
 
+// The rows that apply on a calendar date (a UTC midnight): the special-hours
+// entries covering it, which replace the regular hours (`open` holds those
+// with hours, so a closed entry leaves it empty), or else the regular rows for
+// that weekday, season and week of the month.
+function rowsForDate(
+  rows: ScheduleData[],
+  specialHours: ScheduleData[],
+  date: Date,
+): { open: ScheduleData[]; special: ScheduleData[] } {
+  const isoDate = date.toISOString().slice(0, 10);
+  const weekday = toWeekday(date.getUTCDay());
+  const hasHours = (row: ScheduleData) =>
+    !row.closed && !!row.opens_at && !!row.closes_at;
+  const special = specialHours.filter(
+    (entry) =>
+      (entry.weekday == null || toWeekday(entry.weekday) === weekday) &&
+      isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
+  );
+  if (special.length) {
+    return { open: special.filter(hasHours), special };
+  }
+  const open = rows.filter(
+    (row) =>
+      hasHours(row) &&
+      row.weekday != null &&
+      toWeekday(row.weekday) === weekday &&
+      isWithin(isoDate, row.valid_from, row.valid_to) &&
+      matchesOrdinal(row, date),
+  );
+  return { open, special: [] };
+}
+
+export interface DaySchedule {
+  date: string; // YYYY-MM-DD
+  // e.g. ["9 AM–12 PM", "1–5 PM"]; empty when closed.
+  hours: string[];
+  // Set when special hours replace the regular hours on this date.
+  special: { label: string | null; closed: boolean } | null;
+  notes: string[];
+}
+
+// The hours on one date (YYYY-MM-DD), for the calendar view.
+export function getDaySchedule(
+  schedule: YourPeerLegacyScheduleData,
+  specialHours: ScheduleData[],
+  date: string,
+): DaySchedule {
+  const { open, special } = rowsForDate(
+    allRows(schedule),
+    specialHours,
+    parseDate(date),
+  );
+  const intervals = mergeIntervals(
+    open.map((row) => toInterval(row.opens_at, row.closes_at)),
+  );
+  const unique = (items: (string | null | undefined)[]) =>
+    Array.from(
+      new Set(items.map((item) => item?.trim()).filter(Boolean)),
+    ) as string[];
+  return {
+    date,
+    hours: intervals.map(formatInterval),
+    special: special.length
+      ? {
+          label: unique(special.map((entry) => entry.description))[0] || null,
+          closed: !open.length,
+        }
+      : null,
+    notes: special.length ? [] : unique(open.map((row) => row.description)),
+  };
+}
+
+// Today's date in New York, as YYYY-MM-DD.
+export function newYorkDate(now: Date): string {
+  return newYorkToday(now).date.toISOString().slice(0, 10);
+}
+
 // The open status for schedules with dates, monthly rules or special hours:
 // lays out the actual calendar days from yesterday onwards instead of one
 // week. Like Google's special hours, a dated entry replaces the regular hours
@@ -695,32 +772,14 @@ function getCalendarOpenStatus(
   specialHours: ScheduleData[],
 ): OpenStatus | null {
   const { date: today, minutes: current } = newYorkToday(now);
-  const openRows = rows.filter(
-    (row) =>
-      !row.closed && row.opens_at && row.closes_at && row.weekday != null,
-  );
 
   const intervals: Interval[] = [];
   for (let offset = -1; offset <= CALENDAR_LOOKAHEAD_DAYS; offset++) {
-    const date = addDays(today, offset);
-    const isoDate = date.toISOString().slice(0, 10);
-    const weekday = toWeekday(date.getUTCDay());
-    const special = specialHours.filter(
-      (entry) =>
-        (entry.weekday == null || toWeekday(entry.weekday) === weekday) &&
-        isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
+    const { open: dayRows } = rowsForDate(
+      rows,
+      specialHours,
+      addDays(today, offset),
     );
-    const dayRows = special.length
-      ? special.filter(
-          (entry) => !entry.closed && entry.opens_at && entry.closes_at,
-        )
-      : openRows.filter(
-          (row) =>
-            toWeekday(row.weekday!) === weekday &&
-            isWithin(isoDate, row.valid_from, row.valid_to) &&
-            matchesOrdinal(row, date),
-        );
-
     dayRows.forEach((row) => {
       const { open, close } = toInterval(row.opens_at, row.closes_at);
       const dayStart = offset * MINUTES_PER_DAY;

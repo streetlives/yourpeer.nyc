@@ -3,6 +3,7 @@ import {
   formatSchedule,
   getOpenStatus,
   getScheduleNotes,
+  getDaySchedule,
 } from "../schedule-format";
 import { ScheduleData, YourPeerLegacyScheduleData } from "../common";
 
@@ -688,5 +689,57 @@ describe("getScheduleNotes", () => {
 
   test("no notes", () => {
     expect(getScheduleNotes({ 1: [withNote(null)] })).toEqual([]);
+  });
+});
+
+describe("getDaySchedule", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const weekdays = Object.fromEntries(
+    MON_TO_FRI.map((day) => [
+      day,
+      [nineToFive({ description: "Line up early." })],
+    ]),
+  );
+  const thanksgiving: ScheduleData = {
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    weekday: null,
+    valid_from: "2026-11-26",
+    valid_to: "2026-11-26",
+    description: "Thanksgiving",
+  };
+
+  test("a regular day, with its notes", () => {
+    expect(getDaySchedule(weekdays, [], "2026-11-02")).toEqual({
+      date: "2026-11-02",
+      hours: ["9 AM–5 PM"],
+      special: null,
+      notes: ["Line up early."],
+    });
+  });
+
+  test("a closed weekend day", () => {
+    expect(getDaySchedule(weekdays, [], "2026-11-07").hours).toEqual([]);
+  });
+
+  test("special hours replace the regular ones", () => {
+    expect(getDaySchedule(weekdays, [thanksgiving], "2026-11-26")).toEqual({
+      date: "2026-11-26",
+      hours: [],
+      special: { label: "Thanksgiving", closed: true },
+      notes: [],
+    });
+  });
+
+  test("only the matching weeks of the month", () => {
+    const secondFriday = { 5: [nineToFive({ byday: "2FR" })] };
+    expect(getDaySchedule(secondFriday, [], "2026-11-06").hours).toEqual([]);
+    expect(getDaySchedule(secondFriday, [], "2026-11-13").hours).toEqual([
+      "9 AM–5 PM",
+    ]);
   });
 });

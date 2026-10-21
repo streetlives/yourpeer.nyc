@@ -27,6 +27,7 @@ import {
   getOpenStatus,
   getScheduleNotes,
 } from "./schedule-format";
+import ServiceCalendar from "./service-calendar";
 
 function formatAgeMaxSuffix(age_max: number): string {
   const remainder = age_max % 10;
@@ -64,6 +65,7 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   // Set only on the client so the server render and hydration agree.
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -235,7 +237,7 @@ export default function Service({
                               />
                             </svg>
                           </span>
-                          <div className="text-dark text-sm">
+                          <div className="text-dark text-sm w-full">
                             {openStatus ? (
                               <p
                                 className={cn(
@@ -254,6 +256,35 @@ export default function Service({
                                 {note}
                               </p>
                             ))}
+                            {now ? (
+                              <button
+                                type="button"
+                                className="mt-1 text-blue underline"
+                                aria-expanded={isCalendarOpen}
+                                onClick={() =>
+                                  setIsCalendarOpen(!isCalendarOpen)
+                                }
+                              >
+                                {isCalendarOpen ? (
+                                  <TranslatableText
+                                    text="Hide calendar"
+                                    id="#service-component-HideCalendar"
+                                  />
+                                ) : (
+                                  <TranslatableText
+                                    text="See calendar"
+                                    id="#service-component-SeeCalendar"
+                                  />
+                                )}
+                              </button>
+                            ) : undefined}
+                            {now && isCalendarOpen ? (
+                              <ServiceCalendar
+                                schedule={service.schedule}
+                                specialHours={service.specialHours}
+                                now={now}
+                              />
+                            ) : undefined}
                           </div>
                         </li>
                       ) : undefined}
