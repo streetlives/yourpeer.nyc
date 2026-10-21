@@ -22,7 +22,11 @@ import { usePreviousParamsOnClient } from "./use-previous-params-client";
 import { markBreakableLinks } from "@/lib/break-links";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { formatSchedule, getOpenStatus } from "./schedule-format";
+import {
+  formatSchedule,
+  getOpenStatus,
+  getScheduleNotes,
+} from "./schedule-format";
 
 function formatAgeMaxSuffix(age_max: number): string {
   const remainder = age_max % 10;
@@ -75,6 +79,7 @@ export default function Service({
   // or that there are some docs required
   // or that there is a schedule we can describe
   const scheduleText = formatSchedule(service.schedule, service.specialHours);
+  const scheduleNotes = getScheduleNotes(service.schedule);
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(
@@ -244,6 +249,11 @@ export default function Service({
                               </p>
                             ) : undefined}
                             <p>{renderSchedule(scheduleText)}</p>
+                            {scheduleNotes.map((note) => (
+                              <p key={note} className="font-medium mt-1">
+                                {note}
+                              </p>
+                            ))}
                           </div>
                         </li>
                       ) : undefined}

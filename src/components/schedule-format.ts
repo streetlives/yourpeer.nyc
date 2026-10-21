@@ -566,6 +566,32 @@ export function formatSchedule(
   return `${phrases.join("; ")}${notes.length ? `. ${notes.join(". ")}.` : ""}`;
 }
 
+// Notes the street team wrote on time ranges (HSDS schedule.description),
+// e.g. "Please come no later than 5 PM. Consider lining up early." A note
+// that applies to only some open days is labelled with them: "Fri: …".
+export function getScheduleNotes(
+  schedule: YourPeerLegacyScheduleData,
+): string[] {
+  const rows = allRows(schedule).filter(
+    (row) => !row.closed && row.opens_at && row.closes_at,
+  );
+  const openDays = new Set(rows.map((row) => toWeekday(row.weekday!)));
+  const daysByNote = new Map<string, Set<number>>();
+  rows.forEach((row) => {
+    const note = row.description?.trim();
+    if (!note) return;
+    const days = daysByNote.get(note) || new Set<number>();
+    days.add(toWeekday(row.weekday!));
+    daysByNote.set(note, days);
+  });
+
+  return Array.from(daysByNote.entries()).map(([note, days]) =>
+    days.size === openDays.size
+      ? note
+      : `${formatDays(Array.from(days), openDays).label}: ${note}`,
+  );
+}
+
 // Minutes since Monday 00:00 in New York for the given instant.
 function minutesIntoWeek(now: Date): number {
   const parts = new Intl.DateTimeFormat("en-US", {

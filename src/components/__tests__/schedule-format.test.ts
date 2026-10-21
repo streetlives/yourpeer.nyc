@@ -1,5 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { formatSchedule, getOpenStatus } from "../schedule-format";
+import {
+  formatSchedule,
+  getOpenStatus,
+  getScheduleNotes,
+} from "../schedule-format";
 import { ScheduleData, YourPeerLegacyScheduleData } from "../common";
 
 type Hours = [string, string, { closed: boolean }?];
@@ -654,5 +658,35 @@ describe("week lists and special hours", () => {
         new Date("2026-10-09T12:00:00-04:00"),
       )?.label,
     ).toBe("Open now · Closes at 5 PM");
+  });
+});
+
+describe("getScheduleNotes", () => {
+  const withNote = (description: string | null): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    description,
+  });
+  const arriveBy = "Please come no later than 5 PM. Consider lining up early.";
+  const supplies = "Distribution runs until food lasts.";
+
+  test("a note on every open day stands alone", () => {
+    const schedule = Object.fromEntries(
+      MON_TO_FRI.map((day) => [day, [withNote(supplies)]]),
+    );
+    expect(getScheduleNotes(schedule)).toEqual([supplies]);
+  });
+
+  test("a note on some days names them", () => {
+    expect(
+      getScheduleNotes({
+        1: [withNote(null)],
+        3: [withNote(null)],
+        5: [withNote(arriveBy)],
+      }),
+    ).toEqual([`Fri: ${arriveBy}`]);
+  });
+
+  test("no notes", () => {
+    expect(getScheduleNotes({ 1: [withNote(null)] })).toEqual([]);
   });
 });
