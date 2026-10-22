@@ -1,12 +1,23 @@
 // @vitest-environment node
+import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const url = "https://provider.example/resource";
+const lookupKey = (value: string) =>
+  createHash("sha256").update(value).digest("hex");
 
-function request(body: unknown, origin = "https://yourpeer.nyc") {
+function request(
+  body: unknown,
+  origin = "https://yourpeer.nyc",
+  address = "192.0.2.1",
+) {
   return new Request("https://yourpeer.nyc/api/website-safety", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Origin: origin },
+    headers: {
+      "Content-Type": "application/json",
+      Origin: origin,
+      "X-Forwarded-For": address,
+    },
     body: JSON.stringify(body),
   });
 }
@@ -30,7 +41,7 @@ describe("website safety server boundary", () => {
       Response.json({
         results: [
           {
-            url,
+            key: lookupKey(url),
             status: "warning",
             reasons: ["php_advisory_possible", "private_internal_reason"],
             checkedAt: Date.now(),
@@ -59,6 +70,82 @@ describe("website safety server boundary", () => {
     expect(result.headers.get("cache-control")).toBe("private, no-store");
   });
 
+  it("sends only lookup digests to Streetli, including for sensitive semantic queries", async () => {
+    const fetcher = vi.fn().mockResolvedValue(Response.json({ results: [] }));
+    vi.stubGlobal("fetch", fetcher);
+    const sensitive =
+      "https://provider.example/apply?email=person%40example.org&token=private-token&program=2&utm_source=yourpeer.nyc#section";
+    await (
+      await route()
+    )(request({ urls: [sensitive] }));
+    const sent = fetcher.mock.calls[0][1].body;
+    expect(JSON.parse(sent)).toEqual({
+      keys: [
+        lookupKey(
+          "https://provider.example/apply?email=person%40example.org&token=private-token&program=2",
+        ),
+      ],
+      refresh: false,
+    });
+    expect(sent).not.toMatch(/provider|email|person|private-token|program/);
+  });
+
+  it("limits per-client refreshes even when callers bypass the response cache", async () => {
+    const fetcher = vi
+      .fn()
+      .mockImplementation(async () => Response.json({ results: [] }));
+    vi.stubGlobal("fetch", fetcher);
+    const post = await route();
+    for (let index = 0; index < 6; index++) {
+      expect(
+        (await post(request({ urls: [`${url}/${index}`], refresh: true })))
+          .status,
+      ).toBe(200);
+    }
+    const denied = await post(
+      request({ urls: [`${url}/extra`], refresh: true }),
+    );
+    expect(denied.status).toBe(429);
+    expect(denied.headers.get("retry-after")).toBe("60");
+    expect(fetcher).toHaveBeenCalledTimes(6);
+  });
+
+  it("caps the instance request budget even if callers rotate forwarding headers", async () => {
+    const fetcher = vi
+      .fn()
+      .mockImplementation(async () => Response.json({ results: [] }));
+    vi.stubGlobal("fetch", fetcher);
+    const post = await route();
+    for (let index = 0; index < 90; index++) {
+      expect(
+        (
+          await post(
+            request({ urls: [url] }, "https://yourpeer.nyc", `client-${index}`),
+          )
+        ).status,
+      ).toBe(200);
+    }
+    expect(
+      (
+        await post(
+          request({ urls: [url] }, "https://yourpeer.nyc", "another-client"),
+        )
+      ).status,
+    ).toBe(429);
+    expect(fetcher).toHaveBeenCalledTimes(90);
+  });
+
+  it("coalesces repeated refresh attempts for the same destination", async () => {
+    const fetcher = vi
+      .fn()
+      .mockImplementation(async () => Response.json({ results: [] }));
+    vi.stubGlobal("fetch", fetcher);
+    const post = await route();
+    await post(request({ urls: [url], refresh: true }));
+    await post(request({ urls: [url], refresh: true }));
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps a previous warning when refresh is inconclusive", async () => {
     const fetcher = vi
       .fn()
@@ -66,7 +153,7 @@ describe("website safety server boundary", () => {
         Response.json({
           results: [
             {
-              url,
+              key: lookupKey(url),
               status: "warning",
               reasons: ["possible_compromise"],
               checkedAt: Date.now(),
@@ -105,7 +192,7 @@ describe("website safety server boundary", () => {
         Response.json({
           results: [
             {
-              url,
+              key: lookupKey(url),
               status: "warning",
               reasons: ["possible_compromise"],
               checkedAt: now - 120_000,
@@ -119,7 +206,7 @@ describe("website safety server boundary", () => {
         Response.json({
           results: [
             {
-              url,
+              key: lookupKey(url),
               status: "no_known_warning",
               reasons: [],
               checkedAt: now - 60_000,
@@ -155,7 +242,7 @@ describe("website safety server boundary", () => {
         Response.json({
           results: [
             {
-              url,
+              key: lookupKey(url),
               status: "warning",
               reasons: ["php_advisory_possible"],
               checkedAt: now,
@@ -174,7 +261,7 @@ describe("website safety server boundary", () => {
       Response.json({
         results: [
           {
-            url,
+            key: lookupKey(url),
             status: "no_known_warning",
             reasons: [],
             checkedAt: now - 1_000,
