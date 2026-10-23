@@ -595,6 +595,15 @@ export interface ScheduleData {
   end_date: string | null;
   weekday: number | null;
   occasion: string | null;
+  // HSDS 3.0 schedule fields. Optional because older API responses lack them.
+  freq?: "WEEKLY" | "MONTHLY" | null;
+  interval?: number | null;
+  byday?: string | null; // RFC 5545 BYDAY, e.g. "FR", "2FR", "-1MO"
+  bymonthday?: string | null;
+  valid_from?: string | null; // YYYY-MM-DD
+  valid_to?: string | null; // YYYY-MM-DD
+  description?: string | null;
+  timezone?: string | null;
   createdAt: Date;
   updatedAt: Date;
   location_id: string | null;
@@ -936,6 +945,8 @@ export interface YourPeerLegacyServiceData {
   info: string[];
   closed: boolean;
   schedule: YourPeerLegacyScheduleData;
+  // Dated overrides of the regular hours, e.g. closed on Christmas Day.
+  specialHours?: ScheduleData[];
   docs: string[] | null;
   referral_letter: boolean | null;
   eligibility: string[] | null;

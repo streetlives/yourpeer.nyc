@@ -4,11 +4,16 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import { YourPeerLegacyScheduleData } from "./common";
+import { ScheduleData, YourPeerLegacyScheduleData } from "./common";
 
 // Turns weekly service hours into short, scannable text, e.g.
 // "Mon–Sat: 9 AM–5 PM. Closed Wednesdays.", and computes a Google-style
 // "Open now · Closes at 5 PM" status. See yourpeer.nyc#201.
+//
+// Rows can also carry HSDS 3.0 recurrence (yourpeer.nyc#758): an ordinal
+// BYDAY such as "2FR" (2nd Friday of the month), a valid_from/valid_to date
+// range, and special hours: dated rows that close the service or give it
+// other hours on those dates ("Closed December 25 (Christmas Day)").
 
 const MINUTES_PER_DAY = 24 * 60;
 const MINUTES_PER_WEEK = 7 * MINUTES_PER_DAY;
@@ -29,6 +34,39 @@ const WEEKDAY_NAMES = [
 ];
 
 const WEEKDAY_ABBREVIATIONS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const BYDAY_CODES = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+
+// How far ahead the open status looks for the next opening when a schedule
+// has dates or monthly rules: long enough to get past a closed month.
+const CALENDAR_LOOKAHEAD_DAYS = 62;
+
+const toWeekday = (weekday: number) => (weekday === 0 ? 7 : weekday);
+
+// The weeks of the month in an ordinal BYDAY for the row's weekday: [2] for
+// "2FR", [1, 2] for "1FR,2FR", [-1] for "-1FR" (the last Friday). Empty when
+// the row repeats every week.
+function getOrdinals(row: ScheduleData, weekday = row.weekday): number[] {
+  if (!row.byday || weekday == null) {
+    return [];
+  }
+  const code = BYDAY_CODES[toWeekday(weekday) - 1];
+  const ordinals: number[] = [];
+  for (const part of row.byday.split(",")) {
+    const match = part.trim().match(/^(-?[1-5])?([A-Z]{2})$/);
+    const ordinal = match && match[1] ? parseInt(match[1], 10) : null;
+    if (ordinal !== null && match![2] === code && !ordinals.includes(ordinal)) {
+      ordinals.push(ordinal);
+    }
+  }
+  return ordinals;
+}
+
+// Every row, with its weekday taken from the key it is grouped under.
+const allRows = (schedule: YourPeerLegacyScheduleData): ScheduleData[] =>
+  Object.entries(schedule || {}).flatMap(([weekday, rows]) =>
+    (rows || []).map((row) => ({ ...row, weekday: parseInt(weekday, 10) })),
+  );
 
 // Minutes since the start of the opening day. `close` is always greater than
 // `open`; overnight intervals have `close` > MINUTES_PER_DAY.
@@ -93,7 +131,13 @@ export function normalizeSchedule(
       return;
     }
     const intervals = (hours || [])
-      .filter((hour) => !hour.closed && hour.opens_at && hour.closes_at)
+      .filter(
+        (hour) =>
+          !hour.closed &&
+          hour.opens_at &&
+          hour.closes_at &&
+          getOrdinals(hour, day).length === 0,
+      )
       .map((hour) => toInterval(hour.opens_at, hour.closes_at));
     byDay[day] = [...(byDay[day] || []), ...intervals];
   });
@@ -271,16 +315,18 @@ function intervalsKey(intervals: Interval[]): string {
   return intervals.map(({ open, close }) => `${open}-${close}`).join(",");
 }
 
-export function formatSchedule(
-  schedule: YourPeerLegacyScheduleData,
-): string | null {
-  const normalized = normalizeSchedule(schedule);
+// "Mon–Sat: 9 AM–5 PM" phrases for the rows that repeat every week, plus a
+// "Closed Wednesdays" note.
+function formatWeekly(normalized: NormalizedSchedule): {
+  phrases: string[];
+  notes: string[];
+} {
   const days = Object.keys(normalized).map((day) => parseInt(day, 10));
   if (!days.length) {
-    return null;
+    return { phrases: [], notes: [] };
   }
   if (isOpen24_7(normalized)) {
-    return "Open 24/7";
+    return { phrases: ["Open 24/7"], notes: [] };
   }
 
   // Days that share the exact same list of hours are described together.
@@ -307,10 +353,250 @@ export function formatSchedule(
     .sort((a, b) => a.sortKey - b.sortKey)
     .map(({ text }) => text);
 
-  const closedNote = closedDays.length
-    ? `. Closed ${joinWithAnd(closedDays.sort((a, b) => a - b).map(plural))}.`
-    : "";
-  return `${phrases.join("; ")}${closedNote}`;
+  const notes = closedDays.length
+    ? [`Closed ${joinWithAnd(closedDays.sort((a, b) => a - b).map(plural))}`]
+    : [];
+  return { phrases, notes };
+}
+
+const ORDINAL_WORDS: Record<number, string> = {
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+  4: "4th",
+  5: "5th",
+  [-1]: "last",
+};
+
+const WEEK_WORDS: Record<number, string> = {
+  1: "first",
+  2: "second",
+  3: "third",
+  4: "fourth",
+  5: "fifth",
+  [-1]: "last",
+};
+
+// "last" reads after the numbered ordinals.
+const ordinalSortKey = (n: number) => (n < 0 ? 100 - n : n);
+
+const capitalize = (text: string) => text[0].toUpperCase() + text.slice(1);
+
+// Monthly rows, grouped by ordinal. One weekday reads "2nd Friday of the
+// month: 9 AM–5 PM". Several weekdays with the same ordinal cover a week of
+// the month (1MO…1SU are the 1st–7th), so they read "First week of the
+// month: Mon–Sat 24 hours, Sun 11 AM–12 PM" instead of one phrase per day.
+function formatMonthly(rows: ScheduleData[]): string[] {
+  const byOrdinal = new Map<number, YourPeerLegacyScheduleData>();
+  rows.forEach((row) => {
+    if (row.closed || !row.opens_at || !row.closes_at) {
+      return;
+    }
+    getOrdinals(row).forEach((ordinal) => {
+      const schedule = byOrdinal.get(ordinal) || {};
+      const weekday = toWeekday(row.weekday!);
+      // Without byday, normalizeSchedule treats the row as a weekly one.
+      schedule[weekday] = [
+        ...(schedule[weekday] || []),
+        { ...row, byday: null },
+      ];
+      byOrdinal.set(ordinal, schedule);
+    });
+  });
+
+  // Ordinals that describe the same days and hours are joined:
+  // "1st and 3rd Saturday", "First and third week".
+  const groups = new Map<
+    string,
+    { singleDay: number | null; body: string; ordinals: number[] }
+  >();
+  byOrdinal.forEach((schedule, ordinal) => {
+    const normalized = normalizeSchedule(schedule);
+    const days = Object.keys(normalized).map((day) => parseInt(day, 10));
+    if (!days.length) return;
+
+    let singleDay: number | null = null;
+    let body: string;
+    if (days.length === 1) {
+      singleDay = days[0];
+      body = joinWithAnd(normalized[singleDay].map(formatInterval));
+    } else if (isOpen24_7(normalized)) {
+      body = "open 24 hours every day";
+    } else {
+      const { phrases, notes } = formatWeekly(normalized);
+      body = [
+        ...phrases.map((phrase) => phrase.replace(": ", " ")),
+        ...notes.map((note) => note.toLowerCase()),
+      ].join(", ");
+    }
+
+    const key = `${singleDay}|${body}`;
+    const group = groups.get(key) || { singleDay, body, ordinals: [] };
+    group.ordinals.push(ordinal);
+    groups.set(key, group);
+  });
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      ordinals: group.ordinals.sort(
+        (a, b) => ordinalSortKey(a) - ordinalSortKey(b),
+      ),
+    }))
+    .sort(
+      (a, b) =>
+        ordinalSortKey(a.ordinals[0]) - ordinalSortKey(b.ordinals[0]) ||
+        (a.singleDay || 0) - (b.singleDay || 0),
+    )
+    .map(({ singleDay, body, ordinals }) =>
+      singleDay
+        ? capitalize(
+            `${joinWithAnd(ordinals.map((n) => ORDINAL_WORDS[n]))} ${WEEKDAY_NAMES[singleDay - 1]}${ordinals.length > 1 ? "s" : ""} of the month: ${body}`,
+          )
+        : capitalize(
+            `${joinWithAnd(ordinals.map((n) => WEEK_WORDS[n]))} week${ordinals.length > 1 ? "s" : ""} of the month: ${body}`,
+          ),
+    );
+}
+
+function parseDate(date: string): Date {
+  const [year, month, day] = date
+    .slice(0, 10)
+    .split("-")
+    .map((part) => parseInt(part, 10));
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function formatDate(date: string, withYear: boolean): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    month: "long",
+    day: "numeric",
+    ...(withYear ? { year: "numeric" } : {}),
+  }).format(parseDate(date));
+}
+
+// "Runs from March 27 to July 27, 2026", when every open row shares a range.
+function formatValidRange(rows: ScheduleData[]): string | null {
+  const ranges = new Set(
+    rows
+      .filter(({ closed }) => !closed)
+      .map(
+        ({ valid_from, valid_to }) => `${valid_from || ""}|${valid_to || ""}`,
+      ),
+  );
+  if (ranges.size !== 1) {
+    return null;
+  }
+  const [from, to] = Array.from(ranges)[0].split("|");
+  if (from && to) {
+    const sameYear = from.slice(0, 4) === to.slice(0, 4);
+    return `Runs from ${formatDate(from, !sameYear)} to ${formatDate(to, true)}`;
+  }
+  if (from) return `Runs from ${formatDate(from, true)}`;
+  if (to) return `Runs until ${formatDate(to, true)}`;
+  return null;
+}
+
+const isWholeMonth = (from: string, to: string) => {
+  const start = parseDate(from);
+  const end = parseDate(to);
+  const lastDay = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0),
+  );
+  return start.getUTCDate() === 1 && end.getTime() === lastDay.getTime();
+};
+
+// Special hours: "Closed in December", "Closed December 25 (Christmas Day)
+// and January 1", "December 31 (New Year's Eve): 10 AM–2 PM".
+function formatSpecialHours(specialHours: ScheduleData[]): string[] {
+  const months: string[] = [];
+  const closedDates: string[] = [];
+  const openDates = new Map<string, Interval[]>();
+  specialHours.forEach((row) => {
+    const { valid_from: from, description } = row;
+    const to = row.valid_to || from;
+    if (!from || !to) return;
+    const label = description ? ` (${description})` : "";
+
+    if (row.closed && isWholeMonth(from, to)) {
+      const month = new Intl.DateTimeFormat("en-US", {
+        timeZone: "UTC",
+        month: "long",
+      }).format(parseDate(from));
+      if (!months.includes(month)) months.push(month);
+      return;
+    }
+    const dates =
+      from === to
+        ? formatDate(from, false)
+        : `${formatDate(from, false)} to ${formatDate(to, false)}`;
+    if (row.closed || !row.opens_at || !row.closes_at) {
+      closedDates.push(`${dates}${label}`);
+    } else {
+      // Several time ranges on the same dates make one phrase.
+      const key = `${dates}${label}`;
+      openDates.set(key, [
+        ...(openDates.get(key) || []),
+        toInterval(row.opens_at, row.closes_at),
+      ]);
+    }
+  });
+  return [
+    ...(months.length ? [`Closed in ${joinWithAnd(months)}`] : []),
+    ...(closedDates.length ? [`Closed ${joinWithAnd(closedDates)}`] : []),
+    ...Array.from(
+      openDates,
+      ([dates, intervals]) =>
+        `${dates}: ${joinWithAnd(mergeIntervals(intervals).map(formatInterval))}`,
+    ),
+  ];
+}
+
+export function formatSchedule(
+  schedule: YourPeerLegacyScheduleData,
+  specialHours: ScheduleData[] = [],
+): string | null {
+  const rows = allRows(schedule);
+  const weekly = formatWeekly(normalizeSchedule(schedule));
+  const phrases = [...weekly.phrases, ...formatMonthly(rows)];
+  if (!phrases.length) {
+    return null;
+  }
+
+  const validRange = formatValidRange(rows);
+  const notes = [
+    ...weekly.notes,
+    ...(validRange ? [validRange] : []),
+    ...formatSpecialHours(specialHours),
+  ];
+  return `${phrases.join("; ")}${notes.length ? `. ${notes.join(". ")}.` : ""}`;
+}
+
+// Notes the street team wrote on time ranges (HSDS schedule.description),
+// e.g. "Please come no later than 5 PM. Consider lining up early." A note
+// that applies to only some open days is labelled with them: "Fri: …".
+export function getScheduleNotes(
+  schedule: YourPeerLegacyScheduleData,
+): string[] {
+  const rows = allRows(schedule).filter(
+    (row) => !row.closed && row.opens_at && row.closes_at,
+  );
+  const openDays = new Set(rows.map((row) => toWeekday(row.weekday!)));
+  const daysByNote = new Map<string, Set<number>>();
+  rows.forEach((row) => {
+    const note = row.description?.trim();
+    if (!note) return;
+    const days = daysByNote.get(note) || new Set<number>();
+    days.add(toWeekday(row.weekday!));
+    daysByNote.set(note, days);
+  });
+
+  return Array.from(daysByNote.entries()).map(([note, days]) =>
+    days.size === openDays.size
+      ? note
+      : `${formatDays(Array.from(days), openDays).label}: ${note}`,
+  );
 }
 
 // Minutes since Monday 00:00 in New York for the given instant.
@@ -339,10 +625,232 @@ function describeDay(target: number, now: number): string {
   return ` ${WEEKDAY_NAMES[weekday]}`;
 }
 
+function hasCalendarRules(
+  rows: ScheduleData[],
+  specialHours: ScheduleData[],
+): boolean {
+  return (
+    specialHours.length > 0 ||
+    rows.some(
+      (row) => row.valid_from || row.valid_to || getOrdinals(row).length > 0,
+    )
+  );
+}
+
+const isWithin = (
+  date: string,
+  from: string | null | undefined,
+  to: string | null | undefined,
+) => (!from || from.slice(0, 10) <= date) && (!to || date <= to.slice(0, 10));
+
+function matchesOrdinal(row: ScheduleData, date: Date): boolean {
+  const ordinals = getOrdinals(row);
+  if (!ordinals.length) {
+    return true;
+  }
+  const dayOfMonth = date.getUTCDate();
+  const daysInMonth = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  return ordinals.some((ordinal) =>
+    ordinal > 0
+      ? Math.ceil(dayOfMonth / 7) === ordinal
+      : Math.ceil((daysInMonth - dayOfMonth + 1) / 7) === -ordinal,
+  );
+}
+
+// Today's date (as a UTC midnight) and the minutes into it, in New York.
+function newYorkToday(now: Date): { date: Date; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIME_ZONE,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const part = (type: string) =>
+    parseInt(parts.find((p) => p.type === type)?.value || "0", 10);
+  return {
+    date: new Date(Date.UTC(part("year"), part("month") - 1, part("day"))),
+    minutes: (part("hour") % 24) * 60 + part("minute"),
+  };
+}
+
+const addDays = (date: Date, days: number) =>
+  new Date(date.getTime() + days * MINUTES_PER_DAY * 60 * 1000);
+
+// Like describeDay, but past a week it names the date: " Friday, November 13".
+function describeCalendarDay(target: number, today: Date): string {
+  const dayDifference = Math.floor(target / MINUTES_PER_DAY);
+  if (dayDifference === 0) return "";
+  if (dayDifference === 1) return " tomorrow";
+  const date = addDays(today, dayDifference);
+  const weekday = WEEKDAY_NAMES[toWeekday(date.getUTCDay()) - 1];
+  if (dayDifference <= 7) return ` ${weekday}`;
+  return ` ${weekday}, ${formatDate(date.toISOString(), false)}`;
+}
+
+// The rows that apply on a calendar date (a UTC midnight): the special-hours
+// entries covering it, which replace the regular hours (`open` holds those
+// with hours, so a closed entry leaves it empty), or else the regular rows for
+// that weekday, season and week of the month.
+function rowsForDate(
+  rows: ScheduleData[],
+  specialHours: ScheduleData[],
+  date: Date,
+): { open: ScheduleData[]; special: ScheduleData[] } {
+  const isoDate = date.toISOString().slice(0, 10);
+  const weekday = toWeekday(date.getUTCDay());
+  const hasHours = (row: ScheduleData) =>
+    !row.closed && !!row.opens_at && !!row.closes_at;
+  const special = specialHours.filter(
+    (entry) =>
+      (entry.weekday == null || toWeekday(entry.weekday) === weekday) &&
+      isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
+  );
+  if (special.length) {
+    return { open: special.filter(hasHours), special };
+  }
+  const open = rows.filter(
+    (row) =>
+      hasHours(row) &&
+      row.weekday != null &&
+      toWeekday(row.weekday) === weekday &&
+      isWithin(isoDate, row.valid_from, row.valid_to) &&
+      matchesOrdinal(row, date),
+  );
+  return { open, special: [] };
+}
+
+export interface DaySchedule {
+  date: string; // YYYY-MM-DD
+  // e.g. ["9 AM–12 PM", "1–5 PM"]; empty when closed.
+  hours: string[];
+  // The same ranges in minutes since the start of the day.
+  intervals: Interval[];
+  // Set when special hours replace the regular hours on this date.
+  special: { label: string | null; closed: boolean } | null;
+  notes: string[];
+}
+
+// The hours on one date (YYYY-MM-DD), for the calendar view.
+export function getDaySchedule(
+  schedule: YourPeerLegacyScheduleData,
+  specialHours: ScheduleData[],
+  date: string,
+): DaySchedule {
+  const rows = allRows(schedule);
+  const day = parseDate(date);
+  const { open, special } = rowsForDate(rows, specialHours, day);
+  // Hours that run past midnight the day before carry on into this one,
+  // e.g. Friday 8 PM–2 AM shows Saturday as open 12–2 AM. A special-hours
+  // closure on this date doesn't cut them short, as they belong to the day
+  // before.
+  const carriedOver = rowsForDate(rows, specialHours, addDays(day, -1))
+    .open.map((row) => toInterval(row.opens_at, row.closes_at))
+    .filter(({ close }) => close > MINUTES_PER_DAY)
+    .map(({ close }) => ({ open: 0, close: close - MINUTES_PER_DAY }));
+  const intervals = mergeIntervals([
+    ...carriedOver,
+    ...open.map((row) => toInterval(row.opens_at, row.closes_at)),
+  ]);
+  const unique = (items: (string | null | undefined)[]) =>
+    Array.from(
+      new Set(items.map((item) => item?.trim()).filter(Boolean)),
+    ) as string[];
+  return {
+    date,
+    hours: intervals.map(formatInterval),
+    intervals,
+    special: special.length
+      ? {
+          label: unique(special.map((entry) => entry.description))[0] || null,
+          closed: !open.length,
+        }
+      : null,
+    notes: special.length ? [] : unique(open.map((row) => row.description)),
+  };
+}
+
+// Today's date in New York, as YYYY-MM-DD.
+export function newYorkDate(now: Date): string {
+  return newYorkToday(now).date.toISOString().slice(0, 10);
+}
+
+// The time range to show for a day when there's room for only one: on today,
+// the one open now or the next one (else the last); on other days, the first.
+export function getRelevantHours(day: DaySchedule, now: Date): string | null {
+  if (!day.hours.length) return null;
+  const { date, minutes } = newYorkToday(now);
+  if (day.date !== date.toISOString().slice(0, 10)) return day.hours[0];
+  const index = day.intervals.findIndex(({ close }) => minutes < close);
+  return day.hours[index === -1 ? day.hours.length - 1 : index];
+}
+
+// The open status for schedules with dates, monthly rules or special hours:
+// lays out the actual calendar days from yesterday onwards instead of one
+// week. Like Google's special hours, a dated entry replaces the regular hours
+// on its dates, either closing the service or giving it other hours.
+function getCalendarOpenStatus(
+  rows: ScheduleData[],
+  now: Date,
+  specialHours: ScheduleData[],
+): OpenStatus | null {
+  const { date: today, minutes: current } = newYorkToday(now);
+
+  const intervals: Interval[] = [];
+  for (let offset = -1; offset <= CALENDAR_LOOKAHEAD_DAYS; offset++) {
+    const { open: dayRows } = rowsForDate(
+      rows,
+      specialHours,
+      addDays(today, offset),
+    );
+    dayRows.forEach((row) => {
+      const { open, close } = toInterval(row.opens_at, row.closes_at);
+      const dayStart = offset * MINUTES_PER_DAY;
+      intervals.push({ open: dayStart + open, close: dayStart + close });
+    });
+  }
+  const timeline = mergeIntervals(intervals);
+
+  const openInterval = timeline.find(
+    ({ open, close }) => open <= current && current < close,
+  );
+  if (openInterval) {
+    const closingSoon = openInterval.close - current <= CLOSING_SOON_MINUTES;
+    const closesAt = `${describeCalendarDay(openInterval.close, today)} at ${formatTime(openInterval.close)}`;
+    return {
+      open: true,
+      closingSoon,
+      label: closingSoon
+        ? `Open now · Closes soon${closesAt}`
+        : `Open now · Closes${closesAt}`,
+    };
+  }
+
+  const next = timeline.find(({ open }) => open > current);
+  if (!next) {
+    return null;
+  }
+  return {
+    open: false,
+    closingSoon: false,
+    label: `Closed · Opens${describeCalendarDay(next.open, today)} at ${formatTime(next.open)}`,
+  };
+}
+
 export function getOpenStatus(
   schedule: YourPeerLegacyScheduleData,
   now: Date,
+  specialHours: ScheduleData[] = [],
 ): OpenStatus | null {
+  const rows = allRows(schedule);
+  if (hasCalendarRules(rows, specialHours)) {
+    return getCalendarOpenStatus(rows, now, specialHours);
+  }
+
   const normalized = normalizeSchedule(schedule);
   if (!Object.keys(normalized).length) {
     return null;

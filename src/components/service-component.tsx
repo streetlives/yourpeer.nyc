@@ -22,7 +22,12 @@ import { usePreviousParamsOnClient } from "./use-previous-params-client";
 import { markBreakableLinks } from "@/lib/break-links";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
-import { formatSchedule, getOpenStatus } from "./schedule-format";
+import {
+  formatSchedule,
+  getOpenStatus,
+  getScheduleNotes,
+} from "./schedule-format";
+import ServiceCalendar from "./service-calendar";
 
 function formatAgeMaxSuffix(age_max: number): string {
   const remainder = age_max % 10;
@@ -60,6 +65,7 @@ export default function Service({
     : null;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(startExpanded);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   // Set only on the client so the server render and hydration agree.
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -67,12 +73,15 @@ export default function Service({
     const timer = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(timer);
   }, []);
-  const openStatus = now ? getOpenStatus(service.schedule, now) : null;
+  const openStatus = now
+    ? getOpenStatus(service.schedule, now, service.specialHours)
+    : null;
   // if service is closed, check that service.info is non-empty
   // otherwise, check that description, info are non-empty
   // or that there are some docs required
   // or that there is a schedule we can describe
-  const scheduleText = formatSchedule(service.schedule);
+  const scheduleText = formatSchedule(service.schedule, service.specialHours);
+  const scheduleNotes = getScheduleNotes(service.schedule);
   const hasSomethingToShow = service.closed
     ? !!service.info.length
     : !!(
@@ -228,7 +237,7 @@ export default function Service({
                               />
                             </svg>
                           </span>
-                          <div className="text-dark text-sm">
+                          <div className="text-dark text-sm w-full">
                             {openStatus ? (
                               <p
                                 className={cn(
@@ -242,6 +251,40 @@ export default function Service({
                               </p>
                             ) : undefined}
                             <p>{renderSchedule(scheduleText)}</p>
+                            {scheduleNotes.map((note) => (
+                              <p key={note} className="font-medium mt-1">
+                                {note}
+                              </p>
+                            ))}
+                            {now ? (
+                              <button
+                                type="button"
+                                className="mt-1 text-blue underline"
+                                aria-expanded={isCalendarOpen}
+                                onClick={() =>
+                                  setIsCalendarOpen(!isCalendarOpen)
+                                }
+                              >
+                                {isCalendarOpen ? (
+                                  <TranslatableText
+                                    text="Hide calendar"
+                                    id="#service-component-HideCalendar"
+                                  />
+                                ) : (
+                                  <TranslatableText
+                                    text="See calendar"
+                                    id="#service-component-SeeCalendar"
+                                  />
+                                )}
+                              </button>
+                            ) : undefined}
+                            {now && isCalendarOpen ? (
+                              <ServiceCalendar
+                                schedule={service.schedule}
+                                specialHours={service.specialHours}
+                                now={now}
+                              />
+                            ) : undefined}
                           </div>
                         </li>
                       ) : undefined}

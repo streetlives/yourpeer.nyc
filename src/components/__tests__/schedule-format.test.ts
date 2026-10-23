@@ -1,5 +1,11 @@
 import { describe, test, expect } from "vitest";
-import { formatSchedule, getOpenStatus } from "../schedule-format";
+import {
+  formatSchedule,
+  getOpenStatus,
+  getScheduleNotes,
+  getDaySchedule,
+  getRelevantHours,
+} from "../schedule-format";
 import { ScheduleData, YourPeerLegacyScheduleData } from "../common";
 
 type Hours = [string, string, { closed: boolean }?];
@@ -376,5 +382,430 @@ describe("getOpenStatus", () => {
       closingSoon: true,
       label: "Open now · Closes soon at 5 PM",
     });
+  });
+});
+
+// HSDS 3.0 recurrence (yourpeer.nyc#758).
+describe("monthly and dated schedules", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const december: ScheduleData = {
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    valid_from: "2026-12-01",
+    valid_to: "2026-12-31",
+  };
+  const weekdays = (extra: Partial<ScheduleData> = {}) =>
+    Object.fromEntries(MON_TO_FRI.map((day) => [day, [nineToFive(extra)]]));
+
+  describe("formatSchedule", () => {
+    test.each<[string, YourPeerLegacyScheduleData, ScheduleData[], string]>([
+      [
+        "an ordinal weekday",
+        { 5: [nineToFive({ byday: "2FR" })] },
+        [],
+        "2nd Friday of the month: 9 AM–5 PM",
+      ],
+      [
+        "the last weekday of the month",
+        { 1: [nineToFive({ byday: "-1MO" })] },
+        [],
+        "Last Monday of the month: 9 AM–5 PM",
+      ],
+      [
+        "weekly hours alongside monthly ones",
+        {
+          ...weekdays(),
+          6: [
+            { ...hours("10:00:00", "14:00:00"), byday: "1SA" },
+            { ...hours("10:00:00", "14:00:00"), byday: "3SA" },
+          ],
+        },
+        [],
+        "Mon–Fri: 9 AM–5 PM; 1st and 3rd Saturdays of the month: 10 AM–2 PM",
+      ],
+      [
+        "the same ordinal on several days reads as a week of the month",
+        {
+          ...Object.fromEntries(
+            [1, 2, 3, 4, 5, 6].map((day) => [
+              day,
+              [
+                {
+                  ...hours("00:00:00", "23:59:00"),
+                  byday: `1${["MO", "TU", "WE", "TH", "FR", "SA"][day - 1]}`,
+                },
+              ],
+            ]),
+          ),
+          7: [{ ...hours("11:00:00", "12:00:00"), byday: "1SU" }],
+        },
+        [],
+        "First week of the month: Mon–Sat 24 hours, Sun 11 AM–12 PM",
+      ],
+      [
+        "a whole week open around the clock",
+        Object.fromEntries(
+          EVERY_DAY.map((day) => [
+            day,
+            [
+              {
+                ...hours("00:00:00", "23:59:00"),
+                byday: `-1${["MO", "TU", "WE", "TH", "FR", "SA", "SU"][day - 1]}`,
+              },
+            ],
+          ]),
+        ),
+        [],
+        "Last week of the month: open 24 hours every day",
+      ],
+      [
+        "a date range",
+        weekdays({ valid_from: "2026-03-27", valid_to: "2026-07-27" }),
+        [],
+        "Mon–Fri: 9 AM–5 PM. Runs from March 27 to July 27, 2026.",
+      ],
+      [
+        "an open-ended range",
+        weekdays({ valid_to: "2026-07-27" }),
+        [],
+        "Mon–Fri: 9 AM–5 PM. Runs until July 27, 2026.",
+      ],
+      [
+        "a closed month",
+        { 5: [nineToFive({ byday: "2FR" })] },
+        [december],
+        "2nd Friday of the month: 9 AM–5 PM. Closed in December.",
+      ],
+    ])("%s", (_, schedule, exceptions, expected) => {
+      expect(formatSchedule(schedule, exceptions)).toBe(expected);
+    });
+
+    test("weekly BYDAY without an ordinal reads as weekly hours", () => {
+      expect(formatSchedule(weekdays({ byday: "MO", freq: "WEEKLY" }))).toBe(
+        "Mon–Fri: 9 AM–5 PM",
+      );
+    });
+  });
+
+  describe("getOpenStatus", () => {
+    // October 2026: Fridays are the 2nd, 9th, 16th, 23rd and 30th (EDT).
+    const at = (isoLocal: string, offset = "-04:00") =>
+      new Date(`${isoLocal}${offset}`);
+    const secondFriday = { 5: [nineToFive({ byday: "2FR" })] };
+
+    test.each<
+      [string, YourPeerLegacyScheduleData, ScheduleData[], Date, string | null]
+    >([
+      [
+        "on the 2nd Friday",
+        secondFriday,
+        [],
+        at("2026-10-09T12:00:00"),
+        "Open now · Closes at 5 PM",
+      ],
+      [
+        "earlier that week",
+        secondFriday,
+        [],
+        at("2026-10-05T12:00:00"),
+        "Closed · Opens Friday at 9 AM",
+      ],
+      [
+        "on the 3rd Friday, next opening is next month",
+        secondFriday,
+        [],
+        at("2026-10-16T12:00:00"),
+        "Closed · Opens Friday, November 13 at 9 AM",
+      ],
+      [
+        "a 5th Friday is not the 4th",
+        { 5: [nineToFive({ byday: "4FR" })] },
+        [],
+        at("2026-10-30T12:00:00"),
+        "Closed · Opens Friday, November 27 at 9 AM",
+      ],
+      [
+        "a 5th Friday is the last",
+        { 5: [nineToFive({ byday: "-1FR" })] },
+        [],
+        at("2026-10-30T12:00:00"),
+        "Open now · Closes at 5 PM",
+      ],
+      [
+        "before the date range starts",
+        weekdays({ valid_from: "2026-10-07" }),
+        [],
+        at("2026-10-05T12:00:00"),
+        "Closed · Opens Wednesday at 9 AM",
+      ],
+      [
+        "after the date range ends",
+        weekdays({ valid_to: "2026-10-05" }),
+        [],
+        at("2026-10-06T12:00:00"),
+        null,
+      ],
+      [
+        "skips a closed month",
+        weekdays(),
+        [december],
+        at("2026-11-30T18:00:00", "-05:00"),
+        "Closed · Opens Friday, January 1 at 9 AM",
+      ],
+    ])("%s", (_, schedule, exceptions, now, expected) => {
+      expect(getOpenStatus(schedule, now, exceptions)?.label ?? null).toBe(
+        expected,
+      );
+    });
+  });
+});
+
+// Week lists and Google-style special hours.
+describe("week lists and special hours", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const weekdays = Object.fromEntries(
+    MON_TO_FRI.map((day) => [day, [nineToFive()]]),
+  );
+  const special = (extra: Partial<ScheduleData>): ScheduleData => ({
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    weekday: null,
+    ...extra,
+  });
+  const christmas = special({
+    valid_from: "2026-12-25",
+    valid_to: "2026-12-25",
+    description: "Christmas Day",
+  });
+  const newYearsEve = special({
+    closed: false,
+    opens_at: "10:00:00",
+    closes_at: "14:00:00",
+    valid_from: "2026-12-31",
+    valid_to: "2026-12-31",
+    description: "New Year's Eve",
+  });
+
+  test("the first two Fridays of the month", () => {
+    expect(formatSchedule({ 5: [nineToFive({ byday: "1FR,2FR" })] })).toBe(
+      "1st and 2nd Fridays of the month: 9 AM–5 PM",
+    );
+  });
+
+  test("the first two weeks of the month", () => {
+    const schedule = Object.fromEntries(
+      MON_TO_FRI.map((day) => [
+        day,
+        [
+          nineToFive({
+            byday: ["1", "2"]
+              .map((n) => `${n}${["MO", "TU", "WE", "TH", "FR"][day - 1]}`)
+              .join(","),
+          }),
+        ],
+      ]),
+    );
+    expect(formatSchedule(schedule)).toBe(
+      "First and second weeks of the month: Mon–Fri 9 AM–5 PM",
+    );
+  });
+
+  test("labelled special hours", () => {
+    expect(formatSchedule(weekdays, [christmas, newYearsEve])).toBe(
+      "Mon–Fri: 9 AM–5 PM. Closed December 25 (Christmas Day). December 31 (New Year's Eve): 10 AM–2 PM.",
+    );
+  });
+
+  test("several time ranges on the same special dates", () => {
+    const renovation = (opensAt: string, closesAt: string): ScheduleData => ({
+      ...hours(opensAt, closesAt),
+      weekday: null as unknown as number,
+      valid_from: "2026-10-23",
+      valid_to: "2026-10-30",
+      description: "Renovation",
+    });
+    expect(
+      formatSchedule(weekdays, [
+        renovation("13:00:00", "15:00:00"),
+        renovation("09:00:00", "10:00:00"),
+      ]),
+    ).toBe(
+      "Mon–Fri: 9 AM–5 PM. October 23 to October 30 (Renovation): 9–10 AM and 1–3 PM.",
+    );
+  });
+
+  // December 2026 is EST (UTC-5). Dec 25 is a Friday, Dec 31 a Thursday.
+  const at = (isoLocal: string) => new Date(`${isoLocal}-05:00`);
+
+  test.each<[string, ScheduleData[], Date, string | null]>([
+    [
+      "closed on a holiday",
+      [christmas],
+      at("2026-12-25T12:00:00"),
+      "Closed · Opens Monday at 9 AM",
+    ],
+    [
+      "special hours replace the regular ones",
+      [newYearsEve],
+      at("2026-12-31T12:00:00"),
+      "Open now · Closes at 2 PM",
+    ],
+    [
+      "closed after the special hours end",
+      [newYearsEve],
+      at("2026-12-31T15:00:00"),
+      "Closed · Opens tomorrow at 9 AM",
+    ],
+  ])("%s", (_, specialHours, now, expected) => {
+    expect(getOpenStatus(weekdays, now, specialHours)?.label ?? null).toBe(
+      expected,
+    );
+  });
+
+  test("open on the 2nd of a two-Friday list", () => {
+    // October 9, 2026 is the 2nd Friday (EDT).
+    expect(
+      getOpenStatus(
+        { 5: [nineToFive({ byday: "1FR,2FR" })] },
+        new Date("2026-10-09T12:00:00-04:00"),
+      )?.label,
+    ).toBe("Open now · Closes at 5 PM");
+  });
+});
+
+describe("getScheduleNotes", () => {
+  const withNote = (description: string | null): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    description,
+  });
+  const arriveBy = "Please come no later than 5 PM. Consider lining up early.";
+  const supplies = "Distribution runs until food lasts.";
+
+  test("a note on every open day stands alone", () => {
+    const schedule = Object.fromEntries(
+      MON_TO_FRI.map((day) => [day, [withNote(supplies)]]),
+    );
+    expect(getScheduleNotes(schedule)).toEqual([supplies]);
+  });
+
+  test("a note on some days names them", () => {
+    expect(
+      getScheduleNotes({
+        1: [withNote(null)],
+        3: [withNote(null)],
+        5: [withNote(arriveBy)],
+      }),
+    ).toEqual([`Fri: ${arriveBy}`]);
+  });
+
+  test("no notes", () => {
+    expect(getScheduleNotes({ 1: [withNote(null)] })).toEqual([]);
+  });
+});
+
+describe("getDaySchedule", () => {
+  const nineToFive = (extra: Partial<ScheduleData> = {}): ScheduleData => ({
+    ...hours("09:00:00", "17:00:00"),
+    ...extra,
+  });
+  const weekdays = Object.fromEntries(
+    MON_TO_FRI.map((day) => [
+      day,
+      [nineToFive({ description: "Line up early." })],
+    ]),
+  );
+  const thanksgiving: ScheduleData = {
+    ...hours("", "", true),
+    opens_at: null as unknown as string,
+    closes_at: null as unknown as string,
+    weekday: null,
+    valid_from: "2026-11-26",
+    valid_to: "2026-11-26",
+    description: "Thanksgiving",
+  };
+
+  test("a regular day, with its notes", () => {
+    expect(getDaySchedule(weekdays, [], "2026-11-02")).toEqual({
+      date: "2026-11-02",
+      hours: ["9 AM–5 PM"],
+      intervals: [{ open: 540, close: 1020 }],
+      special: null,
+      notes: ["Line up early."],
+    });
+  });
+
+  test("overnight hours carry on into the next day", () => {
+    const fridayNights = { "5": [hours("20:00:00", "02:00:00")] };
+    expect(getDaySchedule(fridayNights, [], "2026-11-06").hours).toEqual([
+      "8 PM–2 AM (next day)",
+    ]);
+    expect(getDaySchedule(fridayNights, [], "2026-11-07")).toMatchObject({
+      hours: ["midnight–2 AM"],
+      intervals: [{ open: 0, close: 120 }],
+    });
+    expect(getDaySchedule(fridayNights, [], "2026-11-08").hours).toEqual([]);
+  });
+
+  test("a closed weekend day", () => {
+    expect(getDaySchedule(weekdays, [], "2026-11-07").hours).toEqual([]);
+  });
+
+  test("special hours replace the regular ones", () => {
+    expect(getDaySchedule(weekdays, [thanksgiving], "2026-11-26")).toEqual({
+      date: "2026-11-26",
+      hours: [],
+      intervals: [],
+      special: { label: "Thanksgiving", closed: true },
+      notes: [],
+    });
+  });
+
+  test("only the matching weeks of the month", () => {
+    const secondFriday = { 5: [nineToFive({ byday: "2FR" })] };
+    expect(getDaySchedule(secondFriday, [], "2026-11-06").hours).toEqual([]);
+    expect(getDaySchedule(secondFriday, [], "2026-11-13").hours).toEqual([
+      "9 AM–5 PM",
+    ]);
+  });
+});
+
+describe("getRelevantHours", () => {
+  // Breakfast, lunch and dinner on Mondays; November 2, 2026 is a Monday (EST).
+  const meals = {
+    1: [
+      hours("08:00:00", "09:00:00"),
+      hours("12:00:00", "13:00:00"),
+      hours("17:00:00", "18:00:00"),
+    ],
+  };
+  const monday = getDaySchedule(meals, [], "2026-11-02");
+  const at = (time: string) => new Date(`2026-11-02T${time}-05:00`);
+
+  test.each([
+    ["before the first range", "07:00:00", "8–9 AM"],
+    ["during a range", "12:30:00", "12–1 PM"],
+    ["between ranges, the next one", "14:00:00", "5–6 PM"],
+    ["after the last range, the last one", "20:00:00", "5–6 PM"],
+  ])("today, %s", (_, time, expected) => {
+    expect(getRelevantHours(monday, at(time))).toBe(expected);
+  });
+
+  test("another day shows its first range", () => {
+    const nextMonday = getDaySchedule(meals, [], "2026-11-09");
+    expect(getRelevantHours(nextMonday, at("14:00:00"))).toBe("8–9 AM");
+  });
+
+  test("a closed day has none", () => {
+    expect(
+      getRelevantHours(getDaySchedule(meals, [], "2026-11-03"), at("14:00:00")),
+    ).toBeNull();
   });
 });

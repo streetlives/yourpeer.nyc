@@ -307,19 +307,14 @@ export async function getFullLocationData({
   });
 }
 
+// Special hours: dated rows that close the service or give it other hours on
+// those dates only (a closed row with dates, or any dated row with no weekday).
+const isSpecialHours = (row: ScheduleData) =>
+  !!(row.valid_from || row.valid_to) && (row.closed || row.weekday == null);
+
 function isServiceClosed(schedule: ScheduleData[]) {
-  const isScheduleKnown = schedule && schedule.length;
-
-  let isClosed = false;
-  let openDays;
-  if (isScheduleKnown) {
-    openDays = schedule.filter(({ closed }) => !closed);
-
-    if (!openDays.length) {
-      isClosed = true;
-    }
-  }
-  return isClosed;
+  const undated = (schedule || []).filter((row) => !isSpecialHours(row));
+  return undated.length > 0 && undated.every(({ closed }) => closed);
 }
 
 function filter_services_by_name(
@@ -382,7 +377,10 @@ function filter_services_by_name(
             Object.entries(
               _.groupBy(
                 service.HolidaySchedules.filter(
-                  (schedule) => schedule.opens_at && schedule.closes_at,
+                  (schedule) =>
+                    schedule.opens_at &&
+                    schedule.closes_at &&
+                    !isSpecialHours(schedule),
                 ),
                 "weekday",
               ),
@@ -394,6 +392,7 @@ function filter_services_by_name(
               ),
             ]),
           ),
+          specialHours: service.HolidaySchedules.filter(isSpecialHours),
           docs: is_location_detail
             ? service.RequiredDocuments.filter(
                 (doc) => doc.document && doc.document != "None",
