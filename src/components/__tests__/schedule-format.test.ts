@@ -624,6 +624,24 @@ describe("week lists and special hours", () => {
     );
   });
 
+  test("several time ranges on the same special dates", () => {
+    const renovation = (opensAt: string, closesAt: string): ScheduleData => ({
+      ...hours(opensAt, closesAt),
+      weekday: null as unknown as number,
+      valid_from: "2026-10-23",
+      valid_to: "2026-10-30",
+      description: "Renovation",
+    });
+    expect(
+      formatSchedule(weekdays, [
+        renovation("13:00:00", "15:00:00"),
+        renovation("09:00:00", "10:00:00"),
+      ]),
+    ).toBe(
+      "Mon–Fri: 9 AM–5 PM. October 23 to October 30 (Renovation): 9–10 AM and 1–3 PM.",
+    );
+  });
+
   // December 2026 is EST (UTC-5). Dec 25 is a Friday, Dec 31 a Thursday.
   const at = (isoLocal: string) => new Date(`${isoLocal}-05:00`);
 

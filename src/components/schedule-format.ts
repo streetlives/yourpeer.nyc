@@ -512,7 +512,7 @@ const isWholeMonth = (from: string, to: string) => {
 function formatSpecialHours(specialHours: ScheduleData[]): string[] {
   const months: string[] = [];
   const closedDates: string[] = [];
-  const openDates: string[] = [];
+  const openDates = new Map<string, Interval[]>();
   specialHours.forEach((row) => {
     const { valid_from: from, description } = row;
     const to = row.valid_to || from;
@@ -534,15 +534,22 @@ function formatSpecialHours(specialHours: ScheduleData[]): string[] {
     if (row.closed || !row.opens_at || !row.closes_at) {
       closedDates.push(`${dates}${label}`);
     } else {
-      openDates.push(
-        `${dates}${label}: ${formatInterval(toInterval(row.opens_at, row.closes_at))}`,
-      );
+      // Several time ranges on the same dates make one phrase.
+      const key = `${dates}${label}`;
+      openDates.set(key, [
+        ...(openDates.get(key) || []),
+        toInterval(row.opens_at, row.closes_at),
+      ]);
     }
   });
   return [
     ...(months.length ? [`Closed in ${joinWithAnd(months)}`] : []),
     ...(closedDates.length ? [`Closed ${joinWithAnd(closedDates)}`] : []),
-    ...openDates,
+    ...Array.from(
+      openDates,
+      ([dates, intervals]) =>
+        `${dates}: ${joinWithAnd(mergeIntervals(intervals).map(formatInterval))}`,
+    ),
   ];
 }
 
