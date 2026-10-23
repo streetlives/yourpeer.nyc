@@ -724,6 +724,18 @@ describe("getDaySchedule", () => {
     });
   });
 
+  test("overnight hours carry on into the next day", () => {
+    const fridayNights = { "5": [hours("20:00:00", "02:00:00")] };
+    expect(getDaySchedule(fridayNights, [], "2026-11-06").hours).toEqual([
+      "8 PM–2 AM (next day)",
+    ]);
+    expect(getDaySchedule(fridayNights, [], "2026-11-07")).toMatchObject({
+      hours: ["midnight–2 AM"],
+      intervals: [{ open: 0, close: 120 }],
+    });
+    expect(getDaySchedule(fridayNights, [], "2026-11-08").hours).toEqual([]);
+  });
+
   test("a closed weekend day", () => {
     expect(getDaySchedule(weekdays, [], "2026-11-07").hours).toEqual([]);
   });

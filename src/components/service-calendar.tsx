@@ -160,9 +160,9 @@ export default function ServiceCalendar({
               className={cn(
                 "rounded h-11 sm:h-16 p-1 flex flex-col items-center text-sm border overflow-hidden",
                 open
-                  ? "bg-success/15 border-success/30"
-                  : "bg-grey-100 border-transparent",
-                day.special && "border-amber-300 border-2",
+                  ? "bg-success border-success text-dark"
+                  : "bg-grey-100 border-transparent text-grey-700",
+                day.special && "border-amber-500 border-2",
                 day.date === today && "font-bold",
                 day.date === selected && "ring-2 ring-dark",
                 isPast && "opacity-40",
@@ -194,7 +194,7 @@ export default function ServiceCalendar({
 
       <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-grey-700">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded bg-success/15 border border-success/30" />
+          <span className="inline-block w-3 h-3 rounded bg-success border border-success" />
           <TranslatableText text="Open" id="#service-calendar-Open" />
         </span>
         <span className="flex items-center gap-1">
@@ -203,7 +203,7 @@ export default function ServiceCalendar({
         </span>
         {specialDays.length > 0 && (
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded border-2 border-amber-300" />
+            <span className="inline-block w-3 h-3 rounded border-2 border-amber-500" />
             <TranslatableText
               text="Special hours"
               id="#service-calendar-SpecialHours"

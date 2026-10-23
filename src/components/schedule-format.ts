@@ -734,14 +734,21 @@ export function getDaySchedule(
   specialHours: ScheduleData[],
   date: string,
 ): DaySchedule {
-  const { open, special } = rowsForDate(
-    allRows(schedule),
-    specialHours,
-    parseDate(date),
-  );
-  const intervals = mergeIntervals(
-    open.map((row) => toInterval(row.opens_at, row.closes_at)),
-  );
+  const rows = allRows(schedule);
+  const day = parseDate(date);
+  const { open, special } = rowsForDate(rows, specialHours, day);
+  // Hours that run past midnight the day before carry on into this one,
+  // e.g. Friday 8 PM–2 AM shows Saturday as open 12–2 AM. A special-hours
+  // closure on this date doesn't cut them short, as they belong to the day
+  // before.
+  const carriedOver = rowsForDate(rows, specialHours, addDays(day, -1))
+    .open.map((row) => toInterval(row.opens_at, row.closes_at))
+    .filter(({ close }) => close > MINUTES_PER_DAY)
+    .map(({ close }) => ({ open: 0, close: close - MINUTES_PER_DAY }));
+  const intervals = mergeIntervals([
+    ...carriedOver,
+    ...open.map((row) => toInterval(row.opens_at, row.closes_at)),
+  ]);
   const unique = (items: (string | null | undefined)[]) =>
     Array.from(
       new Set(items.map((item) => item?.trim()).filter(Boolean)),
