@@ -49,6 +49,7 @@ function isOpen(day: DaySchedule) {
 export function cellLines(day: DaySchedule, now: Date): string[] {
   const hours = getRelevantHours(day, now);
   if (!hours) return ["Closed"];
+  if (hours === "24 hours") return ["24", "hours"];
   const [start, end] = hours.replace(" (next day)", "").split("–");
   return end === undefined ? [start] : [`${start}–`, end];
 }
@@ -164,7 +165,7 @@ export default function ServiceCalendar({
                   : "bg-grey-100 border-transparent text-grey-700",
                 day.special && "border-amber-500 border-2",
                 day.date === today && "font-bold",
-                day.date === selected && "ring-2 ring-dark",
+                day.date === selected && "ring-2 ring-inset ring-dark",
                 isPast && "opacity-40",
               )}
             >

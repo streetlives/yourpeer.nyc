@@ -109,7 +109,7 @@ describe("cellLines", () => {
     ["09:30:00", "12:30:00", ["9:30 AM–", "12:30 PM"]],
     ["14:00:00", "17:30:00", ["2–", "5:30 PM"]],
     ["21:00:00", "06:00:00", ["9 PM–", "6 AM"]],
-    ["00:00:00", "23:59:00", ["24 hours"]],
+    ["00:00:00", "23:59:00", ["24", "hours"]],
   ])("%s–%s", (opensAt, closesAt, expected) => {
     expect(cellLines(day(opensAt, closesAt), now)).toEqual(expected);
   });
