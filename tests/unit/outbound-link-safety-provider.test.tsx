@@ -218,6 +218,32 @@ describe("OutboundLinkSafetyProvider", () => {
     expect(sent.urls).toEqual(["http://example.org/apply"]);
   });
 
+  it("continues prefetching after the first 200 distinct links as page content changes", async () => {
+    const view = mount(
+      <div>
+        {Array.from({ length: 200 }, (_, index) => (
+          <a key={index} href={`https://example.org/old/${index}`}>
+            Old website {index}
+          </a>
+        ))}
+      </div>,
+    );
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(10));
+    await act(async () => {});
+    installResponse({ status: "warning", reasons: ["possible_compromise"] });
+    view.rerender(
+      <OutboundLinkSafetyProvider>
+        <a href="https://example.org/later">Later website</a>
+      </OutboundLinkSafetyProvider>,
+    );
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(11));
+    await act(async () => {});
+    fireEvent.click(screen.getByRole("link", { name: "Later website" }));
+    expect(screen.getByRole("alertdialog")).toHaveTextContent(
+      "may have been compromised",
+    );
+  });
+
   it.each(["modifier", "middle"])(
     "preserves %s-click intent when confirmation is needed",
     (mode) => {

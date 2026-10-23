@@ -93,6 +93,28 @@ function response(body: unknown, status = 200) {
   });
 }
 
+async function readLimitedBody(request: Request): Promise<string | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let text = "";
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) return text + decoder.decode();
+      bytes += value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return null;
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin) {
@@ -104,8 +126,8 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    const text = await request.text();
-    if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
+    const text = await readLimitedBody(request);
+    if (text === null) {
       return response({ error: "request_too_large" }, 413);
     }
     body = JSON.parse(text);

@@ -296,4 +296,35 @@ describe("website safety server boundary", () => {
     ).toBe(403);
     expect(fetcher).not.toHaveBeenCalled();
   });
+
+  it("cancels oversized chunked bodies before buffering the whole request", async () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    const cancel = vi.fn();
+    let chunks = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        chunks++;
+        controller.enqueue(new Uint8Array(16_001));
+        if (chunks === 20) controller.close();
+      },
+      cancel,
+    });
+    const chunked = new Request("https://yourpeer.nyc/api/website-safety", {
+      method: "POST",
+      headers: {
+        Origin: "https://yourpeer.nyc",
+        "Content-Type": "application/json",
+      },
+      body: stream,
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+    const text = vi.spyOn(chunked, "text");
+    const result = await (await route())(chunked);
+    expect(result.status).toBe(413);
+    expect(chunks).toBeLessThan(20);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(text).not.toHaveBeenCalled();
+    expect(fetcher).not.toHaveBeenCalled();
+  });
 });

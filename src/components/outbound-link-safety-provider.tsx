@@ -32,6 +32,7 @@ type PendingLink = {
 };
 
 const MAX_PREFETCH_LINKS = 200;
+const MAX_REMEMBERED_LINKS = 500;
 
 function getAnchor(event: Event): HTMLAnchorElement | null {
   const target = event.target;
@@ -92,10 +93,15 @@ export default function OutboundLinkSafetyProvider({
       document
         .querySelectorAll<HTMLAnchorElement>("a[href]")
         .forEach((anchor) => {
-          if (prefetched.size >= MAX_PREFETCH_LINKS) return;
+          // Bound each scan, not the entire mounted layout's lifetime. New
+          // pages and dynamically inserted service links must still be checked.
+          if (urls.length >= MAX_PREFETCH_LINKS) return;
           const url = eligible(anchor);
           if (url && !prefetched.has(url)) {
             prefetched.add(url);
+            if (prefetched.size > MAX_REMEMBERED_LINKS) {
+              prefetched.delete(prefetched.values().next().value!);
+            }
             urls.push(url);
           }
         });

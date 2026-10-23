@@ -43,6 +43,10 @@ Forwarding headers are best-effort buckets, so rotating them cannot bypass the
 instance-wide cap. Streetli's shared database budget independently caps all
 instances at 120 accepted requests/minute and 40 website refreshes/minute, with
 five-minute URL leases. A quota denial never clears an existing warning.
+Incoming request bodies are read with a 48 KB streaming limit, including when
+Content-Length is absent or inaccurate. Prefetching is capped per DOM scan, with
+bounded remembered entries, so new pages continue receiving cached assessments
+after the first 200 links in a browser session.
 
 Warnings cover HTTP transport, observed HTTPS downgrades, advertised PHP versions
 possibly affected by the [PHP advisory](https://www.php.net/archive/2026.php#2026-10-21-5),
