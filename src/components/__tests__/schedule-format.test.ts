@@ -620,7 +620,7 @@ describe("week lists and special hours", () => {
 
   test("labelled special hours", () => {
     expect(formatSchedule(weekdays, [christmas, newYearsEve])).toBe(
-      "Mon–Fri: 9 AM–5 PM. Closed December 25 (Christmas Day). December 31 (New Year's Eve): 10 AM–2 PM.",
+      "Mon–Fri: 9 AM–5 PM. Closed December 25 (Christmas Day). Except December 31 (New Year's Eve): Open 10 AM–2 PM.",
     );
   });
 
@@ -638,7 +638,7 @@ describe("week lists and special hours", () => {
         renovation("09:00:00", "10:00:00"),
       ]),
     ).toBe(
-      "Mon–Fri: 9 AM–5 PM. October 23 to October 30 (Renovation): 9–10 AM and 1–3 PM.",
+      "Mon–Fri: 9 AM–5 PM. Except October 23 to October 30 (Renovation): Open 9–10 AM and 1–3 PM.",
     );
   });
 

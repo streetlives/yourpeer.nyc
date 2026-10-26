@@ -548,7 +548,7 @@ function formatSpecialHours(specialHours: ScheduleData[]): string[] {
     ...Array.from(
       openDates,
       ([dates, intervals]) =>
-        `${dates}: ${joinWithAnd(mergeIntervals(intervals).map(formatInterval))}`,
+        `Except ${dates}: Open ${joinWithAnd(mergeIntervals(intervals).map(formatInterval))}`,
     ),
   ];
 }
