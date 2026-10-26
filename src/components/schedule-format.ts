@@ -40,6 +40,9 @@ const BYDAY_CODES = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 // How far ahead the open status looks for the next opening when a schedule
 // has dates or monthly rules: long enough to get past a closed month.
 const CALENDAR_LOOKAHEAD_DAYS = 62;
+// How far ahead it follows hours open without a break to find when they
+// close; open longer than that, it gives no closing time.
+const CALENDAR_CLOSING_LIMIT_DAYS = 366;
 
 const toWeekday = (weekday: number) => (weekday === 0 ? 7 : weekday);
 
@@ -892,35 +895,56 @@ function getCalendarOpenStatus(
 ): OpenStatus | null {
   const { date: today, minutes: current } = newYorkToday(now);
 
-  // Yesterday (index 0) to the end of the lookahead, plus the day after it.
-  const days = Array.from({ length: CALENDAR_LOOKAHEAD_DAYS + 3 }, (_, index) =>
-    rowsForDate(rows, specialHours, addDays(today, index - 1)),
-  );
-  const lookaheadEnd = (CALENDAR_LOOKAHEAD_DAYS + 1) * MINUTES_PER_DAY;
-  const intervals: Interval[] = [];
-  days.slice(0, -1).forEach(({ open: dayRows }, index) => {
-    // Special hours on the next date replace everything on it, so hours
-    // running past midnight end there.
-    const endOfDay = days[index + 1].special.length
+  const rowsByOffset = new Map<number, ReturnType<typeof rowsForDate>>();
+  const rowsOn = (offset: number) => {
+    if (!rowsByOffset.has(offset)) {
+      rowsByOffset.set(
+        offset,
+        rowsForDate(rows, specialHours, addDays(today, offset)),
+      );
+    }
+    return rowsByOffset.get(offset)!;
+  };
+  // The open intervals on the day `offset` days from today, in minutes from
+  // the start of today. Special hours on the next date replace everything on
+  // it, so hours running past midnight end there.
+  const intervalsOn = (offset: number): Interval[] => {
+    const endOfDay = rowsOn(offset + 1).special.length
       ? MINUTES_PER_DAY
       : Infinity;
-    const dayStart = (index - 1) * MINUTES_PER_DAY;
-    dayRows.forEach((row) => {
+    const dayStart = offset * MINUTES_PER_DAY;
+    return rowsOn(offset).open.map((row) => {
       const { open, close } = toInterval(row.opens_at, row.closes_at);
-      intervals.push({
+      return {
         open: dayStart + open,
         close: dayStart + Math.min(close, endOfDay),
-      });
+      };
     });
-  });
-  const timeline = mergeIntervals(intervals);
+  };
 
-  const openInterval = timeline.find(
+  const timeline = mergeIntervals(
+    Array.from({ length: CALENDAR_LOOKAHEAD_DAYS + 2 }, (_, index) =>
+      intervalsOn(index - 1),
+    ).flat(),
+  );
+
+  let openInterval = timeline.find(
     ({ open, close }) => open <= current && current < close,
   );
-  // Open past the last day looked at: the closing time isn't known.
-  if (openInterval && openInterval.close >= lookaheadEnd) {
-    return { open: true, closingSoon: false, label: "Open now" };
+  if (openInterval) {
+    // Open to the end of the days looked at: follow the hours on from there
+    // until they close, so the lookahead's end isn't taken for a closing time.
+    let close = openInterval.close;
+    let offset = CALENDAR_LOOKAHEAD_DAYS + 1;
+    for (; close >= offset * MINUTES_PER_DAY; offset++) {
+      if (offset > CALENDAR_CLOSING_LIMIT_DAYS) {
+        return { open: true, closingSoon: false, label: "Open now" };
+      }
+      intervalsOn(offset)
+        .filter(({ open }) => open <= close)
+        .forEach((interval) => (close = Math.max(close, interval.close)));
+    }
+    openInterval = { ...openInterval, close };
   }
   if (openInterval) {
     const closingSoon = openInterval.close - current <= CLOSING_SOON_MINUTES;

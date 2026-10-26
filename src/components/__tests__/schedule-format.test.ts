@@ -738,17 +738,33 @@ describe("week lists and special hours", () => {
     );
   });
 
-  test("open all through the dates looked ahead at", () => {
+  describe("open all day, every day, with a closure ahead", () => {
     const allDay = Object.fromEntries(
       EVERY_DAY.map((day) => [day, [hours("00:00:00", "23:59:00")]]),
     );
-    // A closure next June puts the status in calendar mode; the 62 days
-    // looked ahead at end before it, so no closing time is known.
-    expect(
-      getOpenStatus(allDay, new Date("2026-10-26T12:00:00-04:00"), [
-        special({ valid_from: "2027-06-01", valid_to: "2027-06-01" }),
-      ])?.label,
-    ).toBe("Open now");
+    const closedOn = (date: string) =>
+      special({ valid_from: date, valid_to: date });
+    const now = new Date("2026-10-26T12:00:00-04:00");
+
+    // The open status looks 62 days ahead for the next opening, to December
+    // 27; a closure on December 28 is still a real closing time.
+    test("closing right after the days looked ahead at", () => {
+      expect(getOpenStatus(allDay, now, [closedOn("2026-12-28")])?.label).toBe(
+        "Open now · Closes Monday, December 28 at midnight",
+      );
+    });
+
+    test("closing months ahead", () => {
+      expect(getOpenStatus(allDay, now, [closedOn("2027-06-01")])?.label).toBe(
+        "Open now · Closes Tuesday, June 1 at midnight",
+      );
+    });
+
+    test("no closing time within a year", () => {
+      expect(getOpenStatus(allDay, now, [closedOn("2028-01-01")])?.label).toBe(
+        "Open now",
+      );
+    });
   });
 
   test("open on the 2nd of a two-Friday list", () => {
