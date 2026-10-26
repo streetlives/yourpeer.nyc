@@ -561,7 +561,11 @@ export function formatSchedule(
   const weekly = formatWeekly(normalizeSchedule(schedule));
   const phrases = [...weekly.phrases, ...formatMonthly(rows)];
   if (!phrases.length) {
-    return null;
+    // Only dated hours, e.g. a one-time event: "Open November 14: 10 AM–2 PM."
+    const special = formatSpecialHours(specialHours).map((text) =>
+      text.replace(/^Except (.*): Open /, "Open $1: "),
+    );
+    return special.length ? `${special.join(". ")}.` : null;
   }
 
   const validRange = formatValidRange(rows);

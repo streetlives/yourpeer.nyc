@@ -642,6 +642,16 @@ describe("week lists and special hours", () => {
     );
   });
 
+  test("only special hours, such as a one-time event", () => {
+    expect(formatSchedule({}, [newYearsEve])).toBe(
+      "Open December 31 (New Year's Eve): 10 AM–2 PM.",
+    );
+    expect(formatSchedule({}, [christmas])).toBe(
+      "Closed December 25 (Christmas Day).",
+    );
+    expect(formatSchedule({}, [])).toBeNull();
+  });
+
   // December 2026 is EST (UTC-5). Dec 25 is a Friday, Dec 31 a Thursday.
   const at = (isoLocal: string) => new Date(`${isoLocal}-05:00`);
 

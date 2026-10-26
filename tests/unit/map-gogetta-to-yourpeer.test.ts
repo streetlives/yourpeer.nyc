@@ -9,8 +9,9 @@ import locationDetailFixture from "../fixtures/location-detail.json";
 import {
   map_gogetta_to_yourpeer,
   parseStreetviewUrl,
+  withWeekdays,
 } from "@/components/streetlives-api-service";
-import type { LocationDetailData } from "@/components/common";
+import type { LocationDetailData, ScheduleData } from "@/components/common";
 
 const BASE = locationDetailFixture as unknown as LocationDetailData;
 
@@ -211,5 +212,38 @@ describe("map_gogetta_to_yourpeer — LocationPhoto mapping", () => {
     } as LocationDetailData;
 
     expect(map_gogetta_to_yourpeer(fixture, true).photo?.url).toBeNull();
+  });
+});
+
+describe("withWeekdays", () => {
+  const row = (extra: Partial<ScheduleData>): ScheduleData =>
+    ({
+      id: "row",
+      closed: false,
+      opens_at: "09:00:00",
+      closes_at: "17:00:00",
+      weekday: 5,
+      ...extra,
+    }) as ScheduleData;
+
+  it("gives each weekday in a BYDAY-only row its own row", () => {
+    const rows = withWeekdays([
+      row({ weekday: null as unknown as number, byday: "2FR,2SA,4FR" }),
+    ]);
+    expect(rows.map(({ weekday, byday }) => [weekday, byday])).toEqual([
+      [5, "2FR,2SA,4FR"],
+      [6, "2FR,2SA,4FR"],
+    ]);
+  });
+
+  it("leaves out recurrence it cannot show", () => {
+    expect(
+      withWeekdays([
+        row({ byday: "FR" }),
+        row({ byday: "-2FR" }),
+        row({ byday: "1FR", interval: 2 }),
+        row({ byday: "1FR", interval: 1 }),
+      ]).map(({ byday, interval }) => `${byday}/${interval ?? ""}`),
+    ).toEqual(["FR/", "1FR/1"]);
   });
 });
