@@ -307,19 +307,52 @@ export async function getFullLocationData({
   });
 }
 
+// Special hours: dated rows that close the service or give it other hours on
+// those dates only (a closed row with dates, or any dated row with no weekday
+// or BYDAY).
+const isSpecialHours = (row: ScheduleData) =>
+  !!(row.valid_from || row.valid_to) &&
+  (row.closed || (row.weekday == null && !row.byday));
+
+const BYDAY_WEEKDAYS: Record<string, number> = {
+  MO: 1,
+  TU: 2,
+  WE: 3,
+  TH: 4,
+  FR: 5,
+  SA: 6,
+  SU: 7,
+};
+
+// Recurrence we can show: BYDAY weeks 1st-5th or last, and an INTERVAL above
+// 1 only with a valid_from to count it from. Other rows are left out rather
+// than shown on the wrong days.
+const isSupportedRecurrence = (row: ScheduleData) =>
+  (row.interval == null || row.interval <= 1 || !!row.valid_from) &&
+  (row.byday || "")
+    .split(",")
+    .filter(Boolean)
+    .every((part) => /^(-1|[1-5])?(MO|TU|WE|TH|FR|SA|SU)$/.test(part.trim()));
+
+// HSDS rows can give their weekdays in BYDAY alone ("2FR,2SA" with no
+// weekday); give each of those weekdays its own row, as GoGetta saves them.
+export function withWeekdays(rows: ScheduleData[]): ScheduleData[] {
+  return rows.filter(isSupportedRecurrence).flatMap((row) => {
+    if (row.weekday != null || !row.byday) return [row];
+    const weekdays = Array.from(
+      new Set(
+        row.byday
+          .split(",")
+          .map((part) => BYDAY_WEEKDAYS[part.trim().slice(-2)]),
+      ),
+    );
+    return weekdays.map((weekday) => ({ ...row, weekday }));
+  });
+}
+
 function isServiceClosed(schedule: ScheduleData[]) {
-  const isScheduleKnown = schedule && schedule.length;
-
-  let isClosed = false;
-  let openDays;
-  if (isScheduleKnown) {
-    openDays = schedule.filter(({ closed }) => !closed);
-
-    if (!openDays.length) {
-      isClosed = true;
-    }
-  }
-  return isClosed;
+  const undated = (schedule || []).filter((row) => !isSpecialHours(row));
+  return undated.length > 0 && undated.every(({ closed }) => closed);
 }
 
 function filter_services_by_name(
@@ -377,12 +410,15 @@ function filter_services_by_name(
               ),
             ),
           ),
-          closed: isServiceClosed(service.HolidaySchedules),
+          closed: isServiceClosed(withWeekdays(service.HolidaySchedules)),
           schedule: Object.fromEntries(
             Object.entries(
               _.groupBy(
-                service.HolidaySchedules.filter(
-                  (schedule) => schedule.opens_at && schedule.closes_at,
+                withWeekdays(service.HolidaySchedules).filter(
+                  (schedule) =>
+                    schedule.opens_at &&
+                    schedule.closes_at &&
+                    !isSpecialHours(schedule),
                 ),
                 "weekday",
               ),
@@ -393,6 +429,9 @@ function filter_services_by_name(
                 time1.opens_at.localeCompare(time2.opens_at),
               ),
             ]),
+          ),
+          specialHours: withWeekdays(service.HolidaySchedules).filter(
+            isSpecialHours,
           ),
           docs: is_location_detail
             ? service.RequiredDocuments.filter(
