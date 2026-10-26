@@ -16,6 +16,7 @@ import GTProdGuardScript from "@/components/gt-prod-guard-script";
 import { AiSearchEnabledProvider } from "@/components/ai-search-context";
 import { isAiSearchEnabled } from "@/components/feature-flags";
 import { inter } from "./fonts";
+import OutboundLinkSafetyProvider from "@/components/outbound-link-safety-provider";
 
 export const viewport: Viewport = {
   themeColor: "#FFD54F",
@@ -66,7 +67,11 @@ export default function RootLayout({
         <CookiesProvider>
           <LanguageTranslationProvider>
             <AiSearchEnabledProvider enabled={isAiSearchEnabled()}>
-              <QueryClientProvider>{children}</QueryClientProvider>
+              <QueryClientProvider>
+                <OutboundLinkSafetyProvider>
+                  {children}
+                </OutboundLinkSafetyProvider>
+              </QueryClientProvider>
             </AiSearchEnabledProvider>
           </LanguageTranslationProvider>
         </CookiesProvider>
