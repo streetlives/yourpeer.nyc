@@ -246,4 +246,12 @@ describe("withWeekdays", () => {
       ]).map(({ byday, interval }) => `${byday}/${interval ?? ""}`),
     ).toEqual(["FR/", "1FR/1"]);
   });
+
+  it("keeps an interval above 1 when valid_from gives it a start", () => {
+    expect(
+      withWeekdays([
+        row({ byday: "2FR", interval: 2, valid_from: "2026-09-01" }),
+      ]).map(({ byday, interval }) => `${byday}/${interval}`),
+    ).toEqual(["2FR/2"]);
+  });
 });

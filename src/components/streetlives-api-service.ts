@@ -324,11 +324,11 @@ const BYDAY_WEEKDAYS: Record<string, number> = {
   SU: 7,
 };
 
-// Recurrence we can show: every week or month (no INTERVAL above 1, which
-// would need a start date to count from), and BYDAY weeks 1st-5th or last.
-// Other rows are left out rather than shown on the wrong days.
+// Recurrence we can show: BYDAY weeks 1st-5th or last, and an INTERVAL above
+// 1 only with a valid_from to count it from. Other rows are left out rather
+// than shown on the wrong days.
 const isSupportedRecurrence = (row: ScheduleData) =>
-  (row.interval == null || row.interval <= 1) &&
+  (row.interval == null || row.interval <= 1 || !!row.valid_from) &&
   (row.byday || "")
     .split(",")
     .filter(Boolean)

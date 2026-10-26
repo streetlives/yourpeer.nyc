@@ -496,6 +496,43 @@ describe("monthly and dated schedules", () => {
     const at = (isoLocal: string, offset = "-04:00") =>
       new Date(`${isoLocal}${offset}`);
     const secondFriday = { 5: [nineToFive({ byday: "2FR" })] };
+    // September 2026 starts the count, so the on-months are September and
+    // November; for the weekly one, the weeks of October 2 and 16.
+    const everyOtherMonth = {
+      5: [
+        nineToFive({
+          freq: "MONTHLY",
+          interval: 2,
+          byday: "2FR",
+          valid_from: "2026-09-01",
+        }),
+      ],
+    };
+    const everyOtherWeek = {
+      5: [
+        nineToFive({ freq: "WEEKLY", interval: 2, valid_from: "2026-10-02" }),
+      ],
+    };
+
+    test("describes every few months or weeks", () => {
+      expect(formatSchedule(everyOtherMonth)).toBe(
+        "2nd Friday of every other month: 9 AM–5 PM. Runs from September 1, 2026.",
+      );
+      expect(formatSchedule(everyOtherWeek)).toBe(
+        "Every other week: Fri 9 AM–5 PM. Runs from October 2, 2026.",
+      );
+      expect(
+        formatSchedule({
+          1: [
+            nineToFive({
+              freq: "MONTHLY",
+              interval: 3,
+              valid_from: "2026-10-01",
+            }),
+          ],
+        }),
+      ).toBe("Every 3rd month: Mon 9 AM–5 PM. Runs from October 1, 2026.");
+    });
 
     test.each<
       [string, YourPeerLegacyScheduleData, ScheduleData[], Date, string | null]
@@ -555,6 +592,27 @@ describe("monthly and dated schedules", () => {
         [december],
         at("2026-11-30T18:00:00", "-05:00"),
         "Closed · Opens Friday, January 1 at 9 AM",
+      ],
+      [
+        "every other month, counted from valid_from",
+        everyOtherMonth,
+        [],
+        at("2026-10-09T12:00:00"),
+        "Closed · Opens Friday, November 13 at 9 AM",
+      ],
+      [
+        "every other week, counted from valid_from",
+        everyOtherWeek,
+        [],
+        at("2026-10-09T12:00:00"),
+        "Closed · Opens Friday at 9 AM",
+      ],
+      [
+        "on an on-week of every other week",
+        everyOtherWeek,
+        [],
+        at("2026-10-16T12:00:00"),
+        "Open now · Closes at 5 PM",
       ],
     ])("%s", (_, schedule, exceptions, now, expected) => {
       expect(getOpenStatus(schedule, now, exceptions)?.label ?? null).toBe(
@@ -680,6 +738,19 @@ describe("week lists and special hours", () => {
     );
   });
 
+  test("open all through the dates looked ahead at", () => {
+    const allDay = Object.fromEntries(
+      EVERY_DAY.map((day) => [day, [hours("00:00:00", "23:59:00")]]),
+    );
+    // A closure next June puts the status in calendar mode; the 62 days
+    // looked ahead at end before it, so no closing time is known.
+    expect(
+      getOpenStatus(allDay, new Date("2026-10-26T12:00:00-04:00"), [
+        special({ valid_from: "2027-06-01", valid_to: "2027-06-01" }),
+      ])?.label,
+    ).toBe("Open now");
+  });
+
   test("open on the 2nd of a two-Friday list", () => {
     // October 9, 2026 is the 2nd Friday (EDT).
     expect(
@@ -762,6 +833,36 @@ describe("getDaySchedule", () => {
       intervals: [{ open: 0, close: 120 }],
     });
     expect(getDaySchedule(fridayNights, [], "2026-11-08").hours).toEqual([]);
+  });
+
+  test("special hours on the next date end overnight hours at midnight", () => {
+    const fridayNights = { "5": [hours("20:00:00", "02:00:00")] };
+    const closedSaturday: ScheduleData = {
+      ...thanksgiving,
+      valid_from: "2026-11-07",
+      valid_to: "2026-11-07",
+      description: null,
+    };
+    expect(
+      getDaySchedule(fridayNights, [closedSaturday], "2026-11-07"),
+    ).toEqual({
+      date: "2026-11-07",
+      hours: [],
+      intervals: [],
+      special: { label: null, closed: true },
+      notes: [],
+    });
+    // Saturday 1 AM (EST): the closure wins over Friday night's hours.
+    expect(
+      getOpenStatus(fridayNights, new Date("2026-11-07T01:00:00-05:00"), [
+        closedSaturday,
+      ])?.label,
+    ).toBe("Closed · Opens Friday at 8 PM");
+    expect(
+      getOpenStatus(fridayNights, new Date("2026-11-06T22:00:00-05:00"), [
+        closedSaturday,
+      ])?.label,
+    ).toBe("Open now · Closes tomorrow at midnight");
   });
 
   test("overnight hours split at midnight run into the next day", () => {
