@@ -754,6 +754,20 @@ describe("getDaySchedule", () => {
     expect(getDaySchedule(fridayNights, [], "2026-11-08").hours).toEqual([]);
   });
 
+  test("overnight hours split at midnight run into the next day", () => {
+    const mondayNights = {
+      "1": [hours("21:00:00", "23:59:00")],
+      "2": [hours("00:00:00", "06:00:00")],
+    };
+    // Monday Nov 2 and Tuesday Nov 3, 2026.
+    expect(getDaySchedule(mondayNights, [], "2026-11-02").hours).toEqual([
+      "9 PM–6 AM (next day)",
+    ]);
+    expect(getDaySchedule(mondayNights, [], "2026-11-03").hours).toEqual([
+      "midnight–6 AM",
+    ]);
+  });
+
   test("a closed weekend day", () => {
     expect(getDaySchedule(weekdays, [], "2026-11-07").hours).toEqual([]);
   });

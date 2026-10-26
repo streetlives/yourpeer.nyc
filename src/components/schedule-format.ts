@@ -756,6 +756,16 @@ export function getDaySchedule(
     ...carriedOver,
     ...open.map((row) => toInterval(row.opens_at, row.closes_at)),
   ]);
+  // Overnight hours entered as two rows split at midnight (Monday 21:00–23:59
+  // and Tuesday 00:00–06:00) read "9 PM–6 AM (next day)", as in the weekly
+  // sentence. Days open all day are left as they are.
+  const last = intervals[intervals.length - 1];
+  if (last && last.open > 0 && last.close === MINUTES_PER_DAY) {
+    const morning = rowsForDate(rows, specialHours, addDays(day, 1))
+      .open.map((row) => toInterval(row.opens_at, row.closes_at))
+      .find(({ open, close }) => open === 0 && close < MINUTES_PER_DAY);
+    if (morning) last.close += morning.close;
+  }
   const unique = (items: (string | null | undefined)[]) =>
     Array.from(
       new Set(items.map((item) => item?.trim()).filter(Boolean)),
