@@ -793,10 +793,10 @@ function rowsForDate(
   const weekday = toWeekday(date.getUTCDay());
   const hasHours = (row: ScheduleData) =>
     !row.closed && !!row.opens_at && !!row.closes_at;
-  const special = specialHours.filter(
-    (entry) =>
-      (entry.weekday == null || toWeekday(entry.weekday) === weekday) &&
-      isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
+  // Special hours go by their dates alone, as their description does: a
+  // weekday left on a dated closure doesn't stop it closing the date.
+  const special = specialHours.filter((entry) =>
+    isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
   );
   if (special.length) {
     return { open: special.filter(hasHours), special };

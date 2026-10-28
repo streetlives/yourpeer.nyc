@@ -796,6 +796,18 @@ describe("week lists and special hours", () => {
     });
   });
 
+  test("a dated closure closes its date whatever weekday it carries", () => {
+    // Christmas 2026 is a Friday; this closure was saved with Monday.
+    const closure = { ...christmas, weekday: 1 };
+    expect(getDaySchedule(weekdays, [closure], "2026-12-25")).toMatchObject({
+      hours: [],
+      special: { label: "Christmas Day", closed: true },
+    });
+    expect(
+      getOpenStatus(weekdays, at("2026-12-25T12:00:00"), [closure])?.label,
+    ).toBe("Closed · Opens Monday at 9 AM");
+  });
+
   test("open on the 2nd of a two-Friday list", () => {
     // October 9, 2026 is the 2nd Friday (EDT).
     expect(
