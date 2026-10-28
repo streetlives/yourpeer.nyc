@@ -342,6 +342,18 @@ describe("getOpenStatus", () => {
       "Open now · Closes at 6 AM",
     ],
     [
+      "closing at midnight closes today, not tomorrow",
+      on([1], ["18:00:00", "23:59:00"]),
+      "2026-10-05T20:00:00",
+      "Open now · Closes at midnight",
+    ],
+    [
+      "closing at midnight on a later day names that day",
+      on([1, 2], ["00:00:00", "23:59:00"]),
+      "2026-10-05T20:00:00",
+      "Open now · Closes tomorrow at midnight",
+    ],
+    [
       "overnight interval before midnight closes tomorrow",
       on(MON_TO_FRI, ["21:00:00", "06:00:00"]),
       "2026-10-05T22:00:00",
@@ -750,14 +762,31 @@ describe("week lists and special hours", () => {
     // 27; a closure on December 28 is still a real closing time.
     test("closing right after the days looked ahead at", () => {
       expect(getOpenStatus(allDay, now, [closedOn("2026-12-28")])?.label).toBe(
-        "Open now · Closes Monday, December 28 at midnight",
+        "Open now · Closes Sunday, December 27 at midnight",
       );
     });
 
     test("closing months ahead", () => {
       expect(getOpenStatus(allDay, now, [closedOn("2027-06-01")])?.label).toBe(
-        "Open now · Closes Tuesday, June 1 at midnight",
+        "Open now · Closes Monday, May 31 at midnight",
       );
+    });
+
+    // the-hudson-county-alliance-to-end-homelessness-hcaeh-115-37th-st: 24/7,
+    // with special hours from Friday October 30. Viewed on the Wednesday, the
+    // hours close at the end of Thursday, not on Friday night.
+    test("closing at midnight before special hours start", () => {
+      const specialWeeks = {
+        ...special({ valid_from: "2026-10-30", valid_to: "2026-11-10" }),
+        closed: false,
+        opens_at: "09:00:00",
+        closes_at: "17:00:00",
+      };
+      expect(
+        getOpenStatus(allDay, new Date("2026-10-28T12:00:00-04:00"), [
+          specialWeeks,
+        ])?.label,
+      ).toBe("Open now · Closes tomorrow at midnight");
     });
 
     test("no closing time within a year", () => {
@@ -765,6 +794,18 @@ describe("week lists and special hours", () => {
         "Open now",
       );
     });
+  });
+
+  test("a dated closure closes its date whatever weekday it carries", () => {
+    // Christmas 2026 is a Friday; this closure was saved with Monday.
+    const closure = { ...christmas, weekday: 1 };
+    expect(getDaySchedule(weekdays, [closure], "2026-12-25")).toMatchObject({
+      hours: [],
+      special: { label: "Christmas Day", closed: true },
+    });
+    expect(
+      getOpenStatus(weekdays, at("2026-12-25T12:00:00"), [closure])?.label,
+    ).toBe("Closed · Opens Monday at 9 AM");
   });
 
   test("open on the 2nd of a two-Friday list", () => {
@@ -878,7 +919,7 @@ describe("getDaySchedule", () => {
       getOpenStatus(fridayNights, new Date("2026-11-06T22:00:00-05:00"), [
         closedSaturday,
       ])?.label,
-    ).toBe("Open now · Closes tomorrow at midnight");
+    ).toBe("Open now · Closes at midnight");
   });
 
   test("overnight hours split at midnight run into the next day", () => {
