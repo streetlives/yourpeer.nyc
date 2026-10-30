@@ -1,0 +1,96 @@
+{
+  "projectId": "4170f088-5898-4741-a218-2af235987b1c",
+  "shape": "package",
+  "pkg": "yourpeer.nyc-nextjs",
+  "globalName": "YourPeer",
+  "entry": "./.design-sync/entry.ts",
+  "buildCmd": "npx tailwindcss -c .design-sync/tailwind.config.ts -i .design-sync/styles.input.css -o .design-sync/.cache/yourpeer.css",
+  "srcDir": "src",
+  "tsconfig": "./.design-sync/tsconfig.json",
+  "cssEntry": ".design-sync/.cache/yourpeer.css",
+  "provider": {
+    "component": "YourPeerProvider"
+  },
+  "componentSrcMap": {
+    "Button": "src/components/ui/button.tsx",
+    "Badge": "src/components/ui/badge.tsx",
+    "Dialog": "src/components/ui/dialog.tsx",
+    "AlertDialog": "src/components/ui/alert-dialog.tsx",
+    "DropdownMenu": "src/components/ui/dropdown-menu.tsx",
+    "Popover": "src/components/ui/popover.tsx",
+    "Command": "src/components/ui/command.tsx",
+    "MultiSelect": "src/components/ui/multi-select.tsx",
+    "Separator": "src/components/ui/separator.tsx",
+    "Skeleton": "src/components/ui/skeleton.tsx",
+    "Spinner": "src/components/spinner.tsx",
+    "TranslatableText": "src/components/translatable-text.tsx",
+    "QuickExit": "src/components/quick-exit.tsx",
+    "EditIcon": "src/components/icons/edit-icon.tsx",
+    "MailIcon": "src/components/icons/mail-icon.tsx",
+    "ReportIcon": "src/components/icons/report-icon.tsx",
+    "UserBoxIcon": "src/components/icons/user-box-icon.tsx",
+    "MapLoadingAnimation": "src/components/map-loading-animation.tsx",
+    "SidebarLoadingAnimation": "src/components/sidebar-loading-animation.tsx",
+    "LocationDetailLoadingSkeleton": "src/components/location-detail/location-detail-loading-skeleton.tsx",
+    "ExploreServicesButton": "src/components/ExploreServicesButton.tsx",
+    "Footer": "src/components/footer.tsx"
+  },
+  "dtsPropsFor": {
+    "Button": "  /** Visual style. default = black fill (the yourpeer primary action); outline = white with dark border; secondary = neutral-100 fill; ghost = no fill until hover; link = underlined text; destructive = red fill. */\n  variant?: \"default\" | \"destructive\" | \"outline\" | \"secondary\" | \"ghost\" | \"link\";\n  /** Height: sm 32px, default 36px, lg 40px, icon 36x36 square. */\n  size?: \"default\" | \"sm\" | \"lg\" | \"icon\";\n  /** Render the child element (e.g. an <a>) with button styling instead of a <button>. */\n  asChild?: boolean;\n  className?: string;\n  disabled?: boolean;\n  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;\n  children?: React.ReactNode;\n  /** Any native <button> attribute (onClick, type, disabled, aria-*) is forwarded. */\n  [attr: string]: unknown;",
+    "Badge": "  /** default = black pill text on dark; secondary = neutral-100; destructive = red; outline = bordered, transparent. */\n  variant?: \"default\" | \"secondary\" | \"destructive\" | \"outline\";\n  className?: string;\n  children?: React.ReactNode;",
+    "Dialog": "  /** Controlled open state. Omit (with DialogTrigger) for uncontrolled. */\n  open?: boolean;\n  defaultOpen?: boolean;\n  onOpenChange?: (open: boolean) => void;\n  modal?: boolean;\n  /** Compose: DialogTrigger, DialogContent > DialogHeader (DialogTitle, DialogDescription) + body + DialogFooter; DialogClose closes. */\n  children?: React.ReactNode;",
+    "AlertDialog": "  open?: boolean;\n  defaultOpen?: boolean;\n  onOpenChange?: (open: boolean) => void;\n  /** Compose: AlertDialogTrigger, AlertDialogContent > AlertDialogHeader (AlertDialogTitle, AlertDialogDescription) + AlertDialogFooter (AlertDialogCancel, AlertDialogAction). */\n  children?: React.ReactNode;",
+    "DropdownMenu": "  open?: boolean;\n  defaultOpen?: boolean;\n  onOpenChange?: (open: boolean) => void;\n  modal?: boolean;\n  /** Compose: DropdownMenuTrigger (asChild) + DropdownMenuContent > DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup/RadioItem, DropdownMenuSeparator, DropdownMenuSub. */\n  children?: React.ReactNode;",
+    "Popover": "  open?: boolean;\n  defaultOpen?: boolean;\n  onOpenChange?: (open: boolean) => void;\n  modal?: boolean;\n  /** Compose: PopoverTrigger (asChild) + PopoverContent (align, sideOffset, className). PopoverAnchor optional. */\n  children?: React.ReactNode;",
+    "Command": "  /** Filter value (controlled) for the built-in fuzzy filter. */\n  value?: string;\n  onValueChange?: (value: string) => void;\n  /** Disable cmdk's built-in filtering (when you filter yourself). */\n  shouldFilter?: boolean;\n  className?: string;\n  /** Compose: CommandInput, CommandList > CommandEmpty, CommandGroup (heading) > CommandItem (onSelect), CommandSeparator, CommandShortcut. CommandDialog wraps it in a Dialog. */\n  children?: React.ReactNode;",
+    "MultiSelect": "  /** Selectable options. */\n  options: { label: string; value: string }[];\n  /** Called with the full array of selected values on every change. */\n  onValueChange: (value: string[]) => void;\n  /** Values selected on mount. */\n  defaultValue?: string[];\n  /** Text shown when nothing is selected. Default \"Select options\". */\n  placeholder?: string;\n  /** Render the popover as modal (traps focus). Default false. */\n  modalPopover?: boolean;\n  variant?: \"default\" | \"secondary\" | \"destructive\" | \"inverted\";\n  className?: string;\n  disabled?: boolean;",
+    "Separator": "  orientation?: \"horizontal\" | \"vertical\";\n  /** true (default) hides it from assistive tech. */\n  decorative?: boolean;\n  className?: string;",
+    "Skeleton": "  /** Size and shape it with utilities, e.g. \"h-4 w-40 rounded-full\". */\n  className?: string;\n  style?: React.CSSProperties;",
+    "Spinner": "  /** No props. A 16px spinning ring in currentColor; set the color on a parent (e.g. text-white inside a black button). */",
+    "TranslatableText": "  /** English source string; rendered translated when the user picked another language. */\n  text: string;\n  /** Optional translation key when the same English text needs a distinct translation. */\n  id?: string;\n  className?: string;\n  expectTranslation?: boolean;\n  style?: Record<string, string>;",
+    "QuickExit": "  /** No props. The \"Quick Exit\" safety link (opens a neutral site) shown at the top right of yourpeer screens. */",
+    "EditIcon": "  /** Any <svg> attribute (className, width, height, aria-label). 24x24, pencil stroked in #2962FF (fixed color; the yourpeer \"edit\" affordance). */\n  className?: string;\n  width?: number | string;\n  height?: number | string;\n  [attr: string]: unknown;",
+    "MailIcon": "  /** Any <svg> attribute. Outline envelope, stroke = currentColor, no intrinsic size: always set a size class such as \"w-5 h-5\". */\n  className?: string;\n  [attr: string]: unknown;",
+    "ReportIcon": "  /** Any <svg> attribute. Outline warning triangle, stroke = currentColor, no intrinsic size: set \"w-5 h-5\". */\n  className?: string;\n  [attr: string]: unknown;",
+    "UserBoxIcon": "  /** Any <svg> attribute. 18x18 filled user-in-a-box glyph, fill = currentColor. */\n  className?: string;\n  width?: number | string;\n  height?: number | string;\n  [attr: string]: unknown;",
+    "MapLoadingAnimation": "  /** No props. A white pill with a pulsing three-dot loader, absolutely positioned top-center of its relative parent (used over the map). */",
+    "SidebarLoadingAnimation": "  /** No props. Three shimmering placeholder cards (title lines + content lines) for a results list that is loading. */",
+    "LocationDetailLoadingSkeleton": "  /** Extra classes. The root is a full-panel overlay: fixed inset-0 (md:absolute), white, z-50 - place it inside a relative container. */\n  className?: string;",
+    "ExploreServicesButton": "  /** Defaults to \"primary-button\" (black, rounded-lg, white text). Renders an <a href=\"/locations\">. */\n  className?: string;",
+    "Footer": "  /** No props. The black site footer: Company links, Resources (category) links, (c) Streetlives. */"
+  },
+  "docsDir": ".design-sync/docs",
+  "overrides": {
+    "Dialog": {
+      "cardMode": "single",
+      "viewport": "720x480"
+    },
+    "Footer": {
+      "cardMode": "column"
+    },
+    "Button": {
+      "cardMode": "column"
+    },
+    "AlertDialog": {
+      "cardMode": "single",
+      "viewport": "720x420"
+    },
+    "DropdownMenu": {
+      "cardMode": "single",
+      "viewport": "420x320"
+    },
+    "Popover": {
+      "cardMode": "single",
+      "viewport": "420x300"
+    },
+    "LocationDetailLoadingSkeleton": {
+      "cardMode": "single",
+      "viewport": "480x620"
+    },
+    "SidebarLoadingAnimation": {
+      "cardMode": "single",
+      "viewport": "480x720"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}
