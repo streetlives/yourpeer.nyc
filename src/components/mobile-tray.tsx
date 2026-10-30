@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   CATEGORIES,
   CATEGORY_ICON_SRC_MAP,
+  LOCATION_ROUTE,
   getIconPath,
   getServicesWrapper,
   YourPeerLegacyLocationData,
@@ -45,12 +46,29 @@ export function MobileTray({
   }
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    fetchLocationsDetailData(locationSlugClickedOnMobile).then((data) => {
-      setLocation(map_gogetta_to_yourpeer(data, true));
-      setLoading(false);
-    });
-  }, [locationSlugClickedOnMobile]);
+    setLocation(undefined);
+    fetchLocationsDetailData(locationSlugClickedOnMobile)
+      .then((data) => {
+        if (cancelled) return;
+        setLocation(map_gogetta_to_yourpeer(data, true));
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoading(false);
+        setLocationSlugClickedOnMobile(undefined);
+        // The server route handles unavailable locations, outages, and old slugs.
+        router.push(
+          `/${LOCATION_ROUTE}/${encodeURIComponent(locationSlugClickedOnMobile)}`,
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [locationSlugClickedOnMobile, router, setLocationSlugClickedOnMobile]);
 
   return (
     <div
