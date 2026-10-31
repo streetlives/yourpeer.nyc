@@ -851,7 +851,10 @@ describe("getDaySchedule", () => {
     expect(getDaySchedule(fridayNights, [], "2026-11-08").hours).toEqual([]);
   });
 
-  test("special hours on the next date end overnight hours at midnight", () => {
+  test("special hours on the next date don't cut overnight hours short", () => {
+    // Each occurrence belongs to the day it starts on, as in Google Calendar
+    // and the API's openAt search: Friday night runs until 2 AM even when
+    // Saturday is closed.
     const fridayNights = { "5": [hours("20:00:00", "02:00:00")] };
     const closedSaturday: ScheduleData = {
       ...thanksgiving,
@@ -863,22 +866,22 @@ describe("getDaySchedule", () => {
       getDaySchedule(fridayNights, [closedSaturday], "2026-11-07"),
     ).toEqual({
       date: "2026-11-07",
-      hours: [],
-      intervals: [],
+      hours: ["midnight–2 AM"],
+      intervals: [{ open: 0, close: 120 }],
       special: { label: null, closed: true },
       notes: [],
     });
-    // Saturday 1 AM (EST): the closure wins over Friday night's hours.
+    // Saturday 1 AM (EST): still Friday night's hours.
     expect(
       getOpenStatus(fridayNights, new Date("2026-11-07T01:00:00-05:00"), [
         closedSaturday,
       ])?.label,
-    ).toBe("Closed · Opens Friday at 8 PM");
+    ).toBe("Open now · Closes soon at 2 AM");
     expect(
       getOpenStatus(fridayNights, new Date("2026-11-06T22:00:00-05:00"), [
         closedSaturday,
       ])?.label,
-    ).toBe("Open now · Closes tomorrow at midnight");
+    ).toBe("Open now · Closes tomorrow at 2 AM");
   });
 
   test("overnight hours split at midnight run into the next day", () => {

@@ -80,7 +80,11 @@ export default function Service({
   // otherwise, check that description, info are non-empty
   // or that there are some docs required
   // or that there is a schedule we can describe
-  const scheduleText = formatSchedule(service.schedule, service.specialHours);
+  const scheduleText = formatSchedule(
+    service.schedule,
+    service.specialHours,
+    now ?? undefined,
+  );
   const scheduleNotes = getScheduleNotes(service.schedule);
   const hasSomethingToShow = service.closed
     ? !!service.info.length

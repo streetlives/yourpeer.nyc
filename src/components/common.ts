@@ -596,13 +596,18 @@ export interface ScheduleData {
   weekday: number | null;
   occasion: string | null;
   // HSDS 3.0 schedule fields. Optional because older API responses lack them.
-  freq?: "WEEKLY" | "MONTHLY" | null;
+  freq?: "WEEKLY" | "MONTHLY" | "YEARLY" | null;
   interval?: number | null;
   byday?: string | null; // RFC 5545 BYDAY, e.g. "FR", "2FR", "-1MO"
   bymonthday?: string | null;
   valid_from?: string | null; // YYYY-MM-DD
   valid_to?: string | null; // YYYY-MM-DD
   description?: string | null;
+  // Dates a repeating row skips, like deleting one occurrence in Google
+  // Calendar (YYYY-MM-DD).
+  exdates?: string[] | null;
+  // RFC 5545 BYMONTH, e.g. "12" or "6,7,8": the months a rule applies in.
+  bymonth?: string | null;
   timezone?: string | null;
   createdAt: Date;
   updatedAt: Date;
