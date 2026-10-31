@@ -203,9 +203,11 @@ export function findConflicts(rows, from, days = 366) {
         date,
       );
     }
+    // Yesterday's hours that reach midnight or later, so 10 PM–midnight touches
+    // midnight–6 AM.
     const intervals = [
       ...intervalsOn(rows, addDays(date, -1))
-        .filter(({ close }) => close > MINUTES_PER_DAY)
+        .filter(({ close }) => close >= MINUTES_PER_DAY)
         .map((interval) => ({
           ...interval,
           open: interval.open - MINUTES_PER_DAY,
@@ -216,7 +218,14 @@ export function findConflicts(rows, from, days = 366) {
     intervals.forEach((later, i) => {
       intervals
         .slice(0, i)
-        .filter((earlier) => later.open <= earlier.close)
+        // Ranges that only touch clash when they could be one range: together
+        // under a day. Whole days in a row (24/7) are left alone.
+        .filter(
+          (earlier) =>
+            later.open < earlier.close ||
+            (later.open === earlier.close &&
+              later.close - earlier.open < MINUTES_PER_DAY),
+        )
         .forEach((earlier) => {
           const pair = [
             rows.indexOf(earlier.row),

@@ -197,6 +197,30 @@ describe("formatSchedule with Google Calendar-style series", () => {
     ).toBe("Closed · Opens Monday at 9 AM");
   });
 
+  test("names every month of a closure that repeats in several", () => {
+    const service = serviceWith([
+      weekdays,
+      { closed: true, freq: "YEARLY", bymonth: "6,7,8", bymonthday: "1" },
+      { closed: true, freq: "YEARLY", bymonth: "1,7", byday: "1MO" },
+    ]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "Mon–Fri: 9 AM–5 PM. Closed the 1st of June, July, and August and " +
+        "every 1st Monday of January and July.",
+    );
+  });
+
+  test("finds the next opening of hours in one month a year", () => {
+    const service = serviceWith([{ ...saturdays, bymonth: "12" }]);
+    // Monday, March 1, 2027; the first Saturday in December is the 4th.
+    expect(
+      getOpenStatus(
+        service.schedule,
+        fromNyTime("2027-03-01T10:00"),
+        service.specialHours,
+      )?.label,
+    ).toBe("Closed · Opens Saturday, December 4 at 9 AM");
+  });
+
   test("names hours that run in some months only", () => {
     const service = serviceWith([weekdays, { ...saturdays, bymonth: "6,7,8" }]);
     expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(

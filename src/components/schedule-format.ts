@@ -42,6 +42,9 @@ const BYDAY_CODES = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
 // How far ahead the open status looks for the next opening when a schedule
 // has dates or monthly rules: long enough to get past a closed month.
 const CALENDAR_LOOKAHEAD_DAYS = 62;
+// A whole year when rules keep to some months (December only, or closed all
+// summer), so the next opening is found however far off it is.
+const YEARLY_LOOKAHEAD_DAYS = 366;
 // How far ahead it follows hours open without a break to find when they
 // close; open longer than that, it gives no closing time.
 const CALENDAR_CLOSING_LIMIT_DAYS = 366;
@@ -643,7 +646,11 @@ const ALL_MONTH_DAYS = Array.from({ length: 31 }, (_, i) => i + 1).join(",");
 // A closure that repeats: "every December 25 (Christmas Day)", "every 4th
 // Thursday of November", "all of August", "the last Friday of every month".
 function describeRecurringClosure(row: ScheduleData): string {
-  const month = row.bymonth ? monthName(Number(row.bymonth.split(",")[0])) : "";
+  const months = (row.bymonth || "")
+    .split(",")
+    .filter(Boolean)
+    .map((month) => monthName(Number(month)));
+  const month = joinWithAnd(months);
   const label = row.description ? ` (${row.description})` : "";
   if (row.byday) {
     const parts = row.byday
@@ -661,9 +668,14 @@ function describeRecurringClosure(row: ScheduleData): string {
   if (month && row.bymonthday === ALL_MONTH_DAYS)
     return `all of ${month}${label}`;
   const days = (row.bymonthday || "").split(",").map(Number);
-  return month
-    ? `every ${month} ${joinWithAnd(days.map(String))}${label}`
-    : `the ${joinWithAnd(days.map((n) => (n === -1 ? "last day" : ordinalNumber(n))))} of every month${label}`;
+  const dayNames = joinWithAnd(
+    days.map((n) => (n === -1 ? "last day" : ordinalNumber(n))),
+  );
+  if (months.length === 1) {
+    return `every ${month} ${joinWithAnd(days.map(String))}${label}`;
+  }
+  // "the 1st of June, July, and August", "the 1st of every month".
+  return `the ${dayNames} of ${month || "every month"}${label}`;
 }
 
 // Days of the month: "15th of the month: 9 AM–5 PM", "Last day of every
@@ -1073,8 +1085,13 @@ function getCalendarOpenStatus(
     });
   };
 
+  const lookahead = [...rows, ...specialHours].some(
+    (row) => row.bymonth || row.freq === "YEARLY",
+  )
+    ? YEARLY_LOOKAHEAD_DAYS
+    : CALENDAR_LOOKAHEAD_DAYS;
   const timeline = mergeIntervals(
-    Array.from({ length: CALENDAR_LOOKAHEAD_DAYS + 2 }, (_, index) =>
+    Array.from({ length: lookahead + 2 }, (_, index) =>
       intervalsOn(index - 1),
     ).flat(),
   );
@@ -1086,7 +1103,7 @@ function getCalendarOpenStatus(
     // Open to the end of the days looked at: follow the hours on from there
     // until they close, so the lookahead's end isn't taken for a closing time.
     let close = openInterval.close;
-    let offset = CALENDAR_LOOKAHEAD_DAYS + 1;
+    let offset = lookahead + 1;
     for (; close >= offset * MINUTES_PER_DAY; offset++) {
       if (offset > CALENDAR_CLOSING_LIMIT_DAYS) {
         return { open: true, closingSoon: false, label: "Open now" };
