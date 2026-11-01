@@ -49,6 +49,7 @@ import moment from "moment";
 import axios from "axios";
 import { getAuthToken } from "@/components/auth";
 import { permanentRedirect } from "next/navigation";
+import { isOneOff, isRecurringClosure } from "./schedule-rules";
 
 const NEXT_PUBLIC_GO_GETTA_PROD_URL = process.env.NEXT_PUBLIC_GO_GETTA_PROD_URL;
 const DEFAULT_PAGE_SIZE = 20;
@@ -307,12 +308,11 @@ export async function getFullLocationData({
   });
 }
 
-// Special hours: dated rows that close the service or give it other hours on
-// those dates only (a closed row with dates, or any dated row with no weekday
-// or BYDAY).
+// Special hours: dated one-offs that close the service or give it other hours
+// on those dates only, and closures that repeat ("every December 25").
+// schedule-rules.js tells them from repeating hours.
 const isSpecialHours = (row: ScheduleData) =>
-  !!(row.valid_from || row.valid_to) &&
-  (row.closed || (row.weekday == null && !row.byday));
+  isOneOff(row) || isRecurringClosure(row);
 
 const BYDAY_WEEKDAYS: Record<string, number> = {
   MO: 1,
