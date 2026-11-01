@@ -263,6 +263,31 @@ describe("formatSchedule with Google Calendar-style series", () => {
     );
   });
 
+  test("describes yearly hours on weekdays, which come without a weekday of their own", () => {
+    // "Every Saturday in December", and every other year "every Sunday in
+    // December": BYDAY alone names the weekday.
+    const yearly = { freq: "YEARLY", opens_at: "10:00", closes_at: "14:00" };
+    const service = serviceWith([
+      weekdays,
+      { ...yearly, bymonth: "12", byday: "SA" },
+      {
+        ...yearly,
+        bymonth: "12",
+        byday: "SU",
+        interval: 2,
+        valid_from: "2025-12-01",
+      },
+    ]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "Mon–Fri: 9 AM–5 PM. In December: Sat: 10 AM–2 PM; Every other year: Sun 10 AM–2 PM",
+    );
+    // Saturday, December 5, 2026.
+    expect(
+      getDaySchedule(service.schedule, service.specialHours!, "2026-12-05")
+        .hours,
+    ).toEqual(["10 AM–2 PM"]);
+  });
+
   test("leaves out a start date that has passed", () => {
     const service = serviceWith([
       {
