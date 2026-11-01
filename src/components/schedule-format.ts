@@ -15,7 +15,7 @@ import { ScheduleData, YourPeerLegacyScheduleData } from "./common";
 // range, and special hours: dated rows that close the service or give it
 // other hours on those dates ("Closed December 25 (Christmas Day)").
 
-import { occursOn, overridesOn } from "./schedule-rules";
+import { occursOn, overridesOn, recursOn } from "./schedule-rules";
 
 const MINUTES_PER_DAY = 24 * 60;
 const MINUTES_PER_WEEK = 7 * MINUTES_PER_DAY;
@@ -611,18 +611,32 @@ function describeClosureLimits(row: ScheduleData, today: string): string {
   const dates = `${from > today ? ` from ${formatDate(from, true)}` : ""}${
     to ? ` until ${formatDate(to, true)}` : ""
   }`;
+  // Only skipped dates the closure would have fallen on count. withWeekdays
+  // gives a closure on several weekdays one row per weekday, so its whole
+  // byday decides.
+  const rule = { ...row, exdates: [], weekday: row.byday ? null : row.weekday };
   const skipped = Array.from(
     new Set((row.exdates || []).map((date) => date.slice(0, 10))),
   )
-    .filter((date) => date >= today && (!to || date <= to))
+    .filter((date) => date >= today && recursOn(rule, date))
     .sort();
-  let except = "";
-  if (skipped.length) {
-    except =
-      row.freq === "YEARLY"
-        ? ` except in ${joinWithAnd(skipped.map((date) => date.slice(0, 4)))}`
-        : ` except ${joinWithAnd(skipped.map((date) => formatDate(date, true)))}`;
-  }
+  if (!skipped.length) return `${every}${dates}`;
+  // "except in 2026" when it skips every date it falls on that year.
+  const years = Array.from(new Set(skipped.map((date) => date.slice(0, 4))));
+  const datesOfYear = (year: string) =>
+    Array.from({ length: 366 }, (_, i) =>
+      new Date(Date.UTC(Number(year), 0, 1 + i)).toISOString().slice(0, 10),
+    ).filter((date) => date.startsWith(year));
+  const wholeYears =
+    row.freq === "YEARLY" &&
+    years.every((year) =>
+      datesOfYear(year)
+        .filter((date) => recursOn(rule, date))
+        .every((date) => skipped.includes(date)),
+    );
+  const except = wholeYears
+    ? ` except in ${joinWithAnd(years)}`
+    : ` except ${joinWithAnd(skipped.map((date) => formatDate(date, true)))}`;
   return `${every}${dates}${except}`;
 }
 

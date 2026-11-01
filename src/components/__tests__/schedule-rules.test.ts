@@ -200,14 +200,21 @@ describe("formatSchedule with Google Calendar-style series", () => {
   test("names the coming dates a closure that repeats skips", () => {
     const service = serviceWith([
       weekdays,
-      { closed: true, freq: "YEARLY", bymonth: "1", bymonthday: "1" },
+      // A skipped date the closure doesn't fall on changes nothing.
+      {
+        closed: true,
+        freq: "YEARLY",
+        bymonth: "1",
+        bymonthday: "1",
+        exdates: ["2026-12-31"],
+      },
       {
         closed: true,
         freq: "YEARLY",
         bymonth: "12",
         bymonthday: "25",
-        // The skip that has passed goes unmentioned.
-        exdates: ["2025-12-25", "2026-12-25"],
+        // The skip that has passed goes unmentioned, and so does December 24.
+        exdates: ["2025-12-25", "2026-12-24", "2026-12-25"],
         description: "Christmas Day",
       },
       {
@@ -216,11 +223,20 @@ describe("formatSchedule with Google Calendar-style series", () => {
         byday: "-1FR",
         exdates: ["2026-11-27"],
       },
+      // Skipping one of its two dates in 2027 isn't skipping 2027.
+      {
+        closed: true,
+        freq: "YEARLY",
+        bymonth: "12",
+        bymonthday: "24,31",
+        exdates: ["2027-12-24"],
+      },
     ]);
     expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
       "Mon–Fri: 9 AM–5 PM. Closed every January 1. " +
         "Closed every December 25 (Christmas Day) except in 2026. " +
-        "Closed the last Friday of every month except November 27, 2026.",
+        "Closed the last Friday of every month except November 27, 2026. " +
+        "Closed every December 24 and 31 except December 24, 2027.",
     );
     // The skipped last Friday of November 2026 keeps its usual hours.
     expect(
