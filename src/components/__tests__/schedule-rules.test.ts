@@ -228,6 +228,41 @@ describe("formatSchedule with Google Calendar-style series", () => {
     );
   });
 
+  test("names the months of hours that run in some months only on their own", () => {
+    const service = serviceWith([{ ...saturdays, bymonth: "6,7,8" }]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "In June, July, and August: Sat: 9 AM–5 PM",
+    );
+  });
+
+  test("describes hours on days of the year", () => {
+    const yearly = { freq: "YEARLY", opens_at: "10:00", closes_at: "14:00" };
+    const service = serviceWith([
+      weekdays,
+      { ...yearly, bymonth: "12", bymonthday: "25" },
+      {
+        ...yearly,
+        bymonth: "12",
+        bymonthday: "25",
+        opens_at: "16:00",
+        closes_at: "18:00",
+      },
+      {
+        ...yearly,
+        bymonth: "11",
+        byday: "4TH",
+        weekday: 4,
+        interval: 2,
+        valid_from: "2025-11-01",
+      },
+    ]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "Mon–Fri: 9 AM–5 PM; " +
+        "Every 4th Thursday of November (every other year): 10 AM–2 PM; " +
+        "Every December 25: 10 AM–2 PM and 4–6 PM",
+    );
+  });
+
   test("leaves out a start date that has passed", () => {
     const service = serviceWith([
       {

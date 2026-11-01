@@ -55,6 +55,12 @@ const toWeekday = (weekday: number) => (weekday === 0 ? 7 : weekday);
 // counted from valid_from, and are described and laid out separately.
 const repeatsEveryFew = (row: ScheduleData) => (row.interval ?? 1) > 1;
 
+// Rows that repeat every year on days they name: "every December 25", "every
+// 4th Thursday of November". Their phrase names the months, so it doesn't get
+// an "In December" label as well.
+const onDaysOfTheYear = (row: ScheduleData) =>
+  row.freq === "YEARLY" && (!!row.bymonthday || /\d/.test(row.byday || ""));
+
 // The weeks of the month in an ordinal BYDAY for the row's weekday: [2] for
 // "2FR", [1, 2] for "1FR,2FR", [-1] for "-1FR" (the last Friday). Empty when
 // the row repeats every week.
@@ -511,7 +517,13 @@ function formatEveryFew(rows: ScheduleData[]): string[] {
   const groups = new Map<string, ScheduleData[]>();
   rows.forEach((row) => {
     if (row.closed || !row.opens_at || !row.closes_at) return;
-    const key = `${row.freq === "MONTHLY" ? "month" : "week"}|${row.interval}`;
+    const unit =
+      row.freq === "MONTHLY"
+        ? "month"
+        : row.freq === "YEARLY"
+          ? "year"
+          : "week";
+    const key = `${unit}|${row.interval}`;
     groups.set(key, [...(groups.get(key) || []), { ...row, interval: null }]);
   });
   return Array.from(groups).flatMap(([key, group]) => {
@@ -624,7 +636,7 @@ function formatSpecialHours(specialHours: ScheduleData[]): string[] {
   });
   return [
     ...(repeating.length
-      ? [`Closed ${joinWithAnd(repeating.map(describeRecurringClosure))}`]
+      ? [`Closed ${joinWithAnd(repeating.map(describeRecurringDays))}`]
       : []),
     ...(months.length ? [`Closed in ${joinWithAnd(months)}`] : []),
     ...(closedDates.length ? [`Closed ${joinWithAnd(closedDates)}`] : []),
@@ -643,9 +655,10 @@ const monthName = (month: number) =>
 
 const ALL_MONTH_DAYS = Array.from({ length: 31 }, (_, i) => i + 1).join(",");
 
-// A closure that repeats: "every December 25 (Christmas Day)", "every 4th
-// Thursday of November", "all of August", "the last Friday of every month".
-function describeRecurringClosure(row: ScheduleData): string {
+// The days a closure that repeats, or hours on days of the year, fall on:
+// "every December 25 (Christmas Day)", "every 4th Thursday of November", "all
+// of August", "the last Friday of every month".
+function describeRecurringDays(row: ScheduleData): string {
   const months = (row.bymonth || "")
     .split(",")
     .filter(Boolean)
@@ -678,18 +691,24 @@ function describeRecurringClosure(row: ScheduleData): string {
   return `the ${dayNames} of ${month || "every month"}${label}`;
 }
 
+// "15th", "1st and last day".
+const describeMonthDays = (bymonthday: string) =>
+  joinWithAnd(
+    bymonthday
+      .split(",")
+      .map(Number)
+      .map((n) => (n === -1 ? "last day" : ordinalNumber(n))),
+  );
+
 // Days of the month: "15th of the month: 9 AM–5 PM", "Last day of every
 // other month: 10 AM–2 PM".
 function formatMonthDays(rows: ScheduleData[]): string[] {
-  const dayName = (n: number) => (n === -1 ? "last day" : ordinalNumber(n));
   return rows
     .filter(
       (row) => row.bymonthday && !row.closed && row.opens_at && row.closes_at,
     )
     .map((row) => {
-      const days = joinWithAnd(
-        row.bymonthday!.split(",").map(Number).map(dayName),
-      );
+      const days = describeMonthDays(row.bymonthday!);
       const months =
         (row.interval ?? 1) > 1
           ? `${everyNth(row.interval!)} month`
@@ -700,15 +719,43 @@ function formatMonthDays(rows: ScheduleData[]): string[] {
     });
 }
 
-// Weekly, monthly, every-few and day-of-the-month phrases for some rows.
+// Hours on days of the year, in calendar order: "Every 4th Thursday of
+// November (every other year): 9 AM–1 PM", "Every December 25: 10 AM–2 PM".
+function formatYearly(rows: ScheduleData[]): string[] {
+  const byDays = new Map<string, { month: number; intervals: Interval[] }>();
+  rows.forEach((row) => {
+    if (row.closed || !row.opens_at || !row.closes_at) return;
+    const every = repeatsEveryFew(row)
+      ? ` (${everyNth(row.interval!)} year)`
+      : "";
+    const days = `${describeRecurringDays({ ...row, description: null })}${every}`;
+    const month = Number((row.bymonth || "").split(",")[0]) || 0;
+    const entry = byDays.get(days) || { month, intervals: [] };
+    entry.intervals.push(toInterval(row.opens_at, row.closes_at));
+    byDays.set(days, entry);
+  });
+  return Array.from(byDays)
+    .sort(([, a], [, b]) => a.month - b.month)
+    .map(([days, { intervals }]) =>
+      capitalize(
+        `${days}: ${joinWithAnd(mergeIntervals(intervals).map(formatInterval))}`,
+      ),
+    );
+}
+
+// Weekly, monthly, every-few, day-of-the-month and day-of-the-year phrases
+// for some rows.
 function describeRows(rows: ScheduleData[]) {
-  const weekly = formatWeekly(normalizeSchedule(groupByWeekday(rows)));
+  const yearly = rows.filter(onDaysOfTheYear);
+  const others = rows.filter((row) => !onDaysOfTheYear(row));
+  const weekly = formatWeekly(normalizeSchedule(groupByWeekday(others)));
   return {
     phrases: [
       ...weekly.phrases,
-      ...formatMonthly(rows.filter((row) => !repeatsEveryFew(row))),
-      ...formatEveryFew(rows.filter(repeatsEveryFew)),
-      ...formatMonthDays(rows),
+      ...formatMonthly(others.filter((row) => !repeatsEveryFew(row))),
+      ...formatEveryFew(others.filter(repeatsEveryFew)),
+      ...formatMonthDays(others),
+      ...formatYearly(yearly),
     ],
     notes: weekly.notes,
   };
@@ -798,10 +845,12 @@ export function formatSchedule(
   const today = newYorkDate(now);
   // Rows that start in the future or stop on a date run in their own date
   // range: "Until November 30: Sat 9 AM–5 PM. From December 1: Sat 10 AM–2 PM".
-  const rangeKey = ({ valid_from, valid_to, bymonth }: ScheduleData) => {
+  const rangeKey = (row: ScheduleData) => {
+    const { valid_from, valid_to } = row;
     const from =
       valid_from && valid_from.slice(0, 10) > today ? valid_from : "";
-    return `${from.slice(0, 10)}|${(valid_to || "").slice(0, 10)}|${bymonth || ""}`;
+    const months = onDaysOfTheYear(row) ? "" : row.bymonth || "";
+    return `${from.slice(0, 10)}|${(valid_to || "").slice(0, 10)}|${months}`;
   };
   // Hours with no dates first, then those that stop on a date, then those
   // that start later, each by date; hours in some months only after those.
@@ -816,7 +865,8 @@ export function formatSchedule(
 
   let sentences: string[];
   let notes: string[];
-  if (ranges.length <= 1) {
+  // Hours in some months only always say which months, even on their own.
+  if (ranges.length <= 1 && !ranges[0]?.split("|")[2]) {
     const described = describeRows(rows);
     sentences = described.phrases.length ? [described.phrases.join("; ")] : [];
     const validRange = formatValidRange(rows);
@@ -866,21 +916,49 @@ export function getScheduleNotes(
   const rows = allRows(schedule).filter(
     (row) => !row.closed && row.opens_at && row.closes_at,
   );
-  const openDays = new Set(rows.map((row) => toWeekday(row.weekday!)));
-  const daysByNote = new Map<string, Set<number>>();
+  // Rows on days of the month have no weekday: they are named by their days.
+  const dayOf = (row: ScheduleData) =>
+    row.weekday != null
+      ? toWeekday(row.weekday)
+      : `${row.bymonthday || ""}|${row.bymonth || ""}`;
+  const openDays = new Set(rows.map(dayOf));
+  const openWeekdays = new Set(
+    rows.map(dayOf).filter((day): day is number => typeof day === "number"),
+  );
+  const rowsByNote = new Map<string, ScheduleData[]>();
   rows.forEach((row) => {
     const note = row.description?.trim();
     if (!note) return;
-    const days = daysByNote.get(note) || new Set<number>();
-    days.add(toWeekday(row.weekday!));
-    daysByNote.set(note, days);
+    rowsByNote.set(note, [...(rowsByNote.get(note) || []), row]);
   });
 
-  return Array.from(daysByNote.entries()).map(([note, days]) =>
-    days.size === openDays.size
-      ? note
-      : `${formatDays(Array.from(days), openDays).label}: ${note}`,
-  );
+  return Array.from(rowsByNote.entries()).map(([note, noteRows]) => {
+    if (new Set(noteRows.map(dayOf)).size === openDays.size) return note;
+    const weekdays = Array.from(
+      new Set(
+        noteRows
+          .filter((row) => row.weekday != null)
+          .map((row) => toWeekday(row.weekday!)),
+      ),
+    );
+    const labels = [
+      ...(weekdays.length ? [formatDays(weekdays, openWeekdays).label] : []),
+      ...Array.from(
+        new Set(
+          noteRows
+            .filter((row) => row.weekday == null && row.bymonthday)
+            .map((row) =>
+              capitalize(
+                onDaysOfTheYear(row)
+                  ? describeRecurringDays({ ...row, description: null })
+                  : `${describeMonthDays(row.bymonthday!)} of the month`,
+              ),
+            ),
+        ),
+      ),
+    ];
+    return labels.length ? `${labels.join(", ")}: ${note}` : note;
+  });
 }
 
 // Minutes since Monday 00:00 in New York for the given instant.

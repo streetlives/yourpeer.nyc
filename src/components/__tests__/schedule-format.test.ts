@@ -806,6 +806,22 @@ describe("getScheduleNotes", () => {
   test("no notes", () => {
     expect(getScheduleNotes({ 1: [withNote(null)] })).toEqual([]);
   });
+
+  test("a note on days of the month names them", () => {
+    const fifteenth = {
+      ...withNote(supplies),
+      freq: "MONTHLY",
+      bymonthday: "15",
+    };
+    expect(
+      getScheduleNotes({
+        1: [withNote(null)],
+        5: [withNote(arriveBy)],
+        // Rows on days of the month have no weekday to group by.
+        [NaN]: [fifteenth as ScheduleData],
+      }),
+    ).toEqual([`Fri: ${arriveBy}`, `15th of the month: ${supplies}`]);
+  });
 });
 
 describe("getDaySchedule", () => {
