@@ -197,6 +197,79 @@ describe("formatSchedule with Google Calendar-style series", () => {
     ).toBe("Closed · Opens Monday at 9 AM");
   });
 
+  test("names the coming dates a closure that repeats skips", () => {
+    const service = serviceWith([
+      weekdays,
+      { closed: true, freq: "YEARLY", bymonth: "1", bymonthday: "1" },
+      {
+        closed: true,
+        freq: "YEARLY",
+        bymonth: "12",
+        bymonthday: "25",
+        // The skip that has passed goes unmentioned.
+        exdates: ["2025-12-25", "2026-12-25"],
+        description: "Christmas Day",
+      },
+      {
+        closed: true,
+        freq: "MONTHLY",
+        byday: "-1FR",
+        exdates: ["2026-11-27"],
+      },
+    ]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "Mon–Fri: 9 AM–5 PM. Closed every January 1. " +
+        "Closed every December 25 (Christmas Day) except in 2026. " +
+        "Closed the last Friday of every month except November 27, 2026.",
+    );
+    // The skipped last Friday of November 2026 keeps its usual hours.
+    expect(
+      getDaySchedule(service.schedule, service.specialHours!, "2026-11-27")
+        .hours,
+    ).toEqual(["9 AM–5 PM"]);
+  });
+
+  test("names how often and when a closure that repeats applies", () => {
+    const service = serviceWith([
+      weekdays,
+      { closed: true, freq: "YEARLY", bymonth: "12", byday: "MO,FR" },
+      {
+        closed: true,
+        freq: "YEARLY",
+        bymonth: "7",
+        bymonthday: "4",
+        interval: 2,
+        valid_from: "2025-07-01",
+      },
+      {
+        closed: true,
+        freq: "MONTHLY",
+        byday: "1MO,-1FR",
+        valid_from: "2026-12-01",
+        valid_to: "2027-03-31",
+      },
+      // Ended, so left out.
+      {
+        closed: true,
+        freq: "YEARLY",
+        bymonth: "1",
+        bymonthday: "1",
+        valid_to: "2026-01-31",
+      },
+    ]);
+    expect(formatSchedule(service.schedule, service.specialHours, now)).toBe(
+      "Mon–Fri: 9 AM–5 PM. Closed Mondays and Fridays in December. " +
+        "Closed every July 4 (every other year). " +
+        "Closed the 1st Monday and last Friday of every month " +
+        "from December 1, 2026 until March 31, 2027.",
+    );
+    // Friday, December 4, 2026.
+    expect(
+      getDaySchedule(service.schedule, service.specialHours!, "2026-12-04")
+        .hours,
+    ).toEqual([]);
+  });
+
   test("names every month of a closure that repeats in several", () => {
     const service = serviceWith([
       weekdays,

@@ -597,13 +597,53 @@ const isWholeMonth = (from: string, to: string) => {
   return start.getUTCDate() === 1 && end.getTime() === lastDay.getTime();
 };
 
+// What limits a closure that repeats, from `today` (YYYY-MM-DD) on: how often
+// it repeats, its dates, and the coming dates it skips, as in " (every other
+// year) until December 31, 2028 except in 2026". Empty when it always applies.
+function describeClosureLimits(row: ScheduleData, today: string): string {
+  const unit =
+    row.freq === "YEARLY" ? "year" : row.freq === "MONTHLY" ? "month" : "week";
+  const every = repeatsEveryFew(row)
+    ? ` (${everyNth(row.interval!)} ${unit})`
+    : "";
+  const from = (row.valid_from || "").slice(0, 10);
+  const to = (row.valid_to || "").slice(0, 10);
+  const dates = `${from > today ? ` from ${formatDate(from, true)}` : ""}${
+    to ? ` until ${formatDate(to, true)}` : ""
+  }`;
+  const skipped = Array.from(
+    new Set((row.exdates || []).map((date) => date.slice(0, 10))),
+  )
+    .filter((date) => date >= today && (!to || date <= to))
+    .sort();
+  let except = "";
+  if (skipped.length) {
+    except =
+      row.freq === "YEARLY"
+        ? ` except in ${joinWithAnd(skipped.map((date) => date.slice(0, 4)))}`
+        : ` except ${joinWithAnd(skipped.map((date) => formatDate(date, true)))}`;
+  }
+  return `${every}${dates}${except}`;
+}
+
 // Special hours: "Closed in December", "Closed December 25 (Christmas Day)
-// and January 1", "December 31 (New Year's Eve): 10 AM–2 PM".
-function formatSpecialHours(specialHours: ScheduleData[]): string[] {
+// and January 1", "December 31 (New Year's Eve): 10 AM–2 PM". A closure that
+// repeats only some of the time gets a sentence of its own: "Closed every
+// December 25 except in 2026". Closures that have ended are left out.
+function formatSpecialHours(
+  specialHours: ScheduleData[],
+  today: string,
+): string[] {
   const months: string[] = [];
   const closedDates: string[] = [];
   const openDates = new Map<string, Interval[]>();
-  const repeating = specialHours.filter((row) => row.freq);
+  const closures = specialHours.filter(
+    (row) => row.freq && !(row.valid_to && row.valid_to.slice(0, 10) < today),
+  );
+  const repeating = closures.filter(
+    (row) => !describeClosureLimits(row, today),
+  );
+  const limited = closures.filter((row) => describeClosureLimits(row, today));
   specialHours.forEach((row) => {
     if (row.freq) return;
     const { valid_from: from, description } = row;
@@ -635,9 +675,19 @@ function formatSpecialHours(specialHours: ScheduleData[]): string[] {
     }
   });
   return [
+    // withWeekdays gives a closure on several weekdays one row per weekday,
+    // so each is named once.
     ...(repeating.length
-      ? [`Closed ${joinWithAnd(repeating.map(describeRecurringDays))}`]
+      ? [
+          `Closed ${joinWithAnd(Array.from(new Set(repeating.map(describeRecurringDays))))}`,
+        ]
       : []),
+    ...new Set(
+      limited.map(
+        (row) =>
+          `Closed ${describeRecurringDays(row)}${describeClosureLimits(row, today)}`,
+      ),
+    ),
     ...(months.length ? [`Closed in ${joinWithAnd(months)}`] : []),
     ...(closedDates.length ? [`Closed ${joinWithAnd(closedDates)}`] : []),
     ...Array.from(
@@ -670,13 +720,35 @@ function describeRecurringDays(row: ScheduleData): string {
       .split(",")
       .map((part) => part.trim().match(/^(-?\d)?([A-Z]{2})$/))
       .filter((match): match is RegExpMatchArray => !!match);
-    const ordinals = joinWithAnd(
-      parts.map((match) => ORDINAL_WORDS[parseInt(match[1] || "1", 10)]),
+    const weekdayName = (code: string) =>
+      WEEKDAY_NAMES[BYDAY_CODES.indexOf(code)];
+    // Weekdays without a week of the month: every one of them, "Saturdays in
+    // December".
+    if (parts.every((match) => !match[1])) {
+      const weekdays = joinWithAnd(
+        Array.from(new Set(parts.map((match) => match[2]))).map(
+          (code) => `${weekdayName(code)}s`,
+        ),
+      );
+      return month ? `${weekdays} in ${month}${label}` : `${weekdays}${label}`;
+    }
+    // "1st and 3rd Saturday", "1st Saturday and last Sunday".
+    const byWeekday = new Map<string, string[]>();
+    parts.forEach((match) =>
+      byWeekday.set(match[2], [
+        ...(byWeekday.get(match[2]) || []),
+        ORDINAL_WORDS[parseInt(match[1] || "1", 10)],
+      ]),
     );
-    const weekday = WEEKDAY_NAMES[BYDAY_CODES.indexOf(parts[0]?.[2] || "MO")];
+    const weekdays = joinWithAnd(
+      Array.from(
+        byWeekday,
+        ([code, ordinals]) => `${joinWithAnd(ordinals)} ${weekdayName(code)}`,
+      ),
+    );
     return month
-      ? `every ${ordinals} ${weekday} of ${month}${label}`
-      : `the ${ordinals} ${weekday} of every month${label}`;
+      ? `every ${weekdays} of ${month}${label}`
+      : `the ${weekdays} of every month${label}`;
   }
   if (month && row.bymonthday === ALL_MONTH_DAYS)
     return `all of ${month}${label}`;
@@ -897,13 +969,13 @@ export function formatSchedule(
     : specialHours;
   if (!sentences.length) {
     // Only dated hours, e.g. a one-time event: "Open November 14: 10 AM–2 PM."
-    const special = formatSpecialHours(allSpecialHours).map((text) =>
+    const special = formatSpecialHours(allSpecialHours, today).map((text) =>
       text.replace(/^Except (.*): Open /, "Open $1: "),
     );
     return special.length ? `${special.join(". ")}.` : null;
   }
 
-  notes.push(...formatSpecialHours(allSpecialHours));
+  notes.push(...formatSpecialHours(allSpecialHours, today));
   return `${sentences.join(". ")}${notes.length ? `. ${notes.join(". ")}.` : ""}`;
 }
 
