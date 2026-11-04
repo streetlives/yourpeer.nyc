@@ -977,7 +977,7 @@ export interface YourPeerLegacyLocationData {
   lat: number;
   lng: number;
   area: string | null;
-  info: string[] | null;
+  info: (string | null)[] | null;
   slug: string;
   partners: boolean;
   last_updated: string;

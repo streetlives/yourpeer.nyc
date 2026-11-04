@@ -30,6 +30,7 @@ import React, { useState, type MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import LocationDetailLoadingPanel from "./location-detail/location-detail-loading-panel";
 import { useFilters } from "@/lib/store";
+import { trackDescriptionLinks } from "@/lib/track-description-links";
 
 function NoLocationsFound({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -273,11 +274,11 @@ export default function LocationsContainer({
                           <p className="text-dark mb-0.5 font-medium text-sm">
                             Closed
                           </p>
-                          {location.info ? (
+                          {location.info?.[0] ? (
                             <p
                               className="text-dark font-normal text-sm prose prose-a:text-blue"
                               dangerouslySetInnerHTML={{
-                                __html: location.info[0],
+                                __html: trackDescriptionLinks(location.info[0]),
                               }}
                             ></p>
                           ) : undefined}
