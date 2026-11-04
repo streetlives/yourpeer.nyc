@@ -334,9 +334,9 @@ export interface YourPeerParsedRequestParams {
 }
 
 export interface ParsedRequirements {
-  noRequirement: boolean;
-  referralRequired: boolean;
-  membershipRequired: boolean;
+  onlyServicesWithNoRequirements: boolean;
+  excludeReferralLetter: boolean;
+  excludeRegisteredClientOnly: boolean;
 }
 
 export interface ParsedAmenities {
@@ -497,13 +497,13 @@ export function parseRequest({
         ? (searchParams[CLOTHING_PARAM] as ClothingValues)
         : (parsedSubCategory as ClothingValues),
     [REQUIREMENT_PARAM]: {
-      noRequirement: parsedRequirements.includes(
+      onlyServicesWithNoRequirements: parsedRequirements.includes(
         REQUIREMENT_PARAM_NO_REQUIREMENTS_VALUE,
       ),
-      referralRequired: parsedRequirements.includes(
+      excludeReferralLetter: parsedRequirements.includes(
         REQUIREMENT_PARAM_REFERRAL_LETTER_VALUE,
       ),
-      membershipRequired: parsedRequirements.includes(
+      excludeRegisteredClientOnly: parsedRequirements.includes(
         REQUIREMENT_PARAM_REGISTERED_CLIENT_VALUE,
       ),
     },
