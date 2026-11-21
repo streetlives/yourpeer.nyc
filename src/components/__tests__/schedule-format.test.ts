@@ -87,7 +87,7 @@ describe("formatSchedule", () => {
     [
       "one missing day inside a run",
       on([1, 2, 4, 5, 6], ["09:00:00", "17:00:00"]),
-      "Mon–Sat: 9 AM–5 PM. Closed Wednesdays.",
+      "Mon–Sat: 9 AM–5 PM\nClosed Wednesdays",
     ],
     [
       "six days missing Sunday",
@@ -97,12 +97,12 @@ describe("formatSchedule", () => {
     [
       "six days missing midweek",
       on([1, 2, 4, 5, 6, 7], ["09:00:00", "17:00:00"]),
-      "Daily: 9 AM–5 PM. Closed Wednesdays.",
+      "Daily: 9 AM–5 PM\nClosed Wednesdays",
     ],
     [
       "weekdays with a closed midweek day",
       on([1, 2, 4, 5], ["09:00:00", "17:00:00"]),
-      "Mon–Fri: 9 AM–5 PM. Closed Wednesdays.",
+      "Mon–Fri: 9 AM–5 PM\nClosed Wednesdays",
     ],
     [
       "discontinuous days",
@@ -177,7 +177,7 @@ describe("formatSchedule", () => {
           ["17:00:00", "18:30:00"],
         ),
       },
-      "Mon–Wed and Fri: 9–11 AM, 1–3:30 PM, and 5–6:30 PM; Thu: 9–11 AM, 1–3 PM, and 5–6:30 PM",
+      "Mon–Wed and Fri: 9–11 AM, 1–3:30 PM, and 5–6:30 PM\nThu: 9–11 AM, 1–3 PM, and 5–6:30 PM",
     ],
     [
       "a closed day is noted after other groups",
@@ -185,7 +185,7 @@ describe("formatSchedule", () => {
         ...on([1, 2, 4, 5], ["09:00:00", "17:00:00"]),
         ...on([6], ["10:00:00", "14:00:00"]),
       },
-      "Mon–Fri: 9 AM–5 PM; Sat: 10 AM–2 PM. Closed Wednesdays.",
+      "Mon–Fri: 9 AM–5 PM\nSat: 10 AM–2 PM\nClosed Wednesdays",
     ],
     [
       "a day with other hours is listed, not reported closed",
@@ -193,7 +193,7 @@ describe("formatSchedule", () => {
         ...on([1, 2, 4, 5, 6], ["09:00:00", "17:00:00"]),
         ...on([3], ["10:00:00", "14:00:00"]),
       },
-      "Mon, Tue, and Thu–Sat: 9 AM–5 PM; Wed: 10 AM–2 PM",
+      "Mon, Tue, and Thu–Sat: 9 AM–5 PM\nWed: 10 AM–2 PM",
     ],
     [
       "overlapping rows are merged",
@@ -256,7 +256,7 @@ describe("formatSchedule", () => {
         ...on([1], ["00:00:00", "23:59:00"]),
         ...on([2], ["00:00:00", "06:00:00"]),
       },
-      "Mon: 24 hours; Tue: midnight–6 AM",
+      "Mon: 24 hours\nTue: midnight–6 AM",
     ],
     [
       "overnight",
@@ -280,7 +280,7 @@ describe("formatSchedule", () => {
         ...on([6, 7], ["10:00:00", "14:00:00"]),
         ...on(MON_TO_FRI, ["09:00:00", "17:00:00"]),
       },
-      "Mon–Fri: 9 AM–5 PM; Sat and Sun: 10 AM–2 PM",
+      "Mon–Fri: 9 AM–5 PM\nSat and Sun: 10 AM–2 PM",
     ],
   ])("%s", (_, schedule, expected) => {
     expect(formatSchedule(schedule)).toBe(expected);
@@ -425,7 +425,7 @@ describe("monthly and dated schedules", () => {
           ],
         },
         [],
-        "Mon–Fri: 9 AM–5 PM; 1st and 3rd Saturdays of the month: 10 AM–2 PM",
+        "Mon–Fri: 9 AM–5 PM\n1st and 3rd Saturdays of the month: 10 AM–2 PM",
       ],
       [
         "the same ordinal on several days reads as a week of the month",
@@ -466,19 +466,19 @@ describe("monthly and dated schedules", () => {
         "a date range",
         weekdays({ valid_from: "2026-03-27", valid_to: "2026-07-27" }),
         [],
-        "Mon–Fri: 9 AM–5 PM. Runs from March 27 to July 27, 2026.",
+        "Mon–Fri: 9 AM–5 PM\nRuns from March 27 to July 27, 2026",
       ],
       [
         "an open-ended range",
         weekdays({ valid_to: "2026-07-27" }),
         [],
-        "Mon–Fri: 9 AM–5 PM. Runs until July 27, 2026.",
+        "Mon–Fri: 9 AM–5 PM\nRuns until July 27, 2026",
       ],
       [
         "a closed month",
         { 5: [nineToFive({ byday: "2FR" })] },
         [december],
-        "2nd Friday of the month: 9 AM–5 PM. Closed in December.",
+        "2nd Friday of the month: 9 AM–5 PM\nClosed in December",
       ],
     ])("%s", (_, schedule, exceptions, expected) => {
       expect(formatSchedule(schedule, exceptions)).toBe(expected);
@@ -516,10 +516,10 @@ describe("monthly and dated schedules", () => {
 
     test("describes every few months or weeks", () => {
       expect(formatSchedule(everyOtherMonth)).toBe(
-        "2nd Friday of every other month: 9 AM–5 PM. Runs from September 1, 2026.",
+        "2nd Friday of every other month: 9 AM–5 PM\nRuns from September 1, 2026",
       );
       expect(formatSchedule(everyOtherWeek)).toBe(
-        "Every other week: Fri 9 AM–5 PM. Runs from October 2, 2026.",
+        "Every other week: Fri 9 AM–5 PM\nRuns from October 2, 2026",
       );
       expect(
         formatSchedule({
@@ -531,7 +531,7 @@ describe("monthly and dated schedules", () => {
             }),
           ],
         }),
-      ).toBe("Every 3rd month: Mon 9 AM–5 PM. Runs from October 1, 2026.");
+      ).toBe("Every 3rd month: Mon 9 AM–5 PM\nRuns from October 1, 2026");
     });
 
     test.each<
@@ -678,7 +678,7 @@ describe("week lists and special hours", () => {
 
   test("labelled special hours", () => {
     expect(formatSchedule(weekdays, [christmas, newYearsEve])).toBe(
-      "Mon–Fri: 9 AM–5 PM. Closed December 25 (Christmas Day). Except December 31 (New Year's Eve): Open 10 AM–2 PM.",
+      "Mon–Fri: 9 AM–5 PM\nClosed December 25 (Christmas Day)\nExcept December 31 (New Year's Eve): Open 10 AM–2 PM",
     );
   });
 
@@ -696,16 +696,16 @@ describe("week lists and special hours", () => {
         renovation("09:00:00", "10:00:00"),
       ]),
     ).toBe(
-      "Mon–Fri: 9 AM–5 PM. Except October 23 to October 30 (Renovation): Open 9–10 AM and 1–3 PM.",
+      "Mon–Fri: 9 AM–5 PM\nExcept October 23 to October 30 (Renovation): Open 9–10 AM and 1–3 PM",
     );
   });
 
   test("only special hours, such as a one-time event", () => {
     expect(formatSchedule({}, [newYearsEve])).toBe(
-      "Open December 31 (New Year's Eve): 10 AM–2 PM.",
+      "Open December 31 (New Year's Eve): 10 AM–2 PM",
     );
     expect(formatSchedule({}, [christmas])).toBe(
-      "Closed December 25 (Christmas Day).",
+      "Closed December 25 (Christmas Day)",
     );
     expect(formatSchedule({}, [])).toBeNull();
   });

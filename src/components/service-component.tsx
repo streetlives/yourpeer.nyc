@@ -250,7 +250,9 @@ export default function Service({
                                 {openStatus.label}
                               </p>
                             ) : undefined}
-                            <p>{renderSchedule(scheduleText)}</p>
+                            <p className="whitespace-pre-line">
+                              {renderSchedule(scheduleText)}
+                            </p>
                             {scheduleNotes.map((note) => (
                               <p key={note} className="font-medium mt-1">
                                 {note}
