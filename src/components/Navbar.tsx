@@ -9,7 +9,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import OffCanvasMenu from "./OffCanvasMenu";
-import { GTranslateSelect } from "./gtranslate-select";
+import GoogleTranslate from "@/components/google-translate";
 import { SignInNavbarLink } from "./sign-in-navbar-link";
 import DonationBanner from "./donation-banner";
 
@@ -72,7 +72,7 @@ export default function Navbar({ background = true }: { background: boolean }) {
             </Link>
           </div>
           <div className="flex items-center space-x-2">
-            <GTranslateSelect />
+            <GoogleTranslate />
             <SignInNavbarLink />
           </div>
         </nav>

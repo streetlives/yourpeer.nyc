@@ -8,7 +8,6 @@ import type { Metadata } from "next";
 import { Footer } from "../components/footer";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import GTranslateWrapper from "@/components/gtranslate-wrapper";
 import { TranslatableText } from "@/components/translatable-text";
 import Image from "next/image";
 import ExploreServicesButton from "@/components/ExploreServicesButton";
@@ -66,7 +65,7 @@ const services = [
 export default async function HomePage() {
   return (
     <>
-      <GTranslateWrapper />
+      {/*<GTranslateWrapper />*/}
       <Navbar background={false} />
 
       <div className="relative w-full flex flex-col bg-center pt-16 overflow-hidden bg-cover bg-no-repeat bg-amber-300">
@@ -581,7 +580,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
       <Footer />
     </>
   );
