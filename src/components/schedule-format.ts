@@ -678,6 +678,11 @@ function minutesIntoWeek(now: Date): number {
   return (weekday - 1) * MINUTES_PER_DAY + hours * 60 + minutes;
 }
 
+// A closing time at midnight ends the day before it: Thursday's hours that
+// close at 00:00 Friday close "Thursday at midnight", not "Friday".
+const closingDay = (close: number) =>
+  close % MINUTES_PER_DAY === 0 ? close - 1 : close;
+
 function describeDay(target: number, now: number): string {
   const dayDifference =
     Math.floor(target / MINUTES_PER_DAY) - Math.floor(now / MINUTES_PER_DAY);
@@ -788,10 +793,10 @@ function rowsForDate(
   const weekday = toWeekday(date.getUTCDay());
   const hasHours = (row: ScheduleData) =>
     !row.closed && !!row.opens_at && !!row.closes_at;
-  const special = specialHours.filter(
-    (entry) =>
-      (entry.weekday == null || toWeekday(entry.weekday) === weekday) &&
-      isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
+  // Special hours go by their dates alone, as their description does: a
+  // weekday left on a dated closure doesn't stop it closing the date.
+  const special = specialHours.filter((entry) =>
+    isWithin(isoDate, entry.valid_from, entry.valid_to || entry.valid_from),
   );
   if (special.length) {
     return { open: special.filter(hasHours), special };
@@ -948,7 +953,7 @@ function getCalendarOpenStatus(
   }
   if (openInterval) {
     const closingSoon = openInterval.close - current <= CLOSING_SOON_MINUTES;
-    const closesAt = `${describeCalendarDay(openInterval.close, today)} at ${formatTime(openInterval.close)}`;
+    const closesAt = `${describeCalendarDay(closingDay(openInterval.close), today)} at ${formatTime(openInterval.close)}`;
     return {
       open: true,
       closingSoon,
@@ -1010,7 +1015,7 @@ export function getOpenStatus(
   );
   if (openInterval) {
     const closingSoon = openInterval.close - current <= CLOSING_SOON_MINUTES;
-    const closesAt = `${describeDay(openInterval.close, current)} at ${formatTime(openInterval.close)}`;
+    const closesAt = `${describeDay(closingDay(openInterval.close), current)} at ${formatTime(openInterval.close)}`;
     return {
       open: true,
       closingSoon,
