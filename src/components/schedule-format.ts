@@ -607,6 +607,9 @@ function formatSpecialHours(specialHours: ScheduleData[]): string[] {
   ];
 }
 
+// One line for each part of the schedule, in order: the weekly hours, hours on
+// some weeks of the month or every few weeks, then notes, closures and special
+// hours. Lines are separated by "\n".
 export function formatSchedule(
   schedule: YourPeerLegacyScheduleData,
   specialHours: ScheduleData[] = [],
@@ -623,7 +626,7 @@ export function formatSchedule(
     const special = formatSpecialHours(specialHours).map((text) =>
       text.replace(/^Except (.*): Open /, "Open $1: "),
     );
-    return special.length ? `${special.join(". ")}.` : null;
+    return special.length ? special.join("\n") : null;
   }
 
   const validRange = formatValidRange(rows);
@@ -632,7 +635,7 @@ export function formatSchedule(
     ...(validRange ? [validRange] : []),
     ...formatSpecialHours(specialHours),
   ];
-  return `${phrases.join("; ")}${notes.length ? `. ${notes.join(". ")}.` : ""}`;
+  return [...phrases, ...notes].join("\n");
 }
 
 // Notes the street team wrote on time ranges (HSDS schedule.description),
