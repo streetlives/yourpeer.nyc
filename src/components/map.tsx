@@ -28,6 +28,7 @@ import { defaultZoom, mapStyles, myLocationIcon } from "./map-common";
 import { MobileTray } from "./mobile-tray";
 import { getUrlWithNewFilterParameter } from "./navigation";
 import { shouldAutoRedirectToNearby } from "./nearby-redirect";
+import { shouldLoadGoogleMap } from "./map-loading";
 
 function isMobile(): boolean {
   return window.innerWidth < 768;
@@ -382,6 +383,29 @@ export default function LocationsMap({
     useState<string | undefined>(cookieLocationSlugClickedOnMobile);
   const [locationStubClickedOnMobile, setLocationStubClickedOnMobile] =
     useState<SimplifiedLocationData>();
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
+  const showMapViewOnMobile = useViewStore(
+    (state) => state.showMapViewOnMobile,
+  );
+
+  useEffect(() => {
+    const updateMapLoading = () => {
+      const canLoadMap = shouldLoadGoogleMap({
+        viewportWidth: window.innerWidth,
+        showMapViewOnMobile,
+        isLocationDetail: !!locationDetailStub,
+      });
+
+      // Deferring the initial load protects mobile LCP. Once the user has
+      // opened the map, keep it mounted so a list/map toggle preserves its
+      // pan and zoom state instead of constructing a new map each time.
+      setShouldLoadMap((hasLoadedMap) => hasLoadedMap || canLoadMap);
+    };
+
+    updateMapLoading();
+    window.addEventListener("resize", updateMapLoading);
+    return () => window.removeEventListener("resize", updateMapLoading);
+  }, [locationDetailStub, showMapViewOnMobile]);
 
   useEffect(() => {
     if (locationSlugClickedOnMobile) {
@@ -432,15 +456,17 @@ export default function LocationsMap({
   return (
     <>
       <div id="map" className="w-full h-full">
-        <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
-          <MapWrapper
-            locationStubs={locationStubs}
-            locationDetailStub={locationDetailStub}
-            locationStubClickedOnMobile={locationStubClickedOnMobile}
-            setLocationSlugClickedOnMobile={setLocationSlugClickedOnMobile}
-            locationSlugClickedOnMobile={locationSlugClickedOnMobile}
-          />
-        </APIProvider>
+        {shouldLoadMap && (
+          <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={["marker"]}>
+            <MapWrapper
+              locationStubs={locationStubs}
+              locationDetailStub={locationDetailStub}
+              locationStubClickedOnMobile={locationStubClickedOnMobile}
+              setLocationSlugClickedOnMobile={setLocationSlugClickedOnMobile}
+              locationSlugClickedOnMobile={locationSlugClickedOnMobile}
+            />
+          </APIProvider>
+        )}
       </div>
       {locationStubClickedOnMobile ? (
         <MobileTray
